@@ -1,0 +1,233 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  gap: 0.375rem;
+  min-width: 0;
+  min-height: 0;
+}
+
+.title {
+  margin: 0;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Text",
+    "Segoe UI",
+    sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.changeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  color: var(--color-tab-inactive);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.lockButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  color: var(--color-tab-inactive);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  cursor: pointer;
+
+  &.locked {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+}
+
+// Row viewport: centered card with side peeks and overlay chevrons.
+.viewport {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+
+  :global(.swiper) {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    margin: 0;
+  }
+
+  :global(.swiper-wrapper) {
+    height: 100%;
+  }
+
+  :global(.swiper-slide) {
+    width: 56%;
+    min-width: 0;
+    max-width: 100%;
+    height: 100%;
+    overflow: hidden;
+    opacity: 0.55;
+    transition: opacity 0.2s ease;
+  }
+
+  :global(.swiper-slide-active) {
+    opacity: 1;
+  }
+
+  :global(.swiper-slide-active) .slide {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent);
+  }
+
+  :global(.swiper-slide-active) .slideLocked {
+    border-color: #4a3f39;
+    box-shadow: 0 0 0 1px #4a3f39;
+  }
+}
+
+// Angled 3D look for the "coverflow" effect: neighbours recede with
+// depth shadows while the active card stays flat. Rotation and shadows
+// are applied by Swiper's EffectCoverflow module at runtime.
+.coverflow {
+  :global(.swiper-slide) {
+    opacity: 1;
+  }
+
+  .slide {
+    box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 0.12);
+  }
+
+  :global(.swiper-slide-active) .slide {
+    border-color: var(--color-accent);
+    box-shadow:
+      0 0 0 1px var(--color-accent),
+      0 0.5rem 1rem rgb(0 0 0 / 0.16);
+  }
+
+  :global(.swiper-slide-active) .slideLocked {
+    border-color: #4a3f39;
+    box-shadow:
+      0 0 0 1px #4a3f39,
+      0 0.5rem 1rem rgb(0 0 0 / 0.16);
+  }
+}
+
+.navButton {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  color: var(--color-oat);
+  background: var(--color-accent);
+  border: none;
+  border-radius: 50%;
+  opacity: 0.9;
+  transform: translateY(-50%);
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.prevButton {
+  left: 0.25rem;
+}
+
+.nextButton {
+  right: 0.25rem;
+}
+
+.slide {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  padding: 0.5rem;
+  overflow: hidden;
+  background: var(--color-oat);
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
+}
+
+.image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+// Pinned slide: Brown Ash border (minimalist lock state) plus a discreet
+// badge over the focused garment. The header lock button remains the
+// accessible control (aria-pressed).
+.slideLocked {
+  border-color: #4a3f39;
+}
+
+.lockBadge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  color: #4a3f39;
+  background: var(--color-oat);
+  border: 1px solid #4a3f39;
+  border-radius: 50%;
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.empty {
+  padding: 1rem;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  text-align: center;
+  background: var(--color-oat);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+}

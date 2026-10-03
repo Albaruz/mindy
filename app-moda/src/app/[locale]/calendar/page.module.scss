@@ -1,0 +1,30 @@
+// Full-bleed Warm Refuge canvas inside the centered main column.
+.page {
+  padding: 1rem 1rem 2rem;
+  margin: -1rem -1rem 0;
+  background: var(--color-canvas);
+}
+
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.month {
+  margin: 0 0 0.75rem;
+  font-family:
+    var(--font-display, Georgia),
+    Georgia,
+    "Times New Roman",
+    serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-tab-inactive);
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}

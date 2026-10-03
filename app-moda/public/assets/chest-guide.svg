@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 128" role="img" aria-label="Chest measuring guide">
+  <circle cx="48" cy="14" r="9" fill="none" stroke="#8a7a6e" stroke-width="2.5"/>
+  <path d="M30 30 Q48 26 66 30 L60 56 Q58 66 60 78 L64 102 Q48 110 32 102 L36 78 Q38 66 36 56 Z" fill="#c8796624" stroke="#4A3F39" stroke-width="2.5" stroke-linejoin="round"/>
+  <line x1="22" y1="52" x2="74" y2="52" stroke="#C87966" stroke-width="2.5" stroke-dasharray="5 3" stroke-linecap="round"/>
+  <circle cx="22" cy="52" r="2.5" fill="#C87966"/>
+  <circle cx="74" cy="52" r="2.5" fill="#C87966"/>
+</svg>

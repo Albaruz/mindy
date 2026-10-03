@@ -1,0 +1,68 @@
+@use "../styles/core/variables";
+@use "../styles/core/typography";
+@use "../styles/core/mixins" as *;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: 48rem;
+  margin: 0 auto;
+  // Clearance for the floating bottom action bar (no static tab bar).
+  padding: 1rem 1rem calc(var(--tabbar-height) + 2.5rem);
+}
+
+.appHeader {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: var(--header-height);
+  padding: 0.5rem 1rem;
+  background: color-mix(in srgb, var(--color-background) 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.appHeader img {
+  width: auto;
+  height: 2.75rem;
+  flex-shrink: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  // Monochrome logo without fill: invert to stay visible on dark background.
+  :root:not([data-theme="light"]) .appHeader img {
+    filter: invert(1);
+  }
+}
+
+:root[data-theme="dark"] .appHeader img {
+  filter: invert(1);
+}
+
+a {
+  color: inherit;
+}

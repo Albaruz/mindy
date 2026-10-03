@@ -1,0 +1,75 @@
+.bubble {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  max-width: min(24rem, calc(100vw - 2rem));
+  padding: 0.625rem 1.125rem;
+  // Warm Refuge pairing: Avena surface with Marron Ceniza text, same as
+  // the auth surfaces (see core variables).
+  background: var(--color-oat);
+  color: var(--color-auth-text);
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  box-shadow: 0 0.5rem 1.5rem rgba(74, 63, 57, 0.22);
+  animation: slide-down 0.25s ease-out;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.leaving {
+  opacity: 0;
+  transform: translateY(-0.5rem);
+}
+
+.message {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+.success .icon {
+  // Soft sage green: reads as success while staying in the earthy palette.
+  color: #6f8a5f;
+}
+
+.error {
+  border-color: var(--color-accent);
+}
+
+.error .icon {
+  // Terracota accent marks the failure state.
+  color: var(--color-accent);
+}
+
+.info .icon {
+  color: var(--color-tab-inactive);
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// The floating bubble keeps its light Warm Refuge look in dark mode too,
+// so pin the text tone: the dark auth-text value would wash out on Avena.
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .bubble {
+    color: #4a3f39;
+  }
+}
+
+:root[data-theme="dark"] .bubble {
+  color: #4a3f39;
+}

@@ -1,0 +1,205 @@
+// Editorial bento profile: Warm Refuge canvas, asymmetric grid, flat cards.
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 1rem 2rem;
+  margin: -1rem -1rem 0;
+  background: var(--color-canvas, #f9f6f0);
+}
+
+.headline {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+// Headline row with a discreet edit shortcut to the wizard.
+.headerRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.editLink {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  color: var(--color-tab-inactive, #4a3f39);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent, #c87966);
+    outline-offset: 2px;
+  }
+}
+
+// Asymmetric bento: wide color card, tall morpho + stacked fit/lifestyle.
+.bento {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.colorCard,
+.morphoCard,
+.fitCard,
+.lifeCard {
+  padding: 1.125rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.colorCard {
+  grid-column: 1 / -1;
+}
+
+.morphoCard {
+  position: relative;
+  grid-row: span 2;
+  overflow: hidden;
+}
+
+.fitCard {
+  grid-column: 2;
+}
+
+.lifeCard {
+  grid-column: 2;
+  background: var(--color-tab-inactive, #4a3f39);
+  border-color: var(--color-tab-inactive, #4a3f39);
+
+  .cardCaption,
+  .cardValue {
+    color: var(--color-oat, #f9f6f0);
+  }
+}
+
+.cardKicker {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+}
+
+.cardHero {
+  margin: 0;
+  font-family:
+    var(--font-display, Georgia),
+    Georgia,
+    serif;
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--color-tab-inactive, #4a3f39);
+}
+
+// Personality captions in italic Playfair, values in Inter.
+.cardCaption {
+  margin: 0 0 0.375rem;
+  font-family:
+    var(--font-display, Georgia),
+    Georgia,
+    serif;
+  font-size: 1.125rem;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-tab-inactive, #4a3f39);
+}
+
+.cardValue {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+
+// Overlapping flat palette dots.
+.fan {
+  display: flex;
+  margin-top: 0.75rem;
+}
+
+.fanDot {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid var(--color-surface);
+  border-radius: 50%;
+
+  & + & {
+    margin-left: -0.625rem;
+  }
+}
+
+// Continuous-line figure behind the morphology text.
+.morphoArt {
+  position: absolute;
+  right: -1rem;
+  bottom: -0.5rem;
+  width: 7rem;
+  height: auto;
+  color: var(--color-accent, #c87966);
+  opacity: 0.35;
+  stroke: currentcolor;
+}
+
+.morphoText {
+  position: relative;
+}
+
+.onboardingLink {
+  font-weight: 600;
+  color: var(--color-accent, #c87966);
+}
+
+// Inline preferences (language + theme) below the bento.
+.preferences {
+  padding: 1.125rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.preferencesTitle {
+  margin: 0 0 1rem;
+  font-size: 1.125rem;
+}
+
+// Discreet centered ghost sign-out.
+.signOut {
+  align-self: center;
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-tab-inactive, #4a3f39);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  opacity: 0.75;
+
+  &:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent, #c87966);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}

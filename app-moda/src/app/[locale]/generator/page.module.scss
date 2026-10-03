@@ -1,0 +1,168 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  // Fit the visible viewport so the three carousels share the height
+  // without page scroll (header + main 1rem top + tabbar + 1rem bottom).
+  height: calc(
+    100dvh - var(--header-height) - var(--tabbar-height) - 2rem
+  );
+  min-height: 30rem;
+  padding-bottom: 0;
+  overflow-y: auto;
+}
+
+.moods {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  overflow-x: auto;
+}
+
+.mood {
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: var(--color-tab-inactive);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  cursor: pointer;
+
+  &.moodActive {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+}
+
+.carousels {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+  min-height: 0;
+}
+
+.unsorted {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.unsortedTitle {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.unsortedHint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.unsortedRow {
+  display: flex;
+  gap: 0.5rem;
+  padding-bottom: 0.25rem;
+  overflow-x: auto;
+}
+
+.unsortedCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 0 0 3.5rem;
+}
+
+.unsortedImage,
+.unsortedPlaceholder {
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: cover;
+  background: var(--color-oat);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.unsortedLabel {
+  font-size: 0.6875rem;
+  color: var(--color-muted);
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.actionBar {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.generateButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  color: var(--color-oat);
+  background: var(--color-accent);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.wearButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  color: var(--color-primary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-primary);
+  border-radius: 50%;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.clearButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  color: var(--color-muted);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

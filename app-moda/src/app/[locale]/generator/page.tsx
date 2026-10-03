@@ -1,0 +1,9 @@
+"use client";
+
+import { Home } from "@/features/generator/Home";
+
+// Thin route wrapper: the full zero -> auto/manual -> showcase flow
+// lives in the feature Home component.
+export default function GeneratorPage() {
+  return <Home />;
+}

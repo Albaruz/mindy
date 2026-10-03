@@ -1,0 +1,58 @@
+// Warm Refuge palette: garments provide the chromatic focus,
+// terracotta marks the active state.
+// Dark mode follows the OS by default and can be pinned from Settings
+// via the `data-theme` attribute on <html>.
+
+@mixin dark-palette {
+  --color-background: #0a0a0a;
+  --color-surface: #171717;
+  --color-foreground: #ededed;
+  --color-muted: #a1a1aa;
+  --color-border: #27272a;
+  --color-primary: #ededed;
+  --color-primary-contrast: #0a0a0a;
+  --color-accent: #d08a75;
+  --color-tab-inactive: #b9a89c;
+  --color-auth-background: #1e1a18;
+  --color-auth-text: #e3d5ca;
+  --color-error: #eba9a2;
+  --color-canvas: #1e1a18;
+  --thread-color: #e3d5ca;
+}
+
+:root {
+  --color-background: #fafafa;
+  --color-surface: #ffffff;
+  --color-foreground: #171717;
+  --color-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-primary: #111111;
+  --color-primary-contrast: #ffffff;
+  --color-accent: #c87966;
+  --color-tab-inactive: #4a3f39;
+  --color-oat: #f9f6f0;
+  --color-auth-background: #f9f6f0;
+  --color-auth-text: #4a3f39;
+  --color-error: #b3261e;
+  --color-canvas: #f9f6f0;
+  --thread-color: #4a3f39;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+
+  --tabbar-height: 4rem;
+  --header-height: 5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  // OS dark applies unless the user pinned light mode in Settings.
+  :root:not([data-theme="light"]) {
+    @include dark-palette;
+  }
+}
+
+// Explicit dark pin from Settings wins over the OS setting.
+:root[data-theme="dark"] {
+  @include dark-palette;
+}

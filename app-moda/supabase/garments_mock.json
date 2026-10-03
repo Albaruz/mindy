@@ -1,0 +1,1918 @@
+[
+  {
+    "garmentId": "b94d564f-88f5-4da9-b3b8-3da7ee0e4437",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/mens-shirts/blue-&-black-check-shirt/1.webp",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "blue",
+    "material": "cotton",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "plaid shirt"
+    },
+    "createdAt": "2026-08-06T10:00:00.000Z"
+  },
+  {
+    "garmentId": "adc8296d-b8cf-41bb-90e2-3d5111063ceb",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/mens-shirts/gigabyte-aorus-men-tshirt/1.webp",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "white",
+    "material": "cotton",
+    "season": "summer",
+    "isDirty": true,
+    "lastWornDate": "2026-10-02T09:00:00.000Z",
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "graphic t-shirt"
+    },
+    "createdAt": "2026-08-07T10:00:00.000Z"
+  },
+  {
+    "garmentId": "d905e37a-3286-40a7-8738-2bf09e611d55",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/mens-shirts/man-plaid-shirt/1.webp",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "red",
+    "material": "cotton",
+    "season": "mid_season",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "plaid flannel shirt"
+    },
+    "createdAt": "2026-08-08T10:00:00.000Z"
+  },
+  {
+    "garmentId": "6007f4ad-808b-40b3-bd80-84acb4f2b741",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/mens-shirts/man-short-sleeve-shirt/1.webp",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "relaxed",
+    "color": "blue",
+    "material": "viscose",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "floral hawaiian shirt"
+    },
+    "createdAt": "2026-08-09T10:00:00.000Z"
+  },
+  {
+    "garmentId": "3a3afc12-2dfb-4f27-a255-8932e3d4e6b6",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/mens-shirts/men-check-shirt/1.webp",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "green",
+    "material": "cotton",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "plaid shirt"
+    },
+    "createdAt": "2026-08-10T10:00:00.000Z"
+  },
+  {
+    "garmentId": "66438ccd-ddd9-440f-a836-91cb4f1535b7",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://m.media-amazon.com/images/I/316yShnoBmL._AC_SY580_.jpg",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "white",
+    "material": "cotton",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "striped shirt"
+    },
+    "createdAt": "2026-08-11T10:00:00.000Z"
+  },
+  {
+    "garmentId": "00dcf5fe-d1e7-4145-9a4c-54e57a25b1e1",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://m.media-amazon.com/images/I/21nZA9Gfl-L._AC_.jpg",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "white",
+    "material": "cotton",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "graphic t-shirt"
+    },
+    "createdAt": "2026-08-12T10:00:00.000Z"
+  },
+  {
+    "garmentId": "ba9a6830-a38b-4ae1-b75d-588b207c6631",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/9558265/pexels-photo-9558265.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "oversized",
+    "color": "pink",
+    "material": "cotton",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "oversized t-shirt"
+    },
+    "createdAt": "2026-08-13T10:00:00.000Z"
+  },
+  {
+    "garmentId": "cc6bbc96-416c-4d6c-a1a2-7170fdde569c",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/37468337/pexels-photo-37468337.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "streetwear",
+    "cutLength": "oversized",
+    "color": "blue",
+    "material": "cotton",
+    "season": "mid_season",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "hoodie"
+    },
+    "createdAt": "2026-08-14T10:00:00.000Z"
+  },
+  {
+    "garmentId": "b3c517e4-0bbc-421a-b0f8-b60fcd5fe14f",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/19895960/pexels-photo-19895960.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "red",
+    "material": "cotton",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "t-shirt"
+    },
+    "createdAt": "2026-08-15T10:00:00.000Z"
+  },
+  {
+    "garmentId": "adb41a76-f2ed-4ce3-9774-d0555f915ac8",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/19895953/pexels-photo-19895953.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "elegant",
+    "cutLength": "regular",
+    "color": "white",
+    "material": "viscose",
+    "season": "mid_season",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "floral blouse",
+      "colorShade": "floral"
+    },
+    "createdAt": "2026-08-16T10:00:00.000Z"
+  },
+  {
+    "garmentId": "9e5dde20-f4bd-4eca-b289-832fc5ab3978",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/19895954/pexels-photo-19895954.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "relaxed",
+    "color": "white",
+    "material": "cotton",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "floral blouse",
+      "colorShade": "floral"
+    },
+    "createdAt": "2026-08-17T10:00:00.000Z"
+  },
+  {
+    "garmentId": "e817f331-1f6f-4f2b-8d91-27481864e19b",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/19895950/pexels-photo-19895950.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "elegant",
+    "cutLength": "slim",
+    "color": "white",
+    "material": "silk",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "floral blouse",
+      "colorShade": "floral"
+    },
+    "createdAt": "2026-08-18T10:00:00.000Z"
+  },
+  {
+    "garmentId": "55ec4b16-5f12-47f1-82a5-9e23ef215c22",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/11671964/pexels-photo-11671964.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "white",
+    "material": "cotton",
+    "season": "summer",
+    "isDirty": true,
+    "lastWornDate": "2026-10-01T09:00:00.000Z",
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "t-shirt"
+    },
+    "createdAt": "2026-08-19T10:00:00.000Z"
+  },
+  {
+    "garmentId": "21ad0f0b-391f-4b18-93d4-2c55aa36e9a5",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/12025472/pexels-photo-12025472.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "white",
+    "material": "cotton",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "t-shirt"
+    },
+    "createdAt": "2026-08-20T10:00:00.000Z"
+  },
+  {
+    "garmentId": "7cd18614-b20c-405d-9259-bcaf73897f21",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/8532638/pexels-photo-8532638.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "slim",
+    "color": "black",
+    "material": "cotton",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "shirt"
+    },
+    "createdAt": "2026-08-21T10:00:00.000Z"
+  },
+  {
+    "garmentId": "1b98c1d6-4523-4921-b46e-1277b0fdcd32",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/12039633/pexels-photo-12039633.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "white",
+    "material": "cotton",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "t-shirt"
+    },
+    "createdAt": "2026-08-22T10:00:00.000Z"
+  },
+  {
+    "garmentId": "5cb6ceba-5bac-4376-bf81-ecb5a8c09646",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/18257675/pexels-photo-18257675.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "relaxed",
+    "color": "white",
+    "material": "linen",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "t-shirt"
+    },
+    "createdAt": "2026-08-23T10:00:00.000Z"
+  },
+  {
+    "garmentId": "244b63f8-ff99-487b-a16b-55c9d1a48c2c",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/36392069/pexels-photo-36392069.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "orange",
+    "material": "cotton",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "t-shirt"
+    },
+    "createdAt": "2026-08-24T10:00:00.000Z"
+  },
+  {
+    "garmentId": "cecad565-0c4c-4435-9837-12eb46378276",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/9558761/pexels-photo-9558761.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "pink",
+    "material": "cotton",
+    "season": "mid_season",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "long-sleeve shirt"
+    },
+    "createdAt": "2026-08-25T10:00:00.000Z"
+  },
+  {
+    "garmentId": "4915adc7-7c23-49ea-9326-787b2bc4019b",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/8148576/pexels-photo-8148576.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "formal",
+    "cutLength": "slim",
+    "color": "white",
+    "material": "cotton",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "button shirt"
+    },
+    "createdAt": "2026-08-26T10:00:00.000Z"
+  },
+  {
+    "garmentId": "76ec629b-0c6d-4ce4-92df-17087bd1dc9b",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/7671168/pexels-photo-7671168.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "brown",
+    "material": "cotton",
+    "season": "mid_season",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "flannel shirt"
+    },
+    "createdAt": "2026-08-27T10:00:00.000Z"
+  },
+  {
+    "garmentId": "ca0f81e7-c839-4722-a1a9-c6e685cd9c86",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/13381986/pexels-photo-13381986.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "formal",
+    "cutLength": "regular",
+    "color": "gray",
+    "material": "cotton",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "button shirt"
+    },
+    "createdAt": "2026-08-28T10:00:00.000Z"
+  },
+  {
+    "garmentId": "5cce1d00-7d5d-4981-beb8-6859dd89df8d",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/14377294/pexels-photo-14377294.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "relaxed",
+    "color": "brown",
+    "material": "knit",
+    "season": "winter",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "knit sweater"
+    },
+    "createdAt": "2026-08-29T10:00:00.000Z"
+  },
+  {
+    "garmentId": "f77a3bc2-4d23-4a5e-a0fa-4cb875e6c3e2",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/37468338/pexels-photo-37468338.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "relaxed",
+    "color": "blue",
+    "material": "cotton",
+    "season": "mid_season",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "hoodie"
+    },
+    "createdAt": "2026-08-30T10:00:00.000Z"
+  },
+  {
+    "garmentId": "c57f5ec4-0a08-4090-871e-87bd346bbdfb",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/28576622/pexels-photo-28576622.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "white",
+    "material": "linen",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "linen shirt"
+    },
+    "createdAt": "2026-08-31T10:00:00.000Z"
+  },
+  {
+    "garmentId": "1ed4d108-7738-44f7-9caa-1a4d0a77b417",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "streetwear",
+    "cutLength": "slim",
+    "color": "black",
+    "material": "cotton",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "shirt"
+    },
+    "createdAt": "2026-09-01T10:00:00.000Z"
+  },
+  {
+    "garmentId": "b3962213-d9c5-40f6-bd6b-b010e4fdc00d",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/5995825/pexels-photo-5995825.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "white",
+    "material": "cotton",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "long-sleeve shirt"
+    },
+    "createdAt": "2026-09-02T10:00:00.000Z"
+  },
+  {
+    "garmentId": "c092312e-deab-49ef-89b8-dbe166406d9f",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/7319172/pexels-photo-7319172.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "top",
+    "style": "streetwear",
+    "cutLength": "oversized",
+    "color": "white",
+    "material": "cotton",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "graphic t-shirt"
+    },
+    "createdAt": "2026-09-03T10:00:00.000Z"
+  },
+  {
+    "garmentId": "57b7d67f-70cd-49c9-b45e-a537ba8ec1b0",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/6044015/pexels-photo-6044015.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "bottom",
+    "style": "party",
+    "cutLength": "cropped",
+    "color": "black",
+    "material": "polyester",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "bottom",
+      "specificType": "ruffle mini skirt"
+    },
+    "createdAt": "2026-09-04T10:00:00.000Z"
+  },
+  {
+    "garmentId": "0d840120-4ccb-49ba-b217-04c3a21fc030",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/4554337/pexels-photo-4554337.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "bottom",
+    "style": "casual",
+    "cutLength": "cropped",
+    "color": "blue",
+    "material": "denim",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "bottom",
+      "specificType": "ripped denim shorts",
+      "colorShade": "light-wash"
+    },
+    "createdAt": "2026-09-05T10:00:00.000Z"
+  },
+  {
+    "garmentId": "f16be95f-7831-4fbf-a8da-65ee6a85b74c",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/7764613/pexels-photo-7764613.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "bottom",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "blue",
+    "material": "denim",
+    "season": "all",
+    "isDirty": true,
+    "lastWornDate": "2026-09-30T09:00:00.000Z",
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "bottom",
+      "specificType": "straight jeans"
+    },
+    "createdAt": "2026-09-06T10:00:00.000Z"
+  },
+  {
+    "garmentId": "926eaff4-54f4-4ddd-8fea-224f3f1f644e",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/6046228/pexels-photo-6046228.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "bottom",
+    "style": "casual",
+    "cutLength": "relaxed",
+    "color": "brown",
+    "material": "cotton",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "bottom",
+      "specificType": "wide-leg trousers",
+      "colorShade": "two-tone"
+    },
+    "createdAt": "2026-09-07T10:00:00.000Z"
+  },
+  {
+    "garmentId": "b592bc3d-12e5-453e-be76-34f384586f56",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/tops/blue-frock/1.webp",
+    "garmentType": "dress",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "blue",
+    "material": "cotton",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "fit-and-flare dress"
+    },
+    "createdAt": "2026-09-08T10:00:00.000Z"
+  },
+  {
+    "garmentId": "e2050685-1384-4ff8-8add-e011216ef923",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/tops/girl-summer-dress/1.webp",
+    "garmentType": "dress",
+    "style": "casual",
+    "cutLength": "long",
+    "color": "white",
+    "material": "viscose",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "palm-print maxi dress"
+    },
+    "createdAt": "2026-09-09T10:00:00.000Z"
+  },
+  {
+    "garmentId": "301a963c-9c68-4fe2-9c78-3a44407951a6",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/tops/gray-dress/1.webp",
+    "garmentType": "dress",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "beige",
+    "material": "linen",
+    "season": "mid_season",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "button midi dress"
+    },
+    "createdAt": "2026-09-10T10:00:00.000Z"
+  },
+  {
+    "garmentId": "65bf1ac8-b556-4b18-be6b-ed54f772d5f3",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/tops/short-frock/1.webp",
+    "garmentType": "dress",
+    "style": "party",
+    "cutLength": "cropped",
+    "color": "green",
+    "material": "cotton",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "strapless mini dress"
+    },
+    "createdAt": "2026-09-11T10:00:00.000Z"
+  },
+  {
+    "garmentId": "8ee904e2-db3b-47df-9be8-e1b8da71286c",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/tops/tartan-dress/1.webp",
+    "garmentType": "dress",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "gray",
+    "material": "cotton",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "plaid skater dress",
+      "colorShade": "check"
+    },
+    "createdAt": "2026-09-12T10:00:00.000Z"
+  },
+  {
+    "garmentId": "a4ace7b0-3684-429d-a974-6e235d65e7ae",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/womens-dresses/black-women's-gown/1.webp",
+    "garmentType": "dress",
+    "style": "elegant",
+    "cutLength": "long",
+    "color": "black",
+    "material": "silk",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "evening gown"
+    },
+    "createdAt": "2026-09-13T10:00:00.000Z"
+  },
+  {
+    "garmentId": "9d410e2b-9fa5-4aea-a4f5-a5b6bee7130a",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/womens-dresses/corset-leather-with-skirt/1.webp",
+    "garmentType": "dress",
+    "style": "party",
+    "cutLength": "slim",
+    "color": "black",
+    "material": "leather",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "leather corset dress"
+    },
+    "createdAt": "2026-09-14T10:00:00.000Z"
+  },
+  {
+    "garmentId": "b0332ba6-dc0f-421f-b6a0-d608c2481800",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/womens-dresses/corset-with-black-skirt/1.webp",
+    "garmentType": "dress",
+    "style": "party",
+    "cutLength": "slim",
+    "color": "black",
+    "material": "polyester",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "corset mini dress"
+    },
+    "createdAt": "2026-09-15T10:00:00.000Z"
+  },
+  {
+    "garmentId": "fa13c550-627e-4d16-b6b5-a1180ba7476e",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/womens-dresses/dress-pea/1.webp",
+    "garmentType": "dress",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "white",
+    "material": "cotton",
+    "season": "summer",
+    "isDirty": true,
+    "lastWornDate": "2026-09-29T09:00:00.000Z",
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "polka-dot midi dress",
+      "colorShade": "polka-dot"
+    },
+    "createdAt": "2026-09-16T10:00:00.000Z"
+  },
+  {
+    "garmentId": "70cde2ed-7270-4cd6-94d1-67945c667077",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/womens-dresses/marni-red-&-black-suit/1.webp",
+    "garmentType": "dress",
+    "style": "elegant",
+    "cutLength": "slim",
+    "color": "red",
+    "material": "viscose",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "color-block midi dress",
+      "colorShade": "burgundy"
+    },
+    "createdAt": "2026-09-17T10:00:00.000Z"
+  },
+  {
+    "garmentId": "cdcf9d07-c226-409f-b7ec-61f3a1c0ab26",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/19895956/pexels-photo-19895956.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "dress",
+    "style": "party",
+    "cutLength": "regular",
+    "color": "red",
+    "material": "polyester",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "pleated ruffle dress"
+    },
+    "createdAt": "2026-09-18T10:00:00.000Z"
+  },
+  {
+    "garmentId": "410cb97d-3a21-489a-b9e9-c7119674fd6b",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/19895958/pexels-photo-19895958.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "dress",
+    "style": "elegant",
+    "cutLength": "slim",
+    "color": "black",
+    "material": "silk",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "slip dress"
+    },
+    "createdAt": "2026-09-19T10:00:00.000Z"
+  },
+  {
+    "garmentId": "2dbadf22-c810-4d05-9831-828310e16ddd",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/19895978/pexels-photo-19895978.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "dress",
+    "style": "elegant",
+    "cutLength": "regular",
+    "color": "white",
+    "material": "silk",
+    "season": "mid_season",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "rose-applique dress",
+      "colorShade": "floral"
+    },
+    "createdAt": "2026-09-20T10:00:00.000Z"
+  },
+  {
+    "garmentId": "e2cf53e0-4fe5-4e50-97f0-b53e41c3f62b",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/19895977/pexels-photo-19895977.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "dress",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "yellow",
+    "material": "cotton",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "color-block dress"
+    },
+    "createdAt": "2026-09-21T10:00:00.000Z"
+  },
+  {
+    "garmentId": "f2f0d1d3-cfa0-4355-a774-33572fa3d1ad",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/1943846/pexels-photo-1943846.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "dress",
+    "style": "elegant",
+    "cutLength": "regular",
+    "color": "black",
+    "material": "cotton",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "polka-dot tea dress",
+      "colorShade": "polka-dot"
+    },
+    "createdAt": "2026-09-22T10:00:00.000Z"
+  },
+  {
+    "garmentId": "1b6f2b45-66bb-42c5-b06a-e21ab4ff4b47",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/14513896/pexels-photo-14513896.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "dress",
+    "style": "elegant",
+    "cutLength": "slim",
+    "color": "black",
+    "material": "viscose",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "spaghetti-strap dress"
+    },
+    "createdAt": "2026-09-23T10:00:00.000Z"
+  },
+  {
+    "garmentId": "7a27a438-27f1-4f3a-92b9-672fa425ae52",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/28907989/pexels-photo-28907989.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "dress",
+    "style": "elegant",
+    "cutLength": "regular",
+    "color": "white",
+    "material": "polyester",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "pleated midi dress"
+    },
+    "createdAt": "2026-09-24T10:00:00.000Z"
+  },
+  {
+    "garmentId": "dacd9a4c-5b42-4e00-939b-6825fefe9c51",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/39070293/pexels-photo-39070293.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "dress",
+    "style": "elegant",
+    "cutLength": "long",
+    "color": "white",
+    "material": "silk",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "lace wedding gown"
+    },
+    "createdAt": "2026-09-25T10:00:00.000Z"
+  },
+  {
+    "garmentId": "de2d0fac-ff64-45b1-a0fb-4a74bacf8061",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/5608073/pexels-photo-5608073.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "dress",
+    "style": "party",
+    "cutLength": "slim",
+    "color": "red",
+    "material": "silk",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "cocktail dress"
+    },
+    "createdAt": "2026-09-26T10:00:00.000Z"
+  },
+  {
+    "garmentId": "590541d8-0115-4692-aa60-7dc3d80c4403",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/8618977/pexels-photo-8618977.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "dress",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "white",
+    "material": "cotton",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "floral sundress",
+      "colorShade": "floral"
+    },
+    "createdAt": "2026-09-27T10:00:00.000Z"
+  },
+  {
+    "garmentId": "44f59ddc-28ad-48ed-97b5-10523167056e",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/8619007/pexels-photo-8619007.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "dress",
+    "style": "party",
+    "cutLength": "slim",
+    "color": "pink",
+    "material": "silk",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "slip dress"
+    },
+    "createdAt": "2026-09-28T10:00:00.000Z"
+  },
+  {
+    "garmentId": "46a9cd80-76bb-42c1-ba10-3a759dbfe6d9",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/27399479/pexels-photo-27399479.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "dress",
+    "style": "elegant",
+    "cutLength": "long",
+    "color": "white",
+    "material": "silk",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "wedding dress"
+    },
+    "createdAt": "2026-09-29T10:00:00.000Z"
+  },
+  {
+    "garmentId": "8492034e-c23a-4c1e-a491-877df1f9b7ee",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/7166021/pexels-photo-7166021.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "dress",
+    "style": "casual",
+    "cutLength": "regular",
+    "color": "beige",
+    "material": "linen",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "linen sundress"
+    },
+    "createdAt": "2026-09-30T10:00:00.000Z"
+  },
+  {
+    "garmentId": "adc47a09-48ca-433f-bbcd-688922a308bc",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/37728680/pexels-photo-37728680.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "dress",
+    "style": "elegant",
+    "cutLength": "long",
+    "color": "white",
+    "material": "silk",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "top",
+      "specificType": "lace bridal gown"
+    },
+    "createdAt": "2026-10-01T10:00:00.000Z"
+  },
+  {
+    "garmentId": "f65e5622-2c51-4392-b931-c5e73f189e99",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/3093408/pexels-photo-3093408.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "outerwear",
+    "style": "formal",
+    "cutLength": "regular",
+    "color": "orange",
+    "material": "wool",
+    "season": "mid_season",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "outerwear",
+      "specificType": "tailored blazer"
+    },
+    "createdAt": "2026-10-02T10:00:00.000Z"
+  },
+  {
+    "garmentId": "4ef6963b-66e1-47c2-97d3-32df66cfdc06",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/7671167/pexels-photo-7671167.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "outerwear",
+    "style": "formal",
+    "cutLength": "slim",
+    "color": "white",
+    "material": "polyester",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "outerwear",
+      "specificType": "blazer"
+    },
+    "createdAt": "2026-10-03T10:00:00.000Z"
+  },
+  {
+    "garmentId": "89ed5875-df7d-4166-ae95-ad3d4f717e7a",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/19129082/pexels-photo-19129082.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "outerwear",
+    "style": "elegant",
+    "cutLength": "regular",
+    "color": "green",
+    "material": "wool",
+    "season": "winter",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "outerwear",
+      "specificType": "tailored coat"
+    },
+    "createdAt": "2026-10-04T10:00:00.000Z"
+  },
+  {
+    "garmentId": "3a516d1b-ef17-4acd-aaa3-7e88d900f8d1",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/18999079/pexels-photo-18999079.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "outerwear",
+    "style": "party",
+    "cutLength": "regular",
+    "color": "red",
+    "material": "polyester",
+    "season": "mid_season",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "outerwear",
+      "specificType": "velvet blazer"
+    },
+    "createdAt": "2026-10-05T10:00:00.000Z"
+  },
+  {
+    "garmentId": "0f2fde96-1eef-45c5-a287-2d49aede76a6",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/19129083/pexels-photo-19129083.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "outerwear",
+    "style": "formal",
+    "cutLength": "slim",
+    "color": "blue",
+    "material": "wool",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "outerwear",
+      "specificType": "suit jacket"
+    },
+    "createdAt": "2026-10-06T10:00:00.000Z"
+  },
+  {
+    "garmentId": "29730527-7851-42cf-83b1-56fb7ad2a6e1",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/19060012/pexels-photo-19060012.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "outerwear",
+    "style": "elegant",
+    "cutLength": "regular",
+    "color": "purple",
+    "material": "polyester",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "outerwear",
+      "specificType": "blazer"
+    },
+    "createdAt": "2026-10-07T10:00:00.000Z"
+  },
+  {
+    "garmentId": "04801871-6095-45d4-9250-35dc6a530c12",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/19129081/pexels-photo-19129081.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "outerwear",
+    "style": "formal",
+    "cutLength": "slim",
+    "color": "red",
+    "material": "wool",
+    "season": "mid_season",
+    "isDirty": true,
+    "lastWornDate": "2026-10-02T09:00:00.000Z",
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "outerwear",
+      "specificType": "blazer"
+    },
+    "createdAt": "2026-10-08T10:00:00.000Z"
+  },
+  {
+    "garmentId": "ac0e3f25-74dd-47c4-b575-a3f20ff79814",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/19014598/pexels-photo-19014598.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "outerwear",
+    "style": "formal",
+    "cutLength": "regular",
+    "color": "purple",
+    "material": "wool",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "outerwear",
+      "specificType": "suit jacket"
+    },
+    "createdAt": "2026-10-09T10:00:00.000Z"
+  },
+  {
+    "garmentId": "710804a7-2828-49d0-b09c-309e83b842e2",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/19289551/pexels-photo-19289551.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "outerwear",
+    "style": "formal",
+    "cutLength": "slim",
+    "color": "red",
+    "material": "polyester",
+    "season": "mid_season",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "outerwear",
+      "specificType": "tailored jacket"
+    },
+    "createdAt": "2026-10-10T10:00:00.000Z"
+  },
+  {
+    "garmentId": "f08013c7-8584-4e43-8664-110808f29816",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/18999081/pexels-photo-18999081.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "outerwear",
+    "style": "formal",
+    "cutLength": "regular",
+    "color": "red",
+    "material": "wool",
+    "season": "mid_season",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "outerwear",
+      "specificType": "checkered blazer",
+      "colorShade": "check"
+    },
+    "createdAt": "2026-10-11T10:00:00.000Z"
+  },
+  {
+    "garmentId": "d7508c51-aa72-44dd-8255-ed9a7615f57c",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/5329157/pexels-photo-5329157.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "outerwear",
+    "style": "casual",
+    "cutLength": "relaxed",
+    "color": "brown",
+    "material": "cotton",
+    "season": "mid_season",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "outerwear",
+      "specificType": "field jacket"
+    },
+    "createdAt": "2026-10-12T10:00:00.000Z"
+  },
+  {
+    "garmentId": "30e661af-0e01-494f-ad86-95710c7b060d",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/36180266/pexels-photo-36180266.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "outerwear",
+    "style": "elegant",
+    "cutLength": "long",
+    "color": "beige",
+    "material": "wool",
+    "season": "winter",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "outerwear",
+      "specificType": "camel coat"
+    },
+    "createdAt": "2026-10-13T10:00:00.000Z"
+  },
+  {
+    "garmentId": "d7ee63e3-c796-467c-bc66-8252dbae9385",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/mens-shoes/nike-air-jordan-1-red-and-black/1.webp",
+    "garmentType": "footwear",
+    "style": "sport",
+    "cutLength": null,
+    "color": "red",
+    "material": "leather",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "high-top sneakers"
+    },
+    "createdAt": "2026-10-14T10:00:00.000Z"
+  },
+  {
+    "garmentId": "af2365f8-c931-46b8-bf60-b85cc82b1773",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/mens-shoes/nike-baseball-cleats/1.webp",
+    "garmentType": "footwear",
+    "style": "sport",
+    "cutLength": null,
+    "color": "white",
+    "material": "polyester",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "baseball cleats"
+    },
+    "createdAt": "2026-10-15T10:00:00.000Z"
+  },
+  {
+    "garmentId": "82260ed7-2527-449a-bc1c-5cf1e58f818d",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/mens-shoes/puma-future-rider-trainers/1.webp",
+    "garmentType": "footwear",
+    "style": "sport",
+    "cutLength": null,
+    "color": "yellow",
+    "material": "polyester",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "retro sneakers"
+    },
+    "createdAt": "2026-10-16T10:00:00.000Z"
+  },
+  {
+    "garmentId": "d1070faa-9d50-4a42-8a83-de76008b295a",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/mens-shoes/sports-sneakers-off-white-&-red/1.webp",
+    "garmentType": "footwear",
+    "style": "casual",
+    "cutLength": null,
+    "color": "white",
+    "material": "leather",
+    "season": "all",
+    "isDirty": true,
+    "lastWornDate": "2026-10-01T09:00:00.000Z",
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "leather sneakers"
+    },
+    "createdAt": "2026-10-17T10:00:00.000Z"
+  },
+  {
+    "garmentId": "a13e0063-67e9-4bc3-be4e-8680032c531b",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/womens-shoes/black-&-brown-slipper/1.webp",
+    "garmentType": "footwear",
+    "style": "casual",
+    "cutLength": null,
+    "color": "black",
+    "material": "leather",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "slippers"
+    },
+    "createdAt": "2026-10-18T10:00:00.000Z"
+  },
+  {
+    "garmentId": "97afa2ca-7488-4f1a-bea9-245fb0388acf",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/womens-shoes/calvin-klein-heel-shoes/1.webp",
+    "garmentType": "footwear",
+    "style": "elegant",
+    "cutLength": null,
+    "color": "black",
+    "material": "leather",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "heeled mules"
+    },
+    "createdAt": "2026-10-19T10:00:00.000Z"
+  },
+  {
+    "garmentId": "5fe15ffd-cc88-4594-9b0a-d109ef4d0858",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/womens-shoes/golden-shoes-woman/1.webp",
+    "garmentType": "footwear",
+    "style": "party",
+    "cutLength": null,
+    "color": "yellow",
+    "material": "leather",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "metallic heels",
+      "colorShade": "gold"
+    },
+    "createdAt": "2026-10-20T10:00:00.000Z"
+  },
+  {
+    "garmentId": "ba2aecec-4000-4f95-97fa-a80b5d3339ee",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/womens-shoes/pampi-shoes/1.webp",
+    "garmentType": "footwear",
+    "style": "casual",
+    "cutLength": null,
+    "color": "black",
+    "material": "leather",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "ballet flats"
+    },
+    "createdAt": "2026-10-21T10:00:00.000Z"
+  },
+  {
+    "garmentId": "3a6c8f99-043d-49f6-bc27-7625f3bc5d7a",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://cdn.dummyjson.com/product-images/womens-shoes/red-shoes/1.webp",
+    "garmentType": "footwear",
+    "style": "elegant",
+    "cutLength": null,
+    "color": "red",
+    "material": "leather",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "ballet flats"
+    },
+    "createdAt": "2026-10-22T10:00:00.000Z"
+  },
+  {
+    "garmentId": "c387ad1e-7f50-449f-98c3-c2c28a6442e9",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://i.imgur.com/qNOjJje.jpeg",
+    "garmentType": "footwear",
+    "style": "sport",
+    "cutLength": null,
+    "color": "gray",
+    "material": "polyester",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "soccer cleats",
+      "colorShade": "holographic"
+    },
+    "createdAt": "2026-10-23T10:00:00.000Z"
+  },
+  {
+    "garmentId": "f4a67906-2672-4e3f-9ee6-ea903e241608",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://i.imgur.com/62gGzeF.jpeg",
+    "garmentType": "footwear",
+    "style": "party",
+    "cutLength": null,
+    "color": "pink",
+    "material": "polyester",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "glitter heels",
+      "colorShade": "glitter"
+    },
+    "createdAt": "2026-10-24T10:00:00.000Z"
+  },
+  {
+    "garmentId": "8b89410a-8c3e-42a5-a2ce-a40313d93080",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://i.imgur.com/9qrmE1b.jpeg",
+    "garmentType": "footwear",
+    "style": "casual",
+    "cutLength": null,
+    "color": "blue",
+    "material": "denim",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "denim espadrilles"
+    },
+    "createdAt": "2026-10-25T10:00:00.000Z"
+  },
+  {
+    "garmentId": "b91d1fa7-19db-49ed-bf91-def4c5bd089e",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://i.imgur.com/hKcMNJs.jpeg",
+    "garmentType": "footwear",
+    "style": "sport",
+    "cutLength": null,
+    "color": "orange",
+    "material": "polyester",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "chunky sneakers"
+    },
+    "createdAt": "2026-10-26T10:00:00.000Z"
+  },
+  {
+    "garmentId": "f215879b-b84c-4b1f-b469-06dc807d6f6e",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://i.imgur.com/mcW42Gi.jpeg",
+    "garmentType": "footwear",
+    "style": "casual",
+    "cutLength": null,
+    "color": "pink",
+    "material": "cotton",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "canvas sneakers"
+    },
+    "createdAt": "2026-10-27T10:00:00.000Z"
+  },
+  {
+    "garmentId": "d404c916-b88c-4105-9c2f-0803578684f5",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://i.imgur.com/npLfCGq.jpeg",
+    "garmentType": "footwear",
+    "style": "streetwear",
+    "cutLength": null,
+    "color": "gray",
+    "material": "leather",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "metallic high-tops",
+      "colorShade": "silver"
+    },
+    "createdAt": "2026-10-28T10:00:00.000Z"
+  },
+  {
+    "garmentId": "1fa5f60a-56a1-4d4c-bb04-6fb6a4965cb8",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://i.imgur.com/AzAY4Ed.jpeg",
+    "garmentType": "footwear",
+    "style": "elegant",
+    "cutLength": null,
+    "color": "gray",
+    "material": "leather",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "patent heeled sandals"
+    },
+    "createdAt": "2026-10-29T10:00:00.000Z"
+  },
+  {
+    "garmentId": "4445862f-870f-4246-8904-40a92df9d2e5",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://i.imgur.com/Au8J9sX.jpeg",
+    "garmentType": "footwear",
+    "style": "formal",
+    "cutLength": null,
+    "color": "purple",
+    "material": "leather",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "leather loafers"
+    },
+    "createdAt": "2026-10-30T10:00:00.000Z"
+  },
+  {
+    "garmentId": "f5bd463d-90c3-4d59-bc87-9a80646e0492",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://i.imgur.com/sC0ztOB.jpeg",
+    "garmentType": "footwear",
+    "style": "casual",
+    "cutLength": null,
+    "color": "blue",
+    "material": "leather",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "suede loafers"
+    },
+    "createdAt": "2026-10-31T10:00:00.000Z"
+  },
+  {
+    "garmentId": "a58f800a-d071-433f-9982-2c1ffa50e52c",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/30128844/pexels-photo-30128844.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "footwear",
+    "style": "streetwear",
+    "cutLength": null,
+    "color": "black",
+    "material": "cotton",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "high-top sneakers"
+    },
+    "createdAt": "2026-11-01T10:00:00.000Z"
+  },
+  {
+    "garmentId": "cf1de700-c0df-46a4-8fd7-2a5459707fa3",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/28821783/pexels-photo-28821783.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "footwear",
+    "style": "party",
+    "cutLength": null,
+    "color": "beige",
+    "material": "leather",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "rhinestone heels"
+    },
+    "createdAt": "2026-11-02T10:00:00.000Z"
+  },
+  {
+    "garmentId": "df517b6d-e1c4-47c2-9515-ba7f90ae398d",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/1456733/pexels-photo-1456733.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "footwear",
+    "style": "sport",
+    "cutLength": null,
+    "color": "gray",
+    "material": "knit",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "knit runners"
+    },
+    "createdAt": "2026-11-03T10:00:00.000Z"
+  },
+  {
+    "garmentId": "c93e286f-f001-4218-8433-243736e5f395",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/18202566/pexels-photo-18202566.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "footwear",
+    "style": "sport",
+    "cutLength": null,
+    "color": "white",
+    "material": "leather",
+    "season": "all",
+    "isDirty": true,
+    "lastWornDate": "2026-09-30T09:00:00.000Z",
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "sneakers"
+    },
+    "createdAt": "2026-11-04T10:00:00.000Z"
+  },
+  {
+    "garmentId": "6d0aa60b-1dac-46f4-ae85-103e9660386d",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/3682290/pexels-photo-3682290.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "footwear",
+    "style": "party",
+    "cutLength": null,
+    "color": "red",
+    "material": "leather",
+    "season": "summer",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "strappy sandals"
+    },
+    "createdAt": "2026-11-05T10:00:00.000Z"
+  },
+  {
+    "garmentId": "7b685ab4-5126-4a77-9904-b465fe628ef4",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/27204296/pexels-photo-27204296.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "footwear",
+    "style": "elegant",
+    "cutLength": null,
+    "color": "black",
+    "material": "leather",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "high-heel pumps"
+    },
+    "createdAt": "2026-11-06T10:00:00.000Z"
+  },
+  {
+    "garmentId": "2e3613a0-0223-4d01-bf92-376697590d48",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/18641850/pexels-photo-18641850.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "footwear",
+    "style": "elegant",
+    "cutLength": null,
+    "color": "beige",
+    "material": "leather",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "nude heels"
+    },
+    "createdAt": "2026-11-07T10:00:00.000Z"
+  },
+  {
+    "garmentId": "eb7ad1c0-9c15-4584-b7ab-dc94992a49f6",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/20547378/pexels-photo-20547378.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "footwear",
+    "style": "casual",
+    "cutLength": null,
+    "color": "black",
+    "material": "leather",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "two-tone sneakers"
+    },
+    "createdAt": "2026-11-08T10:00:00.000Z"
+  },
+  {
+    "garmentId": "c70b8538-661b-41ef-a89c-8ac4235b2fde",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/11324526/pexels-photo-11324526.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "footwear",
+    "style": "sport",
+    "cutLength": null,
+    "color": "white",
+    "material": "cotton",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "sneakers"
+    },
+    "createdAt": "2026-11-09T10:00:00.000Z"
+  },
+  {
+    "garmentId": "bb1dc5b7-5b3b-4fb0-b80c-4c30663e0695",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/39525839/pexels-photo-39525839.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "footwear",
+    "style": "streetwear",
+    "cutLength": null,
+    "color": "white",
+    "material": "cotton",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "sneakers"
+    },
+    "createdAt": "2026-11-10T10:00:00.000Z"
+  },
+  {
+    "garmentId": "653fa6d2-2e17-4b5f-ae5f-86dc65dfa842",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/35618110/pexels-photo-35618110.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "footwear",
+    "style": "casual",
+    "cutLength": null,
+    "color": "white",
+    "material": "cotton",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "sneakers"
+    },
+    "createdAt": "2026-11-11T10:00:00.000Z"
+  },
+  {
+    "garmentId": "fe6d61b4-4217-4899-84c9-5b783440f5e6",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/9397837/pexels-photo-9397837.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "footwear",
+    "style": "casual",
+    "cutLength": null,
+    "color": "brown",
+    "material": "leather",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "chukka boots"
+    },
+    "createdAt": "2026-11-12T10:00:00.000Z"
+  },
+  {
+    "garmentId": "f06f05d8-04a8-4700-bd3f-f6c1eaf9d715",
+    "userId": "010289a4-c38d-4f47-9092-d21a53874cda",
+    "imageUrl": "https://images.pexels.com/photos/3782771/pexels-photo-3782771.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "garmentType": "footwear",
+    "style": "elegant",
+    "cutLength": null,
+    "color": "black",
+    "material": "leather",
+    "season": "all",
+    "isDirty": false,
+    "lastWornDate": null,
+    "isExternalGarment": false,
+    "extraTags": {
+      "aiCategory": "footwear",
+      "specificType": "ankle-strap heels"
+    },
+    "createdAt": "2026-11-13T10:00:00.000Z"
+  }
+]

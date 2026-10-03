@@ -1,0 +1,66 @@
+// Canonical text buttons (Inter): primary terracotta hero, secondary
+// quiet surface, ghost borderless. Type scale: md 1rem/700, sm 0.875/600.
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}
+
+.primary {
+  color: var(--color-oat, #f9f6f0);
+  background: var(--color-accent, #c87966);
+  border-color: transparent;
+}
+
+.secondary {
+  color: var(--color-foreground);
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+.ghost {
+  color: var(--color-foreground);
+  background: transparent;
+  border-color: transparent;
+}
+
+.danger {
+  color: var(--color-error);
+  background: transparent;
+  border-color: var(--color-error);
+}
+
+.sm {
+  min-height: 2.5rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+}
+
+.lg {
+  min-height: 3.25rem;
+  padding: 1rem 2.25rem;
+  font-size: 1.125rem;
+  font-weight: 800;
+  border-radius: 999px;
+}

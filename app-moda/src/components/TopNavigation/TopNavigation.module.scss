@@ -1,0 +1,94 @@
+@use "../../styles/core/mixins" as *;
+
+// Floating segmented control in the sticky header, next to the logo.
+// Mobile-first: flex row, horizontally scrollable with hidden scrollbar.
+.pill {
+  display: flex;
+  gap: 0.125rem;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0.25rem;
+  overflow-x: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.06);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overscroll-behavior-x: contain;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.segment {
+  @include touch-target;
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-tab-inactive, #4a3f39);
+  text-decoration: none;
+  white-space: nowrap;
+  border-radius: 999px;
+  transition: color 0.18s ease;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent, #c87966);
+    outline-offset: 2px;
+  }
+
+  &.is-active {
+    color: var(--color-oat, #f9f6f0);
+  }
+}
+
+// Sliding terracotta pill shared between tabs via layoutId.
+// Absolutely positioned so it never affects layout; content floats above it.
+.indicator {
+  position: absolute;
+  inset: 0;
+  background: var(--color-accent, #c87966);
+  border-radius: 999px;
+}
+
+// Icon + label stay above the sliding pill and never capture layout shifts.
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 0.375rem;
+  align-items: center;
+  justify-content: center;
+}
+
+// Very small screens: icon-first to avoid breaking the header layout.
+// The pill remains swipeable; labels collapse to icons only.
+@media (max-width: 26rem) {
+  .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+
+  .segment {
+    padding: 0.375rem 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segment {
+    transition: none;
+  }
+}

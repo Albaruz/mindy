@@ -1,0 +1,52 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createClient } from "@/lib/supabase/client";
+import type { GarmentSeason } from "@/types/garment";
+import { GARMENTS_QUERY_KEY } from "./useClosetQuery";
+import { LAUNDRY_QUERY_KEY } from "@/features/profile/useLaundryBasketQuery";
+import type { GarmentFormInput } from "./useUploadGarment";
+
+// Updates the editable tags of an existing garment. RLS guarantees the
+// row belongs to the signed-in user.
+export function useUpdateGarment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      garmentId,
+      input,
+    }: {
+      garmentId: string;
+      input: GarmentFormInput;
+    }): Promise<void> => {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("You must be signed in to edit garments.");
+      }
+
+      const season: GarmentSeason | null =
+        input.season === "" ? null : input.season;
+      const { error } = await supabase
+        .from("garments")
+        .update({
+          garment_type: input.garmentType === "" ? null : input.garmentType,
+          style: input.style === "" ? null : input.style,
+          cut_length: input.cutLength === "" ? null : input.cutLength,
+          color: input.color === "" ? null : input.color,
+          material: input.material === "" ? null : input.material,
+          season,
+          extra_tags: input.extraTags,
+        })
+        .eq("garment_id", garmentId);
+      if (error) {
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: GARMENTS_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: LAUNDRY_QUERY_KEY });
+    },
+  });
+}

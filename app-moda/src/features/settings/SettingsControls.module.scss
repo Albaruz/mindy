@@ -1,0 +1,95 @@
+// Premium segmented controls breathing flat on the parent card:
+// no nested boxes, no shadows. Titles and pills sit directly on the
+// card background.
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.group {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+}
+
+.legend {
+  padding: 0;
+  margin-bottom: 0.625rem;
+}
+
+.title {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-tab-inactive, #4a3f39);
+}
+
+.description {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--color-muted);
+}
+
+// Single pill track; the terracotta indicator glides inside via layoutId.
+.segmented {
+  display: flex;
+  gap: 0.125rem;
+  padding: 0.25rem;
+  background: var(--color-canvas, #f9f6f0);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+}
+
+.segment {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-tab-inactive, #4a3f39);
+  white-space: nowrap;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  transition: color 0.18s ease;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent, #c87966);
+    outline-offset: 2px;
+  }
+
+  &.is-active {
+    color: var(--color-oat, #f9f6f0);
+  }
+}
+
+.indicator {
+  position: absolute;
+  inset: 0;
+  background: var(--color-accent, #c87966);
+  border-radius: 999px;
+}
+
+.segmentContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 0.375rem;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segment {
+    transition: none;
+  }
+}

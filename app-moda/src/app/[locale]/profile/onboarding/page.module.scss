@@ -1,0 +1,449 @@
+// Immersive Stories-style onboarding canvas (Warm Refuge).
+// Oat background, Playfair Display questions, Brown Ash text, Terracotta hero.
+.page {
+  display: flex;
+  flex-direction: column;
+  max-width: 28rem;
+  min-height: 100dvh;
+  padding: 1rem 1rem 2rem;
+  margin: -1rem auto 0;
+  background: var(--color-canvas, #f9f6f0);
+}
+
+.progress {
+  height: 0.5rem;
+  overflow: hidden;
+  background: var(--color-border);
+  border-radius: 999px;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--color-accent, #c87966);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.stepCounter {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-top: 0.5rem;
+}
+
+.art {
+  width: 100%;
+  max-height: 7.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.question {
+  margin: 0 0 0.25rem;
+  font-size: 1.75rem;
+}
+
+// Body-font lead carrying the step question, slightly larger.
+.lead {
+  margin: 0 0 1rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--color-tab-inactive, #4a3f39);
+}
+
+.subcopy {
+  margin: 0 0 1rem;
+  font-size: 0.9375rem;
+  color: var(--color-muted);
+}
+
+.fieldset {
+  padding: 0;
+  margin: 0 0 1.25rem;
+  border: none;
+
+  legend {
+    padding: 0;
+    margin-bottom: 0.625rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--color-tab-inactive, #4a3f39);
+  }
+}
+
+// Giant clean text input (step 1 only).
+.giantLabel {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-tab-inactive, #4a3f39);
+}
+
+.giantInput {
+  min-height: 3.5rem;
+  padding: 0.75rem 1rem;
+  margin-top: 0.5rem;
+  font-family:
+    var(--font-display, Georgia),
+    Georgia,
+    serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-tab-inactive, #4a3f39);
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+
+  &::placeholder {
+    font-weight: 400;
+    color: var(--color-muted);
+    opacity: 0.7;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-accent, #c87966);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent, #c87966) 25%, transparent);
+  }
+}
+
+// Giant segmented control (section + fit).
+.segmented {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.segmentOption {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.5rem;
+  padding: 0.75rem 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-tab-inactive, #4a3f39);
+  text-align: center;
+  cursor: pointer;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: 999px;
+  transition:
+    border-color 0.18s ease,
+    color 0.18s ease,
+    background-color 0.18s ease;
+
+  &.selected {
+    color: var(--color-oat, #f9f6f0);
+    background: var(--color-accent, #c87966);
+    border-color: var(--color-accent, #c87966);
+  }
+}
+
+// Vertical editorial cards: Playfair Display, left aligned, thin
+// Brown Ash border. Selection scale is driven by Framer Motion.
+.editorialStack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.editorialCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  justify-content: flex-end;
+  min-height: 5.25rem;
+  padding: 0.875rem 1rem;
+  cursor: pointer;
+  background: var(--color-surface);
+  border: 1px solid var(--color-tab-inactive, #4a3f39);
+  border-radius: var(--radius-md);
+  transform-origin: center;
+
+  &.selected {
+    border-color: var(--color-accent, #c87966);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent, #c87966) 45%, transparent);
+  }
+}
+
+.editorialName {
+  font-family:
+    var(--font-display, Georgia),
+    Georgia,
+    serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--color-tab-inactive, #4a3f39);
+  text-align: left;
+}
+
+.editorialHint {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  text-align: left;
+}
+
+// Visually-hidden but focusable radio inputs inside custom labels.
+.radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+
+  &:focus-visible + span {
+    outline: 2px solid var(--color-accent, #c87966);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
+}
+
+// Three chunky vertical measurement sliders side by side.
+.measureRow {
+  display: flex;
+  gap: 0.625rem;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.measureCol {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 0.5rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.measureGuide {
+  width: 3.5rem;
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+
+.measureValue {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-foreground);
+  line-height: 1;
+}
+
+.measureUnit {
+  margin-left: 0.125rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.measureName {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-tab-inactive, #4a3f39);
+}
+
+.verticalRange {
+  width: 2.75rem;
+  height: 9rem;
+  margin: 0;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  accent-color: var(--color-accent, #c87966);
+  cursor: pointer;
+}
+
+// Thermal slider (brand gradient track, see .thickRange below).
+.thermalLabel {
+  display: block;
+  margin-bottom: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-tab-inactive, #4a3f39);
+}
+
+.thermalScale {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.thickRange {
+  width: 100%;
+  min-height: 2.75rem;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  background: transparent;
+
+  &::-webkit-slider-runnable-track {
+    height: 0.875rem;
+    background: linear-gradient(90deg, #7a8b99 0%, #c87966 100%);
+    border-radius: 999px;
+  }
+
+  &::-webkit-slider-thumb {
+    width: 2rem;
+    height: 2rem;
+    margin-top: -0.5625rem;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    background: var(--color-surface, #fff);
+    border: 3px solid var(--color-accent, #c87966);
+    border-radius: 50%;
+  }
+
+  &::-moz-range-track {
+    height: 0.875rem;
+    background: linear-gradient(90deg, #7a8b99 0%, #c87966 100%);
+    border-radius: 999px;
+  }
+
+  &::-moz-range-thumb {
+    width: 1.5rem;
+    height: 1.5rem;
+    cursor: pointer;
+    background: var(--color-surface, #fff);
+    border: 3px solid var(--color-accent, #c87966);
+    border-radius: 50%;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent, #c87966);
+    outline-offset: 4px;
+    border-radius: 999px;
+  }
+}
+
+.thermalValue {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+  text-align: center;
+}
+
+// Veto color circles (multi-select).
+.vetoRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+}
+
+.veto {
+  position: relative;
+  cursor: pointer;
+}
+
+.vetoDot {
+  position: relative;
+  display: block;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.vetoed .vetoDot {
+  border-color: var(--color-error);
+  box-shadow:
+    0 0 0 2px var(--color-surface),
+    0 0 0 4px var(--color-error);
+  transform: scale(1.06);
+}
+
+.vetoed .vetoDot::after {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-error);
+  content: "×";
+}
+
+.error {
+  padding: 0.625rem 0.75rem;
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  color: var(--color-error);
+  background: color-mix(in srgb, var(--color-error) 8%, transparent);
+  border-radius: var(--radius-sm);
+}
+
+.actions {
+  position: sticky;
+  bottom: calc(var(--tabbar-height) + 0.75rem);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  margin-top: auto;
+  background: var(--color-canvas, #f9f6f0);
+}
+
+// Full-screen celebration moment.
+.success {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  min-height: 70dvh;
+  padding: 2rem 1rem;
+  overflow: hidden;
+  text-align: center;
+}
+
+.spark {
+  position: absolute;
+  pointer-events: none;
+}
+
+.successMark {
+  width: 7.5rem;
+  height: 7.5rem;
+}
+
+.successTitle {
+  margin: 0;
+  font-size: 2rem;
+  text-wrap: balance;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progressFill,
+  .segmentOption,
+  .editorialCard,
+  .vetoDot {
+    transition: none;
+  }
+}
