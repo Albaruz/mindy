@@ -1,5 +1,7 @@
 import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/rateLimit";
 import {
   GARMENT_COLOR_VALUES,
   GARMENT_CUT_VALUES,
@@ -60,6 +62,28 @@ function readText(value: unknown, maxLength = 60): string | null {
 // POST /api/analyze — Body: { imageBase64: "data:image/png;base64,..." }
 // Without GROQ_API_KEY the client falls back to manual tagging.
 export async function POST(req: Request) {
+  // Paid upstream (Groq vision): require an authenticated session before
+  // any parsing or billing-relevant work.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Vision calls are billed per image: cap uploads per user.
+  const quota = checkRateLimit(`analyze:${user.id}`, 30, 10 * 60 * 1000);
+  if (quota.limited) {
+    return NextResponse.json(
+      { error: "Too many requests. Try again later." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(quota.retryAfterSec) },
+      },
+    );
+  }
+
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
     return NextResponse.json(

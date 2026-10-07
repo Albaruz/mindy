@@ -53,7 +53,8 @@ export function useWearToday() {
         const { error: garmentsError } = await supabase
           .from("garments")
           .update({ is_dirty: true, last_worn_date: now })
-          .in("garment_id", dirtyIds);
+          .in("garment_id", dirtyIds)
+          .eq("user_id", user.id);
         if (garmentsError) {
           throw garmentsError;
         }

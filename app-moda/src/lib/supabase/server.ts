@@ -1,6 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { REMEMBER_COOKIE, REMEMBER_MAX_AGE_SECONDS } from "./cookies";
+import {
+  REMEMBER_COOKIE,
+  REMEMBER_MAX_AGE_SECONDS,
+  REMEMBER_SINCE_COOKIE,
+  isRememberActive,
+} from "./cookies";
 
 // Server-side Supabase client for Server Components, Server Actions, and
 // Route Handlers. Never import this file (or `next/headers`) into client
@@ -14,9 +19,15 @@ export async function createClient(options?: {
   persistent?: boolean;
 }) {
   const cookieStore = await cookies();
+  // Explicit opt-in at sign-in wins (the flag is stamped right after);
+  // every other path enforces the absolute window so a stale flag cannot
+  // extend persistence forever.
   const remembered =
     options?.persistent ??
-    cookieStore.get(REMEMBER_COOKIE)?.value === "1";
+    isRememberActive(
+      cookieStore.get(REMEMBER_COOKIE)?.value,
+      cookieStore.get(REMEMBER_SINCE_COOKIE)?.value,
+    );
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || "http://localhost:54321",

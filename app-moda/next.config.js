@@ -28,6 +28,48 @@ const nextConfig = {
   // `next build --webpack`). Declaring `turbopack` avoids errors in
   // `next dev`, which runs on Turbopack and needs no service worker.
   turbopack: {},
+  poweredByHeader: false,
+  // Defense-in-depth headers (audit H-Headers). CSP keeps 'unsafe-inline'
+  // for scripts/styles: Next.js flight data and the theme bootstrap script
+  // are inline by design. Remote surface is still pinned: images only from
+  // self/data/blob/Supabase storage, API calls same-origin + Supabase.
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          { key: "X-Frame-Options", value: "DENY" },
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline'",
+              "style-src 'self' 'unsafe-inline'",
+              // Garment photos can live on third-party hosts (external
+              // catalog imports), so images allow any HTTPS origin.
+              // <img> sends no credentials cross-origin by default.
+              "img-src 'self' data: blob: https:",
+              "connect-src 'self' https://*.supabase.co",
+              "font-src 'self' data:",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "frame-ancestors 'none'",
+              "form-action 'self'",
+            ].join("; "),
+          },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = withPWA(withNextIntl(nextConfig));

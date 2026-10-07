@@ -1,5 +1,14 @@
--- Private garment photos: public read, owner-only write.
+-- Garment photos: public read, owner-only write.
 -- Files are stored at <user_id>/<uuid>.png so the folder name is the owner.
+--
+-- ACCEPTED TRADEOFF (documented, 2026-10-08): reads stay public on purpose.
+-- Going private would require signed URLs in every reader, a data migration
+-- of stored URLs, and would break third-party-hosted photos and the offline
+-- image cache. Object names use random UUIDs (unguessable single URLs) and
+-- writes/deletes/size/type are owner-scoped and constrained, so the residual
+-- risk is limited to bucket enumeration by an authenticated caller.
+-- Revisit if photos ever become sensitive beyond wardrobe snapshots.
+--
 -- Apply with: supabase db push (or paste into the Supabase SQL editor).
 
 insert into storage.buckets (id, name, public)

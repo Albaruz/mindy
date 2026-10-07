@@ -17,6 +17,16 @@ const INITIAL_STATE: PasswordActionState = { error: null, message: null };
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 async function requestOrigin(): Promise<string> {
+  // Fixed origin from env: never trust Host / X-Forwarded-Host headers for
+  // security-relevant URLs (host-header poisoning would redirect the
+  // recovery email to an attacker host). Dev fallback to headers only.
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (siteUrl !== undefined && siteUrl !== "") {
+    return siteUrl.replace(/\/$/, "");
+  }
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Missing NEXT_PUBLIC_SITE_URL");
+  }
   const headerStore = await headers();
   const proto = headerStore.get("x-forwarded-proto") ?? "http";
   const host =

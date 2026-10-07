@@ -1,6 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { REMEMBER_COOKIE, REMEMBER_MAX_AGE_SECONDS } from "./cookies";
+import {
+  REMEMBER_COOKIE,
+  REMEMBER_MAX_AGE_SECONDS,
+  REMEMBER_SINCE_COOKIE,
+  isRememberActive,
+  rememberCookieFlags,
+} from "./cookies";
 
 // Refreshes an expired session from the session cookies and returns the
 // response carrying the updated cookies plus the authenticated user
@@ -8,7 +14,14 @@ import { REMEMBER_COOKIE, REMEMBER_MAX_AGE_SECONDS } from "./cookies";
 // Honors the remember-me flag so refreshes keep persistent cookies.
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
-  const remembered = request.cookies.get(REMEMBER_COOKIE)?.value === "1";
+  const flag = request.cookies.get(REMEMBER_COOKIE)?.value;
+  const since = request.cookies.get(REMEMBER_SINCE_COOKIE)?.value;
+  const remembered = isRememberActive(flag, since);
+  // Legacy flag without a stamp: stamp now (one fresh 30-day window).
+  const stampSince = flag === "1" && since === undefined;
+  // Absolute window lapsed: drop the choice so the session degrades to
+  // a browser-session cookie instead of sliding forever.
+  const expired = flag === "1" && since !== undefined && !remembered;
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || "http://localhost:54321",
@@ -23,6 +36,17 @@ export async function updateSession(request: NextRequest) {
             request.cookies.set(name, value),
           );
           response = NextResponse.next({ request });
+          if (stampSince) {
+            response.cookies.set(
+              REMEMBER_SINCE_COOKIE,
+              String(Math.floor(Date.now() / 1000)),
+              rememberCookieFlags(REMEMBER_MAX_AGE_SECONDS),
+            );
+          }
+          if (expired) {
+            response.cookies.delete(REMEMBER_COOKIE);
+            response.cookies.delete(REMEMBER_SINCE_COOKIE);
+          }
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, {
               ...options,

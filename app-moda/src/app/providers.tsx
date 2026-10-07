@@ -7,7 +7,7 @@ import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persi
 import { del, get, set } from "idb-keyval";
 import { applyThemeMode, useThemeStore } from "@/features/settings/themeStore";
 
-const PERSISTED_CACHE_KEY = "mindy-query-cache";
+export const PERSISTED_CACHE_KEY = "mindy-query-cache";
 const PERSISTED_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 export function Providers({ children }: { children: ReactNode }) {

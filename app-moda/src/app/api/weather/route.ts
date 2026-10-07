@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 // Standard climate returned whenever coordinates are missing or the
 // OpenWeather request fails for any reason (no key, upstream error...).
@@ -60,6 +62,22 @@ function readTemperature(value: unknown): number | null {
 
 // GET /api/weather?lat=40.41&lon=-3.70
 export async function GET(request: Request) {
+  // Proxied upstream (OpenWeather quota): require an authenticated
+  // session before spending it. All callers live behind the page guard.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Cheap call, but still third-party quota: cap per user.
+  const quota = checkRateLimit(`weather:${user.id}`, 30, 60 * 60 * 1000);
+  if (quota.limited) {
+    return fallbackResponse("rate limited");
+  }
+
   const { searchParams } = new URL(request.url);
   const lat = parseCoordinate(searchParams.get("lat"), -90, 90);
   const lon = parseCoordinate(searchParams.get("lon"), -180, 180);

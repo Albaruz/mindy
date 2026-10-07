@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit } from "@/lib/rateLimit";
 import {
   buildSystemPrompt,
   type StylistProfile,
@@ -51,8 +53,11 @@ interface OutfitOption {
   reason: string;
 }
 
-function readOptionalString(value: unknown): string | null {
-  return typeof value === "string" && value !== "" ? value : null;
+function readOptionalString(value: unknown, maxLength = 200): string | null {
+  if (typeof value !== "string" || value === "") {
+    return null;
+  }
+  return value.slice(0, maxLength);
 }
 
 function readClosed<T extends string>(
@@ -618,6 +623,29 @@ function capBalancedPool(
 // filtering applies: without enough matching garments the handler answers
 // 422 { error: "INSUFFICIENT_STYLE_GARMENTS" } and never calls the LLM.
 export async function POST(request: Request) {
+  // Paid upstream (Groq): require an authenticated session before any
+  // parsing or billing-relevant work.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Authenticated users still share one Groq quota: max 5 requests per
+  // minute per user (in-memory window, see lib/rateLimit.ts).
+  const quota = checkRateLimit(`recommender:${user.id}`, 5, 60 * 1000);
+  if (quota.limited) {
+    return NextResponse.json(
+      { error: "Too many requests. Try again later." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(quota.retryAfterSec) },
+      },
+    );
+  }
+
   if (!process.env.GROQ_API_KEY) {
     return NextResponse.json(
       { error: "AI service is not configured (GROQ_API_KEY)." },
@@ -646,6 +674,12 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "Provide a non-empty garments array." },
       { status: 400 },
+    );
+  }
+  if (input.garments.length > 200) {
+    return NextResponse.json(
+      { error: "Too many garments in a single request." },
+      { status: 413 },
     );
   }
   const candidates = input.garments

@@ -24,7 +24,8 @@ export function useWashGarment() {
       const { error } = await supabase
         .from("garments")
         .update({ is_dirty: false })
-        .eq("garment_id", garmentId);
+        .eq("garment_id", garmentId)
+        .eq("user_id", user.id);
       if (error) {
         throw error;
       }

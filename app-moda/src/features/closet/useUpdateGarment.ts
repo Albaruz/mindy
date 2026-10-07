@@ -6,7 +6,9 @@ import { LAUNDRY_QUERY_KEY } from "@/features/profile/useLaundryBasketQuery";
 import type { GarmentFormInput } from "./useUploadGarment";
 
 // Updates the editable tags of an existing garment. RLS guarantees the
-// row belongs to the signed-in user.
+// row belongs to the signed-in user; the explicit user_id filter is a
+// second barrier so a future RLS regression cannot turn this into a
+// cross-account write.
 export function useUpdateGarment() {
   const queryClient = useQueryClient();
 
@@ -39,7 +41,8 @@ export function useUpdateGarment() {
           season,
           extra_tags: input.extraTags,
         })
-        .eq("garment_id", garmentId);
+        .eq("garment_id", garmentId)
+        .eq("user_id", user.id);
       if (error) {
         throw error;
       }

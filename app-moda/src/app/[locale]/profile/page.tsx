@@ -12,7 +12,9 @@ import { SEASON_PALETTES } from "@/features/profile/seasonPalettes";
 import { SettingsControls } from "@/features/settings/SettingsControls";
 import type { Colorimetry } from "@/types/user";
 import { useQueryClient } from "@tanstack/react-query";
+import { del } from "idb-keyval";
 import { Link } from "@/i18n/navigation";
+import { PERSISTED_CACHE_KEY } from "@/app/providers";
 import { signOutAction } from "./actions";
 import styles from "./page.module.scss";
 
@@ -59,9 +61,17 @@ export default function ProfilePage() {
     }
     setIsSigningOut(true);
     // Drop cached server state before killing the session so the next
-    // account never flashes this one's closet. The action redirects to /.
+    // account never flashes this one's closet: memory cache plus the
+    // persisted IndexedDB copy (wardrobe/history/profile stay on disk
+    // otherwise). The action redirects to /.
     queryClient.clear();
-    void signOutAction();
+    void del(PERSISTED_CACHE_KEY)
+      .catch(() => {
+        // Private mode may reject: memory is already cleared above.
+      })
+      .finally(() => {
+        void signOutAction();
+      });
   };
 
   const displayName =

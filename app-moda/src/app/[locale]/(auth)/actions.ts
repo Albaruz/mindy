@@ -8,6 +8,8 @@ import { createClient } from "@/lib/supabase/server";
 import {
   REMEMBER_COOKIE,
   REMEMBER_MAX_AGE_SECONDS,
+  REMEMBER_SINCE_COOKIE,
+  rememberCookieFlags,
 } from "@/lib/supabase/cookies";
 import {
   hasCompletedOnboarding,
@@ -38,12 +40,19 @@ function readCredentials(formData: FormData) {
 async function applyRememberChoice(remember: boolean) {
   const cookieStore = await cookies();
   if (remember) {
-    cookieStore.set(REMEMBER_COOKIE, "1", {
-      maxAge: REMEMBER_MAX_AGE_SECONDS,
-      path: "/",
-    });
+    cookieStore.set(
+      REMEMBER_COOKIE,
+      "1",
+      rememberCookieFlags(REMEMBER_MAX_AGE_SECONDS),
+    );
+    cookieStore.set(
+      REMEMBER_SINCE_COOKIE,
+      String(Math.floor(Date.now() / 1000)),
+      rememberCookieFlags(REMEMBER_MAX_AGE_SECONDS),
+    );
   } else {
     cookieStore.delete(REMEMBER_COOKIE);
+    cookieStore.delete(REMEMBER_SINCE_COOKIE);
   }
 }
 
