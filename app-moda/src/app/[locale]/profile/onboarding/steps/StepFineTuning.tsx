@@ -7,8 +7,8 @@ import {
   FORBIDDEN_COLOR_OPTIONS,
   THERMAL_MAX,
   THERMAL_MIN,
-  useOnboardingStore,
-} from "@/features/onboarding/onboardingStore";
+} from "@/constants/ui-config";
+import { useOnboardingStore } from "@/features/onboarding/onboardingStore";
 import styles from "../page.module.scss";
 
 // Step 5: thermal slider (1 = chilly, 5 = always warm) + veto color circles.

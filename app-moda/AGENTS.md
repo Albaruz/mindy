@@ -21,6 +21,24 @@ Follow the existing **Feature-Driven** structure:
 - `/src/components`: Dumb, global UI Kit components (agnostic).
 - `/src/app/api`: Server Route Handlers (used as a secure layer for Groq/OpenWeather).
 - `/src/types`: Strict TS interfaces and types.
+- `/src/constants`: **Centralized constants (Single Source of Truth)**. Never inline magic strings/numbers in features. Import from `@/constants/*`. Each module documents its domain and usage.
+
+### Constants Modules (src/constants/)
+| Module | Domain | Example exports |
+|--------|--------|-----------------|
+| `ai.ts` | LLM engine config | `AI_MODEL`, `AI_TIMEOUT_MS`, `AI_TEMPERATURE`, `VISION_*` |
+| `profile.ts` | Profile/onboarding enums | `SKIN_TONES`, `EYE_COLORS`, `SEASON_PALETTES`, `inferColorimetry` |
+| `ui-config.ts` | UI config & minimal tokens | `MEASURE_MIN/MAX_CM`, `FORBIDDEN_COLOR_OPTIONS`, `SHOP_SECTIONS`, `breakpoints` |
+| `validation.ts` | Input validation rules | `PASSWORD_MIN_LENGTH`, `DISPLAY_NAME_MIN/MAX`, `TAG_KEY/VALUE_MAX`, `MEASUREMENT_MIN/MAX_CM` |
+| `generator.ts` | Generator business caps | `MAX_LOOK_OPTIONS`, `MAX_DISCARD_COUNT`, `CAROUSEL_LOOP_MIN_SLIDES` |
+| `animations.ts` | Animation durations | `CELEBRATION_BURST_MS`, `NOTIFICATION_DURATION/EXIT_MS`, `SWIPE_COMMIT/FADE_START_PX` |
+| `weather.ts` | Climate thresholds | `DEFAULT_TEMPERATURE_C`, `HEAT/COLD_THRESHOLD_C`, `RAINY_CONDITIONS` |
+| `api.ts` | Internal API routes & rate limits | `API_ROUTES`, `RATE_LIMITS`, `RETRY_AFTER_HEADER` |
+| `query.ts` | TanStack Query defaults | `QUERY_STALE_TIME_MS`, `WEATHER_STALE_TIME_MS`, `QUERY_KEYS` |
+| `geo.ts` | Geolocation settings | `GEOLOCATION_TIMEOUT_MS`, `GEOLOCATION_MAX_AGE_MS` |
+| `storage.ts` | Supabase tables/buckets/keys | `TABLES`, `STORAGE_BUCKETS`, `THEME_STORAGE_KEY`, `PERSISTED_CACHE_KEY` |
+
+**Rule:** New magic values go in the appropriate `src/constants/*.ts` module, not in feature files.
 
 ## 🧠 Specialized Skills / Contexts
 Invoke skills with the `@skill:<name>` convention, where `<name>` matches the skill folder exactly. Local skills live in `app-moda/.agents/skills/`. Global skills live in `~/.agents/skills/`. Read the `SKILL.md` first, then the relevant `rules/*.md` or `references/*` file for the task. Apply them when writing, reviewing, or refactoring — not just on request.

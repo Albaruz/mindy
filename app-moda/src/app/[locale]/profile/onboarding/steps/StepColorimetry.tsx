@@ -8,7 +8,7 @@ import {
   EYE_COLORS,
   SKIN_TONE_SWATCHES,
   SKIN_TONES,
-} from "@/features/profile/profileOptions";
+} from "@/constants/profile";
 import { useOnboardingStore } from "@/features/onboarding/onboardingStore";
 import styles from "../page.module.scss";
 

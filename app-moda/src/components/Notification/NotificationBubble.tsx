@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { CircleAlert, CircleCheck, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { NOTIFICATION_EXIT_MS } from "@/constants/animations";
 import {
   NOTIFICATION_DURATION_MS,
+  NOTIFICATION_EXIT_MS,
+} from "@/constants/animations";
+import {
   type NotificationType,
 } from "@/features/ui/useNotificationStore";
 import styles from "./NotificationBubble.module.scss";

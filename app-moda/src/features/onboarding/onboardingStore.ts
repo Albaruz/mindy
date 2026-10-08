@@ -17,7 +17,6 @@ import {
   clampMeasurement,
   clampThermal,
 } from "@/constants/ui-config";
-import { SKIN_TONES } from "@/constants/profile";
 
 // Wizard answers for the 5-step immersive onboarding (Stories style).
 // Identity and fine-tuning answers have no dedicated profile columns, so

@@ -8,8 +8,8 @@ import {
   FIT_CHOICES,
   MEASURE_MAX_CM,
   MEASURE_MIN_CM,
-  useOnboardingStore,
-} from "@/features/onboarding/onboardingStore";
+} from "@/constants/ui-config";
+import { useOnboardingStore } from "@/features/onboarding/onboardingStore";
 import styles from "../page.module.scss";
 
 interface MeasureSliderProps {

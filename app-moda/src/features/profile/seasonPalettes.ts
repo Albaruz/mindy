@@ -1,4 +1,3 @@
-import type { Colorimetry } from "@/types/user";
 import { SEASON_PALETTES } from "@/constants/profile";
 
 // Five flat swatches per seasonal palette for the colorimetry bento card.

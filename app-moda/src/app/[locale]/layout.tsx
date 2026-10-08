@@ -5,7 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { AppHeader } from "@/components/AppHeader/AppHeader";
 import { NotificationContainer } from "@/components/Notification/NotificationContainer";
-import { THEME_STORAGE_KEY } from "@/features/settings/themeStore";
+import { THEME_STORAGE_KEY } from "@/constants/storage";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { Providers } from "../providers";
 import "../globals.scss";

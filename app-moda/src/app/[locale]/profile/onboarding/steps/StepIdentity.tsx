@@ -7,8 +7,8 @@ import { OnboardingArt } from "@/features/onboarding/OnboardingArt";
 import {
   SHOP_SECTIONS,
   STYLE_TRIBES,
-  useOnboardingStore,
-} from "@/features/onboarding/onboardingStore";
+} from "@/constants/ui-config";
+import { useOnboardingStore } from "@/features/onboarding/onboardingStore";
 import styles from "../page.module.scss";
 
 // Step 2: shopping section (giant segmented) + style tribe as vertical

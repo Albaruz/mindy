@@ -4,11 +4,11 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { localizePath } from "@/lib/onboarding";
 import { resolveRequestLocale } from "@/lib/serverLocale";
-import { FORBIDDEN_COLOR_OPTIONS } from "@/features/onboarding/onboardingStore";
+import { FORBIDDEN_COLOR_OPTIONS } from "@/constants/ui-config";
 import {
   EYE_COLORS,
   SKIN_TONES,
-} from "@/features/profile/profileOptions";
+} from "@/constants/profile";
 import { THERMAL_MAX, THERMAL_MIN } from "@/constants/ui-config";
 import {
   DISPLAY_NAME_MAX_LENGTH,

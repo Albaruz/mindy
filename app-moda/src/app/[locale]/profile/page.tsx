@@ -8,13 +8,13 @@ import { Button } from "@/components/Button/Button";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { useProfileQuery } from "@/features/profile/useProfileQuery";
 import { MorphoIcon } from "@/features/profile/MorphoIcon";
-import { SEASON_PALETTES } from "@/features/profile/seasonPalettes";
+import { SEASON_PALETTES } from "@/constants/profile";
 import { SettingsControls } from "@/features/settings/SettingsControls";
 import type { Colorimetry } from "@/types/user";
 import { useQueryClient } from "@tanstack/react-query";
 import { del } from "idb-keyval";
 import { Link } from "@/i18n/navigation";
-import { PERSISTED_CACHE_KEY } from "@/app/providers";
+import { PERSISTED_CACHE_KEY } from "@/constants/storage";
 import { signOutAction } from "./actions";
 import styles from "./page.module.scss";
 
