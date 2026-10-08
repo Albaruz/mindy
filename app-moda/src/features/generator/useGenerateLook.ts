@@ -12,6 +12,9 @@ import type { Garment } from "@/types/garment";
 import { useGeneratorStore, type Category } from "./useGeneratorStore";
 import { categorizeGarment, isLaundryExemptGarment } from "./categorizeGarments";
 import { useNotificationStore } from "@/features/ui/useNotificationStore";
+import { DEFAULT_TEMPERATURE_C } from "@/constants/weather";
+import { GEOLOCATION_MAX_AGE_MS, GEOLOCATION_TIMEOUT_MS } from "@/constants/geo";
+import { API_ROUTES, buildWeatherUrl } from "@/constants/api";
 
 export const MOODS = [
   "relaxed",
@@ -37,8 +40,6 @@ export interface GenerateLookInput {
   mood: Mood;
 }
 
-const GEOLOCATION_TIMEOUT_MS = 8000;
-
 function getCurrentPosition(): Promise<GeolocationPosition> {
   return new Promise((resolve, reject) => {
     if (!("geolocation" in navigator)) {
@@ -47,7 +48,7 @@ function getCurrentPosition(): Promise<GeolocationPosition> {
     }
     navigator.geolocation.getCurrentPosition(resolve, reject, {
       timeout: GEOLOCATION_TIMEOUT_MS,
-      maximumAge: 600_000,
+      maximumAge: GEOLOCATION_MAX_AGE_MS,
     });
   });
 }
@@ -58,21 +59,21 @@ async function resolveTemperatureCelsius(): Promise<number> {
   try {
     const position = await getCurrentPosition();
     const response = await fetch(
-      `/api/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}`,
+      buildWeatherUrl(position.coords.latitude, position.coords.longitude),
     );
     if (!response.ok) {
-      return 20;
+      return DEFAULT_TEMPERATURE_C;
     }
     const payload: unknown = await response.json();
     if (typeof payload !== "object" || payload === null) {
-      return 20;
+      return DEFAULT_TEMPERATURE_C;
     }
     const temperature = (payload as Record<string, unknown>).temperatureC;
     return typeof temperature === "number" && Number.isFinite(temperature)
       ? temperature
-      : 20;
+      : DEFAULT_TEMPERATURE_C;
   } catch {
-    return 20;
+    return DEFAULT_TEMPERATURE_C;
   }
 }
 
@@ -132,7 +133,7 @@ export function useGenerateLook() {
           ? { ...garment, isDirty: false }
           : garment,
       );
-      const response = await fetch("/api/recommender", {
+      const response = await fetch(API_ROUTES.recommender, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

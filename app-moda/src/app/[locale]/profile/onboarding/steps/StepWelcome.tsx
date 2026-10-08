@@ -1,7 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ThreadIllustration } from "@/features/onboarding/ThreadIllustration";
+import { OnboardingArt } from "@/features/onboarding/OnboardingArt";
+import { DISPLAY_NAME_MAX_LENGTH } from "@/constants/validation";
 import { useOnboardingStore } from "@/features/onboarding/onboardingStore";
 import styles from "../page.module.scss";
 
@@ -14,7 +15,7 @@ export function StepWelcome() {
 
   return (
     <>
-      <ThreadIllustration step={1} label={ta("threadArt")} className={styles.art} />
+      <OnboardingArt step={1} label={ta("threadArt")} className={styles.art} />
       <h1 className={styles.question}>{t("nameKeyword")}</h1>
       <p className={styles.lead}>{t("welcomeTitle")}</p>
       <label htmlFor="displayName" className={styles.giantLabel}>
@@ -25,7 +26,7 @@ export function StepWelcome() {
         name="displayName"
         type="text"
         autoComplete="given-name"
-        maxLength={40}
+        maxLength={DISPLAY_NAME_MAX_LENGTH}
         placeholder={t("namePlaceholder")}
         value={displayName}
         onChange={(event) => setDisplayName(event.target.value)}

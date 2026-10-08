@@ -286,6 +286,16 @@
     "forbiddenLabel": "¿Algún color prohibido en tu armario?",
     "forbiddenNone": "Nada vetado. Atrevido.",
     "forbiddenCount": "{count} vetados",
+    "vetoColors": {
+      "black": "Negro",
+      "white": "Blanco",
+      "brown": "Marrón",
+      "beige": "Beige",
+      "red": "Rojo",
+      "green": "Verde",
+      "blue": "Azul",
+      "yellow": "Amarillo"
+    },
     "back": "Atrás",
     "continue": "Continuar",
     "save": "Guardar perfil",
@@ -349,5 +359,91 @@
     "measureValue": "{value} centímetros",
     "vetoColor": "Vetar {color}",
     "weatherCard": "Tiempo en {city}: {label}, {temp} grados"
+  },
+  "Garments": {
+    "types": {
+      "top": "Prenda superior",
+      "bottom": "Prenda inferior",
+      "dress": "Vestido",
+      "outerwear": "Abrigo",
+      "footwear": "Calzado"
+    },
+    "colors": {
+      "black": "Negro",
+      "white": "Blanco",
+      "gray": "Gris",
+      "beige": "Beige",
+      "brown": "Marrón",
+      "navy": "Azul marino",
+      "blue": "Azul",
+      "red": "Rojo",
+      "pink": "Rosa",
+      "green": "Verde",
+      "yellow": "Amarillo",
+      "orange": "Naranja",
+      "purple": "Morado"
+    },
+    "materials": {
+      "cotton": "Algodón",
+      "denim": "Denim",
+      "linen": "Lino",
+      "wool": "Lana",
+      "leather": "Cuero",
+      "silk": "Seda",
+      "polyester": "Poliéster",
+      "viscose": "Viscosa",
+      "nylon": "Nailon",
+      "elastane": "Elastano",
+      "corduroy": "Pana",
+      "knit": "Punto"
+    },
+    "styles": {
+      "casual": "Casual",
+      "formal": "Formal",
+      "sport": "Deportivo",
+      "elegant": "Elegante",
+      "streetwear": "Urbano",
+      "party": "Fiesta"
+    },
+    "seasons": {
+      "summer": "Verano",
+      "winter": "Invierno",
+      "mid_season": "Entretiempo",
+      "all": "Todo el año"
+    },
+    "cuts": {
+      "slim": "Ajustado",
+      "regular": "Regular",
+      "relaxed": "Holgado",
+      "oversized": "Oversize",
+      "cropped": "Corto",
+      "long": "Largo"
+    },
+    "specifics": {
+      "sneakers": "Zapatillas",
+      "boots": "Botas",
+      "sandals": "Sandalias",
+      "heels": "Tacones",
+      "loafers": "Mocasines",
+      "t-shirt": "Camiseta",
+      "shirt": "Camisa",
+      "blouse": "Blusa",
+      "sweater": "Jersey",
+      "hoodie": "Sudadera",
+      "jeans": "Vaqueros",
+      "trousers": "Pantalones",
+      "shorts": "Pantalones cortos",
+      "skirt": "Falda",
+      "jacket": "Chaqueta",
+      "coat": "Abrigo",
+      "blazer": "Blazer",
+      "dress": "Vestido",
+      "gown": "Vestido de fiesta",
+      "jumpsuit": "Mono",
+      "turquoise": "Turquesa",
+      "burgundy": "Burdeos",
+      "mustard": "Mostaza",
+      "beige": "Beige"
+    }
   }
 }

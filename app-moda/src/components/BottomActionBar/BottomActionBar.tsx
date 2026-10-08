@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { Lottie } from "lottie-react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CELEBRATION_BURST_MS } from "@/constants/animations";
 import styles from "./BottomActionBar.module.scss";
 
 export interface ActionSide {
@@ -68,7 +69,7 @@ export function BottomActionBar({
     if (timerRef.current !== null) {
       clearTimeout(timerRef.current);
     }
-    timerRef.current = setTimeout(() => setBurstKey(0), 1400);
+    timerRef.current = setTimeout(() => setBurstKey(0), CELEBRATION_BURST_MS);
   };
 
   return (

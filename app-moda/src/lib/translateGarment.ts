@@ -1,5 +1,4 @@
-import { useLocale } from "next-intl";
-import type { AppLocale } from "@/i18n/routing";
+import { useLocale, useTranslations } from "next-intl";
 
 export type GarmentAttributeKind =
   | "type"
@@ -9,146 +8,60 @@ export type GarmentAttributeKind =
   | "season"
   | "cut";
 
-// Canonical Spanish labels per closed English base. AI-generated columns
-// always store English bases (see garmentOptions normalization), so this
-// map intercepts them before render when the locale is Spanish.
-const SPANISH_LABELS: Record<GarmentAttributeKind, Record<string, string>> = {
-  type: {
-    top: "Prenda superior",
-    bottom: "Prenda inferior",
-    dress: "Vestido",
-    outerwear: "Abrigo",
-    footwear: "Calzado",
-  },
-  color: {
-    black: "Negro",
-    white: "Blanco",
-    gray: "Gris",
-    beige: "Beige",
-    brown: "Marrón",
-    navy: "Azul marino",
-    blue: "Azul",
-    red: "Rojo",
-    pink: "Rosa",
-    green: "Verde",
-    yellow: "Amarillo",
-    orange: "Naranja",
-    purple: "Morado",
-  },
-  material: {
-    cotton: "Algodón",
-    denim: "Denim",
-    linen: "Lino",
-    wool: "Lana",
-    leather: "Cuero",
-    silk: "Seda",
-    polyester: "Poliéster",
-    viscose: "Viscosa",
-    nylon: "Nailon",
-    elastane: "Elastano",
-    corduroy: "Pana",
-    knit: "Punto",
-  },
-  style: {
-    casual: "Casual",
-    formal: "Formal",
-    sport: "Deportivo",
-    elegant: "Elegante",
-    streetwear: "Urbano",
-    party: "Fiesta",
-  },
-  season: {
-    summer: "Verano",
-    winter: "Invierno",
-    mid_season: "Entretiempo",
-    all: "Todo el año",
-  },
-  cut: {
-    slim: "Ajustado",
-    regular: "Regular",
-    relaxed: "Holgado",
-    oversized: "Oversize",
-    cropped: "Corto",
-    long: "Largo",
-  },
-};
-
-// Specific AI details kept in extra_tags (specificType, colorShade, ...)
-// may already be Spanish (user edits) or English (AI output). Known
-// English specifics map here; unknown values pass through untouched.
-const SPANISH_SPECIFICS: Record<string, string> = {
-  sneakers: "Zapatillas",
-  boots: "Botas",
-  sandals: "Sandalias",
-  heels: "Tacones",
-  loafers: "Mocasines",
-  "t-shirt": "Camiseta",
-  shirt: "Camisa",
-  blouse: "Blusa",
-  sweater: "Jersey",
-  hoodie: "Sudadera",
-  jeans: "Vaqueros",
-  trousers: "Pantalones",
-  shorts: "Pantalones cortos",
-  skirt: "Falda",
-  jacket: "Chaqueta",
-  coat: "Abrigo",
-  blazer: "Blazer",
-  dress: "Vestido",
-  gown: "Vestido de fiesta",
-  jumpsuit: "Mono",
-  turquoise: "Turquesa",
-  burgundy: "Burdeos",
-  mustard: "Mostaza",
-  beige: "Beige",
+// next-intl "Garments" namespaces per attribute kind (see messages/*.json).
+// Stored columns always hold English bases (see garmentOptions
+// normalization); Spanish resolves them through these dictionaries.
+const KIND_NAMESPACES: Record<GarmentAttributeKind, string> = {
+  type: "types",
+  color: "colors",
+  material: "materials",
+  style: "styles",
+  season: "seasons",
+  cut: "cuts",
 };
 
 function normalize(value: string): string {
   return value.toLowerCase().trim();
 }
 
-// Translate one stored English attribute value for display. Spanish
-// locale maps through the dictionaries; English (or unknown values)
-// return the original untouched. Nullish input stays nullish.
-export function translateGarmentValue(
-  value: string | null | undefined,
-  kind: GarmentAttributeKind,
-  locale: string,
-): string | null {
-  if (value === null || value === undefined || value === "") {
-    return null;
-  }
-  if ((locale as AppLocale) !== "es") {
-    return value;
-  }
-  const key = normalize(value);
-  return SPANISH_LABELS[kind][key] ?? SPANISH_SPECIFICS[key] ?? value;
-}
-
-// Translate a free-form extra_tags detail (specificType, colorShade).
-export function translateGarmentDetail(
-  value: string | null | undefined,
-  locale: string,
-): string | null {
-  if (value === null || value === undefined || value === "") {
-    return null;
-  }
-  if ((locale as AppLocale) !== "es") {
-    return value;
-  }
-  return SPANISH_SPECIFICS[normalize(value)] ?? value;
-}
-
 // Client hook: curried translator bound to the active next-intl locale.
+// Spanish maps stored values through the Garments dictionaries (specific
+// AI details via "specifics"); English or unknown values return the
+// original untouched. Nullish input stays nullish.
 export function useGarmentTranslator() {
   const locale = useLocale();
+  const t = useTranslations("Garments");
+
+  const lookup = (key: string): string | null =>
+    locale === "es" && t.has(key) ? t(key) : null;
+
   return {
     locale,
     translate: (
       value: string | null | undefined,
       kind: GarmentAttributeKind,
-    ) => translateGarmentValue(value, kind, locale),
-    translateDetail: (value: string | null | undefined) =>
-      translateGarmentDetail(value, locale),
+    ): string | null => {
+      if (value === null || value === undefined || value === "") {
+        return null;
+      }
+      if (locale !== "es") {
+        return value;
+      }
+      const key = normalize(value);
+      return (
+        lookup(`${KIND_NAMESPACES[kind]}.${key}`) ??
+        lookup(`specifics.${key}`) ??
+        value
+      );
+    },
+    translateDetail: (value: string | null | undefined): string | null => {
+      if (value === null || value === undefined || value === "") {
+        return null;
+      }
+      if (locale !== "es") {
+        return value;
+      }
+      return lookup(`specifics.${normalize(value)}`) ?? value;
+    },
   };
 }

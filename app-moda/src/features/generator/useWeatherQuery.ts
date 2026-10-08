@@ -1,6 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
+import { QUERY_KEYS, QUERY_REFETCH_ON_FOCUS, WEATHER_STALE_TIME_MS } from "@/constants/query";
+import {
+  COLD_THRESHOLD_C,
+  RAIN_EXPECTED_THRESHOLD,
+  isRainyConditionValue,
+} from "@/constants/weather";
+import { GEOLOCATION_MAX_AGE_MS, GEOLOCATION_TIMEOUT_MS } from "@/constants/geo";
+import { buildWeatherUrl } from "@/constants/api";
 
-export const WEATHER_QUERY_KEY = ["weather"] as const;
+export const WEATHER_QUERY_KEY = QUERY_KEYS.weather;
 
 export interface WeatherInfo {
   temperatureC: number;
@@ -16,16 +24,16 @@ export interface WeatherInfo {
 }
 
 // Outdoor conditions that call for an outerwear layer.
-const RAINY_CONDITIONS = ["Rain", "Drizzle", "Thunderstorm", "Snow"];
-
 export function isRainyCondition(condition: string | null | undefined): boolean {
-  return condition !== null && condition !== undefined && RAINY_CONDITIONS.includes(condition);
+  return (
+    condition !== null &&
+    condition !== undefined &&
+    isRainyConditionValue(condition)
+  );
 }
 
 // Imminent rain (forecast probability >= 50%) even when the current
 // conditions still look dry: the current-weather endpoint lags reality.
-export const RAIN_EXPECTED_THRESHOLD = 50;
-
 export function isRainExpected(rainProbability: number | null | undefined): boolean {
   return (
     typeof rainProbability === "number" &&
@@ -33,7 +41,6 @@ export function isRainExpected(rainProbability: number | null | undefined): bool
     rainProbability >= RAIN_EXPECTED_THRESHOLD
   );
 }
-const COLD_THRESHOLD_C = 15;
 
 function getCurrentPosition(): Promise<GeolocationPosition> {
   return new Promise((resolve, reject) => {
@@ -42,8 +49,8 @@ function getCurrentPosition(): Promise<GeolocationPosition> {
       return;
     }
     navigator.geolocation.getCurrentPosition(resolve, reject, {
-      timeout: 6000,
-      maximumAge: 600_000,
+      timeout: GEOLOCATION_TIMEOUT_MS,
+      maximumAge: GEOLOCATION_MAX_AGE_MS,
     });
   });
 }
@@ -54,7 +61,7 @@ async function fetchWeather(): Promise<WeatherInfo | null> {
   try {
     const position = await getCurrentPosition();
     const response = await fetch(
-      `/api/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}`,
+      buildWeatherUrl(position.coords.latitude, position.coords.longitude),
     );
     if (!response.ok) {
       return null;
@@ -98,9 +105,9 @@ export function useWeatherQuery() {
   return useQuery({
     queryKey: WEATHER_QUERY_KEY,
     queryFn: fetchWeather,
-    staleTime: 10 * 60 * 1000,
+    staleTime: WEATHER_STALE_TIME_MS,
     retry: false,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: QUERY_REFETCH_ON_FOCUS,
   });
 }
 

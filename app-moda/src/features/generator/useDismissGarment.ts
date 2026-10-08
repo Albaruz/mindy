@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import type { Garment } from "@/types/garment";
+import { TABLES } from "@/constants/storage";
 import {
   useGeneratorStore,
   type Category,
@@ -35,7 +36,7 @@ export function useDismissGarment() {
             data: { user },
           } = await supabase.auth.getUser();
           if (user) {
-            const { error } = await supabase.from("garment_feedback").insert({
+            const { error } = await supabase.from(TABLES.garmentFeedback).insert({
               user_id: user.id,
               garment_id: current.garmentId,
               signal: "dismissed",

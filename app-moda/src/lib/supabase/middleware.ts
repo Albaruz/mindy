@@ -1,12 +1,17 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import {
+  COOKIE_PATH,
   REMEMBER_COOKIE,
   REMEMBER_MAX_AGE_SECONDS,
   REMEMBER_SINCE_COOKIE,
   isRememberActive,
   rememberCookieFlags,
 } from "./cookies";
+import {
+  SUPABASE_ANON_FALLBACK,
+  SUPABASE_URL_FALLBACK,
+} from "@/constants/storage";
 
 // Refreshes an expired session from the session cookies and returns the
 // response carrying the updated cookies plus the authenticated user
@@ -24,8 +29,8 @@ export async function updateSession(request: NextRequest) {
   const expired = flag === "1" && since !== undefined && !remembered;
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || "http://localhost:54321",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "anon-placeholder",
+    process.env.NEXT_PUBLIC_SUPABASE_URL || SUPABASE_URL_FALLBACK,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || SUPABASE_ANON_FALLBACK,
     {
       cookies: {
         getAll() {
@@ -51,7 +56,7 @@ export async function updateSession(request: NextRequest) {
             response.cookies.set(name, value, {
               ...options,
               ...(remembered
-                ? { maxAge: REMEMBER_MAX_AGE_SECONDS, path: "/" }
+                ? { maxAge: REMEMBER_MAX_AGE_SECONDS, path: COOKIE_PATH }
                 : null),
             }),
           );

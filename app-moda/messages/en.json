@@ -286,6 +286,16 @@
     "forbiddenLabel": "Any banned colors in your closet?",
     "forbiddenNone": "Nothing banned. Bold.",
     "forbiddenCount": "{count} banned",
+    "vetoColors": {
+      "black": "Black",
+      "white": "White",
+      "brown": "Brown",
+      "beige": "Beige",
+      "red": "Red",
+      "green": "Green",
+      "blue": "Blue",
+      "yellow": "Yellow"
+    },
     "back": "Back",
     "continue": "Continue",
     "save": "Save profile",
@@ -349,5 +359,6 @@
     "measureValue": "{value} centimeters",
     "vetoColor": "Veto {color}",
     "weatherCard": "Weather in {city}: {label}, {temp} degrees"
-  }
+  },
+  "Garments": {}
 }

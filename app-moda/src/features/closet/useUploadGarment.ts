@@ -19,9 +19,13 @@ import {
   normalizeGarmentType,
 } from "./garmentOptions";
 import { useNotificationStore } from "@/features/ui/useNotificationStore";
+import { API_ROUTES } from "@/constants/api";
+import { STORAGE_BUCKETS, TABLES } from "@/constants/storage";
 import { GARMENTS_QUERY_KEY } from "./useClosetQuery";
 
-export const GARMENT_STORAGE_BUCKET = "garments";
+// Storage bucket for garment photos. Re-exported from centralized
+// constants for backward compatibility.
+export const GARMENT_STORAGE_BUCKET = STORAGE_BUCKETS.garments;
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 const ANALYZE_TIMEOUT_MS = 30000;
@@ -127,7 +131,7 @@ export function useUploadGarment() {
         .from(GARMENT_STORAGE_BUCKET)
         .getPublicUrl(path).data.publicUrl;
 
-      const { error: insertError } = await supabase.from("garments").insert({
+      const { error: insertError } = await supabase.from(TABLES.garments).insert({
         user_id: user.id,
         image_url: imageUrl,
         garment_type: tags.garmentType === "" ? null : tags.garmentType,
@@ -240,7 +244,7 @@ function readDetail(
 
 async function suggestTags(imageBase64: string): Promise<InferredTags> {
   try {
-    const response = await fetch("/api/analyze", {
+    const response = await fetch(API_ROUTES.analyze, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ imageBase64 }),

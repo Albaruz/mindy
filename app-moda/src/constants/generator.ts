@@ -1,0 +1,14 @@
+// Generator Business Rules
+// Single source of truth for look-generation caps shared by the client
+// hooks and mirrored by the server route.
+
+// Maximum outfit options returned per generation. The server caps its
+// response identically; the client re-caps defensively.
+export const MAX_LOOK_OPTIONS = 3;
+
+// Auto-mode rejection budget: at most 4 left-swipes per generation
+// before the limit empty state takes over.
+export const MAX_DISCARD_COUNT = 4;
+
+// Infinite carousel loop needs at least 3 slides to duplicate cleanly.
+export const CAROUSEL_LOOP_MIN_SLIDES = 3;

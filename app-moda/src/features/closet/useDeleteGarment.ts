@@ -5,6 +5,7 @@ import { GARMENT_STORAGE_BUCKET } from "./useUploadGarment";
 import { GARMENTS_QUERY_KEY } from "./useClosetQuery";
 import { LAUNDRY_QUERY_KEY } from "@/features/profile/useLaundryBasketQuery";
 import { useNotificationStore } from "@/features/ui/useNotificationStore";
+import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 
 // Deletes a garment row owned by the signed-in user (RLS enforced).
 // Storage cleanup is best-effort: the row is removed even if the file
@@ -30,10 +31,10 @@ export function useDeleteGarment() {
       }
 
       const { error } = await supabase
-        .from("garments")
+        .from(TABLES.garments)
         .delete()
         .eq("garment_id", garmentId)
-        .eq("user_id", user.id);
+        .eq(USER_ID_COLUMN, user.id);
       if (error) {
         throw error;
       }

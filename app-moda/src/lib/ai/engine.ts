@@ -1,22 +1,17 @@
 import Groq from "groq-sdk";
+import {
+  AI_MODEL,
+  AI_TIMEOUT_MS,
+  AI_MAX_ATTEMPTS,
+  AI_RETRY_DELAY_MS,
+  AI_MAX_RETRY_DELAY_MS,
+  AI_TEMPERATURE,
+  AI_MAX_TOKENS,
+  AI_RESPONSE_FORMAT,
+} from "@/constants/ai";
 
 // groq-sdk is already a dependency (see package.json). Install only if
 // missing: npm install groq-sdk / pnpm add groq-sdk.
-//
-// Llama 3 instruct models were retired from Groq's free/developer tiers
-// (verified via /models and the deprecation log), so the default is the
-// fastest open-weight chat model available. Pin another id with GROQ_MODEL
-// if Llama returns to the catalog.
-const MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-20b";
-const TIMEOUT_MS = 30000;
-// The model occasionally returns an empty generation under json_object
-// mode (Groq 400 json_validate_failed). Those failures are transient:
-// a plain retry almost always succeeds.
-const MAX_ATTEMPTS = 3;
-const RETRY_DELAY_MS = 500;
-// Upper bound for a single backoff sleep so a stale Retry-After never
-// hangs the request beyond a reasonable interaction.
-const MAX_RETRY_DELAY_MS = 15000;
 
 let client: Groq | null = null;
 
@@ -83,7 +78,7 @@ function readRateLimitDelayMs(error: unknown): number | null {
       if (retryAfter !== null) {
         const seconds = Number(retryAfter);
         if (Number.isFinite(seconds) && seconds >= 0) {
-          return Math.min(seconds * 1000 + 500, MAX_RETRY_DELAY_MS);
+          return Math.min(seconds * 1000 + 500, AI_MAX_RETRY_DELAY_MS);
         }
       }
     } catch {
@@ -95,7 +90,7 @@ function readRateLimitDelayMs(error: unknown): number | null {
     if (match) {
       const seconds = Number(match[1]);
       if (Number.isFinite(seconds) && seconds >= 0) {
-        return Math.min(seconds * 1000 + 500, MAX_RETRY_DELAY_MS);
+        return Math.min(seconds * 1000 + 500, AI_MAX_RETRY_DELAY_MS);
       }
     }
   }
@@ -104,13 +99,13 @@ function readRateLimitDelayMs(error: unknown): number | null {
 
 function getRetryDelayMs(error: unknown, attempt: number): number {
   if (error instanceof Groq.RateLimitError) {
-    return readRateLimitDelayMs(error) ?? RETRY_DELAY_MS * 4 * attempt;
+    return readRateLimitDelayMs(error) ?? AI_RETRY_DELAY_MS * 4 * attempt;
   }
-  return RETRY_DELAY_MS * attempt;
+  return AI_RETRY_DELAY_MS * attempt;
 }
 
 export function getEngineModel(): string {
-  return MODEL;
+  return AI_MODEL;
 }
 
 // Single outfit-generation call against Groq. The caller owns candidate
@@ -122,20 +117,20 @@ export async function generateOutfitRecommendation(
   userPayload: unknown,
 ): Promise<string> {
   let lastError: unknown = null;
-  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+  for (let attempt = 1; attempt <= AI_MAX_ATTEMPTS; attempt += 1) {
     try {
       const response = await getClient().chat.completions.create(
         {
-          model: MODEL,
-          temperature: 0.3,
-          max_tokens: 1000,
-          response_format: { type: "json_object" },
+          model: AI_MODEL,
+          temperature: AI_TEMPERATURE,
+          max_tokens: AI_MAX_TOKENS,
+          response_format: AI_RESPONSE_FORMAT,
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: JSON.stringify(userPayload) },
           ],
         },
-        { timeout: TIMEOUT_MS },
+        { timeout: AI_TIMEOUT_MS },
       );
 
       const content = response.choices[0]?.message?.content;
@@ -145,7 +140,7 @@ export async function generateOutfitRecommendation(
       return content;
     } catch (error) {
       lastError = error;
-      if (attempt === MAX_ATTEMPTS || !isRetryable(error)) {
+      if (attempt === AI_MAX_ATTEMPTS || !isRetryable(error)) {
         throw error;
       }
       await delay(getRetryDelayMs(error, attempt));

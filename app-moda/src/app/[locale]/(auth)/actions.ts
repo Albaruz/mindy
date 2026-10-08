@@ -17,6 +17,7 @@ import {
   postAuthDestination,
 } from "@/lib/onboarding";
 import { resolveRequestLocale } from "@/lib/serverLocale";
+import { EMAIL_PATTERN, PASSWORD_MIN_LENGTH } from "@/constants/validation";
 
 export interface AuthActionState {
   error: string | null;
@@ -24,8 +25,6 @@ export interface AuthActionState {
 }
 
 const INITIAL_STATE: AuthActionState = { error: null, message: null };
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function readCredentials(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
@@ -64,7 +63,7 @@ function validateCredentials(
   if (!EMAIL_PATTERN.test(email)) {
     return t("invalidEmail");
   }
-  if (password.length < 6) {
+  if (password.length < PASSWORD_MIN_LENGTH) {
     return t("shortPassword");
   }
   return null;

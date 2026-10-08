@@ -13,6 +13,7 @@ import {
 import type { Garment } from "@/types/garment";
 import { cn } from "@/lib/utils";
 import { useGarmentTranslator } from "@/lib/translateGarment";
+import { CAROUSEL_LOOP_MIN_SLIDES } from "@/constants/generator";
 import { LazyImage } from "@/components/LazyImage/LazyImage";
 import { SmartSkeleton } from "@/components/Skeletons/SmartSkeleton";
 import type { Category } from "./useGeneratorStore";
@@ -62,7 +63,7 @@ export function CategoryCarousel({
     0,
   );
   // Infinite loop needs at least 3 slides to duplicate cleanly.
-  const looped = garments.length >= 3;
+  const looped = garments.length >= CAROUSEL_LOOP_MIN_SLIDES;
   const LockIcon = isLocked ? Lock : LockOpen;
   const swiperRef = useRef<SwiperInstance | null>(null);
   // Active slide drives eager preloading of neighbours so swipes

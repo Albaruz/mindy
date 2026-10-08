@@ -6,11 +6,11 @@ import { useTranslations } from "next-intl";
 import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGarmentTranslator } from "@/lib/translateGarment";
+import { SWIPE_COMMIT_PX, SWIPE_FADE_START_PX } from "@/constants/animations";
 import type { AiLook } from "./useGeneratorStore";
 import styles from "./ShowcaseCard.module.scss";
 
 // Lateral commitment threshold: predictable on mobile, never twitchy.
-const SWIPE_COMMIT_PX = 120;
 
 interface ShowcaseCardProps {
   look: AiLook;
@@ -41,8 +41,8 @@ export function ShowcaseCard({
   const x = useMotionValue(0);
   // Gentle tilt following the drag; overlays fade in near the threshold.
   const rotate = useTransform(x, [-200, 200], [-6, 6]);
-  const acceptOpacity = useTransform(x, [40, SWIPE_COMMIT_PX], [0, 1]);
-  const rejectOpacity = useTransform(x, [-40, -SWIPE_COMMIT_PX], [0, 1]);
+  const acceptOpacity = useTransform(x, [SWIPE_FADE_START_PX, SWIPE_COMMIT_PX], [0, 1]);
+  const rejectOpacity = useTransform(x, [-SWIPE_FADE_START_PX, -SWIPE_COMMIT_PX], [0, 1]);
   const draggable = !reduceMotion && !isWearing;
   const describeGarment = (garment: (typeof look.garments)[number]) =>
     translate(garment.garmentType, "type") ??

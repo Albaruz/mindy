@@ -2,8 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import type { UserProfile } from "@/types/user";
 import { toProfile, type ProfileRow } from "./profileMappers";
+import { QUERY_KEYS } from "@/constants/query";
+import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 
-export const PROFILE_QUERY_KEY = ["profile"] as const;
+export const PROFILE_QUERY_KEY = QUERY_KEYS.profile;
 
 async function fetchProfile(): Promise<UserProfile | null> {
   const supabase = createClient();
@@ -15,9 +17,9 @@ async function fetchProfile(): Promise<UserProfile | null> {
   }
 
   const { data, error } = await supabase
-    .from("profiles")
+    .from(TABLES.profiles)
     .select("*")
-    .eq("user_id", user.id)
+    .eq(USER_ID_COLUMN, user.id)
     .maybeSingle();
   if (error) {
     throw error;

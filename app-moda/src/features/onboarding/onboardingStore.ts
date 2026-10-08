@@ -1,51 +1,45 @@
 import { create } from "zustand";
 import type { UserProfile } from "@/types/user";
+import {
+  type ShopSection,
+  type StyleTribe,
+  type FitChoice,
+  type JewelryPick,
+  SHOP_SECTIONS,
+  STYLE_TRIBES,
+  FIT_CHOICES,
+  MEASURE_MIN_CM,
+  MEASURE_MAX_CM,
+  THERMAL_MIN,
+  THERMAL_MAX,
+  FORBIDDEN_COLOR_OPTIONS,
+  ONBOARDING_DEFAULTS,
+  clampMeasurement,
+  clampThermal,
+} from "@/constants/ui-config";
+import { SKIN_TONES } from "@/constants/profile";
 
 // Wizard answers for the 5-step immersive onboarding (Stories style).
 // Identity and fine-tuning answers have no dedicated profile columns, so
 // they travel inside extra_preferences (see onboardingInference).
-export type ShopSection = "women" | "men" | "unisex";
-export type StyleTribe = "minimalist" | "streetwear" | "classic" | "boho";
-export type FitChoice = "oversized" | "regular" | "fitted";
-export type JewelryPick = "gold" | "silver";
+// Types and constants re-exported from centralized config for backward compatibility.
 
-export const SHOP_SECTIONS: readonly ShopSection[] = [
-  "women",
-  "men",
-  "unisex",
-];
-
-export const STYLE_TRIBES: readonly StyleTribe[] = [
-  "minimalist",
-  "streetwear",
-  "classic",
-  "boho",
-];
-
-export const FIT_CHOICES: readonly FitChoice[] = [
-  "oversized",
-  "regular",
-  "fitted",
-];
-
-export const MEASURE_MIN_CM = 70;
-export const MEASURE_MAX_CM = 140;
-
-export const THERMAL_MIN = 1;
-export const THERMAL_MAX = 5;
-
-// Vetoable wardrobe colors (basic circles). Hexes are the contract with
-// the server validator, so keep both lists in sync.
-export const FORBIDDEN_COLOR_OPTIONS: readonly string[] = [
-  "#1a1a1a",
-  "#ffffff",
-  "#6b4423",
-  "#d9c7a7",
-  "#b3261e",
-  "#2f5d3a",
-  "#2b4bd3",
-  "#e3b505",
-];
+export type {
+  ShopSection,
+  StyleTribe,
+  FitChoice,
+  JewelryPick,
+};
+export {
+  SHOP_SECTIONS,
+  STYLE_TRIBES,
+  FIT_CHOICES,
+  MEASURE_MIN_CM,
+  MEASURE_MAX_CM,
+  THERMAL_MIN,
+  THERMAL_MAX,
+  FORBIDDEN_COLOR_OPTIONS,
+};
 
 interface OnboardingState {
   displayName: string;
@@ -74,34 +68,12 @@ interface OnboardingState {
   prefillFromProfile: (profile: UserProfile) => void;
 }
 
-const INITIAL_STATE = {
-  displayName: "",
-  section: "" as ShopSection | "",
-  style: "" as StyleTribe | "",
-  chestCm: 92,
-  waistCm: 76,
-  hipCm: 98,
-  fit: "" as FitChoice | "",
-  skinTone: "",
-  eyeColor: "",
-  jewelry: "" as JewelryPick | "",
-  thermal: 3,
-  forbiddenColors: [] as string[],
-};
-
-function clampMeasurement(value: number): number {
-  if (Number.isNaN(value)) {
-    return MEASURE_MIN_CM;
-  }
-  return Math.min(MEASURE_MAX_CM, Math.max(MEASURE_MIN_CM, Math.round(value)));
-}
-
 function readExtra(profile: UserProfile): Record<string, unknown> {
   return profile.extraPreferences ?? {};
 }
 
 export const useOnboardingStore = create<OnboardingState>()((set) => ({
-  ...INITIAL_STATE,
+  ...ONBOARDING_DEFAULTS,
 
   setDisplayName: (value) => set({ displayName: value }),
   setSection: (section) => set({ section }),
@@ -116,12 +88,7 @@ export const useOnboardingStore = create<OnboardingState>()((set) => ({
   setJewelry: (jewelry) => set({ jewelry }),
 
   setThermal: (value) =>
-    set({
-      thermal: Math.min(
-        THERMAL_MAX,
-        Math.max(THERMAL_MIN, Math.round(value)),
-      ),
-    }),
+    set({ thermal: clampThermal(value) }),
 
   toggleForbiddenColor: (hex) =>
     set((current) => ({
@@ -130,7 +97,7 @@ export const useOnboardingStore = create<OnboardingState>()((set) => ({
         : [...current.forbiddenColors, hex],
     })),
 
-  reset: () => set({ ...INITIAL_STATE, forbiddenColors: [] }),
+  reset: () => set({ ...ONBOARDING_DEFAULTS, forbiddenColors: [] }),
 
   // Reopen with previous answers where the mapping is reversible.
   // Jewelry cannot be derived back from a colorimetry season, so the
@@ -156,9 +123,9 @@ export const useOnboardingStore = create<OnboardingState>()((set) => ({
           ? (extra.style as StyleTribe)
           : "",
         chestCm:
-          profile.chestMeasurementCm ?? INITIAL_STATE.chestCm,
-        waistCm: profile.waistMeasurementCm ?? INITIAL_STATE.waistCm,
-        hipCm: profile.hipMeasurementCm ?? INITIAL_STATE.hipCm,
+          profile.chestMeasurementCm ?? ONBOARDING_DEFAULTS.chestCm,
+        waistCm: profile.waistMeasurementCm ?? ONBOARDING_DEFAULTS.waistCm,
+        hipCm: profile.hipMeasurementCm ?? ONBOARDING_DEFAULTS.hipCm,
         fit: FIT_CHOICES.includes(fit as FitChoice)
           ? (fit as FitChoice | "")
           : "",
@@ -170,7 +137,7 @@ export const useOnboardingStore = create<OnboardingState>()((set) => ({
           extra.thermostat >= THERMAL_MIN &&
           extra.thermostat <= THERMAL_MAX
             ? Math.round(extra.thermostat)
-            : INITIAL_STATE.thermal,
+            : ONBOARDING_DEFAULTS.thermal,
         forbiddenColors: Array.isArray(extra.forbiddenColors)
           ? (extra.forbiddenColors as unknown[]).filter(
               (item): item is string =>

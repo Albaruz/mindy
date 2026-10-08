@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/Button/Button";
+import { SUCCESS_AUTO_ADVANCE_MS } from "@/constants/animations";
 import styles from "../page.module.scss";
 
 // Full-screen success moment: no garment cards, just a drawn celebration
@@ -66,7 +67,7 @@ export function OnboardingSuccess({ onDone }: { onDone: () => void }) {
 
   // Gentle auto-advance for hands-free completion; the button is instant.
   useEffect(() => {
-    const timer = setTimeout(onDone, 6000);
+    const timer = setTimeout(onDone, SUCCESS_AUTO_ADVANCE_MS);
     return () => clearTimeout(timer);
   }, [onDone]);
 

@@ -13,6 +13,10 @@ import {
   withoutHiddenBottom,
 } from "./categorizeGarments";
 import { useNotificationStore } from "@/features/ui/useNotificationStore";
+import { MAX_LOOK_OPTIONS } from "@/constants/generator";
+import { DEFAULT_TEMPERATURE_C } from "@/constants/weather";
+import { GEOLOCATION_MAX_AGE_MS, GEOLOCATION_TIMEOUT_MS } from "@/constants/geo";
+import { API_ROUTES, buildWeatherUrl } from "@/constants/api";
 import type { Mood, RecommenderProfile } from "./useGenerateLook";
 
 export const LOOK_STYLE_TO_MOOD: Record<LookStyle, Mood> = {
@@ -84,7 +88,7 @@ interface Climate {
 }
 
 const DEFAULT_CLIMATE: Climate = {
-  temperatureC: 20,
+  temperatureC: DEFAULT_TEMPERATURE_C,
   condition: null,
   dayLow: null,
   dayHigh: null,
@@ -106,13 +110,13 @@ export async function resolveClimate(): Promise<Climate> {
           return;
         }
         navigator.geolocation.getCurrentPosition(resolve, reject, {
-          timeout: 8000,
-          maximumAge: 600_000,
+          timeout: GEOLOCATION_TIMEOUT_MS,
+          maximumAge: GEOLOCATION_MAX_AGE_MS,
         });
       },
     );
     const response = await fetch(
-      `/api/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}`,
+      buildWeatherUrl(position.coords.latitude, position.coords.longitude),
     );
     if (!response.ok) {
       return DEFAULT_CLIMATE;
@@ -205,7 +209,7 @@ export function useGenerateLooks() {
           ? { ...garment, isDirty: false }
           : garment,
       );
-      const response = await fetch("/api/recommender", {
+      const response = await fetch(API_ROUTES.recommender, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -245,7 +249,7 @@ export function useGenerateLooks() {
         input.garments.map((garment) => [garment.garmentId, garment] as const),
       );
       const looks: AiLook[] = [];
-      payload.options.slice(0, 3).forEach((option, index) => {
+      payload.options.slice(0, MAX_LOOK_OPTIONS).forEach((option, index) => {
         const look = resolveLook(
           Array.isArray(option.garmentIds) ? option.garmentIds : [],
           byId,

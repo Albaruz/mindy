@@ -6,9 +6,18 @@ import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { del, get, set } from "idb-keyval";
 import { applyThemeMode, useThemeStore } from "@/features/settings/themeStore";
+import { PERSISTED_CACHE_KEY } from "@/constants/storage";
+import {
+  QUERY_NETWORK_MODE,
+  QUERY_PERSIST_MAX_AGE_MS,
+  QUERY_REFETCH_ON_FOCUS,
+  QUERY_RETRY_COUNT,
+  QUERY_STALE_TIME_MS,
+} from "@/constants/query";
 
-export const PERSISTED_CACHE_KEY = "mindy-query-cache";
-const PERSISTED_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+// IndexedDB key for the persisted TanStack Query cache. Re-exported from
+// centralized constants for backward compatibility (sign-out cleanup).
+export { PERSISTED_CACHE_KEY };
 
 export function Providers({ children }: { children: ReactNode }) {
   const themeMode = useThemeStore((state) => state.mode);
@@ -17,12 +26,12 @@ export function Providers({ children }: { children: ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 30_000,
-            retry: 1,
-            refetchOnWindowFocus: false,
+            staleTime: QUERY_STALE_TIME_MS,
+            retry: QUERY_RETRY_COUNT,
+            refetchOnWindowFocus: QUERY_REFETCH_ON_FOCUS,
             // Serve persisted cache while offline: a failed background
             // refetch keeps stale data instead of wiping the closet.
-            networkMode: "offlineFirst",
+            networkMode: QUERY_NETWORK_MODE,
           },
         },
       }),
@@ -52,7 +61,7 @@ export function Providers({ children }: { children: ReactNode }) {
       client={queryClient}
       persistOptions={{
         persister,
-        maxAge: PERSISTED_MAX_AGE_MS,
+        maxAge: QUERY_PERSIST_MAX_AGE_MS,
         dehydrateOptions: {
           // Persist successful server state only (closet, history,
           // basket, profile); never errors or mutations.

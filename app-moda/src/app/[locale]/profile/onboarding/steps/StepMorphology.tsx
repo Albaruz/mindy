@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { ThreadIllustration } from "@/features/onboarding/ThreadIllustration";
+import { OnboardingArt } from "@/features/onboarding/OnboardingArt";
 import {
   FIT_CHOICES,
   MEASURE_MAX_CM,
@@ -67,7 +67,7 @@ export function StepMorphology() {
 
   return (
     <>
-      <ThreadIllustration step={3} label={ta("threadArt")} className={styles.art} />
+      <OnboardingArt step={3} label={ta("threadArt")} className={styles.art} />
       <h1 className={styles.question}>{t("measuresKeyword")}</h1>
       <p className={styles.lead}>{t("measuresTitle")}</p>
       <p className={styles.subcopy}>{t("measuresSubtitle")}</p>

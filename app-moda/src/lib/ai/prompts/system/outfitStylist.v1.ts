@@ -1,45 +1,15 @@
-import type { Garment, GarmentColor, GarmentType } from "@/types/garment";
-import type { UserProfile } from "@/types/user";
+// Outfit stylist system prompt (v1). Pure instructions: fixed rules plus
+// per-request context (profile, climate, locked garments, style filter).
+// Locked garments are mandatory: every returned option must include all
+// of them. When a strict style filter applies, every non-locked candidate
+// already matches it: the rule below stops the model from drifting into
+// other styles.
 
-// Structural profile accepted by the prompt builder. A full UserProfile is
-// assignable; the API layer may pass the minimized recommender profile
-// (colorimetry, morphology, preferredFit, lifestyle) instead.
-export interface StylistProfile {
-  colorimetry: string | null;
-  morphology: string | null;
-  preferredFit: string | null;
-  lifestyle: string | null;
-  skinTone?: string | null;
-  eyeColor?: string | null;
-  hairColor?: string | null;
-}
-
-export type PromptProfile = UserProfile | StylistProfile | null;
-
-export interface ClimateInput {
-  temperatureC: number;
-  condition?: string | null;
-  dayLow?: number | null;
-  dayHigh?: number | null;
-  rainProbability?: number | null;
-}
-
-// Minimized locked garment for the prompt. A summary (not the full Garment)
-// keeps unvalidated request payloads out of the prompt and the token count
-// low. Full Garment objects remain assignable where they are available.
-export interface LockedGarmentSummary {
-  id: string;
-  garmentType: GarmentType | null;
-  color: GarmentColor | null;
-}
-
-export function toLockedSummary(garment: Garment): LockedGarmentSummary {
-  return {
-    id: garment.garmentId,
-    garmentType: garment.garmentType,
-    color: garment.color,
-  };
-}
+import type {
+  ClimateInput,
+  LockedGarmentSummary,
+  PromptProfile,
+} from "../types";
 
 function describeProfile(profile: PromptProfile): string {
   if (profile === null) {
@@ -59,11 +29,7 @@ function describeProfile(profile: PromptProfile): string {
   return parts.join("; ");
 }
 
-// System prompt for the outfit stylist. Locked garments are mandatory:
-// every returned option must include all of them. When a strict style
-// filter applies, every non-locked candidate already matches it: the rule
-// below stops the model from drifting into other styles.
-export function buildSystemPrompt(
+export function buildOutfitSystemPrompt(
   profile: PromptProfile,
   climate: ClimateInput,
   lockedGarments: LockedGarmentSummary[],

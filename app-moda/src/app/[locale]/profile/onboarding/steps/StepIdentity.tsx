@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { ThreadIllustration } from "@/features/onboarding/ThreadIllustration";
+import { OnboardingArt } from "@/features/onboarding/OnboardingArt";
 import {
   SHOP_SECTIONS,
   STYLE_TRIBES,
@@ -25,7 +25,7 @@ export function StepIdentity() {
 
   return (
     <>
-      <ThreadIllustration step={2} label={ta("threadArt")} className={styles.art} />
+      <OnboardingArt step={2} label={ta("threadArt")} className={styles.art} />
       <h1 className={styles.question}>{t("styleKeyword")}</h1>
       <p className={styles.lead}>
         {firstName !== ""

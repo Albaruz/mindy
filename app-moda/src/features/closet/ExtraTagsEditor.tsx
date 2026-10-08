@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { TAG_KEY_MAX_LENGTH, TAG_VALUE_MAX_LENGTH } from "@/constants/validation";
 import { Plus, X } from "lucide-react";
 import styles from "./ExtraTagsEditor.module.scss";
 
@@ -107,7 +108,7 @@ export function ExtraTagsEditor({ tags, onChange }: ExtraTagsEditorProps) {
           placeholder={t("form.tagKeyPh")}
           aria-label={t("form.tagKeyPh")}
           className={styles.input}
-          maxLength={40}
+          maxLength={TAG_KEY_MAX_LENGTH}
         />
         <input
           type="text"
@@ -117,7 +118,7 @@ export function ExtraTagsEditor({ tags, onChange }: ExtraTagsEditorProps) {
           placeholder={t("form.tagValuePh")}
           aria-label={t("form.tagValuePh")}
           className={styles.input}
-          maxLength={80}
+          maxLength={TAG_VALUE_MAX_LENGTH}
         />
         <button
           type="button"

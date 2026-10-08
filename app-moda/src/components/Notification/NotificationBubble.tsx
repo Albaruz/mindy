@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CircleAlert, CircleCheck, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NOTIFICATION_EXIT_MS } from "@/constants/animations";
 import {
   NOTIFICATION_DURATION_MS,
   type NotificationType,
@@ -14,9 +15,6 @@ const ICONS = {
   error: CircleAlert,
   info: Info,
 } as const;
-
-// Exit transition length. Kept in sync with the .leaving transition.
-const EXIT_MS = 300;
 
 interface NotificationBubbleProps {
   type: NotificationType;
@@ -31,7 +29,7 @@ export function NotificationBubble({ type, message }: NotificationBubbleProps) {
   useEffect(() => {
     const timer = setTimeout(
       () => setIsLeaving(true),
-      NOTIFICATION_DURATION_MS - EXIT_MS,
+      NOTIFICATION_DURATION_MS - NOTIFICATION_EXIT_MS,
     );
     return () => clearTimeout(timer);
   }, []);

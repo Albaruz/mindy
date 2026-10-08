@@ -1,6 +1,9 @@
 import { create } from "zustand";
+import { THEME_STORAGE_KEY } from "@/constants/storage";
 
-export const THEME_STORAGE_KEY = "mindy-theme-mode";
+// Browser persistence key. Re-exported from centralized constants for
+// backward compatibility (layout inline script + settings UI).
+export { THEME_STORAGE_KEY };
 
 export type ThemeMode = "system" | "light" | "dark";
 

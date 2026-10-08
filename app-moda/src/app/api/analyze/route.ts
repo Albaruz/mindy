@@ -2,6 +2,18 @@ import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rateLimit";
+import { RATE_LIMITS, RETRY_AFTER_HEADER } from "@/constants/api";
+import { buildAnalysisPrompt } from "@/lib/ai/prompts";
+import {
+  AI_VISION_MODEL,
+  VISION_MAX_TOKENS,
+  VISION_TEMPERATURE,
+  VISION_TIMEOUT_MS,
+} from "@/constants/ai";
+import {
+  IMAGE_DATA_URL_PREFIX,
+  MAX_IMAGE_DATA_CHARS,
+} from "@/constants/validation";
 import {
   GARMENT_COLOR_VALUES,
   GARMENT_CUT_VALUES,
@@ -10,28 +22,6 @@ import {
   GARMENT_STYLE_VALUES,
   GARMENT_TYPE_VALUES,
 } from "@/types/garment";
-
-// Garment tagging via Groq native vision. Override the model with
-// GROQ_VISION_MODEL if the catalog changes.
-const VISION_MODEL =
-  process.env.GROQ_VISION_MODEL || "qwen/qwen3.8-27b";
-const GROQ_TIMEOUT_MS = 30000;
-const MAX_IMAGE_CHARS = 7_000_000;
-
-// Closed vocabularies: the model must pick from these lists only.
-// garmentType uses macro categories; the specific name (sneakers,
-// turquoise, ...) is derived server-side into extra_tags by the client
-// normalizer. Prompt lists stay in sync with types/garment.ts.
-const SYSTEM_PROMPT = `You are a fashion cataloging assistant. Analyze the garment photo (background already removed) and return STRICT JSON only: no markdown, no prose.
-
-Shape:
-{"category":"${GARMENT_TYPE_VALUES.join("|")}","garmentType":"${GARMENT_TYPE_VALUES.join("|")}","color":"${GARMENT_COLOR_VALUES.join("|")}","season":"${GARMENT_SEASON_VALUES.join("|")}","style":"${GARMENT_STYLE_VALUES.join("|")}","material":"${GARMENT_MATERIAL_VALUES.join("|")}","cutLength":"${GARMENT_CUT_VALUES.join("|")}"}
-
-Rules:
-- "category" and "garmentType" are the macro zone: top, bottom, dress, outerwear or footwear. Example: sneakers -> "footwear", jeans -> "bottom", t-shirt -> "top".
-- "color" is the base spectrum only (turquoise -> "blue", burgundy -> "red", terracotta -> "orange").
-- "season" is your best guess from fabric and weight; use "all" when unsure.
-- Omit nothing: use null for anything you cannot determine.`;
 
 function readClosedText(
   value: unknown,
@@ -73,13 +63,14 @@ export async function POST(req: Request) {
   }
 
   // Vision calls are billed per image: cap uploads per user.
-  const quota = checkRateLimit(`analyze:${user.id}`, 30, 10 * 60 * 1000);
+  const { key, limit, windowMs } = RATE_LIMITS.analyze;
+  const quota = checkRateLimit(`${key}:${user.id}`, limit, windowMs);
   if (quota.limited) {
     return NextResponse.json(
       { error: "Too many requests. Try again later." },
       {
         status: 429,
-        headers: { "Retry-After": String(quota.retryAfterSec) },
+        headers: { [RETRY_AFTER_HEADER]: String(quota.retryAfterSec) },
       },
     );
   }
@@ -107,8 +98,8 @@ export async function POST(req: Request) {
       : null;
   if (
     typeof imageBase64 !== "string" ||
-    !imageBase64.startsWith("data:image/") ||
-    imageBase64.length > MAX_IMAGE_CHARS
+    !imageBase64.startsWith(IMAGE_DATA_URL_PREFIX) ||
+    imageBase64.length > MAX_IMAGE_DATA_CHARS
   ) {
     return NextResponse.json(
       { error: "Provide a valid imageBase64 data URL." },
@@ -118,23 +109,24 @@ export async function POST(req: Request) {
 
   try {
     const groq = new Groq({ apiKey });
+    const { systemPrompt } = buildAnalysisPrompt();
     const response = await groq.chat.completions.create(
       {
-        model: VISION_MODEL,
+        model: AI_VISION_MODEL,
         messages: [
           {
             role: "user",
             content: [
-              { type: "text", text: SYSTEM_PROMPT },
+              { type: "text", text: systemPrompt },
               { type: "image_url", image_url: { url: imageBase64 } },
             ],
           },
         ],
         response_format: { type: "json_object" },
-        temperature: 0,
-        max_tokens: 300,
+        temperature: VISION_TEMPERATURE,
+        max_tokens: VISION_MAX_TOKENS,
       },
-      { timeout: GROQ_TIMEOUT_MS },
+      { timeout: VISION_TIMEOUT_MS },
     );
 
     const content = response.choices[0]?.message?.content;

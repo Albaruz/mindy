@@ -3,8 +3,10 @@ import { createClient } from "@/lib/supabase/client";
 import type { Garment } from "@/types/garment";
 import { toGarment, type GarmentRow } from "@/features/closet/garmentMappers";
 import { isLaundryExemptGarment } from "@/features/generator/categorizeGarments";
+import { QUERY_KEYS } from "@/constants/query";
+import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 
-export const LAUNDRY_QUERY_KEY = ["laundry-basket"] as const;
+export const LAUNDRY_QUERY_KEY = QUERY_KEYS.laundryBasket;
 
 async function fetchDirtyGarments(): Promise<Garment[]> {
   const supabase = createClient();
@@ -16,9 +18,9 @@ async function fetchDirtyGarments(): Promise<Garment[]> {
   }
 
   const { data, error } = await supabase
-    .from("garments")
+    .from(TABLES.garments)
     .select("*")
-    .eq("user_id", user.id)
+    .eq(USER_ID_COLUMN, user.id)
     .eq("is_dirty", true)
     .order("created_at", { ascending: false });
   if (error) {

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { hasCompletedOnboarding, localizePath } from "@/lib/onboarding";
 import { toProfile, type ProfileRow } from "@/features/profile/profileMappers";
 import { OnboardingWizard } from "./OnboardingWizard";
+import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 
 // Completed profiles skip the wizard and go straight to the generator,
 // unless ?edit=true explicitly reopens it prefilled for editing.
@@ -28,9 +29,9 @@ export default async function OnboardingPage({
 
     if (user) {
       const { data } = await supabase
-        .from("profiles")
+        .from(TABLES.profiles)
         .select("*")
-        .eq("user_id", user.id)
+        .eq(USER_ID_COLUMN, user.id)
         .maybeSingle();
       if (data) {
         profile = toProfile(data as unknown as ProfileRow);

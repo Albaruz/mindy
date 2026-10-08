@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/client";
 import { GARMENTS_QUERY_KEY } from "./useClosetQuery";
 import { LAUNDRY_QUERY_KEY } from "@/features/profile/useLaundryBasketQuery";
 import { useNotificationStore } from "@/features/ui/useNotificationStore";
+import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 
 // Washes a single garment (is_dirty = false). The basket card animates
 // away optimistically at the call site; queries revalidate afterwards.
@@ -22,10 +23,10 @@ export function useWashGarment() {
       }
 
       const { error } = await supabase
-        .from("garments")
+        .from(TABLES.garments)
         .update({ is_dirty: false })
         .eq("garment_id", garmentId)
-        .eq("user_id", user.id);
+        .eq(USER_ID_COLUMN, user.id);
       if (error) {
         throw error;
       }

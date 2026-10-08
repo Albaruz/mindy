@@ -6,6 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { localizePath } from "@/lib/onboarding";
 import { resolveRequestLocale } from "@/lib/serverLocale";
+import { EMAIL_PATTERN, PASSWORD_MIN_LENGTH } from "@/constants/validation";
 
 export interface PasswordActionState {
   error: string | null;
@@ -13,8 +14,6 @@ export interface PasswordActionState {
 }
 
 const INITIAL_STATE: PasswordActionState = { error: null, message: null };
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 async function requestOrigin(): Promise<string> {
   // Fixed origin from env: never trust Host / X-Forwarded-Host headers for
@@ -88,7 +87,7 @@ export async function updatePasswordAction(
   const t = await getTranslations("Auth");
   const password = String(formData.get("password") ?? "");
   const confirm = String(formData.get("confirm") ?? "");
-  if (password.length < 6) {
+  if (password.length < PASSWORD_MIN_LENGTH) {
     return { ...INITIAL_STATE, error: t("shortPassword") };
   }
   if (password !== confirm) {

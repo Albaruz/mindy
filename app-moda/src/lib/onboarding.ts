@@ -1,4 +1,5 @@
 import type { createClient } from "@/lib/supabase/server";
+import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -9,9 +10,9 @@ export async function hasCompletedOnboarding(
   userId: string,
 ): Promise<boolean> {
   const { data, error } = await supabase
-    .from("profiles")
+    .from(TABLES.profiles)
     .select("colorimetry, morphology, preferred_fit, lifestyle")
-    .eq("user_id", userId)
+    .eq(USER_ID_COLUMN, userId)
     .maybeSingle();
   if (error || !data) {
     return false;

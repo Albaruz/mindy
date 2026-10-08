@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/client";
 import { GARMENTS_QUERY_KEY } from "@/features/closet/useClosetQuery";
 import { useNotificationStore } from "@/features/ui/useNotificationStore";
 import { LAUNDRY_QUERY_KEY } from "./useLaundryBasketQuery";
+import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 
 // Marks every dirty garment of the current user as clean, emptying the
 // laundry basket. Closet and basket queries revalidate afterwards.
@@ -22,9 +23,9 @@ export function useDoLaundry() {
       }
 
       const { error } = await supabase
-        .from("garments")
+        .from(TABLES.garments)
         .update({ is_dirty: false })
-        .eq("user_id", user.id)
+        .eq(USER_ID_COLUMN, user.id)
         .eq("is_dirty", true);
       if (error) {
         throw error;

@@ -27,6 +27,7 @@ import { useUpdateGarment } from "@/features/closet/useUpdateGarment";
 import { useDeleteGarment } from "@/features/closet/useDeleteGarment";
 import { useWashGarment } from "@/features/closet/useWashGarment";
 import { useDoLaundry } from "@/features/profile/useDoLaundry";
+import { CELEBRATION_BURST_MS } from "@/constants/animations";
 import type { GarmentFormInput } from "@/features/closet/useUploadGarment";
 import { toEditableTags } from "@/features/closet/ExtraTagsEditor";
 import { useGarmentTranslator } from "@/lib/translateGarment";
@@ -176,7 +177,7 @@ export default function ClosetPage() {
         if (burstTimerRef.current !== null) {
           clearTimeout(burstTimerRef.current);
         }
-        burstTimerRef.current = setTimeout(() => setLaundryBurstKey(0), 1400);
+        burstTimerRef.current = setTimeout(() => setLaundryBurstKey(0), CELEBRATION_BURST_MS);
       },
     });
   };

@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { ThreadIllustration } from "@/features/onboarding/ThreadIllustration";
+import { OnboardingArt } from "@/features/onboarding/OnboardingArt";
 import {
   FORBIDDEN_COLOR_OPTIONS,
   THERMAL_MAX,
@@ -24,7 +24,7 @@ export function StepFineTuning() {
 
   return (
     <>
-      <ThreadIllustration step={5} label={ta("threadArt")} className={styles.art} />
+      <OnboardingArt step={5} label={ta("threadArt")} className={styles.art} />
       <h1 className={styles.question}>{t("quirksKeyword")}</h1>
       <p className={styles.lead}>{t("quirksTitle")}</p>
 

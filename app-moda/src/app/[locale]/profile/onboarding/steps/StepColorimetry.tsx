@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { ColorSwatches } from "@/components/ColorSwatches/ColorSwatches";
-import { ThreadIllustration } from "@/features/onboarding/ThreadIllustration";
+import { OnboardingArt } from "@/features/onboarding/OnboardingArt";
 import {
   EYE_COLOR_SWATCHES,
   EYE_COLORS,
@@ -34,7 +34,7 @@ export function StepColorimetry() {
 
   return (
     <>
-      <ThreadIllustration step={4} label={ta("threadArt")} className={styles.art} />
+      <OnboardingArt step={4} label={ta("threadArt")} className={styles.art} />
       <h1 className={styles.question}>{t("colorsKeyword")}</h1>
       <p className={styles.lead}>{t("xrayTitle")}</p>
 

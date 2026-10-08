@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rateLimit";
+import { RATE_LIMITS, RETRY_AFTER_HEADER } from "@/constants/api";
 import {
-  buildSystemPrompt,
+  COLD_THRESHOLD_C,
+  DEFAULT_TEMPERATURE_C,
+  HEAT_THRESHOLD_C,
+  RAIN_EXPECTED_THRESHOLD,
+  RAINY_CONDITIONS,
+} from "@/constants/weather";
+import {
+  buildOutfitPrompt,
   type StylistProfile,
 } from "@/lib/ai/prompts";
 import {
@@ -31,8 +39,6 @@ import {
 
 const MAX_GARMENTS = 60;
 const MAX_PER_CATEGORY = 15;
-const HEAT_THRESHOLD_C = 25;
-const DEFAULT_TEMPERATURE_C = 20;
 
 interface CandidateGarment {
   id: string;
@@ -307,14 +313,14 @@ function applyHeatRule(
 // Outerwear demand: rain (condition or >=50% probability) or cold days
 // (same 15C threshold as the client outerwear carousel) require a coat.
 // Only enforced when the pool actually offers outerwear candidates.
-const RAINY_CONDITIONS = ["rain", "drizzle", "thunderstorm", "snow"];
-const COLD_THRESHOLD_C = 15;
-
 function isRainyWeather(
   condition: string | null,
   rainProbability: number | null,
 ): boolean {
-  if (rainProbability !== null && rainProbability >= 50) {
+  if (
+    rainProbability !== null &&
+    rainProbability >= RAIN_EXPECTED_THRESHOLD
+  ) {
     return true;
   }
   const normalized = (condition ?? "").toLowerCase();
@@ -354,10 +360,10 @@ function seasonFitScore(
   season: GarmentSeason | null,
   temperatureC: number,
 ): number {
-  if (temperatureC >= 25) {
+  if (temperatureC >= HEAT_THRESHOLD_C) {
     return season === "summer" || season === "all" ? 0 : 1;
   }
-  if (temperatureC < 15) {
+  if (temperatureC < COLD_THRESHOLD_C) {
     return season === "winter" ||
       season === "mid_season" ||
       season === "all"
@@ -635,13 +641,14 @@ export async function POST(request: Request) {
 
   // Authenticated users still share one Groq quota: max 5 requests per
   // minute per user (in-memory window, see lib/rateLimit.ts).
-  const quota = checkRateLimit(`recommender:${user.id}`, 5, 60 * 1000);
+  const { key, limit, windowMs } = RATE_LIMITS.recommender;
+  const quota = checkRateLimit(`${key}:${user.id}`, limit, windowMs);
   if (quota.limited) {
     return NextResponse.json(
       { error: "Too many requests. Try again later." },
       {
         status: 429,
-        headers: { "Retry-After": String(quota.retryAfterSec) },
+        headers: { [RETRY_AFTER_HEADER]: String(quota.retryAfterSec) },
       },
     );
   }
@@ -777,36 +784,36 @@ export async function POST(request: Request) {
     (isRainyWeather(condition, rainProbability) ||
       (dayLow ?? temperatureC) < COLD_THRESHOLD_C);
 
-  const systemPrompt = buildSystemPrompt(
-    readStylistProfile(input.profile),
-    {
+  const { systemPrompt, userPayload } = buildOutfitPrompt({
+    profile: readStylistProfile(input.profile),
+    climate: {
       temperatureC,
       condition,
       dayLow,
       dayHigh,
       rainProbability,
     },
-    lockedCandidates.map((candidate) => ({
+    lockedGarments: lockedCandidates.map((candidate) => ({
       id: candidate.id,
       garmentType: candidate.garmentType,
       color: candidate.color,
     })),
-    requestedStyle !== null ? STYLE_PROMPT_LABELS[requestedStyle] : null,
-    outerwearRequired,
-  );
-
-  const userPayload = {
-    temperatureC,
-    dayLow,
-    dayHigh,
-    rainProbability,
+    styleFilter:
+      requestedStyle !== null ? STYLE_PROMPT_LABELS[requestedStyle] : null,
     requireOuterwear: outerwearRequired,
-    profile: typeof input.profile === "object" ? input.profile : null,
-    mood: readOptionalString(input.mood),
-    style: requestedStyle,
-    lockedGarmentIds: [...lockedIds],
-    candidates: cappedPool,
-  };
+    payload: {
+      temperatureC,
+      dayLow,
+      dayHigh,
+      rainProbability,
+      requireOuterwear: outerwearRequired,
+      profile: input.profile,
+      mood: readOptionalString(input.mood),
+      style: requestedStyle,
+      lockedGarmentIds: [...lockedIds],
+      candidates: cappedPool,
+    },
+  });
 
   let options: OutfitOption[];
   let isFallback = false;

@@ -11,6 +11,8 @@ import {
   isOnePieceGarment,
 } from "./categorizeGarments";
 import { useNotificationStore } from "@/features/ui/useNotificationStore";
+import { MAX_LOOK_OPTIONS } from "@/constants/generator";
+import { API_ROUTES } from "@/constants/api";
 import type { RecommenderProfile } from "./useGenerateLook";
 import { resolveClimate } from "./useGenerateLooks";
 
@@ -88,7 +90,7 @@ export function useCombineLocked() {
       }
 
       const climate = await resolveClimate();
-      const response = await fetch("/api/recommender", {
+      const response = await fetch(API_ROUTES.recommender, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -128,7 +130,7 @@ export function useCombineLocked() {
       // Rank unlocked suggestions per category across the 2-3 returned
       // options (option order = best first), deduplicated.
       const suggestions: Partial<Record<Category, string[]>> = {};
-      for (const option of payload.options.slice(0, 3)) {
+      for (const option of payload.options.slice(0, MAX_LOOK_OPTIONS)) {
         if (!Array.isArray(option.garmentIds)) {
           continue;
         }

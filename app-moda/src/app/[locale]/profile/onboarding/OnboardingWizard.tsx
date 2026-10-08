@@ -10,6 +10,9 @@ import {
 } from "@/features/onboarding/onboardingInference";
 import { useOnboardingStore } from "@/features/onboarding/onboardingStore";
 import { useRouter } from "@/i18n/navigation";
+import { TOTAL_STEPS } from "@/constants/ui-config";
+import { SAVE_ARM_DELAY_MS } from "@/constants/animations";
+import { DISPLAY_NAME_MIN_LENGTH } from "@/constants/validation";
 import type { UserProfile } from "@/types/user";
 import { StepWelcome } from "./steps/StepWelcome";
 import { StepIdentity } from "./steps/StepIdentity";
@@ -18,14 +21,6 @@ import { StepColorimetry } from "./steps/StepColorimetry";
 import { StepFineTuning } from "./steps/StepFineTuning";
 import { OnboardingSuccess } from "./steps/OnboardingSuccess";
 import styles from "./page.module.scss";
-
-const TOTAL_STEPS = 5;
-
-// Delay before the final Save button becomes clickable after reaching the
-// last step. Next (step 4) and Save (step 5) render at the same spot, so a
-// mobile tap held while the step swaps retargets onto Save and would submit
-// before the user ever sees step 5.
-const SAVE_ARM_DELAY_MS = 500;
 
 function isStepComplete(
   step: number,
@@ -41,7 +36,7 @@ function isStepComplete(
 ): boolean {
   switch (step) {
     case 1:
-      return answers.displayName.trim().length >= 2;
+      return answers.displayName.trim().length >= DISPLAY_NAME_MIN_LENGTH;
     case 2:
       return answers.section !== "" && answers.style !== "";
     case 3:

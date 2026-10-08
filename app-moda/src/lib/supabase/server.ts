@@ -1,11 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import {
+  COOKIE_PATH,
   REMEMBER_COOKIE,
   REMEMBER_MAX_AGE_SECONDS,
   REMEMBER_SINCE_COOKIE,
   isRememberActive,
 } from "./cookies";
+import {
+  SUPABASE_ANON_FALLBACK,
+  SUPABASE_URL_FALLBACK,
+} from "@/constants/storage";
 
 // Server-side Supabase client for Server Components, Server Actions, and
 // Route Handlers. Never import this file (or `next/headers`) into client
@@ -30,8 +35,8 @@ export async function createClient(options?: {
     );
 
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || "http://localhost:54321",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "anon-placeholder",
+    process.env.NEXT_PUBLIC_SUPABASE_URL || SUPABASE_URL_FALLBACK,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || SUPABASE_ANON_FALLBACK,
     {
       cookies: {
         getAll() {
@@ -43,7 +48,7 @@ export async function createClient(options?: {
               cookieStore.set(name, value, {
                 ...options,
                 ...(remembered
-                  ? { maxAge: REMEMBER_MAX_AGE_SECONDS, path: "/" }
+                  ? { maxAge: REMEMBER_MAX_AGE_SECONDS, path: COOKIE_PATH }
                   : null),
               }),
             );

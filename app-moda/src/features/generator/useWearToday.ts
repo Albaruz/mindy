@@ -10,6 +10,7 @@ import {
   withoutHiddenBottom,
 } from "./categorizeGarments";
 import type { Garment } from "@/types/garment";
+import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 
 // Persists the current canvas as today's look: inserts an outfit_history row
 // with the full look (footwear and outerwear included) but only marks tops
@@ -35,7 +36,7 @@ export function useWearToday() {
       const now = new Date().toISOString();
 
       const { error: historyError } = await supabase
-        .from("outfit_history")
+        .from(TABLES.outfitHistory)
         .insert({
           user_id: user.id,
           garment_ids: garmentIds,
@@ -51,10 +52,10 @@ export function useWearToday() {
         .map((garment) => garment.garmentId);
       if (dirtyIds.length > 0) {
         const { error: garmentsError } = await supabase
-          .from("garments")
+          .from(TABLES.garments)
           .update({ is_dirty: true, last_worn_date: now })
           .in("garment_id", dirtyIds)
-          .eq("user_id", user.id);
+          .eq(USER_ID_COLUMN, user.id);
         if (garmentsError) {
           throw garmentsError;
         }

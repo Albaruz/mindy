@@ -10,6 +10,11 @@ import { SmartSkeleton } from "@/components/Skeletons/SmartSkeleton";
 import { Link, useRouter } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useNotificationStore } from "@/features/ui/useNotificationStore";
+import { PASSWORD_MIN_LENGTH } from "@/constants/validation";
+import {
+  REDIRECT_DELAY_MS,
+  SESSION_RETRY_DELAY_MS,
+} from "@/constants/animations";
 import {
   updatePasswordAction,
   type PasswordActionState,
@@ -52,7 +57,7 @@ function ResetPasswordForm() {
     if (state.message === null) {
       return;
     }
-    const timer = setTimeout(() => router.push("/generator"), 1500);
+    const timer = setTimeout(() => router.push("/generator"), REDIRECT_DELAY_MS);
     return () => clearTimeout(timer);
   }, [state.message, router]);
 
@@ -73,7 +78,7 @@ function ResetPasswordForm() {
       if (data.session) {
         setStatus("ready");
       } else if (attempts > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        await new Promise((resolve) => setTimeout(resolve, SESSION_RETRY_DELAY_MS));
         await confirmSession(attempts - 1);
       } else {
         setStatus("invalid");
@@ -113,7 +118,7 @@ function ResetPasswordForm() {
                 id="new-password"
                 name="password"
                 required
-                minLength={6}
+                minLength={PASSWORD_MIN_LENGTH}
                 autoComplete="new-password"
                 placeholder={t("passwordHint")}
                 showPasswordLabel={t("showPassword")}
@@ -126,7 +131,7 @@ function ResetPasswordForm() {
                 id="confirm-password"
                 name="confirm"
                 required
-                minLength={6}
+                minLength={PASSWORD_MIN_LENGTH}
                 autoComplete="new-password"
                 placeholder={t("passwordHint")}
                 showPasswordLabel={t("showPassword")}

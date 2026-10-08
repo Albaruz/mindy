@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { NOTIFICATION_DURATION_MS } from "@/constants/animations";
 
 export type NotificationType = "success" | "error" | "info";
 
@@ -16,7 +17,8 @@ interface NotificationState {
 
 // Visible lifetime of a toast. NotificationBubble starts its exit
 // transition slightly before this so the removal never looks abrupt.
-export const NOTIFICATION_DURATION_MS = 3500;
+// Re-exported from centralized constants for backward compatibility.
+export { NOTIFICATION_DURATION_MS };
 
 function createNotificationId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {

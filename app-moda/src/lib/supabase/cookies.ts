@@ -10,8 +10,13 @@
 // once it lapses the session degrades to a browser-session cookie.
 export const REMEMBER_COOKIE = "mindy_remember";
 export const REMEMBER_SINCE_COOKIE = "mindy_remember_since";
-export const REMEMBER_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
-export const REMEMBER_ABSOLUTE_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
+// Remember-me window in days. Both the sliding max-age and the absolute
+// cap derive from it so the two lifetimes cannot drift apart.
+export const REMEMBER_DAYS = 30;
+export const REMEMBER_MAX_AGE_SECONDS = REMEMBER_DAYS * 24 * 60 * 60;
+export const REMEMBER_ABSOLUTE_MAX_AGE_SECONDS = REMEMBER_DAYS * 24 * 60 * 60;
+/** Cookie path shared by every auth cookie write. */
+export const COOKIE_PATH = "/";
 
 export function isProduction(): boolean {
   return process.env.NODE_ENV === "production";
@@ -28,7 +33,7 @@ export function rememberCookieFlags(maxAge: number): {
 } {
   return {
     maxAge,
-    path: "/",
+    path: COOKIE_PATH,
     httpOnly: true,
     sameSite: "lax",
     secure: isProduction(),

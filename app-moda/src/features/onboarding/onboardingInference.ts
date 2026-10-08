@@ -9,68 +9,23 @@ import type {
   JewelryPick,
   StyleTribe,
 } from "./onboardingStore";
+import {
+  inferColorimetry,
+  inferMorphology,
+  mapStyleToLifestyle,
+  mapFitToPreferredFit,
+} from "@/constants/profile";
 
 // Pure mapping from indirect wizard answers to the profiles contract.
 // Morphology thresholds mirror inferProfile so both paths agree.
-export function inferMorphology(
-  chestCm: number,
-  waistCm: number,
-  hipCm: number,
-): Morphology {
-  if (hipCm - chestCm > 3) {
-    return "triangle";
-  }
-  if (chestCm - hipCm > 3) {
-    return "inverted_triangle";
-  }
-  if (chestCm - waistCm > 12 && hipCm - waistCm > 12) {
-    return "hourglass";
-  }
-  if (waistCm >= chestCm - 3 && waistCm >= hipCm - 3) {
-    return "oval";
-  }
-  return "rectangle";
-}
+// Re-exported from centralized constants for backward compatibility.
 
-// Indirect colorimetry: gold points warm, silver points cool, refined by
-// skin depth. Warm + deep = autumn, warm + fair = spring,
-// cool + fair = summer, cool + deep = winter.
-export function inferColorimetry(
-  skinTone: string,
-  jewelry: JewelryPick,
-): Colorimetry {
-  const deepSkin = ["medium", "olive", "brown", "deep"].includes(
-    skinTone.toLowerCase(),
-  );
-  if (jewelry === "gold") {
-    return deepSkin ? "autumn" : "spring";
-  }
-  return deepSkin ? "winter" : "summer";
-}
-
-export function mapStyleToLifestyle(style: StyleTribe): Lifestyle {
-  switch (style) {
-    case "minimalist":
-      return "casual_daily";
-    case "classic":
-      return "corporate_office";
-    case "streetwear":
-      return "social_events";
-    case "boho":
-      return "home_remote";
-  }
-}
-
-export function mapFitToPreferredFit(fit: FitChoice): PreferredFit {
-  switch (fit) {
-    case "fitted":
-      return "slim";
-    case "regular":
-      return "regular";
-    case "oversized":
-      return "oversized";
-  }
-}
+export {
+  inferColorimetry,
+  inferMorphology,
+  mapStyleToLifestyle,
+  mapFitToPreferredFit,
+};
 
 export interface WizardPayload {
   displayName: string;

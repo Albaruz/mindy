@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rateLimit";
+import { RATE_LIMITS } from "@/constants/api";
+import { DEFAULT_TEMPERATURE_C } from "@/constants/weather";
 
 // Standard climate returned whenever coordinates are missing or the
 // OpenWeather request fails for any reason (no key, upstream error...).
-const DEFAULT_TEMPERATURE_C = 20;
 const OPENWEATHER_TIMEOUT_MS = 8000;
 const OPENWEATHER_CACHE_SECONDS = 600;
 
@@ -73,7 +74,8 @@ export async function GET(request: Request) {
   }
 
   // Cheap call, but still third-party quota: cap per user.
-  const quota = checkRateLimit(`weather:${user.id}`, 30, 60 * 60 * 1000);
+  const { key, limit, windowMs } = RATE_LIMITS.weather;
+  const quota = checkRateLimit(`${key}:${user.id}`, limit, windowMs);
   if (quota.limited) {
     return fallbackResponse("rate limited");
   }

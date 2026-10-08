@@ -9,6 +9,14 @@ import {
   EYE_COLORS,
   SKIN_TONES,
 } from "@/features/profile/profileOptions";
+import { THERMAL_MAX, THERMAL_MIN } from "@/constants/ui-config";
+import {
+  DISPLAY_NAME_MAX_LENGTH,
+  DISPLAY_NAME_MIN_LENGTH,
+  MEASUREMENT_MAX_CM,
+  MEASUREMENT_MIN_CM,
+} from "@/constants/validation";
+import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import type {
   Colorimetry,
   Lifestyle,
@@ -87,8 +95,8 @@ function isValidMeasurement(value: unknown): value is number {
   return (
     typeof value === "number" &&
     Number.isInteger(value) &&
-    value >= 20 &&
-    value <= 300
+    value >= MEASUREMENT_MIN_CM &&
+    value <= MEASUREMENT_MAX_CM
   );
 }
 
@@ -124,8 +132,8 @@ function validateInput(input: SaveProfileInput): string | null {
   }
   if (
     typeof extra.displayName !== "string" ||
-    extra.displayName.trim().length < 2 ||
-    extra.displayName.length > 40
+    extra.displayName.trim().length < DISPLAY_NAME_MIN_LENGTH ||
+    extra.displayName.length > DISPLAY_NAME_MAX_LENGTH
   ) {
     return "Tell us your name (2-40 characters).";
   }
@@ -137,8 +145,8 @@ function validateInput(input: SaveProfileInput): string | null {
   }
   if (
     !Number.isInteger(extra.thermostat) ||
-    extra.thermostat < 1 ||
-    extra.thermostat > 5
+    extra.thermostat < THERMAL_MIN ||
+    extra.thermostat > THERMAL_MAX
   ) {
     return "Select a valid thermal level.";
   }
@@ -173,9 +181,9 @@ export async function saveProfileAction(
 
     // Merge with stored preferences so unrelated keys survive rewrites.
     const { data: existing } = await supabase
-      .from("profiles")
+      .from(TABLES.profiles)
       .select("extra_preferences")
-      .eq("user_id", user.id)
+      .eq(USER_ID_COLUMN, user.id)
       .maybeSingle();
     const stored =
       existing !== null &&
@@ -189,7 +197,7 @@ export async function saveProfileAction(
 
     // Upsert: the signup trigger normally pre-creates the row, but older
     // accounts may not have one yet.
-    const { error } = await supabase.from("profiles").upsert(
+    const { error } = await supabase.from(TABLES.profiles).upsert(
       {
         user_id: user.id,
         skin_tone: input.skinTone,
@@ -211,7 +219,7 @@ export async function saveProfileAction(
           forbiddenColors: [...input.extraPreferences.forbiddenColors],
         },
       },
-      { onConflict: "user_id" },
+      { onConflict: USER_ID_COLUMN },
     );
     if (error) {
       return { error: "Could not save your profile. Try again." };

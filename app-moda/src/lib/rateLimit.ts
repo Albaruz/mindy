@@ -2,9 +2,9 @@
 // Per-instance memory: sufficient as a first barrier on single-instance
 // deployments; move to Redis (Upstash) when running multiple instances,
 // since buckets do not sync across them.
-const buckets = new Map<string, number[]>();
+import { RATE_LIMIT_MAX_KEYS } from "@/constants/api";
 
-const MAX_TRACKED_KEYS = 5000;
+const buckets = new Map<string, number[]>();
 
 interface RateLimitResult {
   limited: boolean;
@@ -33,7 +33,7 @@ export function checkRateLimit(
   }
   hits.push(now);
   buckets.set(key, hits);
-  if (buckets.size > MAX_TRACKED_KEYS) {
+  if (buckets.size > RATE_LIMIT_MAX_KEYS) {
     const oldestKey = buckets.keys().next().value;
     if (oldestKey !== undefined) {
       buckets.delete(oldestKey);

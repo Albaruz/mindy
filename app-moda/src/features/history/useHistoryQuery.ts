@@ -3,8 +3,10 @@ import { createClient } from "@/lib/supabase/client";
 import type { Garment } from "@/types/garment";
 import type { OutfitHistory } from "@/types/history";
 import { toGarment, type GarmentRow } from "@/features/closet/garmentMappers";
+import { QUERY_KEYS } from "@/constants/query";
+import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 
-export const HISTORY_QUERY_KEY = ["outfit-history"] as const;
+export const HISTORY_QUERY_KEY = QUERY_KEYS.history;
 
 // Row shape of public.outfit_history (snake_case, as returned by Supabase).
 interface OutfitHistoryRow {
@@ -40,9 +42,9 @@ async function fetchHistory(): Promise<HistoryEntry[]> {
   }
 
   const { data: rows, error } = await supabase
-    .from("outfit_history")
+    .from(TABLES.outfitHistory)
     .select("*")
-    .eq("user_id", user.id)
+    .eq(USER_ID_COLUMN, user.id)
     .order("worn_date", { ascending: false });
   if (error) {
     throw error;
@@ -56,7 +58,7 @@ async function fetchHistory(): Promise<HistoryEntry[]> {
   }
 
   const { data: garmentRows, error: garmentsError } = await supabase
-    .from("garments")
+    .from(TABLES.garments)
     .select("*")
     .in("garment_id", garmentIds);
   if (garmentsError) {

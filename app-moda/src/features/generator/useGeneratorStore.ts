@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { Garment, GarmentStyle } from "@/types/garment";
+import { MAX_DISCARD_COUNT } from "@/constants/generator";
 import { categorizeGarment } from "./categorizeGarments";
 
 export type Category = "top" | "bottom" | "footwear" | "outerwear";
@@ -23,7 +24,8 @@ export type LookStyle = GarmentStyle;
 
 // Auto-mode rejection budget: at most 4 left-swipes per generation
 // before the limit empty state takes over.
-export const MAX_DISCARD_COUNT = 4;
+// Re-exported from centralized constants for backward compatibility.
+export { MAX_DISCARD_COUNT };
 
 export const LOOK_STYLE_LABELS: Record<LookStyle, string> = {
   casual: "Casual",

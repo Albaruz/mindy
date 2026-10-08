@@ -2,8 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import type { Garment } from "@/types/garment";
 import { toGarment, type GarmentRow } from "./garmentMappers";
+import { QUERY_KEYS } from "@/constants/query";
+import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 
-export const GARMENTS_QUERY_KEY = ["garments"] as const;
+export const GARMENTS_QUERY_KEY = QUERY_KEYS.garments;
 
 async function fetchClosetGarments(): Promise<Garment[]> {
   const supabase = createClient();
@@ -15,9 +17,9 @@ async function fetchClosetGarments(): Promise<Garment[]> {
   }
 
   const { data, error } = await supabase
-    .from("garments")
+    .from(TABLES.garments)
     .select("*")
-    .eq("user_id", user.id)
+    .eq(USER_ID_COLUMN, user.id)
     .order("created_at", { ascending: false });
 
   if (error) {
