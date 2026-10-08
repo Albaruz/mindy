@@ -23,11 +23,17 @@ import { OutfitCelebrationScreen } from "./OutfitCelebrationScreen";
 import styles from "./Home.module.scss";
 
 // Swiper carousels are heavy: split them so the zero state stays instant.
+// The loading fallback is translated inside its own component (hooks work there).
+function ManualCarouselsLoading() {
+  const t = useTranslations("Generator");
+  return <SmartSkeleton label={t("manualLoading")} variant="brand" />;
+}
+
 const ManualCarousels = dynamic(
   () => import("./ManualCarousels").then((mod) => mod.ManualCarousels),
   {
     ssr: false,
-    loading: () => <SmartSkeleton label="manual carousels" variant="brand" />,
+    loading: () => <ManualCarouselsLoading />,
   },
 );
 

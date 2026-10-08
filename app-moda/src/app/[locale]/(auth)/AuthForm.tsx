@@ -62,11 +62,10 @@ export function AuthForm() {
 
   return (
     <div>
-      <div role="tablist" aria-label={ta("authMode")} className={styles.tabs}>
+      <div role="group" aria-label={ta("authMode")} className={styles.tabs}>
         <button
           type="button"
-          role="tab"
-          aria-selected={isLogin}
+          aria-pressed={isLogin}
           className={cn(styles.tab, isLogin && styles.tabActive)}
           onClick={() => setMode("login")}
         >
@@ -74,8 +73,7 @@ export function AuthForm() {
         </button>
         <button
           type="button"
-          role="tab"
-          aria-selected={!isLogin}
+          aria-pressed={!isLogin}
           className={cn(styles.tab, !isLogin && styles.tabActive)}
           onClick={() => setMode("signup")}
         >
@@ -83,7 +81,10 @@ export function AuthForm() {
         </button>
       </div>
 
-      <form action={isLogin ? signInFormAction : signUpFormAction}>
+      <form
+        action={isLogin ? signInFormAction : signUpFormAction}
+        aria-label={isLogin ? t("login") : t("signup")}
+      >
         <div className={styles.field}>
           <label htmlFor="auth-email">{t("email")}</label>
           <input
@@ -93,6 +94,8 @@ export function AuthForm() {
             required
             autoComplete="email"
             placeholder="you@example.com"
+            aria-invalid={state.error !== null}
+            aria-describedby={state.error !== null ? "auth-form-error" : undefined}
           />
         </div>
         <div className={styles.field}>
@@ -106,11 +109,13 @@ export function AuthForm() {
             placeholder={t("passwordHint")}
             showPasswordLabel={t("showPassword")}
             hidePasswordLabel={t("hidePassword")}
+            aria-invalid={state.error !== null}
+            aria-describedby={state.error !== null ? "auth-form-error" : undefined}
           />
         </div>
 
         {state.error !== null ? (
-          <p role="alert" className={styles.error}>
+          <p id="auth-form-error" role="alert" className={styles.error}>
             {state.error}
           </p>
         ) : null}

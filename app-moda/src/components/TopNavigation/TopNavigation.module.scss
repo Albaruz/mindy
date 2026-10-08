@@ -42,7 +42,7 @@
   transition: color 0.18s ease;
 
   &:focus-visible {
-    outline: 2px solid var(--color-accent, #c87966);
+    outline: 2px solid var(--color-accent, #a2543f);
     outline-offset: 2px;
   }
 
@@ -56,7 +56,7 @@
 .indicator {
   position: absolute;
   inset: 0;
-  background: var(--color-accent, #c87966);
+  background: var(--color-accent, #a2543f);
   border-radius: 999px;
 }
 

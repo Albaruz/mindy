@@ -26,6 +26,7 @@ export function GarmentCard({
   isWashing = false,
 }: GarmentCardProps) {
   const { translate, translateDetail } = useGarmentTranslator();
+  const t = useTranslations("Closet");
   const ta = useTranslations("Accessibility");
   const displayType =
     translate(garment.garmentType, "type") ??
@@ -34,20 +35,23 @@ export function GarmentCard({
         ? garment.extraTags.specificType
         : null,
     ) ??
-    "Garment";
+    t("garmentFallback");
   const subtitle = [
     translate(garment.color, "color"),
     translate(garment.season, "season"),
   ]
     .filter((part): part is string => part !== null)
     .join(" · ");
+  // Descriptive alternative (WCAG 1.1.1): type plus visible traits.
+  const imageAlt =
+    subtitle !== "" ? `${displayType} (${subtitle})` : displayType;
 
   return (
     <article className={styles.card}>
       {garment.imageUrl !== null ? (
         <img
           src={garment.imageUrl}
-          alt={displayType}
+          alt={imageAlt}
           loading="lazy"
           className={styles.image}
         />

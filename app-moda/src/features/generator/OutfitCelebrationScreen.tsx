@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import type { Garment } from "@/types/garment";
 import { Button } from "@/components/Button/Button";
 import { useGarmentTranslator } from "@/lib/translateGarment";
+import { useDialogFocus } from "@/lib/useDialogFocus";
 import styles from "./OutfitCelebrationScreen.module.scss";
 
 interface OutfitCelebrationScreenProps {
@@ -45,7 +46,6 @@ export function OutfitCelebrationScreen({
   onClose,
 }: OutfitCelebrationScreenProps) {
   const t = useTranslations("Generator");
-  const ta = useTranslations("Accessibility");
   const { translate, translateDetail } = useGarmentTranslator();
   const reduceMotion = useReducedMotion();
 
@@ -60,17 +60,7 @@ export function OutfitCelebrationScreen({
         : "") ?? "",
   );
   const confetti = useMemo(() => buildConfetti(16), []);
-
-  // Escape leaves; the hero button autofocuses itself.
-  useEffect(() => {
-    const handleKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [onClose]);
+  const dialogRef = useDialogFocus<HTMLDivElement>(onClose);
 
   const describeGarment = (garment: Garment) =>
     translate(garment.garmentType, "type") ??
@@ -83,23 +73,26 @@ export function OutfitCelebrationScreen({
 
   return (
     <motion.div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
-      aria-label={ta("outfitCelebration")}
+      aria-labelledby="celebration-title"
+      tabIndex={-1}
       className={styles.overlay}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1, transition: { duration: reduceMotion ? 0 : 0.25 } }}
       exit={{ opacity: 0, transition: { duration: 0.2 } }}
     >
       <div className={styles.mask}>
-        <motion.h1
+        <motion.h2
+          id="celebration-title"
           className={styles.title}
           initial={reduceMotion ? false : { y: "110%" }}
           animate={{ y: "0%" }}
           transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
         >
           {line}
-        </motion.h1>
+        </motion.h2>
       </div>
 
       <motion.div
@@ -184,7 +177,6 @@ export function OutfitCelebrationScreen({
         <Button
           type="button"
           size="lg"
-          autoFocus
           onClick={onClose}
           className={styles.closeButton}
         >

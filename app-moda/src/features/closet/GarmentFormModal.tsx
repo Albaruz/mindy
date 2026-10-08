@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Infinity as InfinityIcon, Leaf, Snowflake, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,7 @@ import type {
 import { Button } from "@/components/Button/Button";
 import { ColorSwatches } from "@/components/ColorSwatches/ColorSwatches";
 import { OptionPills } from "@/components/OptionPills/OptionPills";
+import { useDialogFocus } from "@/lib/useDialogFocus";
 import type { GarmentFormInput } from "./useUploadGarment";
 import { ExtraTagsEditor } from "./ExtraTagsEditor";
 import {
@@ -32,6 +33,7 @@ interface GarmentFormModalProps {
   title: string;
   submitLabel: string;
   savingLabel: string;
+  cancelLabel: string;
   initialValues: GarmentFormInput;
   previewUrl: string | null;
   previewAlt: string;
@@ -55,6 +57,7 @@ export function GarmentFormModal({
   title,
   submitLabel,
   savingLabel,
+  cancelLabel,
   initialValues,
   previewUrl,
   previewAlt,
@@ -63,15 +66,8 @@ export function GarmentFormModal({
   onClose,
   onSubmit,
 }: GarmentFormModalProps) {
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  const dialogRef = useDialogFocus<HTMLDivElement>(onClose);
+  const errorRef = useRef<HTMLParagraphElement | null>(null);
 
   const [garmentType, setGarmentType] = useState<GarmentType | "">(
     initialValues.garmentType,
@@ -96,6 +92,8 @@ export function GarmentFormModal({
     event.preventDefault();
     if (garmentType === "") {
       setValidationError(t("form.validation"));
+      // Move screen-reader and keyboard focus to the announced error (WCAG 3.3.1).
+      requestAnimationFrame(() => errorRef.current?.focus());
       return;
     }
     setValidationError(null);
@@ -113,9 +111,18 @@ export function GarmentFormModal({
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="garment-modal-title"
+        aria-describedby={
+          validationError !== null
+            ? "garment-modal-error"
+            : submitError !== null
+              ? "garment-modal-submit-error"
+              : undefined
+        }
+        tabIndex={-1}
         className={styles.dialog}
         onClick={(event) => event.stopPropagation()}
       >
@@ -202,12 +209,18 @@ export function GarmentFormModal({
           <ExtraTagsEditor tags={extraTags} onChange={setExtraTags} />
 
           {validationError !== null ? (
-            <p role="alert" className={styles.error}>
+            <p
+              id="garment-modal-error"
+              ref={errorRef}
+              role="alert"
+              tabIndex={-1}
+              className={styles.error}
+            >
               {validationError}
             </p>
           ) : null}
           {submitError !== null ? (
-            <p role="alert" className={styles.error}>
+            <p id="garment-modal-submit-error" role="alert" className={styles.error}>
               {submitError}
             </p>
           ) : null}
@@ -218,7 +231,7 @@ export function GarmentFormModal({
               onClick={onClose}
               disabled={isSaving}
             >
-              Cancel
+              {cancelLabel}
             </Button>
             <Button type="submit" variant="primary" disabled={isSaving}>
               {isSaving ? savingLabel : submitLabel}

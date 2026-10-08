@@ -111,7 +111,7 @@ function ResetPasswordForm() {
             {state.message}
           </p>
         ) : (
-          <form action={formAction}>
+          <form action={formAction} aria-label={t("updatePasswordTitle")}>
             <div className={styles.field}>
               <label htmlFor="new-password">{t("newPassword")}</label>
               <PasswordInput
@@ -123,6 +123,7 @@ function ResetPasswordForm() {
                 placeholder={t("passwordHint")}
                 showPasswordLabel={t("showPassword")}
                 hidePasswordLabel={t("hidePassword")}
+                aria-invalid={state.error !== null}
               />
             </div>
             <div className={styles.field}>
@@ -136,6 +137,7 @@ function ResetPasswordForm() {
                 placeholder={t("passwordHint")}
                 showPasswordLabel={t("showPassword")}
                 hidePasswordLabel={t("hidePassword")}
+                aria-invalid={state.error !== null}
               />
             </div>
             <Button

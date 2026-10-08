@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages, setRequestLocale } from "next-intl/server";
+import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { AppHeader } from "@/components/AppHeader/AppHeader";
 import { NotificationContainer } from "@/components/Notification/NotificationContainer";
 import { THEME_STORAGE_KEY } from "@/features/settings/themeStore";
@@ -53,6 +53,8 @@ export default async function LocaleLayout({
   // in every server component below without forcing dynamic mode.
   setRequestLocale(locale);
   const messages = await getMessages();
+  const ta = await getTranslations("Accessibility");
+  const skipLabel = ta("skipToContent");
 
   return (
     <html
@@ -69,8 +71,13 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <NotificationContainer />
           <Providers>
+            <a href="#main-content" className="skip-link">
+              {skipLabel}
+            </a>
             <AppHeader />
-            <main>{children}</main>
+            <main id="main-content" tabIndex={-1}>
+              {children}
+            </main>
           </Providers>
         </NextIntlClientProvider>
       </body>

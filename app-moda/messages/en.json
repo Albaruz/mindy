@@ -47,6 +47,7 @@
     },
     "confirm": "Let's go",
     "creating": "Cooking up your look…",
+    "manualLoading": "Loading manual mode",
     "back": "Back",
     "loadingLooks": "Cooking up your look",
     "wear": "I'll wear this today",
@@ -116,6 +117,8 @@
     "saveChanges": "Save changes",
     "saving": "Saving…",
     "saveError": "Could not save changes. Try again.",
+    "deleteTitle": "Delete {name}?",
+    "deleteConfirmYes": "Delete",
     "deleteConfirm": "Delete {name}? This cannot be undone.",
     "form": {
       "type": "What is it?",
@@ -358,7 +361,8 @@
     "measureCentimeters": "{label} in centimeters",
     "measureValue": "{value} centimeters",
     "vetoColor": "Veto {color}",
-    "weatherCard": "Weather in {city}: {label}, {temp} degrees"
+    "weatherCard": "Weather in {city}: {label}, {temp} degrees",
+    "skipToContent": "Skip to content"
   },
   "Garments": {}
 }

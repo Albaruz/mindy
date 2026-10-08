@@ -11,17 +11,19 @@ interface SearchBarProps {
 }
 
 const DEFAULT_ID = "garment-search";
-const DEFAULT_PLACEHOLDER = "Search by type, color, style, material…";
 
 // Controlled search input for the closet view. State lives in the parent
 // so the same query drives the client-side garment filtering.
+// The placeholder defaults to the translated closet hint (no hardcoded copy).
 export function SearchBar({
   value,
   onChange,
-  placeholder = DEFAULT_PLACEHOLDER,
+  placeholder,
   id = DEFAULT_ID,
 }: SearchBarProps) {
+  const t = useTranslations("Closet");
   const ta = useTranslations("Accessibility");
+  const resolvedPlaceholder = placeholder ?? t("searchPlaceholder");
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     onChange(event.target.value);
   };
@@ -35,7 +37,7 @@ export function SearchBar({
         aria-label={ta("searchGarments")}
         autoComplete="off"
         className={styles.input}
-        placeholder={placeholder}
+        placeholder={resolvedPlaceholder}
         value={value}
         onChange={handleChange}
       />

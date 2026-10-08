@@ -45,7 +45,7 @@ export default function ForgotPasswordPage() {
             {state.message}
           </p>
         ) : (
-          <form action={formAction}>
+          <form action={formAction} aria-label={t("resetTitle")}>
             <div className={styles.field}>
               <label htmlFor="reset-email">{t("email")}</label>
               <input
@@ -55,6 +55,7 @@ export default function ForgotPasswordPage() {
                 required
                 autoComplete="email"
                 placeholder="you@example.com"
+                aria-invalid={state.error !== null}
               />
             </div>
             <Button

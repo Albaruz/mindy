@@ -34,6 +34,7 @@ import { useGarmentTranslator } from "@/lib/translateGarment";
 import { isLaundryExemptGarment } from "@/features/generator/categorizeGarments";
 import { GarmentCard } from "@/features/closet/GarmentCard";
 import { GarmentFormModal } from "@/features/closet/GarmentFormModal";
+import { ConfirmDialog } from "@/components/ConfirmDialog/ConfirmDialog";
 import styles from "./page.module.scss";
 
 type InventoryView = "clean" | "dirty";
@@ -95,7 +96,10 @@ export default function ClosetPage() {
     null,
   );
   const [editingGarment, setEditingGarment] = useState<Garment | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<Garment | null>(null);
   const [isSourceMenuOpen, setIsSourceMenuOpen] = useState(false);
+  const fabRef = useRef<HTMLButtonElement | null>(null);
+  const firstSheetOptionRef = useRef<HTMLButtonElement | null>(null);
   // Optimistic wash: cards shrink away instantly while the mutation
   // lands; a failure puts the card back.
   const [washingGarmentIds, setWashingGarmentIds] = useState<Set<string>>(
@@ -106,14 +110,16 @@ export default function ClosetPage() {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const uploadInputRef = useRef<HTMLInputElement>(null);
 
-  // Close the source menu with Escape.
+  // Close the source sheet with Escape and move focus into it on open.
   useEffect(() => {
     if (!isSourceMenuOpen) {
       return;
     }
+    firstSheetOptionRef.current?.focus();
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setIsSourceMenuOpen(false);
+        fabRef.current?.focus();
       }
     };
     document.addEventListener("keydown", handleKeyDown);
@@ -186,20 +192,23 @@ export default function ClosetPage() {
     if (deleteGarment.isPending) {
       return;
     }
-    const confirmed = window.confirm(
-      t("deleteConfirm", {
-        name:
-          translate(garment.garmentType, "type") ?? garment.garmentType ?? "—",
-      }),
-    );
-    if (!confirmed) {
+    // Accessible confirm dialog instead of window.confirm (WCAG 3.3.1).
+    setPendingDelete(garment);
+  };
+
+  const handleConfirmDelete = () => {
+    if (pendingDelete === null || deleteGarment.isPending) {
       return;
     }
-    setDeletingGarmentId(garment.garmentId);
+    const target = pendingDelete;
+    setDeletingGarmentId(target.garmentId);
     deleteGarment.mutate(
-      { garmentId: garment.garmentId, imageUrl: garment.imageUrl },
+      { garmentId: target.garmentId, imageUrl: target.imageUrl },
       {
-        onSettled: () => setDeletingGarmentId(null),
+        onSettled: () => {
+          setDeletingGarmentId(null);
+          setPendingDelete(null);
+        },
       },
     );
   };
@@ -328,9 +337,12 @@ export default function ClosetPage() {
         onChange={handleFileChange}
       />
       <button
+        ref={fabRef}
         type="button"
         aria-label={ta("addGarment")}
         aria-expanded={isSourceMenuOpen}
+        aria-haspopup="dialog"
+        aria-controls="add-garment-sheet"
         className={styles.fab}
         onClick={() => setIsSourceMenuOpen((open) => !open)}
       >
@@ -356,17 +368,22 @@ export default function ClosetPage() {
       {isSourceMenuOpen ? (
         <div
           className={styles.sheetBackdrop}
-          onClick={() => setIsSourceMenuOpen(false)}
+          onClick={() => {
+            setIsSourceMenuOpen(false);
+            fabRef.current?.focus();
+          }}
         >
           <div
-            role="menu"
+            id="add-garment-sheet"
+            role="dialog"
+            aria-modal="true"
             aria-label={ta("addGarmentFrom")}
             className={styles.sheet}
             onClick={(event) => event.stopPropagation()}
           >
             <button
+              ref={firstSheetOptionRef}
               type="button"
-              role="menuitem"
               className={styles.sheetOption}
               onClick={() => {
                 setIsSourceMenuOpen(false);
@@ -378,7 +395,6 @@ export default function ClosetPage() {
             </button>
             <button
               type="button"
-              role="menuitem"
               className={styles.sheetOption}
               onClick={() => {
                 setIsSourceMenuOpen(false);
@@ -392,11 +408,29 @@ export default function ClosetPage() {
         </div>
       ) : null}
 
+      {pendingDelete !== null ? (
+        <ConfirmDialog
+          title={t("deleteTitle", { name: translate(pendingDelete.garmentType, "type") ?? pendingDelete.garmentType ?? "—" })}
+          message={t("deleteConfirm", {
+            name:
+              translate(pendingDelete.garmentType, "type") ??
+              pendingDelete.garmentType ??
+              "—",
+          })}
+          confirmLabel={t("deleteConfirmYes")}
+          cancelLabel={tc("cancel")}
+          isPending={deleteGarment.isPending}
+          onConfirm={handleConfirmDelete}
+          onClose={() => setPendingDelete(null)}
+        />
+      ) : null}
+
       {editingGarment !== null ? (
         <GarmentFormModal
           title={t("editTitle")}
           submitLabel={t("saveChanges")}
           savingLabel={t("saving")}
+          cancelLabel={tc("cancel")}
           initialValues={toFormInput(editingGarment)}
           previewUrl={editingGarment.imageUrl}
           previewAlt={

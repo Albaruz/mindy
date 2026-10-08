@@ -28,7 +28,8 @@
   --color-border: #e5e7eb;
   --color-primary: #111111;
   --color-primary-contrast: #ffffff;
-  --color-accent: #c87966;
+  // AA: darkened terracotta keeps >= 4.5:1 with white/oat text (was #c87966 at 3.29:1).
+  --color-accent: #a2543f;
   --color-tab-inactive: #4a3f39;
   --color-oat: #f9f6f0;
   --color-auth-background: #f9f6f0;

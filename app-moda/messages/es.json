@@ -47,6 +47,7 @@
     },
     "confirm": "A por ello",
     "creating": "Maquinando tu look…",
+    "manualLoading": "Cargando modo manual",
     "back": "Volver",
     "loadingLooks": "Maquinando tu look",
     "wear": "Me lo pongo hoy",
@@ -116,6 +117,8 @@
     "saveChanges": "Guardar cambios",
     "saving": "Guardando…",
     "saveError": "No se pudieron guardar los cambios. Inténtalo de nuevo.",
+    "deleteTitle": "¿Eliminar {name}?",
+    "deleteConfirmYes": "Eliminar",
     "deleteConfirm": "¿Eliminar {name}? No se puede deshacer.",
     "form": {
       "type": "¿Qué es?",
@@ -358,7 +361,8 @@
     "measureCentimeters": "{label} en centímetros",
     "measureValue": "{value} centímetros",
     "vetoColor": "Vetar {color}",
-    "weatherCard": "Tiempo en {city}: {label}, {temp} grados"
+    "weatherCard": "Tiempo en {city}: {label}, {temp} grados",
+    "skipToContent": "Saltar al contenido"
   },
   "Garments": {
     "types": {
