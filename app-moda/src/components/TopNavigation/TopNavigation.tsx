@@ -56,15 +56,19 @@ export function TopNavigation() {
             const href = `/${segment}`;
             const active = activeSegment === segment;
             return (
-              <li key={segment} className={styles["navigation__item"]} role="presentation">
+              <li
+                key={segment}
+                className={cn(
+                  styles["navigation__item"],
+                  active && styles["navigation__item--active"]
+                )}
+                role="presentation"
+              >
                 <Link
                   href={href}
                   aria-current={active ? "page" : undefined}
                   role="tab"
-                  className={cn(
-                    styles["navigation__link"],
-                    active && styles["navigation__item--active"]
-                  )}
+                  className={styles["navigation__link"]}
                 >
                   {active && (
                     <motion.span

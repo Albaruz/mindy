@@ -5,10 +5,20 @@
 @use '../core/variables' as *;
 @use '../core/mixins' as *;
 
+// Component: Form
+// Base form styles with BEM structure.
+// Includes input, select, textarea, label, error, helper, field group.
+// Container queries enabled for intrinsic responsive behavior.
+
+@use '../core/variables' as *;
+@use '../core/mixins' as *;
+
 @include block('form') {
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
+  container-type: inline-size;
+  container-name: form;
 
   @include modifier('inline') {
     flex-direction: row;
@@ -373,7 +383,7 @@
     border-top: 1px solid var(--color-border);
     flex-wrap: wrap;
 
-    @include respond-until('sm') {
+    @container form (max-width: 40rem) {
       width: 100%;
       justify-content: stretch;
 

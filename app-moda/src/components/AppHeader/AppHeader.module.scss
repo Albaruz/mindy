@@ -52,10 +52,10 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .appHeader__logo {
-    filter: invert(1);
+    /* Logo maintains its colors in dark mode */
   }
 }
 
 :root[data-theme="dark"] .appHeader__logo {
-  filter: invert(1);
+  /* Logo maintains its colors in dark mode */
 }

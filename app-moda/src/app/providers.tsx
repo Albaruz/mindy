@@ -56,6 +56,13 @@ export function Providers({ children }: { children: ReactNode }) {
     applyThemeMode(themeMode);
   }, [themeMode]);
 
+  // Hydrate theme store from localStorage on app initialization.
+  // This ensures the store reflects the user's saved preference from
+  // the start, not just when visiting the Settings page.
+  useEffect(() => {
+    useThemeStore.getState().hydrate();
+  }, []);
+
   return (
     <PersistQueryClientProvider
       client={queryClient}

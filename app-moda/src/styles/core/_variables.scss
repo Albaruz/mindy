@@ -136,14 +136,14 @@
   --navigation-pill-padding: var(--space-1);
 
   // --- Header (AppHeader) ---
-  --header-height: var(--header-height);
+  --header-height: 5rem;
   --header-bg: color-mix(in srgb, var(--color-background) 88%, transparent);
   --header-blur: 12px;
   --header-z: var(--z-sticky);
   --logo-height: 2.75rem;
 
   // --- Bottom Action Bar ---
-  --actionbar-height: var(--tabbar-height);
+  --actionbar-height: 4rem;
   --actionbar-bg: var(--color-surface);
   --actionbar-border: var(--color-border);
   --actionbar-shadow: var(--shadow-lg);

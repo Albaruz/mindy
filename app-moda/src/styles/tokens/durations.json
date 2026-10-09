@@ -1,0 +1,8 @@
+{
+  "instant": "0ms",
+  "fast": "150ms",
+  "normal": "200ms",
+  "slow": "300ms",
+  "slower": "500ms",
+  "slowest": "700ms"
+}

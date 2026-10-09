@@ -3,15 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build --webpack",
+    "dev": "pnpm tokens:build && next dev",
+    "build": "pnpm tokens:build && next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "tokens:build": "ts-node scripts/build-tokens.ts"
   },
   "dependencies": {
     "@imgly/background-removal": "^1.7.0",
@@ -51,7 +52,8 @@
     "sass": "^1.105.1",
     "typescript": "^5",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "ts-node": "^10.9.2"
   },
   "packageManager": "pnpm@12.8.1"
 }

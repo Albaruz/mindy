@@ -101,6 +101,10 @@
   color: var(--navigation-text-active);
 }
 
+.navigation__item--active .navigation__icon {
+  color: var(--navigation-text-active);
+}
+
 /* Very small screens: icon-only */
 @media (max-width: 26rem) {
   .navigation__label {

@@ -87,8 +87,30 @@ Todas las rutas operan bajo un segmento dinámico `[lang]` para interceptar el i
 
   ## **11\. Próximas Implementaciones**
 
+### **11.1 Funcionalidades de Negocio**
 * **Regla de lluvia por materiales**: si OpenWeather detecta lluvia, evitar materiales que se estropeen con el agua, además de mostrar el abrigo.  
 * **Onboarding indirecto**: deducir colorimetría y morfología con preguntas indirectas (color de venas, paletas que favorecen) en lugar de rasgos directos; sustituir las reglas estáticas actuales por el modelo biométrico o una llamada LLM.  
 * **Refuerzo negativo por similitud**: usar el historial de `garment_feedback` ("Cambiar prenda") para evitar futuras combinaciones similares, no solo excluir la prenda descartada.  
 * **Etiquetado de color base**: extender el pipeline de visión/subida para escribir `color_base` en `extra_tags` y activar la búsqueda por color genérico.
+
+### **11.2 Arquitectura CSS y Design System**
+* **Container Queries Migration**: Migrar `@media` (viewport-based) a `@container` (container-based) en componentes que poseen su propio layout (Cards, Carousels, Forms, Modals). Beneficio: componentes verdaderamente reutilizables que se adaptan a su contenedor padre, no al viewport global.
+* **Visual Regression Tests**: Configurar Playwright + pixelmatch para snapshots visuales de componentes críticos (Button variants, Cards, Carousels, Modals, Theme toggle). Gate en CI para prevenir regresiones visuales.
+* **Storybook Documentation**: Documentar variantes de componentes (Button: primary/secondary/ghost/danger × sm/md/lg; Card: interactive/selected/compact/elevated; Form inputs + validation states; Dialog/Modal variants).
+* **Pipeline de Tokens Automatizado** (✅ Completado): Tokens centralizados en `src/styles/tokens/*.json` → generador `scripts/build-tokens.ts` → `_tokens.scss`. Single source of truth para colores, espaciado, tipografía, sombras, breakpoints, z-index, duraciones, easings, touch targets, layout.
+
+### **11.3 Componentes Pendientes de Refactor BEM**
+* **WeatherThreadIcon**, **MorphoIcon** - Iconos animados con tokens
+* **OptionPills**, **ColorSwatches**, **LazyImage**, **SmartSkeleton** - Componentes UI reutilizables
+* **Profile Onboarding Steps** - Pasos del wizard (StepColorimetry, etc.)
+
+### **11.3 Quality Gates & Accesibilidad**
+* **Accessibility Audit Final**: Verificación WCAG 2.2 AA completa (focus visible, contraste dark/light, touch targets ≥44px, ARIA en carousels/dropdowns, reduced motion).
+* **Performance Budgets**: PurgeCSS para CSS unused, análisis de bundle size, tree-shaking de mixins no usados.
+* **Performance CI Gate**: Lighthouse CI en PRs (performance ≥ 90, accessibility ≥ 95, best practices ≥ 90, SEO ≥ 90).
+
+### **11.4 Performance & Optimización**
+* **PurgeCSS Integration**: Eliminar CSS unused en producción.
+* **Bundle Analysis**: `next-bundle-analyzer` para identificar código muerto y optimizar imports.
+* **Tree-shaking Mixins**: Eliminar mixins no utilizados en `_mixins.scss`.
 

@@ -114,14 +114,21 @@ function UmbrellaLoops({ accent }: { accent: string }) {
 
 function SunRays({ accent }: { accent: string }) {
   const reduce = useReducedMotion();
+  // Sun center is at (48, 28) with radius 14
+  // Rays should extend from the circle edge outward with a gap
+  const centerX = 48;
+  const centerY = 28;
+  const radius = 14;
+  const gap = 4; // gap between circle edge and ray start
+  const rayLength = 8; // length of ray extending outward
   const rays = Array.from({ length: 8 }, (_, index) => {
     const angle = (index * Math.PI) / 4;
-    const inner = 20;
-    const outer = 27;
-    const x1 = 48 + inner * Math.cos(angle);
-    const y1 = 42 + inner * Math.sin(angle);
-    const x2 = 48 + outer * Math.cos(angle);
-    const y2 = 42 + outer * Math.sin(angle);
+    const inner = radius + gap; // start after the gap
+    const outer = radius + gap + rayLength; // extend outward
+    const x1 = centerX + inner * Math.cos(angle);
+    const y1 = centerY + inner * Math.sin(angle);
+    const x2 = centerX + outer * Math.cos(angle);
+    const y2 = centerY + outer * Math.sin(angle);
     return { x1, y1, x2, y2 };
   });
   return (
@@ -129,7 +136,7 @@ function SunRays({ accent }: { accent: string }) {
       stroke={accent}
       strokeWidth={3}
       strokeLinecap="round"
-      style={{ originX: "48px", originY: "42px" }}
+      style={{ originX: `${centerX}px`, originY: `${centerY}px` }}
       initial={{ opacity: 0, rotate: reduce ? 0 : -30 }}
       animate={{ opacity: 1, rotate: 0 }}
       transition={{ delay: 1, duration: 0.8 }}
@@ -150,8 +157,8 @@ function SunRays({ accent }: { accent: string }) {
         <animateTransform
           attributeName="transform"
           type="rotate"
-          from="0 48 42"
-          to="360 48 42"
+          from={`0 ${centerX} ${centerY}`}
+          to={`360 ${centerX} ${centerY}`}
           dur="36s"
           repeatCount="indefinite"
         />

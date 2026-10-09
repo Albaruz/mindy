@@ -1,13 +1,11 @@
-// Immersive Stories-style onboarding canvas (Warm Refuge).
+// Immersive Stories-style onboarding canvas on default background.
 // Oat background, Playfair Display questions, Brown Ash text, Terracotta hero.
 .page {
   display: flex;
   flex-direction: column;
   max-width: 28rem;
   min-height: 100dvh;
-  padding: 1rem 1rem 2rem;
-  margin: -1rem auto 0;
-  background: var(--color-canvas, #f9f6f0);
+  margin: 0 auto;
 }
 
 .progress {
@@ -401,11 +399,14 @@
   z-index: 10;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 0.75rem;
   padding: 0.75rem 0;
   margin-top: auto;
-  background: var(--color-canvas, #f9f6f0);
+  background: var(--color-background);
+}
+
+.actions > *:last-child {
+  margin-left: auto;
 }
 
 // Full-screen celebration moment.

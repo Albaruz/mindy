@@ -85,12 +85,12 @@ export function ZeroState({
       : "other";
 
   return (
-    <div className={styles.zero} data-testid="generator-zero-state">
+    <div className={styles.zeroState} data-testid="generator-zero-state">
       {showIcon ? (
         <div
           role="img"
           aria-label={t(`conditions.${conditionKey}`)}
-          className={styles.weatherIcon}
+          className={styles["zeroState__weatherIcon"]}
         >
           <WeatherThreadIcon
             kind={resolveThreadKind(weather)}
@@ -98,10 +98,10 @@ export function ZeroState({
           />
         </div>
       ) : null}
-      <p aria-live="polite" className={styles.greeting}>
+      <p aria-live="polite" className={styles["zeroState__greeting"]}>
         {message}
       </p>
-      <div className={styles.actions}>
+      <div className={styles["zeroState__actions"]}>
         <Button type="button" onClick={onAuto}>
           {t("autoButton")}
         </Button>
