@@ -42,6 +42,7 @@ export interface WizardPayload {
     displayName: string;
     section: string;
     style: string;
+    jewelry: string;
     thermostat: number;
     forbiddenColors: string[];
   };
@@ -83,6 +84,7 @@ export function buildWizardPayload(answers: WizardAnswers): WizardPayload {
       displayName: answers.displayName.trim(),
       section: answers.section,
       style: answers.style,
+      jewelry: answers.jewelry,
       thermostat: Math.round(answers.thermal),
       forbiddenColors: [...answers.forbiddenColors],
     },

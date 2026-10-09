@@ -41,6 +41,7 @@ export interface SaveProfileInput {
     displayName: string;
     section: string;
     style: string;
+    jewelry: string;
     thermostat: number;
     forbiddenColors: string[];
   };
@@ -215,6 +216,7 @@ export async function saveProfileAction(
           displayName: input.extraPreferences.displayName.trim(),
           section: input.extraPreferences.section,
           style: input.extraPreferences.style,
+          jewelry: input.extraPreferences.jewelry,
           thermostat: input.extraPreferences.thermostat,
           forbiddenColors: [...input.extraPreferences.forbiddenColors],
         },

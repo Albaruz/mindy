@@ -33,7 +33,10 @@ const nextConfig = {
   // for scripts/styles: Next.js flight data and the theme bootstrap script
   // are inline by design. Remote surface is still pinned: images only from
   // self/data/blob/Supabase storage, API calls same-origin + Supabase.
+  // 'unsafe-eval' is required in development for React's debugging features
+  // (callstack reconstruction). It is NOT included in production.
   async headers() {
+    const isDev = process.env.NODE_ENV === "development";
     return [
       {
         source: "/(.*)",
@@ -52,7 +55,7 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline'",
+              `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
               "style-src 'self' 'unsafe-inline'",
               // Garment photos can live on third-party hosts (external
               // catalog imports), so images allow any HTTPS origin.

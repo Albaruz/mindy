@@ -99,8 +99,7 @@ export const useOnboardingStore = create<OnboardingState>()((set) => ({
   reset: () => set({ ...ONBOARDING_DEFAULTS, forbiddenColors: [] }),
 
   // Reopen with previous answers where the mapping is reversible.
-  // Jewelry cannot be derived back from a colorimetry season, so the
-  // user re-answers it from scratch.
+  // Jewelry is now stored in extra_preferences, so it can be prefilled.
   prefillFromProfile: (profile) =>
     set(() => {
       const extra = readExtra(profile);
@@ -130,7 +129,11 @@ export const useOnboardingStore = create<OnboardingState>()((set) => ({
           : "",
         skinTone: profile.skinTone ?? "",
         eyeColor: profile.eyeColor ?? "",
-        jewelry: "",
+        jewelry:
+          typeof extra.jewelry === "string" &&
+          (extra.jewelry === "gold" || extra.jewelry === "silver")
+            ? (extra.jewelry as JewelryPick)
+            : "",
         thermal:
           typeof extra.thermostat === "number" &&
           extra.thermostat >= THERMAL_MIN &&
