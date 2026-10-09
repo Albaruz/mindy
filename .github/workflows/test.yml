@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  unit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,3 +27,42 @@ jobs:
         working-directory: app-moda
       - run: pnpm test:coverage
         working-directory: app-moda
+
+  # Mobile ES critical flows + axe (specs self-skip without seeded auth
+  # bootstrap; needs TEST_USER_EMAIL/TEST_USER_PASSWORD secrets).
+  e2e:
+    runs-on: ubuntu-latest
+    needs: unit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.8.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: app-moda/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: app-moda
+      - run: pnpm exec playwright install --with-deps chromium
+        working-directory: app-moda
+      - run: pnpm test:e2e
+        working-directory: app-moda
+        env:
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+
+  # RLS isolation via pgTAP against a Supabase branch (supabase/tests/).
+  # Requires SUPABASE_DB_URL secret; skipped otherwise.
+  rls:
+    runs-on: ubuntu-latest
+    needs: unit
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          if [ -z "${{ secrets.SUPABASE_DB_URL }}" ]; then
+            echo "SUPABASE_DB_URL not set, skipping RLS tests."
+            exit 0
+          fi
+          psql "${{ secrets.SUPABASE_DB_URL }}" -f app-moda/supabase/tests/rls_isolation.sql

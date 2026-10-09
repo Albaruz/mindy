@@ -147,3 +147,736 @@ describe("POST /api/recommender", () => {
     expect(body.excludedWinterGarments).toBe(1);
   });
 });
+
+describe("POST /api/recommender extended coverage", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    mockGetUser.mockResolvedValue({ data: { user: { id: "u1" } } });
+    mockCheckRateLimit.mockReturnValue({ limited: false, retryAfterSec: 0 });
+    process.env.GROQ_API_KEY = "test-key";
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+  });
+
+  function okOptions(ids: string[], ratio = 80) {
+    return JSON.stringify({
+      options: [{ garmentIds: ids, suitabilityRatio: ratio, reason: "Good" }],
+    });
+  }
+
+  function groqFailure() {
+    return Object.assign(new Error("Groq failed"), { status: 500 });
+  }
+
+  it("lets a locked dirty garment survive while excluding dismissed ones", async () => {
+    const garments = [
+      { ...buildGarment("d1", "top"), isDirty: true },
+      buildGarment("b1", "bottom"),
+      { ...buildGarment("d2", "top"), isDirty: true },
+    ];
+    mockGenerate.mockResolvedValue(okOptions(["d1", "b1"]));
+    const response = await POST(
+      buildRequest({
+        garments,
+        temperatureC: 20,
+        lockedGarmentIds: ["d1"],
+        dismissedGarmentIds: ["d2"],
+      }),
+    );
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.excludedDismissedGarments).toBe(1);
+  });
+
+  it("excludes a dirty garment when it is not locked", async () => {
+    const garments = [
+      { ...buildGarment("d1", "top"), isDirty: true },
+      buildGarment("b1", "bottom"),
+    ];
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("resolves the oficina legacy alias to formal", async () => {
+    const garments = [
+      buildGarment("a", "top", "formal"),
+      buildGarment("b", "bottom", "formal"),
+    ];
+    mockGenerate.mockResolvedValue(okOptions(["a", "b"]));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20, style: "oficina" }),
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it("resolves the noche legacy alias to party", async () => {
+    const garments = [
+      buildGarment("a", "top", "party"),
+      buildGarment("b", "bottom", "party"),
+    ];
+    mockGenerate.mockResolvedValue(okOptions(["a", "b"]));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20, style: "noche" }),
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it("resolves the casual_daily legacy alias to casual", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    mockGenerate.mockResolvedValue(okOptions(["a", "b"]));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20, style: "casual_daily" }),
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it("rejects mismatched legacy alias styles with 422", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20, style: "oficina" }),
+    );
+    expect(response.status).toBe(422);
+  });
+
+  it("succeeds without a style filter (null path)", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    mockGenerate.mockResolvedValue(okOptions(["a", "b"]));
+    const response = await POST(buildRequest({ garments, temperatureC: 20 }));
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.options).toHaveLength(1);
+  });
+
+  it("requires outerwear on rainy conditions when the pool has a coat", async () => {
+    const garments = [
+      buildGarment("a", "top"),
+      buildGarment("b", "bottom"),
+      buildGarment("c", "outerwear"),
+    ];
+    mockGenerate.mockResolvedValue(okOptions(["a", "b", "c"]));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20, condition: "Rain" }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.requiredOuterwear).toBe(true);
+  });
+
+  it("requires outerwear on cold dayLow even without rain", async () => {
+    const garments = [
+      buildGarment("a", "top"),
+      buildGarment("b", "bottom"),
+      buildGarment("c", "outerwear"),
+    ];
+    mockGenerate.mockResolvedValue(okOptions(["a", "b", "c"]));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20, dayLow: 5 }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.requiredOuterwear).toBe(true);
+  });
+
+  it("does not require outerwear when the pool has no coat", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    mockGenerate.mockResolvedValue(okOptions(["a", "b"]));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20, condition: "Rain" }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.requiredOuterwear).toBe(false);
+  });
+
+  it("caps an oversized pool with round-robin balance and overflow fill", async () => {
+    const garments: unknown[] = [];
+    for (let i = 0; i < 40; i += 1) garments.push(buildGarment(`t${i}`, "top"));
+    for (let i = 0; i < 10; i += 1)
+      garments.push(buildGarment(`b${i}`, "bottom"));
+    for (let i = 0; i < 10; i += 1)
+      garments.push(buildGarment(`f${i}`, "footwear"));
+    for (let i = 0; i < 10; i += 1)
+      garments.push(buildGarment(`o${i}`, "outerwear"));
+    mockGenerate.mockResolvedValue(okOptions(["t0", "b0"]));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it("falls back on non-object LLM JSON", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    mockGenerate.mockResolvedValue('"just a string"');
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body._isFallback).toBe(true);
+  });
+
+  it("falls back on empty LLM options", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    mockGenerate.mockResolvedValue(JSON.stringify({ options: [] }));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body._isFallback).toBe(true);
+  });
+
+  it("falls back when LLM references unknown IDs only", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    mockGenerate.mockResolvedValue(
+      JSON.stringify({
+        options: [{ garmentIds: ["zzz"], suitabilityRatio: 80, reason: "" }],
+      }),
+    );
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body._isFallback).toBe(true);
+  });
+
+  it("clamps LLM ratios above 100 down to 100", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    mockGenerate.mockResolvedValue(okOptions(["a", "b"], 150));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    const body = await response.json();
+    expect(body.options[0].suitabilityRatio).toBe(100);
+  });
+
+  it("clamps negative LLM ratios up to 0", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    mockGenerate.mockResolvedValue(okOptions(["a", "b"], -20));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    const body = await response.json();
+    expect(body.options[0].suitabilityRatio).toBe(0);
+  });
+
+  it("defaults non-numeric LLM ratios to 0", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    mockGenerate.mockResolvedValue(
+      JSON.stringify({
+        options: [{ garmentIds: ["a", "b"], suitabilityRatio: "high" }],
+      }),
+    );
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.options[0].suitabilityRatio).toBe(0);
+  });
+
+  it("parses snake_case candidate keys and readStylistProfile aliases", async () => {
+    const garments = [
+      {
+        garment_id: "s1",
+        garment_type: "top",
+        color: "black",
+        extra_tags: { color_base: " Black " },
+        is_dirty: true,
+        style: "casual",
+        season: "all",
+      },
+      buildGarment("b1", "bottom"),
+      buildGarment("t2", "top"),
+    ];
+    mockGenerate.mockResolvedValue(okOptions(["s1", "b1"]));
+    const response = await POST(
+      buildRequest({
+        garments,
+        temperatureC: 20,
+        lockedGarmentIds: ["s1"],
+        profile: {
+          colorimetry: "warm",
+          morphology: "rect",
+          preferred_fit: "relaxed",
+          lifestyle: "urban",
+          skin_tone: "medium",
+          eye_color: "brown",
+          hair_color: "black",
+        },
+      }),
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it("applies the heat rule from dayHigh even on a mild morning", async () => {
+    const garments = [
+      { ...buildGarment("a", "top"), season: "winter" },
+      buildGarment("b", "top"),
+      buildGarment("c", "bottom"),
+    ];
+    mockGenerate.mockResolvedValue(okOptions(["b", "c"]));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20, dayHigh: 30 }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.excludedWinterGarments).toBe(1);
+  });
+
+  it("builds a fallback look from a one-piece dress without bottom", async () => {
+    const garments = [
+      { ...buildGarment("d1", "dress"), garmentType: "dress" },
+      buildGarment("f1", "footwear"),
+    ];
+    mockGenerate.mockRejectedValue(groqFailure());
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body._isFallback).toBe(true);
+    expect(body.options[0].garmentIds).toContain("d1");
+  });
+
+  it("dedups fallback rounds and skips missing footwear", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    mockGenerate.mockRejectedValue(groqFailure());
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body._isFallback).toBe(true);
+    expect(body.options).toHaveLength(1);
+    expect(body.options[0].garmentIds).toHaveLength(2);
+  });
+
+  it("returns 413 on more than 200 garments", async () => {
+    const garments = Array.from({ length: 201 }, (_, i) =>
+      buildGarment(`g${i}`, i % 2 === 0 ? "top" : "bottom"),
+    );
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    expect(response.status).toBe(413);
+  });
+
+  it("returns 400 on invalid JSON body", async () => {
+    const request = new Request("http://localhost/api/recommender", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{invalid json",
+    });
+    const response = await POST(request);
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when heat removes every candidate", async () => {
+    const garments = [
+      { ...buildGarment("a", "top"), season: "winter" },
+      { ...buildGarment("b", "bottom"), season: "winter" },
+    ];
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 30 }),
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when feedback removes every candidate", async () => {
+    const garments = [
+      { ...buildGarment("a", "top"), isDirty: true },
+      { ...buildGarment("b", "bottom"), isDirty: true },
+    ];
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 on a single eligible garment", async () => {
+    const garments = [
+      buildGarment("a", "top"),
+      { ...buildGarment("b", "bottom"), isDirty: true },
+    ];
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 502 when the fallback cannot build a look", async () => {
+    const garments = [
+      buildGarment("f1", "footwear"),
+      buildGarment("f2", "footwear"),
+    ];
+    mockGenerate.mockRejectedValue(groqFailure());
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    expect(response.status).toBe(502);
+  });
+});
+
+describe("POST /api/recommender residual coverage", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    mockGetUser.mockResolvedValue({ data: { user: { id: "u1" } } });
+    mockCheckRateLimit.mockReturnValue({ limited: false, retryAfterSec: 0 });
+    process.env.GROQ_API_KEY = "test-key";
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+  });
+
+  function okOptions(ids: string[], ratio = 80) {
+    return JSON.stringify({
+      options: [{ garmentIds: ids, suitabilityRatio: ratio, reason: "Good" }],
+    });
+  }
+
+  function groqFailure() {
+    return Object.assign(new Error("Groq failed"), { status: 500 });
+  }
+
+  it("returns 503 without GROQ_API_KEY", async () => {
+    const previous = process.env.GROQ_API_KEY;
+    delete process.env.GROQ_API_KEY;
+    try {
+      const response = await POST(
+        buildRequest({ garments: [buildGarment("a", "top")] }),
+      );
+      expect(response.status).toBe(503);
+    } finally {
+      process.env.GROQ_API_KEY = previous;
+    }
+  });
+
+  it("returns 400 on non-object JSON body", async () => {
+    const request = new Request("http://localhost/api/recommender", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify("just a string"),
+    });
+    const response = await POST(request);
+    expect(response.status).toBe(400);
+  });
+
+  it("returns 400 when no garment entry is an object with an id", async () => {
+    const response = await POST(
+      buildRequest({ garments: [null, 42], temperatureC: 20 }),
+    );
+    expect(response.status).toBe(400);
+  });
+
+  it("defaults a missing temperature to the standard climate", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    mockGenerate.mockResolvedValue(okOptions(["a", "b"]));
+    const response = await POST(buildRequest({ garments }));
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.temperatureC).toBe(20);
+  });
+
+  it("requires outerwear on high rain probability without rainy condition", async () => {
+    const garments = [
+      buildGarment("a", "top"),
+      buildGarment("b", "bottom"),
+      buildGarment("c", "outerwear"),
+    ];
+    mockGenerate.mockResolvedValue(okOptions(["a", "b", "c"]));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20, rainProbability: 80 }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.requiredOuterwear).toBe(true);
+  });
+
+  it("does not require outerwear on low probability or dry condition", async () => {
+    const garments = [
+      buildGarment("a", "top"),
+      buildGarment("b", "bottom"),
+      buildGarment("c", "outerwear"),
+    ];
+    mockGenerate.mockResolvedValue(okOptions(["a", "b"]));
+    const low = await POST(
+      buildRequest({ garments, temperatureC: 20, rainProbability: 10 }),
+    );
+    expect((await low.json()).requiredOuterwear).toBe(false);
+    mockGenerate.mockResolvedValue(okOptions(["a", "b"]));
+    const dry = await POST(
+      buildRequest({ garments, temperatureC: 20, condition: "Clear" }),
+    );
+    expect((await dry.json()).requiredOuterwear).toBe(false);
+  });
+
+  it("keeps season-less garments under heat filtering", async () => {
+    const garments = [
+      { garmentId: "a", garmentType: "top" },
+      { garmentId: "b", garmentType: "bottom" },
+    ];
+    mockGenerate.mockResolvedValue(okOptions(["a", "b"]));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 30 }),
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it("treats an unknown style string as no filter", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    mockGenerate.mockResolvedValue(okOptions(["a", "b"]));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20, style: "futuristic" }),
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it("filters out untagged garments under a style request", async () => {
+    const garments = [
+      buildGarment("a", "top", "formal"),
+      buildGarment("b", "bottom", "formal"),
+      { ...buildGarment("c", "top"), style: null },
+    ];
+    mockGenerate.mockResolvedValue(okOptions(["a", "b"]));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20, style: "formal" }),
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it("accepts a one-piece dress as a complete look under style filter", async () => {
+    const garments = [
+      { ...buildGarment("d1", "dress"), garmentType: "dress" },
+      { ...buildGarment("f1", "footwear"), style: "casual" },
+    ];
+    mockGenerate.mockResolvedValue(okOptions(["d1", "f1"]));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20, style: "casual" }),
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it("ranks fallback seasons under heat", async () => {
+    const garments = [
+      { ...buildGarment("s1", "top"), season: "summer" },
+      { ...buildGarment("s2", "top"), season: "mid_season" },
+      buildGarment("b1", "bottom"),
+    ];
+    mockGenerate.mockRejectedValue(groqFailure());
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 30 }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body._isFallback).toBe(true);
+  });
+
+  it("ranks fallback seasons in the cold", async () => {
+    const garments = [
+      { ...buildGarment("w1", "top"), season: "winter" },
+      { ...buildGarment("w2", "top"), season: "summer" },
+      buildGarment("b1", "bottom"),
+    ];
+    mockGenerate.mockRejectedValue(groqFailure());
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 5 }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body._isFallback).toBe(true);
+  });
+
+  it("ranks fallback seasons in mild weather", async () => {
+    const garments = [
+      { ...buildGarment("m1", "top"), season: "all" },
+      { ...buildGarment("m2", "top"), season: "winter" },
+      buildGarment("b1", "bottom"),
+    ];
+    mockGenerate.mockRejectedValue(groqFailure());
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body._isFallback).toBe(true);
+  });
+
+  it("pins locked garments first in the fallback", async () => {
+    const garments = [
+      buildGarment("t1", "top"),
+      buildGarment("t2", "top"),
+      buildGarment("b1", "bottom"),
+    ];
+    mockGenerate.mockRejectedValue(groqFailure());
+    const response = await POST(
+      buildRequest({
+        garments,
+        temperatureC: 20,
+        lockedGarmentIds: ["t2", "b1"],
+      }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.options[0].garmentIds).toContain("t2");
+    expect(body.options[0].garmentIds).toContain("b1");
+  });
+
+  it("skips unclassifiable garments in the fallback", async () => {
+    const garments = [
+      buildGarment("t1", "top"),
+      buildGarment("b1", "bottom"),
+      { garmentId: "x1" },
+    ];
+    mockGenerate.mockRejectedValue(groqFailure());
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body._isFallback).toBe(true);
+  });
+
+  it("pairs a loud fallback top with a neutral bottom", async () => {
+    const garments = [
+      { ...buildGarment("t1", "top"), color: "red" },
+      buildGarment("b1", "bottom"),
+      { ...buildGarment("b2", "bottom"), color: "red" },
+    ];
+    mockGenerate.mockRejectedValue(groqFailure());
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.options[0].garmentIds).toContain("b1");
+  });
+
+  it("keeps loud bottoms when no neutral bottom exists", async () => {
+    const garments = [
+      { ...buildGarment("t1", "top"), color: "red" },
+      { ...buildGarment("b2", "bottom"), color: "red" },
+    ];
+    mockGenerate.mockRejectedValue(groqFailure());
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.options[0].garmentIds).toContain("b2");
+  });
+
+  it("returns 502 when the fallback has tops but no bottoms", async () => {
+    const garments = [buildGarment("t1", "top"), buildGarment("t2", "top")];
+    mockGenerate.mockRejectedValue(groqFailure());
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    expect(response.status).toBe(502);
+  });
+
+  it("dresses fallback outerwear when rain requires it", async () => {
+    const garments = [
+      buildGarment("t1", "top"),
+      buildGarment("b1", "bottom"),
+      buildGarment("o1", "outerwear"),
+    ];
+    mockGenerate.mockRejectedValue(groqFailure());
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20, condition: "Rain" }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.requiredOuterwear).toBe(true);
+    expect(body.options[0].garmentIds).toContain("o1");
+  });
+
+  it("builds three distinct fallback options", async () => {
+    const garments = [
+      { ...buildGarment("t1", "top"), season: "all" },
+      { ...buildGarment("t2", "top"), season: "all" },
+      { ...buildGarment("b1", "bottom"), season: "all" },
+      { ...buildGarment("b2", "bottom"), season: "all" },
+    ];
+    mockGenerate.mockRejectedValue(groqFailure());
+    const random = vi
+      .spyOn(Math, "random")
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(0.9)
+      .mockReturnValueOnce(0.9)
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(0);
+    try {
+      const response = await POST(
+        buildRequest({ garments, temperatureC: 20 }),
+      );
+      const body = await response.json();
+      expect(response.status).toBe(200);
+      expect(body.options).toHaveLength(3);
+    } finally {
+      random.mockRestore();
+    }
+  });
+
+  it("skips non-object LLM entries and keeps the valid ones", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    mockGenerate.mockResolvedValue(
+      JSON.stringify({
+        options: ["junk", { garmentIds: ["a", "b"], suitabilityRatio: 70 }],
+      }),
+    );
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body._isFallback).toBe(false);
+    expect(body.options).toHaveLength(1);
+  });
+
+  it("caps an oversized pool while keeping locked pins", async () => {
+    const garments: unknown[] = [];
+    for (let i = 0; i < 40; i += 1) garments.push(buildGarment(`t${i}`, "top"));
+    for (let i = 0; i < 10; i += 1)
+      garments.push(buildGarment(`b${i}`, "bottom"));
+    for (let i = 0; i < 10; i += 1)
+      garments.push(buildGarment(`f${i}`, "footwear"));
+    for (let i = 0; i < 5; i += 1) garments.push({ garmentId: `x${i}` });
+    mockGenerate.mockResolvedValue(okOptions(["t0", "b0"]));
+    const response = await POST(
+      buildRequest({
+        garments,
+        temperatureC: 20,
+        lockedGarmentIds: ["t0"],
+      }),
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it("fills the budget round-robin up to the cap", async () => {
+    const garments: unknown[] = [];
+    for (let i = 0; i < 20; i += 1) garments.push(buildGarment(`t${i}`, "top"));
+    for (let i = 0; i < 20; i += 1)
+      garments.push(buildGarment(`b${i}`, "bottom"));
+    for (let i = 0; i < 15; i += 1)
+      garments.push(buildGarment(`f${i}`, "footwear"));
+    for (let i = 0; i < 15; i += 1)
+      garments.push(buildGarment(`o${i}`, "outerwear"));
+    for (let i = 0; i < 10; i += 1) garments.push({ garmentId: `x${i}` });
+    mockGenerate.mockResolvedValue(okOptions(["t0", "b0"]));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it("returns 500 when the engine throws a non-error value", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    mockGenerate.mockRejectedValue("plain string failure");
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }),
+    );
+    expect(response.status).toBe(500);
+  });
+});

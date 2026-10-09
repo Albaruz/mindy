@@ -76,7 +76,14 @@ describe("generateOutfitRecommendation", () => {
   });
 
   it("retries rate limits then succeeds", async () => {
-    const rateLimit = new RateLimitError("try again in 0s");
+    // Real Groq RateLimitError takes (status, error, message, headers);
+    // the message hint drives the retry-delay reader in engine.ts.
+    const rateLimit = new RateLimitError(
+      429,
+      {},
+      "rate limited, try again in 0s",
+      {},
+    );
     mockCreate
       .mockRejectedValueOnce(rateLimit)
       .mockResolvedValueOnce({
