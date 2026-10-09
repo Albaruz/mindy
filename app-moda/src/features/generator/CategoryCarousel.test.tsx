@@ -15,19 +15,36 @@ vi.mock("swiper/react", () => ({
   Swiper: ({
     children,
     onSlideChange,
+    onSwiper,
   }: {
     children: React.ReactNode;
     onSlideChange?: (swiper: { realIndex: number }) => void;
-  }) => (
-    <div data-testid="mock-swiper">
-      <button
-        type="button"
-        data-testid="mock-slide-change"
-        onClick={() => onSlideChange?.({ realIndex: 1 })}
-      />
-      {children}
-    </div>
-  ),
+    onSwiper?: (swiper: {
+      realIndex: number;
+      slideTo: (index: number) => void;
+      slideToLoop: (index: number) => void;
+      slidePrev: () => void;
+      slideNext: () => void;
+    }) => void;
+  }) => {
+    onSwiper?.({
+      realIndex: 0,
+      slideTo: () => {},
+      slideToLoop: () => {},
+      slidePrev: () => {},
+      slideNext: () => {},
+    });
+    return (
+      <div data-testid="mock-swiper">
+        <button
+          type="button"
+          data-testid="mock-slide-change"
+          onClick={() => onSlideChange?.({ realIndex: 1 })}
+        />
+        {children}
+      </div>
+    );
+  },
   SwiperSlide: ({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>
   ),
@@ -136,5 +153,72 @@ describe("CategoryCarousel", () => {
   it("renders an empty message without garments", () => {
     render(<CategoryCarousel {...baseProps} garments={[]} />);
     expect(screen.getByText("carouselEmpty")).toBeInTheDocument();
+  });
+
+  it("navigates with previous and next buttons", async () => {
+    render(<CategoryCarousel {...baseProps} />);
+    await userEvent.click(
+      screen.getByRole("button", { name: "previousGarment" }),
+    );
+    await userEvent.click(screen.getByRole("button", { name: "nextGarment" }));
+    expect(screen.getByTestId("mock-swiper")).toBeInTheDocument();
+  });
+
+  it("supports the flat slide effect and eager loading", () => {
+    render(
+      <CategoryCarousel
+        {...baseProps}
+        effect="slide"
+        imageLoading="eager"
+        activeGarmentId={null}
+      />,
+    );
+    expect(screen.getByTestId("mock-swiper")).toBeInTheDocument();
+  });
+
+  it("loops slide positions with enough garments", () => {
+    const garments = [
+      buildGarment("t1", "top"),
+      buildGarment("t2", "top"),
+      buildGarment("t3", "top"),
+    ];
+    const { rerender } = render(
+      <CategoryCarousel
+        {...baseProps}
+        garments={garments}
+        activeGarmentId="t1"
+      />,
+    );
+    rerender(
+      <CategoryCarousel {...baseProps} garments={garments} activeGarmentId="t3" />,
+    );
+    expect(screen.getByTestId("mock-swiper")).toBeInTheDocument();
+  });
+
+  it("shows the lock badge on the pinned slide", () => {
+    const { container } = render(
+      <CategoryCarousel {...baseProps} isLocked />,
+    );
+    expect(container.querySelector('[aria-hidden="true"]')).not.toBeNull();
+    expect(
+      screen.getByRole("button", { name: "unlockGarment" }),
+    ).toBeInTheDocument();
+  });
+
+  it("renders a placeholder without photo and detail fallback alt", () => {
+    render(
+      <CategoryCarousel
+        {...baseProps}
+        garments={[
+          {
+            ...buildGarment("x1", null),
+            imageUrl: null,
+            extraTags: { specificType: "sneakers" },
+          },
+        ]}
+        activeGarmentId="x1"
+      />,
+    );
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
   });
 });
