@@ -94,4 +94,44 @@ describe("useWeatherQuery hook", () => {
     expect(result.current.data).toBeNull();
     expect(fetchMock).not.toHaveBeenCalled();
   });
+
+  it("returns null when fetch throws (offline)", async () => {
+    mockGeolocation();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockRejectedValue(new TypeError("Failed to fetch")),
+    );
+    const { result } = renderHook(() => useWeatherQuery(), {
+      wrapper: createWrapper(),
+    });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toBeNull();
+  });
+
+  it("returns null on malformed payloads", async () => {
+    mockGeolocation();
+    for (const payload of [
+      null,
+      { temperatureC: "warm" },
+      { temperatureC: 20, rainProbability: Number.NaN },
+    ]) {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue({ ok: true, json: async () => payload }),
+      );
+      const { result, unmount } = renderHook(() => useWeatherQuery(), {
+        wrapper: createWrapper(),
+      });
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+      // Null payload or non-numeric temperature never produce weather.
+      if (payload === null || typeof payload.temperatureC !== "number") {
+        expect(result.current.data).toBeNull();
+      } else {
+        // NaN probability is sanitized to null, payload stays usable.
+        expect(result.current.data?.rainProbability).toBeNull();
+      }
+      unmount();
+      vi.unstubAllGlobals();
+    }
+  });
 });
