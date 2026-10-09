@@ -47,18 +47,18 @@ export function SettingsControls() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className={styles.controls}>
-        <fieldset className={styles.group}>
-          <legend className={styles.legend}>
-            <span className={styles.title}>{t("language")}</span>
-            <span className={styles.description}>
+      <div className={styles.settingsControls}>
+        <fieldset className={styles["settingsControls__group"]}>
+          <legend className={styles["settingsControls__legend"]}>
+            <span className={styles["settingsControls__title"]}>{t("language")}</span>
+            <span className={styles["settingsControls__description"]}>
               {t("languageDescription")}
             </span>
           </legend>
           <div
             role="group"
             aria-label={t("language")}
-            className={styles.segmented}
+            className={styles["settingsControls__segmented"]}
           >
             {routing.locales.map((option) => {
               const selected = locale === option;
@@ -69,19 +69,19 @@ export function SettingsControls() {
                   aria-pressed={selected}
                   onClick={() => handleLocaleChange(option)}
                   className={cn(
-                    styles.segment,
-                    selected && styles["is-active"],
+                    styles["settingsControls__segment"],
+                    selected && styles["settingsControls__segment--active"],
                   )}
                 >
                   {selected ? (
                     <motion.span
                       layoutId="settingsLanguageIndicator"
                       aria-hidden="true"
-                      className={styles.indicator}
+                      className={styles["settingsControls__indicator"]}
                       transition={SPRING}
                     />
                   ) : null}
-                  <span className={styles.segmentContent}>
+                  <span className={styles["settingsControls__segmentContent"]}>
                     {LANGUAGE_LABELS[option]}
                   </span>
                 </button>
@@ -90,17 +90,17 @@ export function SettingsControls() {
           </div>
         </fieldset>
 
-        <fieldset className={styles.group}>
-          <legend className={styles.legend}>
-            <span className={styles.title}>{t("theme")}</span>
-            <span className={styles.description}>
+        <fieldset className={styles["settingsControls__group"]}>
+          <legend className={styles["settingsControls__legend"]}>
+            <span className={styles["settingsControls__title"]}>{t("theme")}</span>
+            <span className={styles["settingsControls__description"]}>
               {t("themeDescription")}
             </span>
           </legend>
           <div
             role="group"
             aria-label={t("theme")}
-            className={styles.segmented}
+            className={styles["settingsControls__segmented"]}
           >
             {THEME_MODES.map((option) => {
               const { labelKey, Icon } = THEME_META[option];
@@ -112,19 +112,19 @@ export function SettingsControls() {
                   aria-pressed={selected}
                   onClick={() => setThemeMode(option)}
                   className={cn(
-                    styles.segment,
-                    selected && styles["is-active"],
+                    styles["settingsControls__segment"],
+                    selected && styles["settingsControls__segment--active"],
                   )}
                 >
                   {selected ? (
                     <motion.span
                       layoutId="settingsThemeIndicator"
                       aria-hidden="true"
-                      className={styles.indicator}
+                      className={styles["settingsControls__indicator"]}
                       transition={SPRING}
                     />
                   ) : null}
-                  <span className={styles.segmentContent}>
+                  <span className={styles["settingsControls__segmentContent"]}>
                     <Icon
                       aria-hidden="true"
                       size={18}

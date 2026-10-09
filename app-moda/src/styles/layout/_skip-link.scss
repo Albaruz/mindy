@@ -1,0 +1,10 @@
+// Layout: Skip Link
+// Accessibility skip-to-content link (WCAG 2.4.1).
+
+@use '../core/variables' as *;
+@use '../core/mixins' as *;
+
+.skip-link {
+  @include skip-link;
+  z-index: var(--z-toast); // Above everything
+}

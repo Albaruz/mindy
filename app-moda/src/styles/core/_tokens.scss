@@ -1,0 +1,180 @@
+// AUTO-GENERATED - DO NOT EDIT
+// Run 'pnpm tokens:build' to regenerate
+:root {
+  /* Colors */
+--color-background: #fafafa;
+--color-surface: #ffffff;
+--color-foreground: #171717;
+--color-muted: #6b7280;
+--color-border: #e5e7eb;
+--color-primary: #111111;
+--color-primary-contrast: #ffffff;
+--color-accent: #a2543f;
+--color-accent-hover: #8b4736;
+--color-accent-light: #d08a75;
+--color-oat: #f9f6f0;
+--color-clay: #4a3f39;
+--color-tab-inactive: #4a3f39;
+--color-auth-background: #f9f6f0;
+--color-auth-text: #4a3f39;
+--color-error: #b3261e;
+--color-error-hover: #931f18;
+--color-success: #2e7d32;
+--color-warning: #e6a700;
+--color-canvas: #f9f6f0;
+--thread-color: #4a3f39;
+--skin-fair: #fdebd7;
+--skin-light: #f5d0a9;
+--skin-medium: #e0ac69;
+--skin-olive: #9c7b4f;
+--skin-brown: #6b4423;
+--skin-deep: #3b2213;
+--eye-brown: #5c3a21;
+--eye-hazel: #7a5c2e;
+--eye-green: #4a7c59;
+--eye-blue: #4a7ebb;
+--eye-gray: #8e9aaf;
+--eye-black: #1c1c1e;
+--hair-black: #1a1a1a;
+--hair-brown: #4e3320;
+--hair-blonde: #d9b36a;
+--hair-red: #b5522b;
+--hair-gray: #9aa0a6;
+--hair-white: #f5f0e8;
+--season-spring-1: #f6d8a8;
+--season-spring-2: #f2b880;
+--season-spring-3: #e88ca0;
+--season-spring-4: #9cbe8f;
+--season-spring-5: #7fb3b0;
+--season-summer-1: #c9d4e0;
+--season-summer-2: #a8b8c8;
+--season-summer-3: #d8a7b1;
+--season-summer-4: #b5c4b1;
+--season-summer-5: #8fa3bf;
+--season-autumn-1: #c87966;
+--season-autumn-2: #a65a3a;
+--season-autumn-3: #d9a441;
+--season-autumn-4: #6b7f3e;
+--season-autumn-5: #5a3b2e;
+--season-winter-1: #1f2937;
+--season-winter-2: #b3261e;
+--season-winter-3: #1d4ed8;
+--season-winter-4: #e8e8e8;
+--season-winter-5: #0f766e;
+
+  /* Spacing */
+  --space-0: 0rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 1.75rem;
+  --space-8: 2rem;
+  --space-9: 2.25rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-14: 3.5rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* Typography */
+--font-family-base: var(--font-inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif);
+--font-family-display: var(--font-display, Georgia, "Times New Roman", serif);
+--font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+--font-size-2xs: 0.625rem;
+--font-size-xs: 0.75rem;
+--font-size-sm: 0.8125rem;
+--font-size-base: 0.875rem;
+--font-size-md: 1rem;
+--font-size-lg: 1.125rem;
+--font-size-xl: 1.25rem;
+--font-size-2xl: 1.375rem;
+--font-size-3xl: 1.5rem;
+--font-size-4xl: 1.75rem;
+--font-size-5xl: 2.25rem;
+--font-weight-normal: 400;
+--font-weight-medium: 500;
+--font-weight-semibold: 600;
+--font-weight-bold: 700;
+--font-weight-black: 800;
+--line-height-none: 1;
+--line-height-tight: 1.15;
+--line-height-snug: 1.375;
+--line-height-base: 1.5;
+--line-height-relaxed: 1.625;
+--letter-spacing-tight: -0.02em;
+--letter-spacing-normal: 0;
+--letter-spacing-wide: 0.02em;
+
+  /* Border Radius */
+--radius-none: 0;
+--radius-sm: 0.5rem;
+--radius-md: 0.75rem;
+--radius-lg: 1rem;
+--radius-xl: 1.5rem;
+--radius-pill: 999px;
+--radius-circle: 50%;
+
+  /* Shadows */
+--shadow-xs: 0 1px 2px rgb(0 0 0 / 0.03);
+--shadow-sm: 0 1px 3px rgb(0 0 0 / 0.05), 0 1px 2px rgb(0 0 0 / 0.04);
+--shadow-md: 0 4px 6px rgb(0 0 0 / 0.05), 0 2px 4px rgb(0 0 0 / 0.03);
+--shadow-lg: 0 10px 15px rgb(0 0 0 / 0.05), 0 4px 6px rgb(0 0 0 / 0.03);
+--shadow-xl: 0 20px 25px rgb(0 0 0 / 0.08), 0 8px 10px rgb(0 0 0 / 0.04);
+--shadow-2xl: 0 25px 50px rgb(0 0 0 / 0.12);
+--shadow-inner: inset 0 2px 4px rgb(0 0 0 / 0.05);
+
+  /* Breakpoints */
+--breakpoint-sm: 40rem;
+--breakpoint-md: 48rem;
+--breakpoint-lg: 64rem;
+--breakpoint-xl: 80rem;
+--breakpoint-2xl: 96rem;
+
+  /* Z-Index */
+--z-base: 0;
+--z-dropdown: 100;
+--z-sticky: 200;
+--z-fixed: 300;
+--z-modal-backdrop: 900;
+--z-modal: 1000;
+--z-popover: 1100;
+--z-tooltip: 1200;
+--z-toast: 1300;
+
+  /* Durations */
+--duration-instant: 0ms;
+--duration-fast: 150ms;
+--duration-normal: 200ms;
+--duration-slow: 300ms;
+--duration-slower: 500ms;
+--duration-slowest: 700ms;
+
+  /* Easings */
+--ease-linear: linear;
+--ease-in: cubic-bezier(0.4, 0, 1, 1);
+--ease-out: cubic-bezier(0, 0, 0.2, 1);
+--ease-inOut: cubic-bezier(0.4, 0, 0.2, 1);
+--ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+--ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Touch Targets */
+--touch-target-min: 2.75rem;
+--touch-target-comfortable: 3rem;
+
+  /* Layout */
+--header-height: 5rem;
+--tabbar-height: 4rem;
+--max-content-width: 48rem;
+--sidebar-width: 16rem;
+--sidebar-collapsed-width: 4rem;
+
+  /* Focus Ring */
+--focus-ring-width: 2px;
+--focus-ring-offset: 2px;
+--focus-ring-color: var(--color-accent);
+}

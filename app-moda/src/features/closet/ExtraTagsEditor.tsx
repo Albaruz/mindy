@@ -76,19 +76,19 @@ export function ExtraTagsEditor({ tags, onChange }: ExtraTagsEditorProps) {
   };
 
   return (
-    <fieldset className={styles.group}>
+    <fieldset className={styles["extraTagsEditor__group"]}>
       <legend>{t("form.extraTags")}</legend>
       {entries.length > 0 ? (
-        <ul aria-label={t("form.extraTags")} className={styles.chips}>
+        <ul aria-label={t("form.extraTags")} className={styles["extraTagsEditor__chips"]}>
           {entries.map(([key, value]) => (
-            <li key={key} className={styles.chip}>
-              <span className={styles.chipKey}>{key}</span>
-              <span className={styles.chipValue}>{value}</span>
+            <li key={key} className={styles["extraTagsEditor__chip"]}>
+              <span className={styles["extraTagsEditor__chipKey"]}>{key}</span>
+              <span className={styles["extraTagsEditor__chipValue"]}>{value}</span>
               <button
                 type="button"
                 aria-label={ta("removeTag", { key })}
                 title={ta("removeTag", { key })}
-                className={styles.removeButton}
+                className={styles["extraTagsEditor__removeButton"]}
                 onClick={() => handleRemove(key)}
               >
                 <X aria-hidden="true" size={14} />
@@ -97,9 +97,9 @@ export function ExtraTagsEditor({ tags, onChange }: ExtraTagsEditorProps) {
           ))}
         </ul>
       ) : (
-        <p className={styles.empty}>{t("form.tagsEmpty")}</p>
+        <p className={styles["extraTagsEditor__empty"]}>{t("form.tagsEmpty")}</p>
       )}
-      <div className={styles.addRow}>
+      <div className={styles["extraTagsEditor__addRow"]}>
         <input
           type="text"
           value={keyInput}
@@ -107,7 +107,7 @@ export function ExtraTagsEditor({ tags, onChange }: ExtraTagsEditorProps) {
           onKeyDown={handleKeyDown}
           placeholder={t("form.tagKeyPh")}
           aria-label={t("form.tagKeyPh")}
-          className={styles.input}
+          className={styles["extraTagsEditor__input"]}
           maxLength={TAG_KEY_MAX_LENGTH}
         />
         <input
@@ -117,13 +117,13 @@ export function ExtraTagsEditor({ tags, onChange }: ExtraTagsEditorProps) {
           onKeyDown={handleKeyDown}
           placeholder={t("form.tagValuePh")}
           aria-label={t("form.tagValuePh")}
-          className={styles.input}
+          className={styles["extraTagsEditor__input"]}
           maxLength={TAG_VALUE_MAX_LENGTH}
         />
         <button
           type="button"
           onClick={handleAdd}
-          className={styles.addButton}
+          className={styles["extraTagsEditor__addButton"]}
           aria-label={ta("addTag")}
           title={ta("addTag")}
         >
@@ -131,7 +131,7 @@ export function ExtraTagsEditor({ tags, onChange }: ExtraTagsEditorProps) {
         </button>
       </div>
       {hint !== null ? (
-        <p role="status" className={styles.hint}>
+        <p role="status" className={styles["extraTagsEditor__hint"]}>
           {hint}
         </p>
       ) : null}

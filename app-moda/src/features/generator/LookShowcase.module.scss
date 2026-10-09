@@ -1,27 +1,39 @@
-.showcase {
+// LookShowcase Component Styles (CSS Module)
+// BEM structure using global design tokens.
+// Pure CSS with BEM naming - no @use imports.
+
+.lookShowcase {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
+  gap: var(--space-3);
   min-height: 0;
-  padding: 1rem;
+  padding: var(--space-4);
   // Clearance so the last card never hides behind the floating bar.
-  padding-bottom: 6.5rem;
+  padding-bottom: calc(var(--tabbar-height) + var(--space-10));
 }
 
-// Discreet escape hatch to manual editing.
-.editLink {
-  min-height: 2.75rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-tab-inactive, #4a3f39);
+.lookShowcase__editLink {
+  min-height: var(--touch-target-min);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-tab-inactive);
   background: transparent;
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 3px;
+
+  &:hover {
+    color: var(--color-accent);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
 }

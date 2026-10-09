@@ -1,26 +1,242 @@
-// Warm Refuge palette: garments provide the chromatic focus,
-// terracotta marks the active state.
-// Dark mode follows the OS by default and can be pinned from Settings
-// via the `data-theme` attribute on <html>.
+// Semantic Aliases — Component-level design tokens
+// Maps raw tokens (_tokens.scss) to meaningful component names.
+// This is the ONLY place where component SCSS should read colors/spacing from.
+// Dark mode overrides live here via @mixin dark-palette.
+
+@use 'tokens' as *;
+
+// =============================================================================
+// DARK MODE PALETTE
+// =============================================================================
 
 @mixin dark-palette {
+  // Base neutrals
   --color-background: #0a0a0a;
   --color-surface: #171717;
   --color-foreground: #ededed;
   --color-muted: #a1a1aa;
   --color-border: #27272a;
+
+  // Brand
   --color-primary: #ededed;
   --color-primary-contrast: #0a0a0a;
+
+  // Accent (terracotta - lighter for dark mode contrast)
   --color-accent: #d08a75;
+  --color-accent-hover: #e09b88;
+  --color-accent-light: #d08a75;
+
+  // Warm neutrals
+  --color-oat: #1e1a18;
+  --color-clay: #b9a89c;
   --color-tab-inactive: #b9a89c;
+
+  // Auth
   --color-auth-background: #1e1a18;
   --color-auth-text: #e3d5ca;
+
+  // Semantic
   --color-error: #eba9a2;
+  --color-error-hover: #f0c0b8;
+  --color-success: #66bb6a;
+  --color-warning: #ffcc00;
+
+  // Canvas
   --color-canvas: #1e1a18;
   --thread-color: #e3d5ca;
+
+  // Component aliases (updated for dark)
+  --button-bg-primary: var(--color-accent);
+  --button-text-primary: var(--color-primary-contrast);
+  --button-bg-secondary: var(--color-surface);
+  --button-text-secondary: var(--color-foreground);
+  --button-border-secondary: var(--color-border);
+  --button-bg-danger: transparent;
+  --button-text-danger: var(--color-error);
+  --button-border-danger: var(--color-error);
+
+  --card-bg: var(--color-surface);
+  --card-border: var(--color-border);
+  --card-shadow: var(--shadow-lg);
+
+  --dialog-overlay: rgba(0, 0, 0, 0.7);
+  --dialog-bg: var(--color-surface);
+
+  --input-bg: var(--color-surface);
+  --input-border: var(--color-border);
+  --input-focus-ring: var(--color-accent);
+
+  --navigation-bg: var(--color-surface);
+  --navigation-border: var(--color-border);
+  --navigation-shadow: var(--shadow-lg);
+  --navigation-text-inactive: var(--color-tab-inactive);
+  --navigation-text-active: var(--color-primary);
+  --navigation-indicator: var(--color-accent);
+
+  --header-bg: color-mix(in srgb, var(--color-background) 92%, transparent);
+  --header-border: var(--color-border);
 }
 
+// =============================================================================
+// LIGHT MODE (DEFAULT) — Component Semantic Aliases
+// =============================================================================
+
 :root {
+  // --- Button ---
+  --button-bg-primary: var(--color-accent);
+  --button-text-primary: var(--color-oat);
+  --button-bg-primary-hover: var(--color-accent-hover);
+  --button-bg-secondary: var(--color-surface);
+  --button-text-secondary: var(--color-foreground);
+  --button-border-secondary: var(--color-border);
+  --button-bg-secondary-hover: var(--color-border);
+  --button-bg-ghost: transparent;
+  --button-text-ghost: var(--color-foreground);
+  --button-bg-ghost-hover: var(--color-border);
+  --button-bg-danger: transparent;
+  --button-text-danger: var(--color-error);
+  --button-border-danger: var(--color-error);
+  --button-bg-danger-hover: var(--color-error);
+  --button-text-danger-hover: var(--color-oat);
+
+  // --- Card ---
+  --card-bg: var(--color-surface);
+  --card-border: var(--color-border);
+  --card-shadow: var(--shadow-md);
+  --card-shadow-hover: var(--shadow-lg);
+  --card-radius: var(--radius-xl);
+
+  // --- Dialog / Modal ---
+  --dialog-overlay: rgba(0, 0, 0, 0.5);
+  --dialog-bg: var(--color-surface);
+  --dialog-radius: var(--radius-xl);
+  --dialog-shadow: var(--shadow-xl);
+  --dialog-max-width: 24rem;
+
+  // --- Input / Form ---
+  --input-bg: var(--color-surface);
+  --input-border: var(--color-border);
+  --input-border-hover: var(--color-muted);
+  --input-focus-ring: var(--color-accent);
+  --input-radius: var(--radius-md);
+  --label-color: var(--color-foreground);
+  --placeholder-color: var(--color-muted);
+  --error-color: var(--color-error);
+  --helper-color: var(--color-muted);
+
+  // --- Navigation (TopNavigation pill) ---
+  --navigation-bg: var(--color-surface);
+  --navigation-border: var(--color-border);
+  --navigation-shadow: var(--shadow-md);
+  --navigation-text-inactive: var(--color-tab-inactive);
+  --navigation-text-active: var(--color-oat);
+  --navigation-indicator: var(--color-accent);
+  --navigation-item-radius: var(--radius-pill);
+  --navigation-pill-radius: var(--radius-pill);
+  --navigation-pill-padding: var(--space-1);
+
+  // --- Header (AppHeader) ---
+  --header-height: 5rem;
+  --header-bg: color-mix(in srgb, var(--color-background) 88%, transparent);
+  --header-blur: 12px;
+  --header-z: var(--z-sticky);
+  --logo-height: 2.75rem;
+
+  // --- Bottom Action Bar ---
+  --actionbar-height: 4rem;
+  --actionbar-bg: var(--color-surface);
+  --actionbar-border: var(--color-border);
+  --actionbar-shadow: var(--shadow-lg);
+  --actionbar-z: var(--z-fixed);
+
+  // --- Toast / Notification ---
+  --toast-bg: var(--color-surface);
+  --toast-border: var(--color-border);
+  --toast-shadow: var(--shadow-xl);
+  --toast-radius: var(--radius-lg);
+  --toast-z: var(--z-toast);
+  --toast-enter-duration: var(--duration-normal);
+  --toast-exit-duration: var(--duration-normal);
+
+  // --- Empty State ---
+  --empty-padding: var(--space-8);
+  --empty-gap: var(--space-4);
+  --empty-text-color: var(--color-muted);
+
+  // --- Page Header ---
+  --pageheader-gap: var(--space-2);
+  --pageheader-margin-bottom: var(--space-4);
+  --pageheader-title-color: var(--color-clay);
+  --pageheader-desc-color: var(--color-muted);
+
+  // --- Confirm Dialog ---
+  --confirmdialog-overlay: var(--dialog-overlay);
+  --confirmdialog-bg: var(--dialog-bg);
+  --confirmdialog-radius: var(--dialog-radius);
+  --confirmdialog-padding: var(--space-6);
+  --confirmdialog-max-width: var(--dialog-max-width);
+  --confirmdialog-title-size: var(--font-size-2xl);
+  --confirmdialog-message-size: var(--font-size-base);
+
+  // --- Garment Card (closet) ---
+  --garmentcard-bg: var(--color-oat);
+  --garmentcard-radius: var(--radius-xl);
+  --garmentcard-image-bg: var(--color-border);
+  --garmentcard-action-bg: var(--color-surface);
+  --garmentcard-action-border: var(--color-border);
+  --garmentcard-action-color: var(--color-tab-inactive);
+  --garmentcard-body-padding: var(--space-3);
+
+  // --- Showcase Card (generator) ---
+  --showcasecard-bg: var(--color-surface);
+  --showcasecard-border: var(--color-border);
+  --showcasecard-radius: var(--radius-xl);
+  --showcasecard-shadow: var(--shadow-md);
+  --showcasecard-padding: var(--space-4);
+  --showcasecard-max-width: 26rem;
+  --showcasecard-grid-gap: var(--space-3);
+  --showcasecard-item-radius: var(--radius-lg);
+  --showcasecard-item-bg: var(--color-oat);
+  --showcasecard-overlay-radius: var(--radius-pill);
+  --showcasecard-accept-bg: var(--color-accent);
+  --showcasecard-accept-text: var(--color-oat);
+  --showcasecard-reject-bg: var(--color-error);
+  --showcasecard-reject-text: var(--color-oat);
+  --showcasecard-reason-color: var(--color-muted);
+
+  // --- Onboarding Art ---
+  --onboardingart-height: 7rem;
+
+  // --- Morpho / Weather Icons ---
+  --icon-size-sm: 1.5rem;
+  --icon-size-md: 2rem;
+  --icon-size-lg: 3rem;
+
+  // --- Skip Link ---
+  --skiplink-bg: var(--color-primary);
+  --skiplink-text: var(--color-primary-contrast);
+  --skiplink-radius: var(--radius-md);
+}
+
+// =============================================================================
+// DARK MODE APPLICATION
+// =============================================================================
+
+// OS dark mode (unless user pinned light)
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    @include dark-palette;
+  }
+}
+
+// Explicit dark pin from Settings
+:root[data-theme="dark"] {
+  @include dark-palette;
+}
+
+// Explicit light pin from Settings
+:root[data-theme="light"] {
+  // Light mode is default, but ensure no dark bleed
   --color-background: #fafafa;
   --color-surface: #ffffff;
   --color-foreground: #171717;
@@ -28,32 +244,14 @@
   --color-border: #e5e7eb;
   --color-primary: #111111;
   --color-primary-contrast: #ffffff;
-  // AA: darkened terracotta keeps >= 4.5:1 with white/oat text (was #c87966 at 3.29:1).
   --color-accent: #a2543f;
-  --color-tab-inactive: #4a3f39;
+  --color-accent-hover: #8b4736;
   --color-oat: #f9f6f0;
+  --color-clay: #4a3f39;
+  --color-tab-inactive: #4a3f39;
   --color-auth-background: #f9f6f0;
   --color-auth-text: #4a3f39;
   --color-error: #b3261e;
   --color-canvas: #f9f6f0;
   --thread-color: #4a3f39;
-
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-
-  --tabbar-height: 4rem;
-  --header-height: 5rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  // OS dark applies unless the user pinned light mode in Settings.
-  :root:not([data-theme="light"]) {
-    @include dark-palette;
-  }
-}
-
-// Explicit dark pin from Settings wins over the OS setting.
-:root[data-theme="dark"] {
-  @include dark-palette;
 }

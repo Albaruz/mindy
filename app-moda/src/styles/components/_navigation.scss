@@ -1,0 +1,130 @@
+// Component: Navigation (TopNavigation pill)
+// Floating segmented control with sliding indicator.
+
+@use '../core/variables' as *;
+@use '../core/mixins' as *;
+@use '../core/animations' as *;
+
+@include block('navigation') {
+  display: flex;
+  gap: var(--space-1);
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  padding: var(--navigation-pill-padding);
+  overflow-x: auto;
+  background: var(--navigation-bg);
+  border: 1px solid var(--navigation-border);
+  border-radius: var(--navigation-pill-radius);
+  box-shadow: var(--navigation-shadow);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overscroll-behavior-x: contain;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  // =========================================================================
+  // ELEMENTS
+  // =========================================================================
+
+  @include element('list') {
+    display: flex;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  @include element('item') {
+    @include touch-target;
+    position: relative;
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.5rem;
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1;
+    color: var(--navigation-text-inactive);
+    text-decoration: none;
+    white-space: nowrap;
+    border-radius: var(--navigation-item-radius);
+    transition: color var(--duration-fast);
+
+    &:focus-visible {
+      @include focus-ring;
+      z-index: 1;
+    }
+  }
+
+  @include element('link') {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    height: 100%;
+    padding: 0; // Padding on item
+  }
+
+  @include element('icon') {
+    display: flex;
+    flex-shrink: 0;
+    width: 1.125rem;
+    height: 1.125rem;
+    color: inherit;
+  }
+
+  @include element('label') {
+    // Text content
+  }
+
+  // Sliding indicator (shared between tabs via layoutId / CSS)
+  @include element('indicator') {
+    position: absolute;
+    inset: 0;
+    background: var(--navigation-indicator);
+    border-radius: var(--navigation-item-radius);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  // Content wrapper (stays above indicator)
+  @include element('content') {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    justify-content: center;
+  }
+
+  // =========================================================================
+  // MODIFIERS
+  // =========================================================================
+
+  @include modifier('item') {
+    // Item modifiers applied to __item
+
+    @include modifier('active') {
+      color: var(--navigation-text-active);
+    }
+  }
+
+  // Very small screens: icon-only
+  @include respond-until('sm') {
+    @media (max-width: 26rem) {
+      @include element('label') {
+        @include visually-hidden;
+      }
+
+      @include element('item') {
+        padding: var(--space-1) var(--space-3);
+      }
+    }
+  }
+
+  // Reduced motion
+  @include respect-reduced-motion;
+}

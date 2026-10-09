@@ -23,19 +23,10 @@ interface BottomActionBarProps {
   isPrimaryPending?: boolean;
   left: ActionSide;
   right: ActionSide;
-  // Optional fourth action after the right one (manual mode links it to
-  // the automatic style selection).
   extraRight?: ActionSide;
-  // Optional Lottie source (JSON object or URL) for the success burst.
-  // When omitted, a lightweight CSS confetti placeholder plays instead
-  // (no asset weight on mobile).
   animationSrc?: string | object;
 }
 
-// Floating command center for look interaction: oversized terracotta
-// primary (wear the look) flanked by two secondary circular actions.
-// Always clickable: the swipe gesture on the card is an accelerator,
-// these buttons are the accessible path.
 export function BottomActionBar({
   label,
   primaryLabel,
@@ -64,7 +55,6 @@ export function BottomActionBar({
       return;
     }
     onPrimary();
-    // Subtle heartbeat burst on accept; clears itself shortly after.
     setBurstKey((key) => key + 1);
     if (timerRef.current !== null) {
       clearTimeout(timerRef.current);
@@ -74,26 +64,35 @@ export function BottomActionBar({
 
   return (
     <>
-      <div role="group" aria-label={label} className={styles.bar}>
-        <div className={styles.edge} aria-hidden="true" />
-        <div className={styles.core}>
-          <SideButton {...left} className={styles.sideLeft} />
+      <div role="group" aria-label={label} className={styles.actionBar}>
+        <div className={styles.actionBar__edge} aria-hidden="true" />
+        <div className={styles.actionBar__core}>
+          <SideButton
+            {...left}
+            className={cn(styles.actionBar__side, styles["actionBar__side--left"])}
+          />
           <button
             type="button"
             onClick={handlePrimary}
             disabled={primaryDisabled || isPrimaryPending}
             aria-label={primaryLabel}
             title={primaryLabel}
-            className={styles.primary}
+            className={styles.actionBar__primary}
           >
             <Check aria-hidden="true" size={30} />
-            <span className={styles.primaryLabel}>{primaryLabel}</span>
+            <span className={styles.actionBar__primaryLabel}>{primaryLabel}</span>
           </button>
-          <SideButton {...right} className={styles.sideRight} />
+          <SideButton
+            {...right}
+            className={cn(styles.actionBar__side, styles["actionBar__side--right"])}
+          />
         </div>
-        <div className={styles.edgeEnd}>
+        <div className={styles.actionBar__edgeEnd}>
           {extraRight !== undefined ? (
-            <SideButton {...extraRight} className={styles.sideRight} />
+            <SideButton
+              {...extraRight}
+              className={cn(styles.actionBar__side, styles["actionBar__side--right"])}
+            />
           ) : null}
         </div>
       </div>
@@ -118,15 +117,13 @@ function SideButton({
       disabled={disabled}
       aria-label={label}
       title={label}
-      className={cn(styles.side, className)}
+      className={cn(styles.actionBar__side, className)}
     >
       {icon}
     </button>
   );
 }
 
-// Success microinteraction placeholder. Drop a Lottie JSON object or URL
-// into `animationSrc` to replace the CSS confetti with the real animation.
 export function CelebrationBurst({
   animationSrc,
 }: {
@@ -134,17 +131,17 @@ export function CelebrationBurst({
 }) {
   if (animationSrc !== undefined) {
     return (
-      <div className={styles.burst} aria-hidden="true">
-        <Lottie src={animationSrc} loop={false} autoplay className={styles.lottie} />
+      <div className={styles.actionBar__burst} aria-hidden="true">
+        <Lottie src={animationSrc} loop={false} autoplay className={styles.actionBar__lottie} />
       </div>
     );
   }
   return (
-    <div className={styles.burst} aria-hidden="true">
+    <div className={styles.actionBar__burst} aria-hidden="true">
       {Array.from({ length: 12 }, (_, index) => (
         <span
           key={index}
-          className={cn(styles.confetti, styles[`confetti${index % 4}`])}
+          className={cn(styles.actionBar__confetti, styles[`actionBar__confetti${index % 4}`])}
           style={{ ["--burst-angle" as string]: `${index * 30}deg` }}
         />
       ))}

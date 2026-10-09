@@ -1,11 +1,8 @@
-// Editorial bento profile: Warm Refuge canvas, asymmetric grid, flat cards.
+// Editorial bento profile: flat cards on default background.
 .page {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding: 1rem 1rem 2rem;
-  margin: -1rem -1rem 0;
-  background: var(--color-canvas, #f9f6f0);
 }
 
 .headline {

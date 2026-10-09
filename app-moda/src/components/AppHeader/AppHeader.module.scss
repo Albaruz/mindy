@@ -1,0 +1,61 @@
+// AppHeader Component Styles (CSS Module)
+// Uses global design tokens via CSS custom properties.
+// Pure CSS with BEM naming - no @use imports.
+
+.appHeader {
+  position: sticky;
+  top: 0;
+  z-index: var(--header-z);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: var(--header-height);
+  padding: var(--space-2) var(--space-4);
+  background: var(--header-bg);
+  backdrop-filter: blur(var(--header-blur));
+  -webkit-backdrop-filter: blur(var(--header-blur));
+  border-bottom: 1px solid var(--header-border);
+}
+
+.appHeader__logo {
+  display: block;
+  width: auto;
+  height: var(--logo-height);
+  flex-shrink: 0;
+}
+
+.appHeader__nav {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+@media (max-width: 48rem) {
+  .appHeader {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .appHeader__nav {
+    order: 2;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .appHeader__logo {
+    order: 1;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .appHeader__logo {
+    /* Logo maintains its colors in dark mode */
+  }
+}
+
+:root[data-theme="dark"] .appHeader__logo {
+  /* Logo maintains its colors in dark mode */
+}

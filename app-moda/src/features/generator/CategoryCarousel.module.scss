@@ -1,40 +1,39 @@
-.section {
+// CategoryCarousel Component Styles (CSS Module)
+// BEM structure using global design tokens.
+// Pure CSS with BEM naming - no @use imports.
+
+.categoryCarousel {
   display: flex;
   flex-direction: column;
   flex: 1 1 0;
-  gap: 0.375rem;
+  gap: var(--space-1);
   min-width: 0;
   min-height: 0;
 }
 
-.title {
+.categoryCarousel__title {
   margin: 0;
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    "SF Pro Text",
-    "Segoe UI",
-    sans-serif;
-  font-size: 0.8125rem;
-  font-weight: 700;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
-.header {
+.categoryCarousel__header {
   display: flex;
   flex-shrink: 0;
   align-items: center;
   justify-content: space-between;
 }
 
-.headerActions {
+.categoryCarousel__headerActions {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
-.changeButton {
+.categoryCarousel__changeButton,
+.categoryCarousel__lockButton {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -45,103 +44,90 @@
   border: 1px solid var(--color-border);
   border-radius: 50%;
   cursor: pointer;
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
 }
 
-.lockButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  color: var(--color-tab-inactive);
+.categoryCarousel__changeButton:disabled,
+.categoryCarousel__lockButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.categoryCarousel__lockButton {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 50%;
-  cursor: pointer;
-
-  &.locked {
-    color: var(--color-accent);
-    border-color: var(--color-accent);
-  }
 }
 
-// Row viewport: centered card with side peeks and overlay chevrons.
-.viewport {
+.categoryCarousel__lockButton--locked {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.categoryCarousel__viewport {
   position: relative;
   display: flex;
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
-
-  :global(.swiper) {
-    width: 100%;
-    max-width: 100%;
-    height: 100%;
-    margin: 0;
-  }
-
-  :global(.swiper-wrapper) {
-    height: 100%;
-  }
-
-  :global(.swiper-slide) {
-    width: 56%;
-    min-width: 0;
-    max-width: 100%;
-    height: 100%;
-    overflow: hidden;
-    opacity: 0.55;
-    transition: opacity 0.2s ease;
-  }
-
-  :global(.swiper-slide-active) {
-    opacity: 1;
-  }
-
-  :global(.swiper-slide-active) .slide {
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 1px var(--color-accent);
-  }
-
-  :global(.swiper-slide-active) .slideLocked {
-    border-color: #4a3f39;
-    box-shadow: 0 0 0 1px #4a3f39;
-  }
+  height: 100%;
 }
 
-// Angled 3D look for the "coverflow" effect: neighbours recede with
-// depth shadows while the active card stays flat. Rotation and shadows
-// are applied by Swiper's EffectCoverflow module at runtime.
-.coverflow {
-  :global(.swiper-slide) {
-    opacity: 1;
-  }
-
-  .slide {
-    box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 0.12);
-  }
-
-  :global(.swiper-slide-active) .slide {
-    border-color: var(--color-accent);
-    box-shadow:
-      0 0 0 1px var(--color-accent),
-      0 0.5rem 1rem rgb(0 0 0 / 0.16);
-  }
-
-  :global(.swiper-slide-active) .slideLocked {
-    border-color: #4a3f39;
-    box-shadow:
-      0 0 0 1px #4a3f39,
-      0 0.5rem 1rem rgb(0 0 0 / 0.16);
-  }
+.categoryCarousel__viewport :global(.swiper) {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  margin: 0;
 }
 
-.navButton {
+.categoryCarousel__viewport :global(.swiper-wrapper) {
+  height: 100%;
+}
+
+.categoryCarousel__viewport :global(.swiper-slide) {
+  width: 56%;
+  min-width: 0;
+  max-width: 100%;
+  height: 100%;
+  overflow: hidden;
+  opacity: 0.55;
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.categoryCarousel__viewport :global(.swiper-slide-active) {
+  opacity: 1;
+}
+
+.categoryCarousel__viewport :global(.swiper-slide-active) .categoryCarousel__slide {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.categoryCarousel__viewport :global(.swiper-slide-active) .categoryCarousel__slideLocked {
+  border-color: var(--color-clay);
+  box-shadow: 0 0 0 1px var(--color-clay);
+}
+
+.categoryCarousel__coverflow :global(.swiper-slide) {
+  opacity: 1;
+}
+
+.categoryCarousel__coverflow .categoryCarousel__slide {
+  box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 0.12);
+}
+
+.categoryCarousel__coverflow :global(.swiper-slide-active) .categoryCarousel__slide {
+  border-color: var(--color-accent);
+  box-shadow:
+    0 0 0 1px var(--color-accent),
+    0 0.5rem 1rem rgb(0 0 0 / 0.16);
+}
+
+.categoryCarousel__coverflow :global(.swiper-slide-active) .categoryCarousel__slideLocked {
+  border-color: var(--color-clay);
+  box-shadow:
+    0 0 0 1px var(--color-clay),
+    0 0.5rem 1rem rgb(0 0 0 / 0.16);
+}
+
+.categoryCarousel__navButton {
   position: absolute;
   top: 50%;
   z-index: 2;
@@ -157,33 +143,37 @@
   opacity: 0.9;
   transform: translateY(-50%);
   cursor: pointer;
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
 }
 
-.prevButton {
-  left: 0.25rem;
+.categoryCarousel__navButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
-.nextButton {
-  right: 0.25rem;
+.categoryCarousel__prevButton {
+  left: var(--space-1);
 }
 
-.slide {
+.categoryCarousel__nextButton {
+  right: var(--space-1);
+}
+
+.categoryCarousel__slide {
   position: relative;
   height: 100%;
   min-height: 0;
-  padding: 0.5rem;
+  padding: var(--space-2);
   overflow: hidden;
   background: var(--color-oat);
   border: 2px solid transparent;
   border-radius: var(--radius-lg);
 }
 
-.image {
+.categoryCarousel__slideLocked {
+  border-color: var(--color-clay);
+}
+
+.categoryCarousel__image {
   display: block;
   width: 100%;
   max-width: 100%;
@@ -191,40 +181,33 @@
   object-fit: contain;
 }
 
-// Pinned slide: Brown Ash border (minimalist lock state) plus a discreet
-// badge over the focused garment. The header lock button remains the
-// accessible control (aria-pressed).
-.slideLocked {
-  border-color: #4a3f39;
-}
-
-.lockBadge {
+.categoryCarousel__lockBadge {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: var(--space-2);
+  right: var(--space-2);
   z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 1.75rem;
   height: 1.75rem;
-  color: #4a3f39;
+  color: var(--color-clay);
   background: var(--color-oat);
-  border: 1px solid #4a3f39;
+  border: 1px solid var(--color-clay);
   border-radius: 50%;
 }
 
-.placeholder {
+.categoryCarousel__placeholder {
   width: 100%;
   height: 100%;
   background: var(--color-border);
   border-radius: var(--radius-sm);
 }
 
-.empty {
-  padding: 1rem;
+.categoryCarousel__empty {
+  padding: var(--space-4);
   margin: 0;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   color: var(--color-muted);
   text-align: center;
   background: var(--color-oat);

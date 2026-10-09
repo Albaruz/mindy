@@ -1,8 +1,8 @@
 // UI Configuration Constants
 // Business-logic configuration for UI components: ranges, limits, option lists.
-// Design tokens (colors, spacing, radius, shadows) live in src/styles/core/_variables.scss
-// as CSS Custom Properties — the single source of truth for styling.
-// Only breakpoints, z-index, and touch targets are duplicated here for TS programmatic access.
+// Design tokens (colors, spacing, radius, shadows, breakpoints, z-index, touch targets)
+// live in src/styles/core/_tokens.scss as CSS Custom Properties — the single source of truth.
+// TS accesses them via CSS custom properties (getComputedStyle) or useMediaQuery hooks if needed.
 
 // ============================================================================
 // Onboarding Wizard — Measurement & Thermal Ranges
@@ -116,34 +116,13 @@ export const ONBOARDING_DEFAULTS = {
 } as const;
 
 // ============================================================================
-// Minimal Design Tokens for TS Programmatic Access
-// (Breakpoints for useMediaQuery, z-index for portals, touch targets for a11y tests)
-// Source of truth: src/styles/core/_variables.scss
+// Design Token Access Helpers
 // ============================================================================
-
-export const breakpoints = {
-  sm: 640,
-  md: 768,
-  lg: 1024,
-  xl: 1280,
-  "2xl": 1536,
-} as const;
-
-export type Breakpoint = keyof typeof breakpoints;
-
-export const zIndex = {
-  base: 0,
-  dropdown: 100,
-  sticky: 200,
-  fixed: 300,
-  modalBackdrop: 400,
-  modal: 500,
-  popover: 600,
-  tooltip: 700,
-  toast: 800,
-} as const;
-
-export const touchTarget = {
-  minSize: 44,   // WCAG AA minimum (px)
-  comfortable: 48,
-} as const;
+// CSS Custom Properties are the single source of truth for:
+// - Breakpoints: --breakpoint-sm, --breakpoint-md, --breakpoint-lg, --breakpoint-xl, --breakpoint-2xl
+// - Z-index: --z-base, --z-dropdown, --z-sticky, --z-fixed, --z-modal-backdrop, --z-modal, --z-popover, --z-tooltip, --z-toast
+// - Touch targets: --touch-target-min (44px), --touch-target-comfortable (48px)
+// - Durations: --duration-fast, --duration-normal, --duration-slow, --duration-slower
+//
+// To access in TS, use getComputedStyle(document.documentElement).getPropertyValue('--token-name')
+// or use a useMediaQuery hook that reads from CSS.

@@ -1,25 +1,76 @@
-.empty {
+// EmptyState Component Styles (CSS Module)
+// Uses global design tokens via CSS custom properties.
+// Pure CSS with BEM naming - no @use imports.
+
+.emptyState {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  padding: 2rem 1.5rem;
+  gap: var(--space-4);
+  padding: var(--space-8) var(--space-4);
   text-align: center;
 }
 
-.message {
-  margin: 0;
-  font-size: 1.0625rem;
+.emptyState__icon {
+  display: flex;
+  width: 4rem;
+  height: 4rem;
   color: var(--color-muted);
-  text-wrap: balance;
+  opacity: 0.5;
+  flex-shrink: 0;
 }
 
-.actions {
+.emptyState__message {
+  margin: 0;
+  font-size: var(--font-size-md);
+  color: var(--color-muted);
+  text-wrap: balance;
+  max-width: 24rem;
+}
+
+.emptyState__description {
+  margin: 0;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-base);
+  color: var(--color-muted);
+  max-width: 28rem;
+}
+
+.emptyState__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: var(--space-3);
   align-items: center;
   justify-content: center;
+  margin-top: var(--space-2);
+}
+
+.emptyState__actions .button {
+  flex: 0 1 auto;
+}
+
+.emptyState__illustration {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  opacity: 0.6;
+}
+
+/* Modifiers */
+.emptyState--compact {
+  padding: var(--space-6) var(--space-4);
+  gap: var(--space-3);
+}
+
+.emptyState--compact .emptyState__icon {
+  width: 3rem;
+  height: 3rem;
+}
+
+.emptyState--compact .emptyState__message {
+  font-size: var(--font-size-base);
 }

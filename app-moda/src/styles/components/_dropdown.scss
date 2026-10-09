@@ -1,0 +1,195 @@
+// Component: Dropdown Menu
+// Accessible dropdown with keyboard navigation.
+
+@use '../core/variables' as *;
+@use '../core/mixins' as *;
+
+.dropdown {
+  position: relative;
+  display: inline-flex;
+
+  &__trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    padding: var(--space-1) var(--space-2);
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition:
+      background var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard),
+      color var(--duration-fast) var(--ease-standard),
+      box-shadow var(--duration-fast) var(--ease-standard);
+    color: var(--color-foreground);
+    background: transparent;
+    border-color: transparent;
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+
+    &:hover:not(:disabled) {
+      background: var(--color-border);
+    }
+
+    @include disabled;
+  }
+
+  &__menu {
+    position: absolute;
+    top: calc(100% + var(--space-1));
+    right: 0;
+    z-index: var(--z-dropdown);
+    min-width: 12rem;
+    padding: var(--space-2);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    animation: fade-in var(--duration-fast) var(--ease-out), scale-in var(--duration-fast) var(--ease-spring);
+    transform-origin: top right;
+    display: none;
+
+    &--left {
+      right: auto;
+      left: 0;
+      transform-origin: top left;
+    }
+
+    &--center {
+      right: 50%;
+      left: 50%;
+      transform: translateX(-50%);
+      transform-origin: top center;
+    }
+  }
+
+  &--open &__menu {
+    display: block;
+  }
+
+  &--closed &__menu {
+    display: none;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-foreground);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    text-align: left;
+    transition: background var(--duration-fast);
+
+    &:hover:not(:disabled),
+    &:focus:not(:disabled) {
+      background: var(--color-border);
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+
+    @include disabled;
+  }
+
+  &__item-icon {
+    display: flex;
+    flex-shrink: 0;
+    width: 1.125rem;
+    height: 1.125rem;
+    color: var(--color-muted);
+  }
+
+  &__item-label {
+    flex: 1;
+  }
+
+  &__item-shortcut {
+    margin-left: auto;
+    font-size: var(--font-size-xs);
+    color: var(--color-muted);
+    font-family: var(--font-family-mono);
+  }
+
+  &__divider {
+    height: 1px;
+    margin: var(--space-1) 0;
+    background: var(--color-border);
+  }
+
+  &__section {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wide);
+  }
+
+  &--open &__menu {
+    display: block;
+  }
+
+  &--closed &__menu {
+    display: none;
+  }
+
+  // Checkbox/radio items
+  &__item[role="menuitemcheckbox"],
+  &__item[role="menuitemradio"] {
+    padding-left: var(--space-8);
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: var(--space-3);
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid var(--color-border);
+      background: var(--color-surface);
+    }
+
+    &[aria-checked="true"]::before {
+      border-color: var(--color-accent);
+      background: var(--color-accent);
+    }
+  }
+
+  &__item[role="menuitemradio"]::before {
+    border-radius: var(--radius-circle);
+  }
+
+  &__item[role="menuitemcheckbox"]::before {
+    border-radius: var(--radius-sm);
+  }
+
+  // Menu positioning modifiers
+  &__menu--left {
+    right: auto;
+    left: 0;
+    transform-origin: top left;
+  }
+
+  &__menu--center {
+    right: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+    transform-origin: top center;
+  }
+}

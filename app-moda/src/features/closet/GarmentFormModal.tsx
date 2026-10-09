@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Infinity as InfinityIcon, Leaf, Snowflake, Sun } from "lucide-react";
+import { Infinity as InfinityIcon, Leaf, Snowflake, Sun, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGarmentTranslator } from "@/lib/translateGarment";
 import type {
@@ -109,7 +109,7 @@ export function GarmentFormModal({
   };
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
+    <div className={styles["garmentFormModal__overlay"]} onClick={onClose}>
       <div
         ref={dialogRef}
         role="dialog"
@@ -123,14 +123,24 @@ export function GarmentFormModal({
               : undefined
         }
         tabIndex={-1}
-        className={styles.dialog}
+        className={styles["garmentFormModal__dialog"]}
         onClick={(event) => event.stopPropagation()}
       >
-        <h2 id="garment-modal-title" className={styles.title}>
-          {title}
-        </h2>
+        <header className={styles["garmentFormModal__header"]}>
+          <h2 id="garment-modal-title" className={styles["garmentFormModal__title"]}>
+            {title}
+          </h2>
+          <button
+            type="button"
+            className={styles["garmentFormModal__close"]}
+            onClick={onClose}
+            aria-label="Cerrar"
+          >
+            <X aria-hidden="true" size={20} />
+          </button>
+        </header>
         {previewUrl !== null ? (
-          <img src={previewUrl} alt={previewAlt} className={styles.preview} />
+          <img src={previewUrl} alt={previewAlt} className={styles["garmentFormModal__preview"]} />
         ) : null}
         <form onSubmit={handleSubmit}>
           <OptionPills
@@ -142,16 +152,16 @@ export function GarmentFormModal({
             formatOption={(option) => translate(option, "type") ?? option}
           />
 
-          <fieldset className={styles.group}>
+          <fieldset className={styles["garmentFormModal__group"]}>
             <legend>{t("form.season")}</legend>
-            <div className={styles.options} role="radiogroup" aria-label={t("form.season")}>
+            <div className={styles["garmentFormModal__options"]} role="radiogroup" aria-label={t("form.season")}>
               {(Object.keys(SEASON_ICONS) as GarmentSeason[]).map((option) => {
                 const Icon = SEASON_ICONS[option];
                 const selected = season === option;
                 return (
                   <label
                     key={option}
-                    className={cn(styles.option, selected && styles.selected)}
+                    className={cn(styles["garmentFormModal__option"], selected && styles["garmentFormModal__option--selected"])}
                   >
                     <input
                       type="radio"
@@ -159,7 +169,7 @@ export function GarmentFormModal({
                       value={option}
                       checked={selected}
                       onChange={() => setSeason(option)}
-                      className={styles.radio}
+                      className={styles["garmentFormModal__radio"]}
                     />
                     <Icon aria-hidden="true" size={18} />
                     <span>{t(`form.seasons.${option}`)}</span>
@@ -214,17 +224,17 @@ export function GarmentFormModal({
               ref={errorRef}
               role="alert"
               tabIndex={-1}
-              className={styles.error}
+              className={styles["garmentFormModal__error"]}
             >
               {validationError}
             </p>
           ) : null}
           {submitError !== null ? (
-            <p id="garment-modal-submit-error" role="alert" className={styles.error}>
+            <p id="garment-modal-submit-error" role="alert" className={styles["garmentFormModal__error"]}>
               {submitError}
             </p>
           ) : null}
-          <div className={styles.actions}>
+          <div className={styles["garmentFormModal__actions"]}>
             <Button
               type="button"
               variant="ghost"

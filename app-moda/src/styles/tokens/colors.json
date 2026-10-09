@@ -1,0 +1,53 @@
+{
+  "background": "#fafafa",
+  "surface": "#ffffff",
+  "foreground": "#171717",
+  "muted": "#6b7280",
+  "border": "#e5e7eb",
+  "primary": "#111111",
+  "primaryContrast": "#ffffff",
+  "accent": "#a2543f",
+  "accentHover": "#8b4736",
+  "accentLight": "#d08a75",
+  "oat": "#f9f6f0",
+  "clay": "#4a3f39",
+  "tabInactive": "#4a3f39",
+  "authBackground": "#f9f6f0",
+  "authText": "#4a3f39",
+  "error": "#b3261e",
+  "errorHover": "#931f18",
+  "success": "#2e7d32",
+  "warning": "#e6a700",
+  "canvas": "#f9f6f0",
+  "thread": "#4a3f39",
+  "skin": {
+    "fair": "#fdebd7",
+    "light": "#f5d0a9",
+    "medium": "#e0ac69",
+    "olive": "#9c7b4f",
+    "brown": "#6b4423",
+    "deep": "#3b2213"
+  },
+  "eye": {
+    "brown": "#5c3a21",
+    "hazel": "#7a5c2e",
+    "green": "#4a7c59",
+    "blue": "#4a7ebb",
+    "gray": "#8e9aaf",
+    "black": "#1c1c1e"
+  },
+  "hair": {
+    "black": "#1a1a1a",
+    "brown": "#4e3320",
+    "blonde": "#d9b36a",
+    "red": "#b5522b",
+    "gray": "#9aa0a6",
+    "white": "#f5f0e8"
+  },
+  "season": {
+    "spring": ["#f6d8a8", "#f2b880", "#e88ca0", "#9cbe8f", "#7fb3b0"],
+    "summer": ["#c9d4e0", "#a8b8c8", "#d8a7b1", "#b5c4b1", "#8fa3bf"],
+    "autumn": ["#c87966", "#a65a3a", "#d9a441", "#6b7f3e", "#5a3b2e"],
+    "winter": ["#1f2937", "#b3261e", "#1d4ed8", "#e8e8e8", "#0f766e"]
+  }
+}

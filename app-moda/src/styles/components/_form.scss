@@ -1,0 +1,395 @@
+// Component: Form
+// Base form styles with BEM structure.
+// Includes input, select, textarea, label, error, helper, field group.
+
+@use '../core/variables' as *;
+@use '../core/mixins' as *;
+
+// Component: Form
+// Base form styles with BEM structure.
+// Includes input, select, textarea, label, error, helper, field group.
+// Container queries enabled for intrinsic responsive behavior.
+
+@use '../core/variables' as *;
+@use '../core/mixins' as *;
+
+@include block('form') {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  container-type: inline-size;
+  container-name: form;
+
+  @include modifier('inline') {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-4);
+  }
+
+  @include modifier('stacked') {
+    // Default
+  }
+
+  // =========================================================================
+  // FIELD GROUP (label + input + messages)
+  // =========================================================================
+
+  @include element('field') {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+
+    @include modifier('inline') {
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-3);
+
+      @include element('label') {
+        flex: 0 0 10rem;
+        margin-bottom: 0;
+        text-align: right;
+      }
+
+      @include element('input-wrapper') {
+        flex: 1;
+      }
+    }
+
+    @include modifier('error') {
+      @include element('input') {
+        border-color: var(--error-color);
+
+        &:focus {
+          box-shadow: 0 0 0 var(--focus-ring-width) color-mix(in srgb, var(--error-color) 20%, transparent);
+        }
+      }
+      @include element('select') {
+        border-color: var(--error-color);
+
+        &:focus {
+          box-shadow: 0 0 0 var(--focus-ring-width) color-mix(in srgb, var(--error-color) 20%, transparent);
+        }
+      }
+      @include element('textarea') {
+        border-color: var(--error-color);
+
+        &:focus {
+          box-shadow: 0 0 0 var(--focus-ring-width) color-mix(in srgb, var(--error-color) 20%, transparent);
+        }
+      }
+    }
+
+    @include modifier('disabled') {
+      @include element('label') {
+        color: var(--color-muted);
+      }
+    }
+  }
+
+  // =========================================================================
+  // LABEL
+  // =========================================================================
+
+  @include element('label') {
+    @include label-base;
+    @include modifier('required') {
+      &::after {
+        content: ' *';
+        color: var(--error-color);
+      }
+    }
+
+    @include modifier('optional') {
+      &::after {
+        content: ' (opcional)';
+        color: var(--color-muted);
+        font-weight: var(--font-weight-normal);
+        text-transform: none;
+        letter-spacing: normal;
+      }
+    }
+  }
+
+  // =========================================================================
+  // INPUT WRAPPER (for icons, etc.)
+  // =========================================================================
+
+  @include element('input-wrapper') {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  @include element('input-icon') {
+    position: absolute;
+    left: var(--space-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-muted);
+    pointer-events: none;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  @include element('input-suffix') {
+    position: absolute;
+    right: var(--space-3);
+    display: flex;
+    align-items: center;
+    color: var(--color-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  // =========================================================================
+  // INPUT BASE (shared)
+  // =========================================================================
+
+  %input-base {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    color: var(--color-foreground);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: var(--input-radius);
+    transition:
+      border-color var(--duration-fast),
+      box-shadow var(--duration-fast);
+
+    &::placeholder {
+      color: var(--placeholder-color);
+    }
+
+    &:hover:not(:disabled):not([readonly]) {
+      border-color: var(--input-border-hover);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--input-focus-ring);
+      box-shadow: 0 0 0 var(--focus-ring-width) color-mix(in srgb, var(--input-focus-ring) 20%, transparent);
+    }
+
+    @include disabled;
+
+    &[readonly] {
+      background: var(--color-border);
+      cursor: not-allowed;
+    }
+  }
+
+  // =========================================================================
+  // INPUT (text, email, password, number, etc.)
+  // =========================================================================
+
+  @include element('input') {
+    @extend %input-base;
+
+    // With leading icon
+    &[data-has-icon] {
+      padding-left: var(--space-10);
+    }
+
+    // With trailing suffix
+    &[data-has-suffix] {
+      padding-right: var(--space-10);
+    }
+  }
+
+  // =========================================================================
+  // SELECT
+  // =========================================================================
+
+  @include element('select') {
+    @extend %input-base;
+    appearance: none;
+    padding-right: var(--space-10);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--space-3) center;
+
+    &:focus {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a2543f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    }
+  }
+
+  // =========================================================================
+  // TEXTAREA
+  // =========================================================================
+
+  @include element('textarea') {
+    @extend %input-base;
+    min-height: 8rem;
+    resize: vertical;
+    padding-top: var(--space-3);
+    padding-bottom: var(--space-3);
+  }
+
+  // =========================================================================
+  // CHECKBOX / RADIO
+  // =========================================================================
+
+  @include element('checkbox') {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+
+    input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    &::before {
+      content: '';
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.25rem;
+      height: 1.25rem;
+      border: 2px solid var(--color-border);
+      background: var(--input-bg);
+      flex-shrink: 0;
+      transition:
+        border-color var(--duration-fast),
+        background var(--duration-fast);
+    }
+
+    &:hover input:not(:disabled) ~ &::before {
+      border-color: var(--color-accent);
+    }
+
+    &:focus-visible input ~ &::before {
+      @include focus-ring;
+      border-radius: var(--radius-sm);
+    }
+
+    @include disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  @include element('checkbox-label') {
+    cursor: pointer;
+    @include text-body;
+    user-select: none;
+  }
+
+  @include element('radio-label') {
+    cursor: pointer;
+    @include text-body;
+    user-select: none;
+  }
+
+  // =========================================================================
+  // SWITCH / TOGGLE
+  // =========================================================================
+
+  @include element('switch') {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    cursor: pointer;
+
+    input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    &::before {
+      content: '';
+      width: 2.75rem;
+      height: 1.5rem;
+      border-radius: var(--radius-pill);
+      background: var(--color-border);
+      transition: background var(--duration-fast);
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0.125rem;
+      top: 0.125rem;
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: var(--radius-circle);
+      background: var(--color-surface);
+      box-shadow: var(--shadow-sm);
+      transition: transform var(--duration-fast) var(--ease-spring);
+    }
+
+    input:checked ~ & {
+      &::before {
+        background: var(--color-accent);
+      }
+
+      &::after {
+        transform: translateX(1.25rem);
+      }
+    }
+
+    &:focus-visible input ~ &::before {
+      @include focus-ring;
+    }
+
+    @include disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  // =========================================================================
+  // ERROR / HELPER TEXT
+  // =========================================================================
+
+  @include element('error') {
+    @include error-text;
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  @include element('helper') {
+    @include text-caption;
+  }
+
+  @include element('counter') {
+    @include text-caption;
+    text-align: right;
+  }
+
+  // =========================================================================
+  // SUBMIT / ACTION ROW
+  // =========================================================================
+
+  @include element('actions') {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding-top: var(--space-2);
+    margin-top: var(--space-2);
+    border-top: 1px solid var(--color-border);
+    flex-wrap: wrap;
+
+    @container form (max-width: 40rem) {
+      width: 100%;
+      justify-content: stretch;
+
+      .button {
+        flex: 1;
+      }
+    }
+  }
+}

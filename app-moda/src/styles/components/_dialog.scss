@@ -1,0 +1,219 @@
+// Component: Dialog / Modal
+// Accessible dialog styles (role=dialog, role=alertdialog).
+// Uses native <dialog> element where possible, with overlay fallback.
+// Container queries enabled for intrinsic responsive behavior.
+
+@use '../core/variables' as *;
+@use '../core/mixins' as *;
+@use '../core/animations' as *;
+
+@include block('dialog') {
+  // Overlay (for non-native or portal-based dialogs)
+  @include element('overlay') {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-modal-backdrop);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    background: var(--dialog-overlay);
+    backdrop-filter: blur(2px);
+    animation: fade-in var(--duration-fast) var(--ease-out);
+  }
+
+  // Container (the actual dialog box)
+  @include element('container') {
+    position: relative;
+    z-index: var(--z-modal);
+    width: 100%;
+    max-width: var(--dialog-max-width);
+    background: var(--dialog-bg);
+    border-radius: var(--dialog-radius);
+    box-shadow: var(--dialog-shadow);
+    animation: scale-in var(--duration-normal) var(--ease-spring);
+    overflow: hidden;
+    container-type: inline-size;
+    container-name: dialog;
+
+    @container dialog (max-width: 40rem) {
+      max-width: calc(100% - var(--space-4));
+      border-radius: var(--radius-lg);
+    }
+  }
+
+  // Header
+  @include element('header') {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-6);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  @include element('title') {
+    margin: 0;
+    @include text-heading(var(--font-size-2xl), var(--font-weight-bold));
+    flex: 1;
+  }
+
+  @include element('close') {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+    color: var(--color-muted);
+    border-radius: var(--radius-circle);
+    transition: background var(--duration-fast), color var(--duration-fast);
+
+    &:hover {
+      background: var(--color-border);
+      color: var(--color-foreground);
+    }
+
+    &:focus-visible {
+      @include focus-ring;
+    }
+  }
+
+  // Body
+  @include element('body') {
+    padding: var(--space-5) var(--space-6);
+
+    > *:first-child {
+      margin-top: 0;
+    }
+
+    > *:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  @include element('message') {
+    margin: 0;
+    @include text-body(var(--font-size-base), var(--font-weight-normal), var(--color-foreground));
+  }
+
+  // Footer / Actions
+  @include element('footer') {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-6);
+    border-top: 1px solid var(--color-border);
+    background: color-mix(in srgb, var(--color-muted) 3%, transparent);
+    flex-wrap: wrap;
+
+    @container dialog (max-width: 40rem) {
+      padding: var(--space-3) var(--space-4);
+    }
+  }
+
+  @include element('actions') {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  // =========================================================================
+  // MODIFIERS
+  // =========================================================================
+
+  @include modifier('alert') {
+    @include element('container') {
+      // Alert dialog: more prominent, centered
+      max-width: 22rem;
+    }
+
+    @include element('header') {
+      padding-bottom: var(--space-3);
+    }
+
+    @include element('title') {
+      @include text-heading(var(--font-size-xl));
+    }
+  }
+
+  @include modifier('confirm') {
+    @include element('container') {
+      max-width: 24rem;
+    }
+  }
+
+  @include modifier('fullscreen') {
+    @include element('container') {
+      max-width: none;
+      width: 100%;
+      height: 100%;
+      max-height: 100%;
+      border-radius: 0;
+      margin: 0;
+
+      @container dialog (max-width: 48rem) {
+        // On mobile, fullscreen dialogs slide from bottom
+        animation: slide-in-from-bottom var(--duration-slow) var(--ease-out);
+      }
+    }
+  }
+
+  @include modifier('no-padding') {
+    @include element('body') {
+      padding: 0;
+    }
+  }
+
+  // =========================================================================
+  // ANIMATIONS (using keyframes from _animations.scss)
+  // =========================================================================
+
+  // Enter/Exit handled by Framer Motion or CSS animations
+  // CSS fallback for non-JS or reduced motion
+  @include element('overlay') {
+    &[open] {
+      animation: fade-in var(--duration-fast) var(--ease-out);
+    }
+  }
+
+  @include element('container') {
+    &[open] {
+      animation: scale-in var(--duration-normal) var(--ease-spring);
+    }
+  }
+
+  // Reduced motion
+  @include respect-reduced-motion;
+}
+
+// =============================================================================
+// NATIVE DIALOG ELEMENT STYLES
+// =============================================================================
+
+dialog {
+  border: none;
+  border-radius: var(--dialog-radius);
+  box-shadow: var(--dialog-shadow);
+  background: var(--dialog-bg);
+  max-width: var(--dialog-max-width);
+  width: calc(100% - var(--space-8));
+  padding: 0;
+  margin: auto;
+
+  &::backdrop {
+    background: var(--dialog-overlay);
+    backdrop-filter: blur(2px);
+    animation: fade-in var(--duration-fast) var(--ease-out);
+  }
+
+  &[open] {
+    animation: scale-in var(--duration-normal) var(--ease-spring);
+  }
+
+  @container (max-width: 40rem) {
+    max-width: calc(100% - var(--space-4));
+    border-radius: var(--radius-lg);
+  }
+}

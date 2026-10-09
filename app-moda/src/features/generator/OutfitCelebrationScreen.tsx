@@ -78,15 +78,15 @@ export function OutfitCelebrationScreen({
       aria-modal="true"
       aria-labelledby="celebration-title"
       tabIndex={-1}
-      className={styles.overlay}
+      className={styles.outfitCelebration}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1, transition: { duration: reduceMotion ? 0 : 0.25 } }}
       exit={{ opacity: 0, transition: { duration: 0.2 } }}
     >
-      <div className={styles.mask}>
+      <div className={styles["outfitCelebration__mask"]}>
         <motion.h2
           id="celebration-title"
-          className={styles.title}
+          className={styles["outfitCelebration__title"]}
           initial={reduceMotion ? false : { y: "110%" }}
           animate={{ y: "0%" }}
           transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
@@ -96,7 +96,7 @@ export function OutfitCelebrationScreen({
       </div>
 
       <motion.div
-        className={styles.poster}
+        className={styles["outfitCelebration__poster"]}
         initial={reduceMotion ? false : "hidden"}
         animate="show"
         variants={{
@@ -106,7 +106,7 @@ export function OutfitCelebrationScreen({
         {garments.map((garment, index) => (
           <motion.figure
             key={garment.garmentId}
-            className={styles.piece}
+            className={styles["outfitCelebration__piece"]}
             variants={{
               hidden: { y: -140, opacity: 0, rotate: 0 },
               show: {
@@ -124,12 +124,12 @@ export function OutfitCelebrationScreen({
                 loading="eager"
                 fetchPriority="high"
                 decoding="async"
-                className={styles.image}
+                className={styles["outfitCelebration__image"]}
               />
             ) : (
-              <div className={styles.placeholder} aria-hidden="true" />
+              <div className={styles["outfitCelebration__placeholder"]} aria-hidden="true" />
             )}
-            <figcaption className={styles.caption}>
+            <figcaption className={styles["outfitCelebration__caption"]}>
               {describeGarment(garment)}
             </figcaption>
           </motion.figure>
@@ -137,11 +137,11 @@ export function OutfitCelebrationScreen({
       </motion.div>
 
       {!reduceMotion ? (
-        <div className={styles.confettiField} aria-hidden="true">
+        <div className={styles["outfitCelebration__confettiField"]} aria-hidden="true">
           {confetti.map((particle, index) => (
             <motion.span
               key={index}
-              className={styles.spark}
+              className={styles["outfitCelebration__spark"]}
               style={{
                 backgroundColor: particle.color,
                 width: particle.sizePx,
@@ -178,7 +178,7 @@ export function OutfitCelebrationScreen({
           type="button"
           size="lg"
           onClick={onClose}
-          className={styles.closeButton}
+          className={styles["outfitCelebration__closeButton"]}
         >
           {t("celebrationClose")}
         </Button>

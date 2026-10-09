@@ -12,7 +12,6 @@ interface GarmentCardProps {
   onEdit?: (garment: Garment) => void;
   onDelete?: (garment: Garment) => void;
   isDeleting?: boolean;
-  // Laundry action for the dirty-basket view: circular sparkle button.
   onWash?: (garment: Garment) => void;
   isWashing?: boolean;
 }
@@ -43,56 +42,67 @@ export function GarmentCard({
     .filter((part): part is string => part !== null)
     .join(" · ");
   // Descriptive alternative (WCAG 1.1.1): type plus visible traits.
-  const imageAlt =
-    subtitle !== "" ? `${displayType} (${subtitle})` : displayType;
+  const imageAlt = subtitle !== "" ? `${displayType} (${subtitle})` : displayType;
 
   return (
-    <article className={styles.card}>
+    <article className={styles.garmentCard}>
       {garment.imageUrl !== null ? (
         <img
           src={garment.imageUrl}
           alt={imageAlt}
           loading="lazy"
-          className={styles.image}
+          className={styles["garmentCard__image"]}
         />
       ) : (
-        <div className={styles.placeholder} aria-hidden="true" />
+        <div className={styles["garmentCard__placeholder"]} aria-hidden="true" />
       )}
-      {onDelete ? (
+      {onDelete && (
         <button
           type="button"
           aria-label={ta("deleteGarment", { name: displayType })}
-          className={cn(styles.iconButton, styles.topLeft)}
+          className={cn(
+            styles["garmentCard__action"],
+            styles["garmentCard__action--topLeft"],
+            styles["iconButton"]
+          )}
           disabled={isDeleting}
           onClick={() => onDelete(garment)}
         >
-          <Trash2 aria-hidden="true" size={18} />
+          <Trash2 aria-hidden="true" size={18} className={styles["iconButton__icon"]} />
         </button>
-      ) : null}
-      {onWash ? (
+      )}
+      {onWash && (
         <button
           type="button"
           aria-label={ta("washGarment", { name: displayType })}
-          className={cn(styles.iconButton, styles.topRight)}
+          className={cn(
+            styles["garmentCard__action"],
+            styles["garmentCard__action--topRight"],
+            styles["iconButton"]
+          )}
           disabled={isWashing}
           onClick={() => onWash(garment)}
         >
-          <Sparkles aria-hidden="true" size={18} />
+          <Sparkles aria-hidden="true" size={18} className={styles["iconButton__icon"]} />
         </button>
-      ) : null}
-      {onEdit ? (
+      )}
+      {onEdit && (
         <button
           type="button"
           aria-label={ta("editGarment", { name: displayType })}
-          className={cn(styles.iconButton, styles.topRight)}
+          className={cn(
+            styles["garmentCard__action"],
+            styles["garmentCard__action--topRight"],
+            styles["iconButton"]
+          )}
           onClick={() => onEdit(garment)}
         >
-          <Pencil aria-hidden="true" size={18} />
+          <Pencil aria-hidden="true" size={18} className={styles["iconButton__icon"]} />
         </button>
-      ) : null}
-      <div className={styles.body}>
-        <h2 className={styles.title}>{displayType}</h2>
-        {subtitle !== "" ? <p className={styles.meta}>{subtitle}</p> : null}
+      )}
+      <div className={styles["garmentCard__body"]}>
+        <h2 className={styles["garmentCard__title"]}>{displayType}</h2>
+        {subtitle !== "" && <p className={styles["garmentCard__meta"]}>{subtitle}</p>}
       </div>
     </article>
   );

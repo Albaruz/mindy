@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { TopNavigation } from "@/components/TopNavigation/TopNavigation";
 import { usePathname } from "@/i18n/navigation";
+import styles from "./AppHeader.module.scss";
 
 // Global header (logo + pill menu), hidden on the auth gate and the
 // password recovery flow: those screens carry their own centered logo
@@ -19,15 +20,18 @@ export function AppHeader() {
     return null;
   }
   return (
-    <header className="appHeader">
+    <header className={styles.appHeader}>
       <Image
         src="/images/logo-mindy.svg"
         alt="Mindy"
         width={96}
         height={52}
         priority
+        className={styles["appHeader__logo"]}
       />
-      <TopNavigation />
+      <nav className={styles["appHeader__nav"]}>
+        <TopNavigation />
+      </nav>
     </header>
   );
 }

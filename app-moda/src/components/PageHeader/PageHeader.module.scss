@@ -1,36 +1,98 @@
-.header {
+// PageHeader Component Styles (CSS Module)
+// Uses global design tokens via CSS custom properties.
+// Pure CSS with BEM naming - no @use imports.
+
+.pageHeader {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin: 0 0 1rem;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
 }
 
-.centered {
+.pageHeader--centered {
   align-items: center;
   text-align: center;
 }
 
-.title {
-  margin: 0;
-  font-size: 1.5rem;
-  color: var(--color-tab-inactive, #4a3f39);
+.pageHeader--with-avatar {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-4);
 }
 
-.description {
-  margin: 0;
-  font-size: 0.9375rem;
+@media (max-width: 48rem) {
+  .pageHeader--with-avatar {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+.pageHeader--compact {
+  margin-bottom: var(--space-3);
+  gap: var(--space-1);
+}
+
+.pageHeader--compact .pageHeader__title {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+}
+
+.pageHeader--compact .pageHeader__description {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-base);
   color: var(--color-muted);
-  text-wrap: balance;
 }
 
-.actions {
+.pageHeader__avatar {
+  flex-shrink: 0;
+}
+
+.pageHeader__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.pageHeader__title {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-black);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  color: var(--color-clay);
+}
+
+.pageHeader__description {
+  margin: 0;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-muted);
+  max-width: 36rem;
+}
+
+.pageHeader__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: var(--space-3);
   align-items: center;
-  margin-top: 0.25rem;
+  margin-top: var(--space-1);
 }
 
-.centered .actions {
+.pageHeader__actions--centered {
   justify-content: center;
+}
+
+.pageHeader__divider {
+  width: 100%;
+  height: 1px;
+  background: var(--color-border);
+  margin-top: var(--space-2);
 }

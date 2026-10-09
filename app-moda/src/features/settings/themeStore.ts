@@ -36,10 +36,11 @@ export function applyThemeMode(mode: ThemeMode): void {
 interface ThemeState {
   mode: ThemeMode;
   setMode: (mode: ThemeMode) => void;
+  hydrate: () => void;
 }
 
 export const useThemeStore = create<ThemeState>()((set) => ({
-  mode: readStoredMode(),
+  mode: "system", // Consistent SSR value - avoid hydration mismatch
   setMode: (mode) => {
     try {
       window.localStorage.setItem(THEME_STORAGE_KEY, mode);
@@ -49,4 +50,17 @@ export const useThemeStore = create<ThemeState>()((set) => ({
     applyThemeMode(mode);
     set({ mode });
   },
+  hydrate: () => {
+    if (typeof window !== "undefined") {
+      set({ mode: readStoredMode() });
+    }
+  },
 }));
+
+// Apply theme on initial load (client-side only)
+if (typeof window !== "undefined") {
+  const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+  if (stored === "light" || stored === "dark") {
+    document.documentElement.setAttribute("data-theme", stored);
+  }
+}

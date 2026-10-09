@@ -1,0 +1,11 @@
+{
+  "base": 0,
+  "dropdown": 100,
+  "sticky": 200,
+  "fixed": 300,
+  "modalBackdrop": 900,
+  "modal": 1000,
+  "popover": 1100,
+  "tooltip": 1200,
+  "toast": 1300
+}

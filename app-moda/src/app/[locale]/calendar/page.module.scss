@@ -1,8 +1,7 @@
-// Full-bleed Warm Refuge canvas inside the centered main column.
+// Feed on default background.
 .page {
-  padding: 1rem 1rem 2rem;
-  margin: -1rem -1rem 0;
-  background: var(--color-canvas);
+  display: flex;
+  flex-direction: column;
 }
 
 .feed {
