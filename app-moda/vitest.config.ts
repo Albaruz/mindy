@@ -19,6 +19,15 @@ export default defineConfig({
         "src/**/*.module.scss",
         "**/*.config.{ts,js,mjs}",
         "src/app/layout.tsx",
+        // Next.js route segments are thin composition layers covered by
+        // Playwright E2E (mobile, es). Unit-testing them adds brittleness
+        // without signal; API Route Handlers stay included (see route.test).
+        "src/app/**/page.tsx",
+        "src/app/**/layout.tsx",
+        "src/app/**/loading.tsx",
+        "src/app/**/error.tsx",
+        "src/app/**/not-found.tsx",
+        "src/app/__art-preview/**",
         ".next/**",
       ],
       thresholds: {
