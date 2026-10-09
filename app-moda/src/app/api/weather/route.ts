@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { RATE_LIMITS } from "@/constants/api";
 import { DEFAULT_TEMPERATURE_C } from "@/constants/weather";
+import { logger, generateRequestId } from "@/lib/logger";
 
 // Standard climate returned whenever coordinates are missing or the
 // OpenWeather request fails for any reason (no key, upstream error...).
@@ -23,8 +24,9 @@ interface WeatherPayload {
   fallback: boolean;
 }
 
-function fallbackResponse(reason: string) {
-  console.warn(`[weather] serving default climate: ${reason}`);
+function fallbackResponse(reason: string, requestId: string, userId: string, startTime: number) {
+  const durationMs = Date.now() - startTime;
+  logger.warn(`Serving default climate: ${reason}`, { route: 'weather', requestId, userId, durationMs, fallback: true });
   const body: WeatherPayload = {
     temperatureC: DEFAULT_TEMPERATURE_C,
     condition: null,
@@ -35,7 +37,11 @@ function fallbackResponse(reason: string) {
     rainProbability: null,
     fallback: true,
   };
-  return NextResponse.json(body);
+  return NextResponse.json(body, {
+    headers: {
+      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
+    },
+  });
 }
 
 function parseCoordinate(
@@ -63,6 +69,9 @@ function readTemperature(value: unknown): number | null {
 
 // GET /api/weather?lat=40.41&lon=-3.70
 export async function GET(request: Request) {
+  const requestId = generateRequestId();
+  const startTime = Date.now();
+
   // Proxied upstream (OpenWeather quota): require an authenticated
   // session before spending it. All callers live behind the page guard.
   const supabase = await createClient();
@@ -70,30 +79,34 @@ export async function GET(request: Request) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
+    logger.requestComplete('weather', requestId, 401, Date.now() - startTime);
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  logger.requestStart('weather', requestId, user.id);
 
   // Cheap call, but still third-party quota: cap per user.
   const { key, limit, windowMs } = RATE_LIMITS.weather;
   const quota = checkRateLimit(`${key}:${user.id}`, limit, windowMs);
   if (quota.limited) {
-    return fallbackResponse("rate limited");
+    return fallbackResponse("rate limited", requestId, user.id, startTime);
   }
 
   const { searchParams } = new URL(request.url);
   const lat = parseCoordinate(searchParams.get("lat"), -90, 90);
   const lon = parseCoordinate(searchParams.get("lon"), -180, 180);
   if (lat === null || lon === null) {
-    return fallbackResponse("missing or invalid coordinates");
+    return fallbackResponse("missing or invalid coordinates", requestId, user.id, startTime);
   }
 
   // Server-only key: it never leaves the server through this handler.
   const apiKey = process.env.OPENWEATHER_API_KEY;
   if (!apiKey) {
-    return fallbackResponse("OPENWEATHER_API_KEY is not configured");
+    return fallbackResponse("OPENWEATHER_API_KEY is not configured", requestId, user.id, startTime);
   }
 
   try {
+    const fetchStart = Date.now();
     const [current, forecast] = await Promise.all([
       fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${encodeURIComponent(apiKey)}`,
@@ -110,14 +123,16 @@ export async function GET(request: Request) {
         },
       ),
     ]);
+    logger.externalCall('openweather', 'current+forecast', Date.now() - fetchStart, current.ok && forecast.ok, { route: 'weather', requestId, userId: user.id });
+
     const upstream = current;
     if (!upstream.ok) {
-      return fallbackResponse(`OpenWeather responded ${upstream.status}`);
+      return fallbackResponse(`OpenWeather responded ${upstream.status}`, requestId, user.id, startTime);
     }
 
     const payload: unknown = await upstream.json();
     if (typeof payload !== "object" || payload === null) {
-      return fallbackResponse("OpenWeather returned an unexpected payload");
+      return fallbackResponse("OpenWeather returned an unexpected payload", requestId, user.id, startTime);
     }
     const record = payload as Record<string, unknown>;
     const main =
@@ -126,7 +141,7 @@ export async function GET(request: Request) {
         : null;
     const temperatureC = main ? readTemperature(main.temp) : null;
     if (temperatureC === null) {
-      return fallbackResponse("OpenWeather payload has no temperature");
+      return fallbackResponse("OpenWeather payload has no temperature", requestId, user.id, startTime);
     }
 
     const weather = Array.isArray(record.weather) ? record.weather : [];
@@ -143,9 +158,17 @@ export async function GET(request: Request) {
       ...(await readDaySummary(forecast)),
       fallback: false,
     };
-    return NextResponse.json(body);
-  } catch {
-    return fallbackResponse("OpenWeather request failed");
+    const durationMs = Date.now() - startTime;
+    logger.requestComplete('weather', requestId, 200, durationMs, { userId: user.id, temperatureC, condition, city: body.city, fallback: false });
+    return NextResponse.json(body, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=60',
+      },
+    });
+  } catch (error) {
+    const durationMs = Date.now() - startTime;
+    logger.error('OpenWeather request failed', { route: 'weather', requestId, userId: user.id, error, durationMs });
+    return fallbackResponse("OpenWeather request failed", requestId, user.id, startTime);
   }
 }
 

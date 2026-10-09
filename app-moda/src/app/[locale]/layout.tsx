@@ -61,6 +61,7 @@ export default async function LocaleLayout({
       lang={locale}
       className={`${inter.variable} ${playfairDisplay.variable}`}
       suppressHydrationWarning
+      data-scroll-behavior="smooth"
     >
       <body suppressHydrationWarning>
         <script

@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { Garment } from "@/types/garment";
+import type { UserProfile } from "@/types/user";
+import type { WeatherInfo } from "./useWeatherQuery";
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
@@ -53,9 +55,9 @@ const {
 } = vi.hoisted(() => ({
   mockGenerateMutate: vi.fn(),
   mockWearMutate: vi.fn(),
-  mockWeatherData: vi.fn(() => null),
-  mockProfileData: vi.fn(() => null),
-  mockClosetData: vi.fn(() => []),
+  mockWeatherData: vi.fn<() => WeatherInfo | null>(() => null),
+  mockProfileData: vi.fn<() => UserProfile | null>(() => null),
+  mockClosetData: vi.fn<() => Garment[]>(() => []),
 }));
 
 let mockGeneratePending = false;
@@ -345,10 +347,19 @@ describe("Home interactions", () => {
 
   it("changes style and confirms generation with profile", async () => {
     mockProfileData.mockImplementation(() => ({
+      userId: "test-user-id",
+      hairColor: "brown",
+      createdAt: new Date().toISOString(),
+      skinTone: "medium",
+      eyeColor: "brown",
+      chestMeasurementCm: 92,
+      waistMeasurementCm: 76,
+      hipMeasurementCm: 98,
       colorimetry: "summer",
       morphology: "rectangle",
       preferredFit: "regular",
       lifestyle: "casual_daily",
+      extraPreferences: {},
     }));
     useGeneratorStore.getState().startAutoSelect();
     render(<Home />);

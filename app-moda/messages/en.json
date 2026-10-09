@@ -320,6 +320,7 @@
     "stylistUnavailable": "Oops, my fashion brain just short-circuited. Give me a second to recover.",
     "laundryFailed": "Laundry day failed. One more try.",
     "uploadRemoving": "Removing background…",
+    "uploadRemovingFallback": "Removing background (safe mode)…",
     "uploadTagging": "Tagging with AI…",
     "uploadResizing": "Resizing image…",
     "uploadUploading": "Uploading…"

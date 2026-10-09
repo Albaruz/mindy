@@ -320,6 +320,7 @@
     "stylistUnavailable": "Ups, mi cerebro fashionista ha cortocircuitado. Dame un segundo que me recompongo.",
     "laundryFailed": "La colada se ha resistido. Otra vez.",
     "uploadRemoving": "Eliminando fondo…",
+    "uploadRemovingFallback": "Eliminando fondo (modo seguro)…",
     "uploadTagging": "Etiquetando con IA…",
     "uploadResizing": "Redimensionando imagen…",
     "uploadUploading": "Subiendo…"

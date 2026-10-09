@@ -97,10 +97,19 @@ export function useUploadGarment() {
     setPhase("processing");
     try {
       setProgressNote(t("uploadRemoving"));
-      const { removeBackground } = await import("@imgly/background-removal");
-      const png = await removeBackground(file, {
-        output: { format: "image/png", quality: 1 },
-      });
+      let png: Blob;
+      try {
+        png = await removeBackgroundInWorker(file, {
+          output: { format: "image/png", quality: 1 },
+        });
+      } catch (workerErr) {
+        // Fallback to main-thread dynamic import if worker fails
+        console.warn('[useUploadGarment] Worker failed, falling back to main thread:', workerErr);
+        setProgressNote(t("uploadRemovingFallback"));
+        png = await removeBackgroundFallback(file, {
+          output: { format: "image/png", quality: 1 },
+        });
+      }
 
       setProgressNote(t("uploadTagging"));
       const tags = await suggestTags(await toDownscaledDataUrl(png));
@@ -280,4 +289,65 @@ async function suggestTags(imageBase64: string): Promise<InferredTags> {
   } catch {
     return EMPTY_TAGS;
   }
+}
+
+// Runs @imgly/background-removal in a Web Worker to avoid blocking the main thread.
+// The worker loads the UMD build from jsDelivr CDN (cached by browser).
+async function removeBackgroundInWorker(
+  file: File,
+  options: { output: { format: "image/png"; quality: number } }
+): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker("/bg-removal-worker.js");
+    let ready = false;
+
+    worker.onmessage = (event) => {
+      const data = event.data;
+      
+      // Worker signals initialization failed
+      if (data.ready === false) {
+        reject(new Error(data.error || 'Worker initialization failed'));
+        worker.terminate();
+        return;
+      }
+      
+      // Worker signals it's ready
+      if (data.ready === true) {
+        ready = true;
+        worker.postMessage({ imageBlob: file, options });
+        return;
+      }
+
+      const { success, result, error } = data;
+      if (success) {
+        resolve(result);
+      } else {
+        reject(new Error(error || 'Unknown worker error'));
+      }
+      worker.terminate();
+    };
+    worker.onerror = (err) => {
+      // err is ErrorEvent: use err.message (empty string) or err.filename + err.lineno
+      const msg = err.message || (err.filename ? `${err.filename}:${err.lineno}` : 'Worker script error');
+      reject(new Error(`Worker error: ${msg}`));
+      worker.terminate();
+    };
+
+    // Timeout in case worker never signals ready
+    setTimeout(() => {
+      if (!ready) {
+        reject(new Error('Worker failed to initialize (timeout)'));
+        worker.terminate();
+      }
+    }, 10000);
+  });
+}
+
+// Fallback: original dynamic import on main thread (used if worker fails)
+async function removeBackgroundFallback(
+  file: File,
+  options: { output: { format: "image/png"; quality: number } }
+): Promise<Blob> {
+  const { removeBackground } = await import("@imgly/background-removal");
+  return removeBackground(file, options);
 }

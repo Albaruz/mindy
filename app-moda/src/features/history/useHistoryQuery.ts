@@ -22,6 +22,33 @@ export interface HistoryEntry {
   garments: Garment[];
 }
 
+// Columns for outfit_history table
+const HISTORY_COLUMNS = `
+  look_id,
+  user_id,
+  garment_ids,
+  worn_date,
+  created_at
+`.trim();
+
+// Columns for garments table (reused from garmentMappers)
+const GARMENT_COLUMNS = `
+  garment_id,
+  user_id,
+  image_url,
+  garment_type,
+  style,
+  cut_length,
+  color,
+  material,
+  season,
+  is_dirty,
+  last_worn_date,
+  is_external_garment,
+  extra_tags,
+  created_at
+`.trim();
+
 function toHistory(row: OutfitHistoryRow): OutfitHistory {
   return {
     lookId: row.look_id,
@@ -43,7 +70,7 @@ async function fetchHistory(): Promise<HistoryEntry[]> {
 
   const { data: rows, error } = await supabase
     .from(TABLES.outfitHistory)
-    .select("*")
+    .select(HISTORY_COLUMNS)
     .eq(USER_ID_COLUMN, user.id)
     .order("worn_date", { ascending: false });
   if (error) {
@@ -59,7 +86,7 @@ async function fetchHistory(): Promise<HistoryEntry[]> {
 
   const { data: garmentRows, error: garmentsError } = await supabase
     .from(TABLES.garments)
-    .select("*")
+    .select(GARMENT_COLUMNS)
     .in("garment_id", garmentIds);
   if (garmentsError) {
     throw garmentsError;
@@ -84,5 +111,8 @@ export function useHistoryQuery() {
   return useQuery({
     queryKey: HISTORY_QUERY_KEY,
     queryFn: fetchHistory,
+    staleTime: 5 * 60 * 1000,   // 5 min: history is append-only, rarely changes
+    gcTime: 10 * 60 * 1000,     // 10 min: keep cache
+    refetchOnWindowFocus: false,
   });
 }

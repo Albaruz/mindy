@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { RATE_LIMITS, RETRY_AFTER_HEADER } from "@/constants/api";
+import { logger, generateRequestId } from "@/lib/logger";
 import {
   COLD_THRESHOLD_C,
   DEFAULT_TEMPERATURE_C,
@@ -629,6 +630,9 @@ function capBalancedPool(
 // filtering applies: without enough matching garments the handler answers
 // 422 { error: "INSUFFICIENT_STYLE_GARMENTS" } and never calls the LLM.
 export async function POST(request: Request) {
+  const requestId = generateRequestId();
+  const startTime = Date.now();
+
   // Paid upstream (Groq): require an authenticated session before any
   // parsing or billing-relevant work.
   const supabase = await createClient();
@@ -636,14 +640,18 @@ export async function POST(request: Request) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
+    logger.requestComplete('recommender', requestId, 401, Date.now() - startTime);
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  logger.requestStart('recommender', requestId, user.id);
 
   // Authenticated users still share one Groq quota: max 5 requests per
   // minute per user (in-memory window, see lib/rateLimit.ts).
   const { key, limit, windowMs } = RATE_LIMITS.recommender;
   const quota = checkRateLimit(`${key}:${user.id}`, limit, windowMs);
   if (quota.limited) {
+    logger.warn('Rate limit exceeded', { route: 'recommender', requestId, userId: user.id, retryAfterSec: quota.retryAfterSec });
     return NextResponse.json(
       { error: "Too many requests. Try again later." },
       {
@@ -654,6 +662,7 @@ export async function POST(request: Request) {
   }
 
   if (!process.env.GROQ_API_KEY) {
+    logger.error('GROQ_API_KEY not configured', { route: 'recommender', requestId });
     return NextResponse.json(
       { error: "AI service is not configured (GROQ_API_KEY)." },
       { status: 503 },
@@ -831,7 +840,7 @@ export async function POST(request: Request) {
     const statusSuffix =
       typeof status === "number" ? ` (status ${status})` : "";
     if (!isUpstreamFailure(error)) {
-      console.warn(`[recommender] request failed: ${message}${statusSuffix}`);
+      logger.error(`Request failed: ${message}${statusSuffix}`, { route: 'recommender', requestId, userId: user.id, error, status });
       return NextResponse.json(
         { error: "Unexpected recommender error." },
         { status: 500 },
@@ -839,9 +848,7 @@ export async function POST(request: Request) {
     }
     // Graceful degradation: the local cerebelo answers with the same
     // contract plus _isFallback so the client skips AI training.
-    console.warn(
-      `[recommender] LLM failed, using local fallback: ${message}${statusSuffix}`,
-    );
+    logger.warn(`LLM failed, using local fallback: ${message}${statusSuffix}`, { route: 'recommender', requestId, userId: user.id, error, status });
     try {
       options = generateFallbackLook(
         cappedPool,
@@ -855,15 +862,31 @@ export async function POST(request: Request) {
         fallbackError instanceof Error
           ? fallbackError.message
           : String(fallbackError);
-      console.warn(
-        `[recommender] local fallback failed: ${fallbackMessage}`,
-      );
+      logger.error(`Local fallback failed: ${fallbackMessage}`, { route: 'recommender', requestId, userId: user.id, error: fallbackError });
       return NextResponse.json(
         { error: "AI service request failed. Try again." },
         { status: 502 },
       );
     }
   }
+  const durationMs = Date.now() - startTime;
+  logger.requestComplete('recommender', requestId, 200, durationMs, {
+    userId: user.id,
+    isFallback,
+    optionsCount: options.length,
+    model: isFallback ? "local-fallback" : getEngineModel(),
+    excludedWinterGarments: excludedWinterCount,
+    excludedDismissedGarments: kept.length - eligible.length,
+  });
+  // Debug headers for observability (safe to expose, no secrets)
+  const responseHeaders = {
+    "x-groq-model": isFallback ? "local-fallback" : getEngineModel(),
+    "x-fallback": String(isFallback),
+    "x-options-count": String(options.length),
+    "x-excluded-winter": String(excludedWinterCount),
+    "x-excluded-dismissed": String(kept.length - eligible.length),
+    "x-request-id": requestId,
+  };
   return NextResponse.json(
     {
       options,
@@ -874,6 +897,6 @@ export async function POST(request: Request) {
       excludedDismissedGarments: kept.length - eligible.length,
       model: isFallback ? "local-fallback" : getEngineModel(),
     },
-    { status: 200 },
+    { status: 200, headers: responseHeaders },
   );
 }

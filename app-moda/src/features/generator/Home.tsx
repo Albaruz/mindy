@@ -20,7 +20,6 @@ import { ZeroState } from "./ZeroState";
 import { StyleStep } from "./StyleStep";
 import { LookShowcase, ShowcaseEmptyState } from "./LookShowcase";
 import { InsufficientStyleEmpty } from "./InsufficientStyleEmpty";
-import { OutfitCelebrationScreen } from "./OutfitCelebrationScreen";
 import styles from "./Home.module.scss";
 
 // Swiper carousels are heavy: split them so the zero state stays instant.
@@ -35,6 +34,20 @@ const ManualCarousels = dynamic(
   {
     ssr: false,
     loading: () => <ManualCarouselsLoading />,
+  },
+);
+
+// Celebration screen (framer-motion + lottie) only shows after wearing a look.
+function CelebrationLoading() {
+  const t = useTranslations("Generator");
+  return <SmartSkeleton label={t("celebrationLoading")} variant="brand" />;
+}
+
+const OutfitCelebrationScreen = dynamic(
+  () => import("./OutfitCelebrationScreen").then((mod) => mod.OutfitCelebrationScreen),
+  {
+    ssr: false,
+    loading: () => <CelebrationLoading />,
   },
 );
 

@@ -9,6 +9,7 @@ import {
   AI_MAX_TOKENS,
   AI_RESPONSE_FORMAT,
 } from "@/constants/ai";
+import { logger } from "@/lib/logger";
 
 // groq-sdk is already a dependency (see package.json). Install only if
 // missing: npm install groq-sdk / pnpm add groq-sdk.
@@ -119,6 +120,7 @@ export async function generateOutfitRecommendation(
   let lastError: unknown = null;
   for (let attempt = 1; attempt <= AI_MAX_ATTEMPTS; attempt += 1) {
     try {
+      const startTime = Date.now();
       const response = await getClient().chat.completions.create(
         {
           model: AI_MODEL,
@@ -132,6 +134,8 @@ export async function generateOutfitRecommendation(
         },
         { timeout: AI_TIMEOUT_MS },
       );
+      const durationMs = Date.now() - startTime;
+      logger.externalCall('groq', 'chat.completions', durationMs, true, { model: AI_MODEL, attempt });
 
       const content = response.choices[0]?.message?.content;
       if (!content) {
@@ -141,9 +145,12 @@ export async function generateOutfitRecommendation(
     } catch (error) {
       lastError = error;
       if (attempt === AI_MAX_ATTEMPTS || !isRetryable(error)) {
+        logger.error('Groq call failed after retries', { model: AI_MODEL, attempt, error, maxAttempts: AI_MAX_ATTEMPTS });
         throw error;
       }
-      await delay(getRetryDelayMs(error, attempt));
+      const retryDelay = getRetryDelayMs(error, attempt);
+      logger.warn(`Groq call failed, retrying in ${retryDelay}ms`, { model: AI_MODEL, attempt, error, retryDelay });
+      await delay(retryDelay);
     }
   }
   throw lastError;

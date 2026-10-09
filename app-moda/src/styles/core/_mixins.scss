@@ -54,12 +54,12 @@ $breakpoints: (
   'lg': 64rem,
   'xl': 80rem,
   '2xl': 96rem,
-) !global;
+);
 
 @mixin respond-to($breakpoint) {
-  $value: map-get($breakpoints, $breakpoint);
+  $value: map.get($breakpoints, $breakpoint);
   @if $value == null {
-    @warn "Unknown breakpoint: #{$breakpoint}. Available: #{map-keys($breakpoints)}";
+    @warn "Unknown breakpoint: #{$breakpoint}. Available: #{map.keys($breakpoints)}";
   } @else {
     @media (min-width: #{$value}) {
       @content;
@@ -69,7 +69,7 @@ $breakpoints: (
 
 // Max-width queries (less common, but useful)
 @mixin respond-until($breakpoint) {
-  $value: map-get($breakpoints, $breakpoint);
+  $value: map.get($breakpoints, $breakpoint);
   @if $value == null {
     @warn "Unknown breakpoint: #{$breakpoint}";
   } @else {
@@ -81,8 +81,8 @@ $breakpoints: (
 
 // Between two breakpoints
 @mixin respond-between($min, $max) {
-  $min-val: map-get($breakpoints, $min);
-  $max-val: map-get($breakpoints, $max);
+  $min-val: map.get($breakpoints, $min);
+  $max-val: map.get($breakpoints, $max);
   @if $min-val == null or $max-val == null {
     @warn "Unknown breakpoint in respond-between";
   } @else {
@@ -315,7 +315,7 @@ $breakpoints: (
     'xl': var(--shadow-xl),
     '2xl': var(--shadow-2xl),
   );
-  box-shadow: map-get($shadows, $level);
+  box-shadow: map.get($shadows, $level);
 }
 
 // Divider line

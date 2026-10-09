@@ -22,6 +22,11 @@ const withPWA = require("next-pwa")({
   ],
 });
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // next-pwa only contributes `webpack` config (production builds run
@@ -55,13 +60,13 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+              `script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net blob:${isDev ? " 'unsafe-eval'" : ""}`,
               "style-src 'self' 'unsafe-inline'",
               // Garment photos can live on third-party hosts (external
               // catalog imports), so images allow any HTTPS origin.
               // <img> sends no credentials cross-origin by default.
               "img-src 'self' data: blob: https:",
-              "connect-src 'self' https://*.supabase.co",
+              "connect-src 'self' https://*.supabase.co https://cdn.jsdelivr.net https://staticimgly.com blob:",
               "font-src 'self' data:",
               "object-src 'none'",
               "base-uri 'self'",
@@ -75,4 +80,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withPWA(withNextIntl(nextConfig));
+module.exports = withPWA(withNextIntl(withBundleAnalyzer(nextConfig)));

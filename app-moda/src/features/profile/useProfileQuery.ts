@@ -7,6 +7,23 @@ import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 
 export const PROFILE_QUERY_KEY = QUERY_KEYS.profile;
 
+// Columns used by the app (mirrors ProfileRow). Avoid select("*") to reduce payload.
+const PROFILE_COLUMNS = `
+  user_id,
+  skin_tone,
+  eye_color,
+  hair_color,
+  chest_measurement_cm,
+  waist_measurement_cm,
+  hip_measurement_cm,
+  colorimetry,
+  morphology,
+  preferred_fit,
+  lifestyle,
+  extra_preferences,
+  created_at
+`.trim();
+
 async function fetchProfile(): Promise<UserProfile | null> {
   const supabase = createClient();
   const {
@@ -18,7 +35,7 @@ async function fetchProfile(): Promise<UserProfile | null> {
 
   const { data, error } = await supabase
     .from(TABLES.profiles)
-    .select("*")
+    .select(PROFILE_COLUMNS)
     .eq(USER_ID_COLUMN, user.id)
     .maybeSingle();
   if (error) {
@@ -34,5 +51,8 @@ export function useProfileQuery() {
   return useQuery({
     queryKey: PROFILE_QUERY_KEY,
     queryFn: fetchProfile,
+    staleTime: 5 * 60 * 1000,   // 5 min: profile rarely changes
+    gcTime: 10 * 60 * 1000,     // 10 min: keep cache
+    refetchOnWindowFocus: false,
   });
 }

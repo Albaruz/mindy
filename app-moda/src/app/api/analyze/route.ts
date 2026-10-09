@@ -22,6 +22,7 @@ import {
   GARMENT_STYLE_VALUES,
   GARMENT_TYPE_VALUES,
 } from "@/types/garment";
+import { logger, generateRequestId } from "@/lib/logger";
 
 function readClosedText(
   value: unknown,
@@ -52,6 +53,9 @@ function readText(value: unknown, maxLength = 60): string | null {
 // POST /api/analyze — Body: { imageBase64: "data:image/png;base64,..." }
 // Without GROQ_API_KEY the client falls back to manual tagging.
 export async function POST(req: Request) {
+  const requestId = generateRequestId();
+  const startTime = Date.now();
+
   // Paid upstream (Groq vision): require an authenticated session before
   // any parsing or billing-relevant work.
   const supabase = await createClient();
@@ -59,13 +63,17 @@ export async function POST(req: Request) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
+    logger.requestComplete('analyze', requestId, 401, Date.now() - startTime);
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  logger.requestStart('analyze', requestId, user.id);
 
   // Vision calls are billed per image: cap uploads per user.
   const { key, limit, windowMs } = RATE_LIMITS.analyze;
   const quota = checkRateLimit(`${key}:${user.id}`, limit, windowMs);
   if (quota.limited) {
+    logger.warn('Rate limit exceeded', { route: 'analyze', requestId, userId: user.id, retryAfterSec: quota.retryAfterSec });
     return NextResponse.json(
       { error: "Too many requests. Try again later." },
       {
@@ -77,6 +85,7 @@ export async function POST(req: Request) {
 
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
+    logger.error('GROQ_API_KEY not configured', { route: 'analyze', requestId });
     return NextResponse.json(
       { skipped: true, category: null, garmentType: null, color: null },
       { status: 503 },
@@ -110,6 +119,7 @@ export async function POST(req: Request) {
   try {
     const groq = new Groq({ apiKey });
     const { systemPrompt } = buildAnalysisPrompt();
+    const groqStart = Date.now();
     const response = await groq.chat.completions.create(
       {
         model: AI_VISION_MODEL,
@@ -128,9 +138,11 @@ export async function POST(req: Request) {
       },
       { timeout: VISION_TIMEOUT_MS },
     );
+    logger.externalCall('groq', 'vision', Date.now() - groqStart, true, { route: 'analyze', requestId, userId: user.id, model: AI_VISION_MODEL });
 
     const content = response.choices[0]?.message?.content;
     if (!content) {
+      logger.error('Groq returned empty content', { route: 'analyze', requestId, userId: user.id });
       return NextResponse.json(
         { error: "Vision processing failed." },
         { status: 502 },
@@ -138,12 +150,15 @@ export async function POST(req: Request) {
     }
     const parsed: unknown = JSON.parse(content);
     if (typeof parsed !== "object" || parsed === null) {
+      logger.error('Groq returned invalid JSON', { route: 'analyze', requestId, userId: user.id });
       return NextResponse.json(
         { error: "Vision processing failed." },
         { status: 502 },
       );
     }
     const record = parsed as Record<string, unknown>;
+    const durationMs = Date.now() - startTime;
+    logger.requestComplete('analyze', requestId, 200, durationMs, { userId: user.id, model: AI_VISION_MODEL });
     return NextResponse.json({
       skipped: false,
       category: readClosedText(record.category, GARMENT_TYPE_VALUES),
@@ -161,7 +176,9 @@ export async function POST(req: Request) {
       cutLength: readClosedText(record.cutLength, GARMENT_CUT_VALUES),
       typeDetail: readText(record.typeDetail ?? record.specificType, 60),
     });
-  } catch {
+  } catch (error) {
+    const durationMs = Date.now() - startTime;
+    logger.error('Vision processing failed', { route: 'analyze', requestId, userId: user.id, error, durationMs });
     return NextResponse.json(
       { error: "Vision processing failed." },
       { status: 502 },

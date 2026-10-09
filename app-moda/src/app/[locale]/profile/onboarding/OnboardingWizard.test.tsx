@@ -172,6 +172,9 @@ describe("OnboardingWizard", () => {
     render(
       <OnboardingWizard
         initialProfile={{
+          userId: "test-user-id",
+          hairColor: "brown",
+          createdAt: new Date().toISOString(),
           skinTone: "medium",
           eyeColor: "brown",
           chestMeasurementCm: 92,

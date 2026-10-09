@@ -82,7 +82,7 @@ describe("generateOutfitRecommendation", () => {
       429,
       {},
       "rate limited, try again in 0s",
-      {},
+      new Headers(),
     );
     mockCreate
       .mockRejectedValueOnce(rateLimit)
