@@ -1,0 +1,151 @@
+// Global Element Styles
+// Base styles for common HTML elements that don't belong in a component.
+// Uses semantic aliases from _variables.scss.
+
+@use '../core/variables' as *;
+@use '../core/mixins' as *;
+
+// --- Main content area ---
+main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-4) calc(var(--tabbar-height) + var(--space-10));
+}
+
+// --- Section / Article / Aside ---
+section,
+article,
+aside {
+  display: block;
+}
+
+// --- Figure / Figcaption ---
+figure {
+  margin: 0;
+}
+
+figcaption {
+  @include text-caption;
+  text-align: center;
+  margin-top: var(--space-2);
+}
+
+// --- Dialog (native) ---
+dialog {
+  border: none;
+  border-radius: var(--dialog-radius);
+  box-shadow: var(--dialog-shadow);
+  background: var(--dialog-bg);
+  max-width: var(--dialog-max-width);
+  width: calc(100% - var(--space-8));
+  padding: 0;
+
+  &::backdrop {
+    background: var(--dialog-overlay);
+    backdrop-filter: blur(4px);
+  }
+
+  &[open] {
+    animation: fade-in var(--duration-normal) var(--ease-out);
+  }
+}
+
+// --- Details / Summary ---
+details {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+
+  summary {
+    padding: var(--space-3) var(--space-4);
+    cursor: pointer;
+    font-weight: var(--font-weight-semibold);
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+  }
+
+  &[open] summary {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  > *:last-child {
+    padding: var(--space-4);
+  }
+}
+
+// --- Fieldset / Legend ---
+fieldset {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin: var(--space-4) 0;
+
+  legend {
+    padding: 0 var(--space-2);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-foreground);
+  }
+}
+
+// --- Meter / Progress ---
+meter,
+progress {
+  width: 100%;
+  height: 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-border);
+}
+
+meter::-webkit-meter-optimum-value,
+progress::-webkit-progress-value {
+  background: var(--color-accent);
+  border-radius: var(--radius-pill);
+}
+
+// --- Select ---
+select {
+  @include input-base;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  padding-right: var(--space-10);
+}
+
+// --- Textarea ---
+textarea {
+  @include input-base;
+  min-height: 8rem;
+  resize: vertical;
+}
+
+// --- Label ---
+label {
+  @include label-base;
+}
+
+// --- Input group (label + input + error) ---
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+
+  &--error input,
+  &--error select,
+  &--error textarea {
+    border-color: var(--error-color);
+  }
+}
+
+.field__error {
+  @include error-text;
+}
+
+.field__helper {
+  @include text-caption;
+}

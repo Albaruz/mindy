@@ -1,0 +1,93 @@
+// Layout: Main Content Area
+// Global main wrapper with responsive padding and max-width.
+
+@use '../core/variables' as *;
+@use '../core/mixins' as *;
+
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-4) calc(var(--tabbar-height) + var(--space-10));
+  box-sizing: border-box;
+}
+
+// Page wrapper for pages that need full-width backgrounds but centered content
+.page {
+  width: 100%;
+  min-height: 100%;
+
+  &__content {
+    @extend .main;
+  }
+}
+
+// Container utility for centered content with optional max-width override
+.container {
+  width: 100%;
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+  box-sizing: border-box;
+
+  &--narrow {
+    max-width: 36rem;
+  }
+
+  &--wide {
+    max-width: 64rem;
+  }
+
+  &--full {
+    max-width: none;
+    padding: 0;
+  }
+}
+
+// Section spacing
+.section {
+  padding: var(--space-10) 0;
+
+  &--compact {
+    padding: var(--space-6) 0;
+  }
+
+  &--spacious {
+    padding: var(--space-16) 0;
+  }
+
+  &:first-child {
+    padding-top: var(--space-6);
+  }
+
+  &:last-child {
+    padding-bottom: calc(var(--tabbar-height) + var(--space-10));
+  }
+}
+
+// Grid layouts
+.grid {
+  display: grid;
+  gap: var(--space-4);
+
+  &--2 { grid-template-columns: repeat(2, 1fr); }
+  &--3 { grid-template-columns: repeat(3, 1fr); }
+  &--4 { grid-template-columns: repeat(4, 1fr); }
+
+  @include respond-until('md') {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Flex layouts
+.flex {
+  display: flex;
+  gap: var(--space-4);
+
+  &--column { flex-direction: column; }
+  &--center { align-items: center; justify-content: center; }
+  &--between { align-items: center; justify-content: space-between; }
+  &--wrap { flex-wrap: wrap; }
+  &--1 { flex: 1; }
+}

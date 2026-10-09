@@ -24,10 +24,6 @@ const INDICATOR_SPRING = {
   damping: 30,
 } as const;
 
-// Floating segmented control in the sticky header, next to the logo.
-// Active tab is derived from the pathname during render (no duplicated state).
-// The terracotta pill is a single motion element shared via layoutId, so
-// framer-motion interpolates its position/size between tabs instead of snapping.
 export function TopNavigation() {
   const t = useTranslations("Navigation");
   const ta = useTranslations("Accessibility");
@@ -53,33 +49,40 @@ export function TopNavigation() {
       <nav
         ref={navRef}
         aria-label={ta("mainNavigation")}
-        className={styles.pill}
+        className={styles.navigation}
       >
-        {TABS.map(({ segment, labelKey, Icon }) => {
-          const href = `/${segment}`;
-          const active = activeSegment === segment;
-          return (
-            <Link
-              key={segment}
-              href={href}
-              aria-current={active ? "page" : undefined}
-              className={cn(styles.segment, active && styles["is-active"])}
-            >
-              {active ? (
-                <motion.span
-                  layoutId="activeTabIndicator"
-                  aria-hidden="true"
-                  className={styles.indicator}
-                  transition={INDICATOR_SPRING}
-                />
-              ) : null}
-              <span className={styles.content}>
-                <Icon aria-hidden="true" size={18} />
-                <span className={styles.label}>{t(labelKey)}</span>
-              </span>
-            </Link>
-          );
-        })}
+        <ul className={styles["navigation__list"]} role="tablist">
+          {TABS.map(({ segment, labelKey, Icon }) => {
+            const href = `/${segment}`;
+            const active = activeSegment === segment;
+            return (
+              <li key={segment} className={styles["navigation__item"]} role="presentation">
+                <Link
+                  href={href}
+                  aria-current={active ? "page" : undefined}
+                  role="tab"
+                  className={cn(
+                    styles["navigation__link"],
+                    active && styles["navigation__item--active"]
+                  )}
+                >
+                  {active && (
+                    <motion.span
+                      layoutId="activeTabIndicator"
+                      aria-hidden="true"
+                      className={styles["navigation__indicator"]}
+                      transition={INDICATOR_SPRING}
+                    />
+                  )}
+                  <span className={styles["navigation__content"]}>
+                    <Icon aria-hidden="true" size={18} className={styles["navigation__icon"]} />
+                    <span className={styles["navigation__label"]}>{t(labelKey)}</span>
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </nav>
     </MotionConfig>
   );

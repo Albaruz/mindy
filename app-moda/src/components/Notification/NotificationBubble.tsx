@@ -23,8 +23,10 @@ interface NotificationBubbleProps {
   message: string;
 }
 
-// Floating pill for a single toast. Plays the enter keyframes on mount and
-// fades out just before the store removes it.
+/**
+ * Floating pill for a single toast. Plays the enter keyframes on mount and
+ * fades out just before the store removes it.
+ */
 export function NotificationBubble({ type, message }: NotificationBubbleProps) {
   const [isLeaving, setIsLeaving] = useState(false);
 
@@ -41,10 +43,14 @@ export function NotificationBubble({ type, message }: NotificationBubbleProps) {
   return (
     <div
       role={type === "error" ? "alert" : "status"}
-      className={cn(styles.bubble, styles[type], isLeaving && styles.leaving)}
+      className={cn(
+        styles.notification,
+        styles[`notification--${type}`],
+        isLeaving && styles["notification--exiting"]
+      )}
     >
-      <Icon aria-hidden="true" size={20} className={styles.icon} />
-      <p className={styles.message}>{message}</p>
+      <Icon aria-hidden="true" size={20} className={styles["notification__icon"]} />
+      <p className={styles["notification__message"]}>{message}</p>
     </div>
   );
 }

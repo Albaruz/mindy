@@ -1,6 +1,16 @@
 // Profile & Onboarding Constants
 // Centralized constants for user profile, onboarding wizard, and colorimetry.
-// Single source of truth for enums, swatches, palettes, and inference logic.
+// Single source of truth for enums, inference logic.
+// Color swatches/palettes are now in src/styles/core/_tokens.scss as CSS custom properties:
+// --skin-fair, --skin-light, --skin-medium, --skin-olive, --skin-brown, --skin-deep
+// --eye-brown, --eye-hazel, --eye-green, --eye-blue, --eye-gray, --eye-black
+// --hair-black, --hair-brown, --hair-blonde, --hair-red, --hair-gray, --hair-white
+// --season-spring-1..5, --season-summer-1..5, --season-autumn-1..5, --season-winter-1..5
+//
+// NOTE: The swatch objects below are kept for backward compatibility with components
+// that need actual color values at build time (e.g., ColorSwatches inline styles).
+// They MUST be kept in sync with the CSS custom properties in src/styles/core/_tokens.scss.
+// Consider using the CSS variable helpers (skinToneToCssVar, etc.) for new code.
 
 import type { Colorimetry, Lifestyle, Morphology, PreferredFit } from "@/types/user";
 import type { FitChoice, JewelryPick, StyleTribe } from "./ui-config";
@@ -63,6 +73,7 @@ export type LifestyleValue = (typeof LIFESTYLES)[number];
 
 // ============================================================================
 // Swatches for color pickers (onboarding wizard)
+// Kept for backward compatibility - MUST stay in sync with CSS custom properties in _tokens.scss
 // ============================================================================
 
 export const SKIN_TONE_SWATCHES: Record<SkinTone, string> = {
@@ -95,6 +106,7 @@ export const HAIR_COLOR_SWATCHES: Record<HairColor, string> = {
 // ============================================================================
 // Seasonal Colorimetry Palettes (5 swatches per season)
 // Used in colorimetry bento card on Profile page.
+// MUST stay in sync with CSS custom properties in _tokens.scss
 // ============================================================================
 
 export const SEASON_PALETTES: Record<Colorimetry, readonly string[]> = {
@@ -103,6 +115,50 @@ export const SEASON_PALETTES: Record<Colorimetry, readonly string[]> = {
   autumn: ["#c87966", "#a65a3a", "#d9a441", "#6b7f3e", "#5a3b2e"],
   winter: ["#1f2937", "#b3261e", "#1d4ed8", "#e8e8e8", "#0f766e"],
 };
+
+// ============================================================================
+// Color Swatch Access Helpers
+// CSS Custom Properties are the single source of truth for colors.
+// Use these helpers to get the CSS variable name for a given enum value.
+// ============================================================================
+
+/** Maps SkinTone enum to CSS custom property name (e.g., 'fair' -> '--skin-fair') */
+export function skinToneToCssVar(skinTone: SkinTone): string {
+  return `--skin-${skinTone}`;
+}
+
+/** Maps EyeColor enum to CSS custom property name (e.g., 'brown' -> '--eye-brown') */
+export function eyeColorToCssVar(eyeColor: EyeColor): string {
+  return `--eye-${eyeColor}`;
+}
+
+/** Maps HairColor enum to CSS custom property name (e.g., 'black' -> '--hair-black') */
+export function hairColorToCssVar(hairColor: HairColor): string {
+  return `--hair-${hairColor}`;
+}
+
+/** Maps Colorimetry season to array of CSS custom property names for the 5 swatches */
+export function seasonToCssVars(season: Colorimetry): readonly string[] {
+  return [
+    `--season-${season}-1`,
+    `--season-${season}-2`,
+    `--season-${season}-3`,
+    `--season-${season}-4`,
+    `--season-${season}-5`,
+  ] as const;
+}
+
+/** Gets computed color value from CSS custom property (client-side only) */
+export function getColorFromCssVar(varName: string): string {
+  if (typeof window === "undefined") return "";
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+}
+
+/** Gets all 5 season swatches as computed colors (client-side only) */
+export function getSeasonSwatches(season: Colorimetry): string[] {
+  if (typeof window === "undefined") return [];
+  return seasonToCssVars(season).map(getColorFromCssVar);
+}
 
 // ============================================================================
 // Onboarding Inference Logic (pure functions)

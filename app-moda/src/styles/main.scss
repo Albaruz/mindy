@@ -1,0 +1,64 @@
+// Main Stylesheet Manifest
+// Import order matters: tokens → variables → mixins → animations → base → layout → components
+// Each layer builds on the previous. Component files import this via @use 'styles/main' as *;
+// or import specific partials directly for tree-shaking.
+
+// =============================================================================
+// 1. DESIGN TOKENS (raw values as CSS custom properties)
+// =============================================================================
+@use 'core/tokens';
+
+// =============================================================================
+// 2. SEMANTIC ALIASES (component-level mappings, dark mode)
+// =============================================================================
+@use 'core/variables';
+
+// =============================================================================
+// 3. MIXINS & HELPERS (BEM, responsive, a11y, layout)
+// =============================================================================
+@use 'core/mixins' as *;
+
+// =============================================================================
+// 4. ANIMATIONS (keyframes, animation mixins)
+// =============================================================================
+@use 'core/animations';
+
+// =============================================================================
+// 5. BASE STYLES (reset, typography, global element styles)
+// =============================================================================
+@use 'base/reset';
+@use 'base/typography';
+@use 'base/global';
+
+// =============================================================================
+// 6. LAYOUT (header, main, footer, skip-link)
+// =============================================================================
+@use 'layout/header';
+@use 'layout/main';
+@use 'layout/skip-link';
+
+// =============================================================================
+// 7. COMPONENTS (shared UI kit components)
+// =============================================================================
+@use 'components/button';
+@use 'components/card';
+@use 'components/dialog';
+@use 'components/form';
+@use 'components/navigation';
+@use 'components/empty-state';
+@use 'components/page-header';
+@use 'components/action-bar';
+@use 'components/notification';
+@use 'components/icon-button';
+@use 'components/avatar';
+@use 'components/badge';
+@use 'components/separator';
+@use 'components/tooltip';
+@use 'components/dropdown';
+
+// =============================================================================
+// 8. UTILITIES (generated utility classes if needed)
+// =============================================================================
+// @use 'utilities/spacing';
+// @use 'utilities/color';
+// @use 'utilities/display';

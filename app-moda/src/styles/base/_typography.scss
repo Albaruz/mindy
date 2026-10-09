@@ -1,0 +1,140 @@
+// Global Typography
+// Base heading and text styles. Components should use mixins from _mixins.scss
+// for consistent scaling. These are fallbacks for raw HTML elements.
+
+@use '../core/variables' as *;
+@use '../core/mixins' as *;
+
+// --- Headings (editorial: Playfair Display) ---
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-black);
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: var(--line-height-tight);
+  color: var(--color-clay);
+  text-wrap: balance;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) h1,
+  :root:not([data-theme="light"]) h2,
+  :root:not([data-theme="light"]) h3,
+  :root:not([data-theme="light"]) h4,
+  :root:not([data-theme="light"]) h5,
+  :root:not([data-theme="light"]) h6 {
+    color: var(--color-auth-text);
+  }
+}
+
+:root[data-theme="dark"] h1,
+:root[data-theme="dark"] h2,
+:root[data-theme="dark"] h3,
+:root[data-theme="dark"] h4,
+:root[data-theme="dark"] h5,
+:root[data-theme="dark"] h6 {
+  color: var(--color-auth-text);
+}
+
+// Heading scale
+h1 { font-size: var(--font-size-4xl); }
+h2 { font-size: var(--font-size-2xl); }
+h3 { font-size: var(--font-size-xl); }
+h4 { font-size: var(--font-size-lg); }
+h5 { font-size: var(--font-size-md); }
+h6 { font-size: var(--font-size-base); }
+
+// --- Body text ---
+p {
+  margin-bottom: var(--space-4);
+  text-wrap: pretty;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+// Lead paragraph
+.lead {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-muted);
+}
+
+// Small text
+small {
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-base);
+  color: var(--color-muted);
+}
+
+// --- Links ---
+a {
+  text-underline-offset: 2px;
+  transition: color var(--duration-fast);
+
+  &:hover {
+    color: var(--color-accent);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+    border-radius: 2px;
+  }
+}
+
+// --- Code / Pre ---
+code,
+pre {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-base);
+}
+
+code {
+  padding: 0.125rem 0.375rem;
+  background: var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+pre {
+  padding: var(--space-4);
+  overflow-x: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  code {
+    padding: 0;
+    background: transparent;
+    font-size: inherit;
+  }
+}
+
+// --- Blockquote ---
+blockquote {
+  margin: var(--space-6) 0;
+  padding: var(--space-4) var(--space-6);
+  border-left: 4px solid var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  font-style: italic;
+  color: var(--color-foreground);
+}
+
+// --- Horizontal rule ---
+hr {
+  margin: var(--space-8) 0;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+// --- Address ---
+address {
+  font-style: normal;
+  color: var(--color-muted);
+}

@@ -1,22 +1,472 @@
-// Shared mixins (mobile-first media queries).
+// Shared Mixins — BEM utilities, responsive, accessibility, layout helpers
+// All values reference tokens from _tokens.scss via CSS custom properties.
 
-$breakpoint-tablet: 48rem; // 768px
-$breakpoint-desktop: 64rem; // 1024px
+@use 'tokens' as *;
+@use 'sass:map';
 
-@mixin tablet-up {
-  @media (min-width: $breakpoint-tablet) {
+// =============================================================================
+// BEM HELPERS
+// =============================================================================
+
+// Block: standalone component root
+@mixin block($name) {
+  .#{$name} {
     @content;
   }
 }
 
-@mixin desktop-up {
-  @media (min-width: $breakpoint-desktop) {
+// Element: part of a block
+@mixin element($name) {
+  &__#{$name} {
     @content;
   }
 }
 
-// Minimum accessible touch target (44x44px).
-@mixin touch-target {
-  min-width: 2.75rem;
-  min-height: 2.75rem;
+// Modifier: variant of block or element
+@mixin modifier($name) {
+  &--#{$name} {
+    @content;
+  }
+}
+
+// State modifier (hover, focus, active, disabled, etc.)
+@mixin state($state) {
+  &:#{$state} {
+    @content;
+  }
+}
+
+// Combined: element with modifier
+@mixin element-modifier($element, $modifier) {
+  &__#{$element}--#{$modifier} {
+    @content;
+  }
+}
+
+// =============================================================================
+// RESPONSIVE BREAKPOINTS (mobile-first)
+// =============================================================================
+
+$breakpoints: (
+  'sm': var(--breakpoint-sm),
+  'md': var(--breakpoint-md),
+  'lg': var(--breakpoint-lg),
+  'xl': var(--breakpoint-xl),
+  '2xl': var(--breakpoint-2xl),
+) !global;
+
+@mixin respond-to($breakpoint) {
+  $value: map-get($breakpoints, $breakpoint);
+  @if $value == null {
+    @warn "Unknown breakpoint: #{$breakpoint}. Available: #{map-keys($breakpoints)}";
+  } @else {
+    @media (min-width: #{$value}) {
+      @content;
+    }
+  }
+}
+
+// Max-width queries (less common, but useful)
+@mixin respond-until($breakpoint) {
+  $value: map-get($breakpoints, $breakpoint);
+  @if $value == null {
+    @warn "Unknown breakpoint: #{$breakpoint}";
+  } @else {
+    @media (max-width: #{$value - 0.01rem}) {
+      @content;
+    }
+  }
+}
+
+// Between two breakpoints
+@mixin respond-between($min, $max) {
+  $min-val: map-get($breakpoints, $min);
+  $max-val: map-get($breakpoints, $max);
+  @if $min-val == null or $max-val == null {
+    @warn "Unknown breakpoint in respond-between";
+  } @else {
+    @media (min-width: #{$min-val}) and (max-width: #{$max-val - 0.01rem}) {
+      @content;
+    }
+  }
+}
+
+// Container queries (modern, prefer when component owns its layout)
+@mixin container($name: 'main') {
+  @container #{$name} (min-width: 0) {
+    @content;
+  }
+}
+
+// =============================================================================
+// LAYOUT HELPERS
+// =============================================================================
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-start {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-column-center {
+  @include flex-column;
+  align-items: center;
+}
+
+@mixin grid($columns, $gap: var(--space-4), $min-col-width: 0) {
+  display: grid;
+  grid-template-columns: repeat(#{$columns}, minmax(#{$min-col-width}, 1fr));
+  gap: #{$gap};
+}
+
+@mixin grid-auto($min-col-width, $gap: var(--space-4)) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(#{$min-col-width}, 1fr));
+  gap: #{$gap};
+}
+
+// Absolute centering
+@mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin absolute-fill {
+  position: absolute;
+  inset: 0;
+}
+
+@mixin absolute-top($offset: 0) {
+  position: absolute;
+  top: #{$offset};
+  left: 0;
+  right: 0;
+}
+
+@mixin absolute-bottom($offset: 0) {
+  position: absolute;
+  bottom: #{$offset};
+  left: 0;
+  right: 0;
+}
+
+// =============================================================================
+// TYPOGRAPHY HELPERS
+// =============================================================================
+
+@mixin text-display($size: var(--font-size-4xl), $weight: var(--font-weight-black), $line-height: var(--line-height-tight), $letter-spacing: var(--letter-spacing-tight)) {
+  font-family: var(--font-family-display);
+  font-size: #{$size};
+  font-weight: #{$weight};
+  line-height: #{$line-height};
+  letter-spacing: #{$letter-spacing};
+  text-wrap: balance;
+}
+
+@mixin text-heading($size: var(--font-size-2xl), $weight: var(--font-weight-bold), $line-height: var(--line-height-tight)) {
+  font-family: var(--font-family-display);
+  font-size: #{$size};
+  font-weight: #{$weight};
+  line-height: #{$line-height};
+  letter-spacing: var(--letter-spacing-tight);
+  text-wrap: balance;
+}
+
+@mixin text-body($size: var(--font-size-base), $weight: var(--font-weight-normal), $line-height: var(--line-height-base)) {
+  font-family: var(--font-family-base);
+  font-size: #{$size};
+  font-weight: #{$weight};
+  line-height: #{$line-height};
+}
+
+@mixin text-label($size: var(--font-size-sm), $weight: var(--font-weight-semibold)) {
+  font-family: var(--font-family-base);
+  font-size: #{$size};
+  font-weight: #{$weight};
+  line-height: var(--line-height-base);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+@mixin text-caption($size: var(--font-size-xs), $weight: var(--font-weight-normal), $color: var(--color-muted)) {
+  font-family: var(--font-family-base);
+  font-size: #{$size};
+  font-weight: #{$weight};
+  line-height: var(--line-height-base);
+  color: #{$color};
+}
+
+@mixin text-mono($size: var(--font-size-sm)) {
+  font-family: var(--font-family-mono);
+  font-size: #{$size};
+  line-height: var(--line-height-base);
+}
+
+// Truncation
+@mixin truncate($lines: 1) {
+  @if $lines == 1 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  } @else {
+    display: -webkit-box;
+    -webkit-line-clamp: $lines;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+// =============================================================================
+// ACCESSIBILITY
+// =============================================================================
+
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@mixin focus-ring($color: var(--focus-ring-color), $width: var(--focus-ring-width), $offset: var(--focus-ring-offset)) {
+  &:focus-visible {
+    outline: #{$width} solid #{$color};
+    outline-offset: #{$offset};
+  }
+}
+
+@mixin focus-ring-inset($color: var(--focus-ring-color), $width: var(--focus-ring-width)) {
+  &:focus-visible {
+    outline: #{$width} solid #{$color};
+    outline-offset: calc(#{$width} * -1);
+  }
+}
+
+// Skip link pattern
+@mixin skip-link {
+  position: absolute;
+  left: var(--space-4);
+  top: -100%;
+  z-index: var(--z-toast);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+  transition: top var(--duration-fast) var(--ease-out);
+
+  &:focus-visible {
+    top: var(--space-4);
+  }
+}
+
+// Touch target enforcement
+@mixin touch-target($min-size: var(--touch-target-min)) {
+  min-width: #{$min-size};
+  min-height: #{$min-size};
+}
+
+@mixin touch-target-comfortable {
+  @include touch-target(var(--touch-target-comfortable));
+}
+
+// =============================================================================
+// VISUAL HELPERS
+// =============================================================================
+
+// Glassmorphism / backdrop blur
+@mixin glass($bg-opacity: 0.88, $blur: 12px) {
+  background: color-mix(in srgb, var(--color-background) #{$bg-opacity * 100%}, transparent);
+  backdrop-filter: blur(#{$blur});
+  -webkit-backdrop-filter: blur(#{$blur});
+}
+
+// Elevated surface (cards, dialogs)
+@mixin elevated($level: 'md') {
+  $shadows: (
+    'xs': var(--shadow-xs),
+    'sm': var(--shadow-sm),
+    'md': var(--shadow-md),
+    'lg': var(--shadow-lg),
+    'xl': var(--shadow-xl),
+    '2xl': var(--shadow-2xl),
+  );
+  box-shadow: map-get($shadows, $level);
+}
+
+// Divider line
+@mixin divider($color: var(--color-border), $width: 1px, $style: solid) {
+  border-bottom: #{$width} #{$style} #{$color};
+}
+
+// Gradient text
+@mixin gradient-text($gradient) {
+  background: #{$gradient};
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+// =============================================================================
+// INTERACTION STATES
+// =============================================================================
+
+@mixin interactive($hover-scale: 1.02, $active-scale: 0.98) {
+  transition: transform var(--duration-fast) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    transform: scale(#{$hover-scale});
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(#{$active-scale});
+    transition-duration: var(--duration-instant);
+  }
+}
+
+@mixin interactive-opacity($hover-opacity: 0.8, $active-opacity: 0.6) {
+  transition: opacity var(--duration-fast) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    opacity: #{$hover-opacity};
+  }
+
+  &:active:not(:disabled) {
+    opacity: #{$active-opacity};
+    transition-duration: var(--duration-instant);
+  }
+}
+
+// Disabled state (consistent across components)
+// Accepts optional content block for additional styles
+@mixin disabled {
+  &:disabled,
+  &[aria-disabled="true"],
+  &.is-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+    @content;
+  }
+}
+
+// =============================================================================
+// FORM HELPERS
+// =============================================================================
+
+@mixin input-base {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-foreground);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+
+  &::placeholder {
+    color: var(--color-muted);
+  }
+
+  &:hover:not(:disabled):not([readonly]) {
+    border-color: var(--color-muted);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--focus-ring-color);
+    box-shadow: 0 0 0 var(--focus-ring-width) color-mix(in srgb, var(--focus-ring-color) 20%, transparent);
+  }
+
+  @include disabled;
+}
+
+@mixin label-base {
+  display: block;
+  margin-bottom: var(--space-1);
+  @include text-label;
+  color: var(--color-foreground);
+}
+
+@mixin error-text {
+  @include text-caption(var(--font-size-xs), var(--font-weight-medium), var(--color-error));
+}
+
+// =============================================================================
+// SCROLLBAR STYLING
+// =============================================================================
+
+@mixin scrollbar-thin($track: transparent, $thumb: var(--color-border), $hover-thumb: var(--color-muted)) {
+  scrollbar-width: thin;
+  scrollbar-color: #{$thumb} #{$track};
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #{$track};
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #{$thumb};
+    border-radius: var(--radius-pill);
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #{$hover-thumb};
+  }
+}
+
+@mixin scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// =============================================================================
+// PRINT STYLES
+// =============================================================================
+
+@mixin print-only {
+  @media print {
+    @content;
+  }
+}
+
+@mixin screen-only {
+  @media screen {
+    @content;
+  }
 }

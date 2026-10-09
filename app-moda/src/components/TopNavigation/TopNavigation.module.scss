@@ -1,79 +1,109 @@
-@use "../../styles/core/mixins" as *;
+// TopNavigation Component Styles (CSS Module)
+// Uses global design tokens via CSS custom properties.
+// Pure CSS with BEM naming - no @use imports.
 
-// Floating segmented control in the sticky header, next to the logo.
-// Mobile-first: flex row, horizontally scrollable with hidden scrollbar.
-.pill {
+.navigation {
   display: flex;
-  gap: 0.125rem;
+  gap: var(--space-1);
   align-items: center;
   min-width: 0;
   max-width: 100%;
-  padding: 0.25rem;
+  padding: var(--navigation-pill-padding);
   overflow-x: auto;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  box-shadow: 0 4px 16px rgb(0 0 0 / 0.06);
+  background: var(--navigation-bg);
+  border: 1px solid var(--navigation-border);
+  border-radius: var(--navigation-pill-radius);
+  box-shadow: var(--navigation-shadow);
   scrollbar-width: none;
   -ms-overflow-style: none;
   overscroll-behavior-x: contain;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
 }
 
-.segment {
-  @include touch-target;
+.navigation::-webkit-scrollbar {
+  display: none;
+}
+
+.navigation__list {
+  display: flex;
+  gap: var(--space-1);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.navigation__item {
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
   position: relative;
   display: flex;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
   min-height: 2.5rem;
-  padding: 0.375rem 0.625rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   line-height: 1;
-  color: var(--color-tab-inactive, #4a3f39);
+  color: var(--navigation-text-inactive);
   text-decoration: none;
   white-space: nowrap;
-  border-radius: 999px;
-  transition: color 0.18s ease;
-
-  &:focus-visible {
-    outline: 2px solid var(--color-accent, #a2543f);
-    outline-offset: 2px;
-  }
-
-  &.is-active {
-    color: var(--color-oat, #f9f6f0);
-  }
+  border-radius: var(--navigation-item-radius);
+  transition: color var(--duration-fast);
 }
 
-// Sliding terracotta pill shared between tabs via layoutId.
-// Absolutely positioned so it never affects layout; content floats above it.
-.indicator {
+.navigation__item:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  z-index: 1;
+}
+
+.navigation__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+.navigation__icon {
+  display: flex;
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  color: inherit;
+}
+
+.navigation__label {
+  /* Text content */
+}
+
+.navigation__indicator {
   position: absolute;
   inset: 0;
-  background: var(--color-accent, #a2543f);
-  border-radius: 999px;
+  background: var(--navigation-indicator);
+  border-radius: var(--navigation-item-radius);
+  pointer-events: none;
+  z-index: 0;
 }
 
-// Icon + label stay above the sliding pill and never capture layout shifts.
-.content {
+.navigation__content {
   position: relative;
   z-index: 1;
   display: flex;
-  gap: 0.375rem;
   align-items: center;
+  gap: var(--space-2);
   justify-content: center;
 }
 
-// Very small screens: icon-first to avoid breaking the header layout.
-// The pill remains swipeable; labels collapse to icons only.
+/* Modifiers */
+.navigation__item--active {
+  color: var(--navigation-text-active);
+}
+
+/* Very small screens: icon-only */
 @media (max-width: 26rem) {
-  .label {
+  .navigation__label {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -82,13 +112,14 @@
     white-space: nowrap;
   }
 
-  .segment {
-    padding: 0.375rem 0.75rem;
+  .navigation__item {
+    padding: var(--space-1) var(--space-3);
   }
 }
 
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .segment {
+  .navigation__item {
     transition: none;
   }
 }

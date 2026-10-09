@@ -1,75 +1,74 @@
-.bubble {
+// NotificationBubble Component Styles (CSS Module)
+// Uses global design tokens via CSS custom properties.
+// Pure CSS with BEM naming - no @use imports.
+
+.notification {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
+  gap: var(--space-2);
   max-width: min(24rem, calc(100vw - 2rem));
-  padding: 0.625rem 1.125rem;
-  // Warm Refuge pairing: Avena surface with Marron Ceniza text, same as
-  // the auth surfaces (see core variables).
+  padding: var(--space-2) var(--space-4);
   background: var(--color-oat);
   color: var(--color-auth-text);
   border: 1px solid var(--color-border);
-  border-radius: 9999px;
-  box-shadow: 0 0.5rem 1.5rem rgba(74, 63, 57, 0.22);
-  animation: slide-down 0.25s ease-out;
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-lg);
+  animation: toast-enter var(--duration-normal) var(--ease-out);
 }
 
-.leaving {
-  opacity: 0;
-  transform: translateY(-0.5rem);
-}
-
-.message {
-  margin: 0;
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.icon {
+.notification__icon {
   flex-shrink: 0;
-}
-
-.success .icon {
-  // Soft sage green: reads as success while staying in the earthy palette.
-  color: #6f8a5f;
-}
-
-.error {
-  border-color: var(--color-accent);
-}
-
-.error .icon {
-  // Terracota accent marks the failure state.
+  width: 1.25rem;
+  height: 1.25rem;
   color: var(--color-accent);
 }
 
-.info .icon {
-  color: var(--color-tab-inactive);
+.notification__message {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-base);
 }
 
-@keyframes slide-down {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+/* Variants */
+.notification--success .notification__icon {
+  color: var(--color-success);
 }
 
-// The floating bubble keeps its light Warm Refuge look in dark mode too,
-// so pin the text tone: the dark auth-text value would wash out on Avena.
+.notification--error {
+  border-color: var(--color-error);
+  background: color-mix(in srgb, var(--color-error) 8%, var(--color-oat));
+}
+
+.notification--error .notification__icon {
+  color: var(--color-error);
+}
+
+.notification--info .notification__icon {
+  color: var(--color-primary);
+}
+
+/* Exit animation */
+.notification--exiting {
+  animation: toast-exit var(--duration-normal) var(--ease-in) forwards;
+}
+
+/* Dark mode: keep light Warm Refuge look, pin text tone */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .bubble {
-    color: #4a3f39;
+  :root:not([data-theme="light"]) .notification {
+    color: var(--color-clay);
   }
 }
 
-:root[data-theme="dark"] .bubble {
-  color: #4a3f39;
+:root[data-theme="dark"] .notification {
+  color: var(--color-clay);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .notification {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

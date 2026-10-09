@@ -22,9 +22,11 @@ interface ShowcaseCardProps {
   onDiscard: () => void;
 }
 
-// Main look card with lateral swipe physics. Drag right wears the look,
-// drag left discards it (while the rejection budget lasts). The floating
-// bottom action bar stays as the clickable path for both actions.
+/**
+ * Main look card with lateral swipe physics. Drag right wears the look,
+ * drag left discards it (while the rejection budget lasts). The floating
+ * bottom action bar stays as the clickable path for both actions.
+ */
 export function ShowcaseCard({
   look,
   position,
@@ -71,7 +73,7 @@ export function ShowcaseCard({
       key={look.id}
       aria-live="polite"
       aria-label={ta("lookCard", { position, total })}
-      className={styles.card}
+      className={styles.showcaseCard}
       drag={draggable ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
       dragDirectionLock
@@ -80,12 +82,15 @@ export function ShowcaseCard({
       onDragEnd={handleDragEnd}
       style={draggable ? { x, rotate } : undefined}
     >
-      <span aria-hidden="true" className={styles.srHint}>
+      <span aria-hidden="true" className={styles["showcaseCard__srHint"]}>
         {ta("swipeHint")}
       </span>
       <motion.span
         aria-hidden="true"
-        className={cn(styles.overlay, styles.accept)}
+        className={cn(
+          styles["showcaseCard__overlay"],
+          styles["showcaseCard__overlay--accept"]
+        )}
         style={draggable ? { opacity: acceptOpacity } : undefined}
       >
         <Check size={20} />
@@ -93,33 +98,36 @@ export function ShowcaseCard({
       </motion.span>
       <motion.span
         aria-hidden="true"
-        className={cn(styles.overlay, styles.reject)}
+        className={cn(
+          styles["showcaseCard__overlay"],
+          styles["showcaseCard__overlay--reject"]
+        )}
         style={draggable ? { opacity: rejectOpacity } : undefined}
       >
         <X size={20} />
         {t("discard")}
       </motion.span>
-      <div className={styles.grid}>
+      <div className={styles["showcaseCard__grid"]}>
         {look.garments.map((garment) => (
-          <figure key={garment.garmentId} className={styles.item}>
+          <figure key={garment.garmentId} className={styles["showcaseCard__item"]}>
             {garment.imageUrl !== null ? (
               <img
                 src={garment.imageUrl}
                 alt={describeGarment(garment)}
                 loading="lazy"
-                className={styles.image}
+                className={styles["showcaseCard__image"]}
               />
             ) : (
-              <div className={styles.placeholder} aria-hidden="true" />
+              <div className={styles["showcaseCard__placeholder"]} aria-hidden="true" />
             )}
-            <figcaption className={styles.caption}>
+            <figcaption className={styles["showcaseCard__caption"]}>
               {describeGarment(garment)}
             </figcaption>
           </figure>
         ))}
       </div>
       {look.reason !== null && look.reason !== "" ? (
-        <p className={styles.reason}>{look.reason}</p>
+        <p className={styles["showcaseCard__reason"]}>{look.reason}</p>
       ) : null}
     </motion.article>
   );
