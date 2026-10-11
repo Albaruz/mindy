@@ -27,16 +27,6 @@
   flex-shrink: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .app-header__logo {
-    filter: invert(1);
-  }
-}
-
-:root[data-theme="dark"] .app-header__logo {
-  filter: invert(1);
-}
-
 // Navigation container (holds TopNavigation pill)
 .app-header__nav {
   flex: 1;

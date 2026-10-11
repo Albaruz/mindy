@@ -25,16 +25,6 @@
   margin: 0 auto;
 }
 
-@media (prefers-color-scheme: dark) {
-  // Monochrome logo without fill: invert to stay visible on dark background.
-  :root:not([data-theme="light"]) .logo {
-    filter: invert(1);
-  }
-}
-
-:root[data-theme="dark"] .logo {
-  filter: invert(1);
-}
 
 .title {
   margin: 0.5rem 0 0;

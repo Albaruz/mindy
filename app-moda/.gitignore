@@ -50,3 +50,6 @@ e2e/.auth/
 
 # lighthouse CI output
 .lighthouseci/
+
+.vercel
+.env*
