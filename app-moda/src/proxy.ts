@@ -7,6 +7,7 @@ import {
   postAuthDestination,
 } from "@/lib/onboarding";
 import { routing, type AppLocale } from "@/i18n/routing";
+import { resolvePreferredLocale } from "@/lib/negotiateLocale";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
@@ -20,7 +21,7 @@ function isLocaleResponse(response: Response): boolean {
   );
 }
 
-function stripLocale(pathname: string): {
+function stripLocale(pathname: string, request?: NextRequest): {
   locale: AppLocale;
   pathname: string;
 } {
@@ -36,7 +37,22 @@ function stripLocale(pathname: string): {
       pathname: `/${segments.slice(2).join("/")}`,
     };
   }
-  return { locale: routing.defaultLocale, pathname };
+  // Unprefixed paths (auth redirects, landing): default to the system
+  // language (Accept-Language) unless the user already picked one
+  // (NEXT_LOCALE cookie). Never hard-code English here.
+  const cookieValue =
+    typeof request?.cookies?.get === "function"
+      ? request.cookies.get("NEXT_LOCALE")?.value
+      : undefined;
+  const acceptLanguage =
+    typeof request?.headers?.get === "function"
+      ? request.headers.get("accept-language")
+      : null;
+  const locale =
+    request !== undefined
+      ? resolvePreferredLocale({ cookieValue, acceptLanguage })
+      : routing.defaultLocale;
+  return { locale, pathname };
 }
 
 // Composed proxy: locale negotiation first (Accept-Language default,
@@ -46,15 +62,35 @@ function stripLocale(pathname: string): {
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  let intlPassthrough: Response | null = null;
   if (!pathname.startsWith("/api/") && !pathname.startsWith("/auth/")) {
     const intlResponse = await intlMiddleware(request);
     if (isLocaleResponse(intlResponse)) {
       return intlResponse;
     }
+    intlPassthrough = intlResponse;
   }
 
   const { response, user, supabase } = await updateSession(request);
-  const { locale, pathname: unprefixed } = stripLocale(pathname);
+  // Preserve cookies set by the intl middleware (e.g. NEXT_LOCALE) that
+  // would otherwise be lost when continuing with the session response.
+  if (intlPassthrough !== null) {
+    const setCookie =
+      typeof (intlPassthrough.headers as Headers & {
+        getSetCookie?: () => string[];
+      }).getSetCookie === "function"
+        ? (
+            intlPassthrough.headers as Headers & {
+              getSetCookie: () => string[];
+            }
+          ).getSetCookie()
+        : intlPassthrough.headers.get("set-cookie")?.split(/,(?=[^;,]+=[^;,]+)/) ??
+          [];
+    for (const cookie of setCookie) {
+      response.headers.append("set-cookie", cookie);
+    }
+  }
+  const { locale, pathname: unprefixed } = stripLocale(pathname, request);
 
   // API routes speak JSON, never redirects: guards apply to pages only.
   if (pathname.startsWith("/api/")) {
