@@ -22,20 +22,40 @@ function writeEmptyState(): void {
 setup("authenticate with seeded user", async ({ page }) => {
   const email = process.env.TEST_USER_EMAIL;
   const password = process.env.TEST_USER_PASSWORD;
-  if (email === undefined || password === undefined) {
+  const missingCredentials =
+    email === undefined ||
+    email.trim() === "" ||
+    password === undefined ||
+    password === "";
+  if (missingCredentials) {
     // Always leave a (empty) state file so dependent projects do not fail
     // on a missing file; specs self-skip at runtime via hasSeededAuth().
     writeEmptyState();
-    setup.skip(true, "set TEST_USER_EMAIL and TEST_USER_PASSWORD for seeded auth");
+    setup.skip(
+      true,
+      "set TEST_USER_EMAIL and TEST_USER_PASSWORD for seeded auth",
+    );
     return;
   }
 
   await page.goto("/es");
-  await page.locator('input[type="email"]').fill(email as string);
-  await page.locator('input[type="password"]').first().fill(password as string);
-  await page.getByRole("button", { name: /./ }).last().click();
-  await page.waitForURL(/\/es\/(generator|profile\/onboarding)/, {
-    timeout: 30_000,
-  });
+  const form = page.locator("form").first();
+  await form.locator('input[type="email"]').fill(email);
+  await form.locator('input[type="password"]').fill(password);
+  await form.locator('button[type="submit"]').click();
+
+  const authError = page.getByRole("alert");
+  const outcome = await Promise.race([
+    page
+      .waitForURL(/\/es\/(generator|profile\/onboarding)/, { timeout: 30_000 })
+      .then(() => "redirect" as const),
+    authError
+      .waitFor({ state: "visible", timeout: 30_000 })
+      .then(() => "error" as const),
+  ]);
+  if (outcome === "error") {
+    throw new Error(`Seeded E2E login failed: ${await authError.innerText()}`);
+  }
+
   await page.context().storageState({ path: STORAGE_STATE_PATH });
 });
