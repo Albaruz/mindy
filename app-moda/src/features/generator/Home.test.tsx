@@ -11,16 +11,38 @@ vi.mock("next-intl", () => ({
 }));
 
 vi.mock("next/dynamic", () => ({
+  // Home declares two dynamic components (manual carousels, celebration).
+  // Resolve each call to its matching stub by inspecting the loader source,
+  // so the celebration overlay renders with its test ids.
   default: (
-    _loader: unknown,
+    _loader: () => Promise<unknown>,
     options?: { loading?: () => React.ReactNode },
-  ) =>
-    () => (
-      <>
-        <div data-testid="manual-carousels" />
-        {options?.loading?.()}
-      </>
-    ),
+  ) => {
+    const source = Function.prototype.toString.call(_loader);
+    if (source.includes("OutfitCelebrationScreen")) {
+      function CelebrationStub({ onClose }: { onClose: () => void }) {
+        return (
+          <div data-testid="celebration">
+            <button
+              type="button"
+              data-testid="celebration-close"
+              onClick={onClose}
+            />
+          </div>
+        );
+      }
+      return CelebrationStub;
+    }
+    function ManualStub() {
+      return (
+        <>
+          <div data-testid="manual-carousels" />
+          {options?.loading?.()}
+        </>
+      );
+    }
+    return ManualStub;
+  },
 }));
 
 vi.mock("framer-motion", async (importOriginal) => {

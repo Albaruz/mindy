@@ -1,4 +1,5 @@
-// @ts-nocheck
+// Build script: compiles JSON design tokens into SCSS custom properties.
+// Runs via ts-node, outside the app bundle.
 import { readFileSync, writeFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -9,25 +10,68 @@ const __dirname = dirname(__filename);
 const TOKENS_DIR = resolve(__dirname, '../src/styles/tokens');
 const OUTPUT_FILE = resolve(__dirname, '../src/styles/core/_tokens.scss');
 
-function readJson(filename: string): Record<string, any> {
+interface ColorTokens {
+  background: string;
+  surface: string;
+  foreground: string;
+  muted: string;
+  border: string;
+  primary: string;
+  primaryContrast: string;
+  accent: string;
+  accentHover: string;
+  accentLight: string;
+  oat: string;
+  clay: string;
+  tabInactive: string;
+  authBackground: string;
+  authText: string;
+  error: string;
+  errorHover: string;
+  success: string;
+  warning: string;
+  canvas: string;
+  thread: string;
+  skin: Record<string, string>;
+  eye: Record<string, string>;
+  hair: Record<string, string>;
+  season: Record<string, string[]>;
+}
+
+interface SpacingTokens {
+  base: string;
+  scale: number[];
+}
+
+interface TypographyTokens {
+  fontFamily: { base: string; display: string; mono: string };
+  fontSize: Record<string, string | number>;
+  fontWeight: Record<string, string | number>;
+  lineHeight: Record<string, string | number>;
+  letterSpacing: Record<string, string | number>;
+}
+
+type FlatTokens = Record<string, string | number>;
+
+function readJson<T>(filename: string): T {
   const content = readFileSync(resolve(TOKENS_DIR, filename), 'utf-8');
-  return JSON.parse(content);
+  return JSON.parse(content) as T;
 }
 
 function main() {
   console.log('🔨 Building design tokens...');
 
-  const colors = readJson('colors.json');
-  const spacing = readJson('spacing.json');
-  const typography = readJson('typography.json');
-  const radius = readJson('radius.json');
-  const shadows = readJson('shadows.json');
-  const breakpoints = readJson('breakpoints.json');
-  const zIndex = readJson('zIndex.json');
-  const durations = readJson('durations.json');
-  const easings = readJson('easings.json');
-  const touchTargets = readJson('touchTargets.json');
-  const layout = readJson('layout.json');
+  const colors = readJson<ColorTokens>('colors.json');
+  const spacing = readJson<SpacingTokens>('spacing.json');
+  const typography = readJson<TypographyTokens>('typography.json');
+  const radius = readJson<FlatTokens>('radius.json');
+  const shadows = readJson<FlatTokens>('shadows.json');
+  const breakpoints = readJson<FlatTokens>('breakpoints.json');
+  const zIndex = readJson<FlatTokens>('zIndex.json');
+  const durations = readJson<FlatTokens>('durations.json');
+  const easings = readJson<FlatTokens>('easings.json');
+  const touchTargets = readJson<FlatTokens>('touchTargets.json');
+  const layout = readJson<FlatTokens>('layout.json');
 
   // Helper to convert camelCase to kebab-case for CSS custom properties
   function toKebabCase(str: string): string {
@@ -173,10 +217,7 @@ function main() {
 
   const scss = `// AUTO-GENERATED - DO NOT EDIT\n// Run 'pnpm tokens:build' to regenerate\n:root {\n${lines.join('\n')}\n}\n`;
 
-  writeFileSync(
-    resolve(__dirname, '../src/styles/core/_tokens.scss'),
-    scss
-  );
+  writeFileSync(OUTPUT_FILE, scss);
   console.log('✅ Generated _tokens.scss');
 }
 
