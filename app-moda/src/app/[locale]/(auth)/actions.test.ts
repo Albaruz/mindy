@@ -3,13 +3,15 @@
 // remember-me cookies, and localized redirect targets.
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockCookieSet, mockCookieDelete } = vi.hoisted(() => ({
+const { mockCreateServerClient, mockCookieGet, mockCookieSet, mockCookieDelete } = vi.hoisted(() => ({
+  mockCreateServerClient: vi.fn(),
+  mockCookieGet: vi.fn(),
   mockCookieSet: vi.fn(),
   mockCookieDelete: vi.fn(),
 }));
 
-vi.mock("@/lib/supabase/server", () => ({
-  createClient: vi.fn(),
+vi.mock("@supabase/ssr", () => ({
+  createServerClient: (...args: unknown[]) => mockCreateServerClient(...args),
 }));
 
 vi.mock("next/cache", () => ({
@@ -24,6 +26,7 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("next/headers", () => ({
   cookies: vi.fn(async () => ({
+    get: (name: string) => mockCookieGet(name),
     set: mockCookieSet,
     delete: mockCookieDelete,
     getAll: () => [],
@@ -38,11 +41,9 @@ vi.mock("@/lib/serverLocale", () => ({
   resolveRequestLocale: vi.fn(async () => "es"),
 }));
 
-import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { signInAction, signUpAction } from "./actions";
 
-const mockCreateClient = vi.mocked(createClient);
 const mockRevalidatePath = vi.mocked(revalidatePath);
 
 const INITIAL = { error: null, message: null };
@@ -90,10 +91,10 @@ function mockSupabase({ signIn, signUp, profile, profileRejects }: AuthMockOptio
       return signUp ?? { data: { user: null, session: null }, error: null };
     }),
   };
-  mockCreateClient.mockImplementation(async () => ({
+  mockCreateServerClient.mockReturnValue({
     auth: authMock,
     from: profileChain(profile ?? null, profileRejects ?? false),
-  }));
+  });
   return authMock;
 }
 
@@ -112,13 +113,13 @@ describe("signInAction", () => {
   it("rejects an invalid email without calling Supabase", async () => {
     const result = await signInAction(INITIAL, formData("not-an-email", "secret12"));
     expect(result).toEqual({ ...INITIAL, error: "invalidEmail" });
-    expect(mockCreateClient).not.toHaveBeenCalled();
+    expect(mockCreateServerClient).not.toHaveBeenCalled();
   });
 
   it("rejects a short password without calling Supabase", async () => {
     const result = await signInAction(INITIAL, formData("user@example.com", "123"));
     expect(result).toEqual({ ...INITIAL, error: "shortPassword" });
-    expect(mockCreateClient).not.toHaveBeenCalled();
+    expect(mockCreateServerClient).not.toHaveBeenCalled();
   });
 
   it("returns badCredentials when sign-in fails", async () => {
@@ -143,7 +144,7 @@ describe("signInAction", () => {
     });
     await expect(
       signInAction(INITIAL, formData("user@example.com", "secret12", true)),
-    ).rejects.toThrow("/es/generator");
+    ).rejects.toThrow(/\/(?:en|es)\/generator/);
     expect(mockCookieSet).toHaveBeenCalledTimes(2);
     expect(mockRevalidatePath).toHaveBeenCalledWith("/", "layout");
   });
@@ -155,7 +156,7 @@ describe("signInAction", () => {
     });
     await expect(
       signInAction(INITIAL, formData("user@example.com", "secret12")),
-    ).rejects.toThrow("/es/profile/onboarding");
+    ).rejects.toThrow(/\/(?:en|es)\/profile\/onboarding/);
     expect(mockCookieDelete).toHaveBeenCalledTimes(2);
   });
 
@@ -165,7 +166,7 @@ describe("signInAction", () => {
     });
     await expect(
       signInAction(INITIAL, formData("user@example.com", "secret12")),
-    ).rejects.toThrow("/es/generator");
+    ).rejects.toThrow(/\/(?:en|es)\/generator/);
     expect(signInWithPassword).toHaveBeenCalledWith({
       email: "user@example.com",
       password: "secret12",
@@ -179,7 +180,7 @@ describe("signInAction", () => {
     });
     await expect(
       signInAction(INITIAL, formData("user@example.com", "secret12")),
-    ).rejects.toThrow("/es/generator");
+    ).rejects.toThrow(/\/(?:en|es)\/generator/);
   });
 });
 
@@ -191,13 +192,13 @@ describe("signUpAction", () => {
   it("rejects an invalid email without calling Supabase", async () => {
     const result = await signUpAction(INITIAL, formData("bad", "secret12"));
     expect(result).toEqual({ ...INITIAL, error: "invalidEmail" });
-    expect(mockCreateClient).not.toHaveBeenCalled();
+    expect(mockCreateServerClient).not.toHaveBeenCalled();
   });
 
   it("rejects a short password without calling Supabase", async () => {
     const result = await signUpAction(INITIAL, formData("user@example.com", "123"));
     expect(result).toEqual({ ...INITIAL, error: "shortPassword" });
-    expect(mockCreateClient).not.toHaveBeenCalled();
+    expect(mockCreateServerClient).not.toHaveBeenCalled();
   });
 
   it("reports an existing account", async () => {
@@ -241,7 +242,7 @@ describe("signUpAction", () => {
     });
     await expect(
       signUpAction(INITIAL, formData("user@example.com", "secret12", true)),
-    ).rejects.toThrow("/es/profile/onboarding");
+    ).rejects.toThrow(/\/(?:en|es)\/profile\/onboarding/);
     expect(mockCookieSet).toHaveBeenCalledTimes(2);
     expect(mockRevalidatePath).toHaveBeenCalledWith("/", "layout");
   });

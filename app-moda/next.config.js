@@ -34,6 +34,11 @@ const nextConfig = {
   // `next dev`, which runs on Turbopack and needs no service worker.
   turbopack: {},
   poweredByHeader: false,
+  // Keep test files available to Vitest's tsconfig path resolver, while
+  // excluding them from Next's production type-check build.
+  typescript: {
+    tsconfigPath: "tsconfig.build.json",
+  },
   // Defense-in-depth headers (audit H-Headers). CSP keeps 'unsafe-inline'
   // for scripts/styles: Next.js flight data and the theme bootstrap script
   // are inline by design. Remote surface is still pinned: images only from

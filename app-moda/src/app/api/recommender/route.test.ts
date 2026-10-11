@@ -801,12 +801,14 @@ describe("POST /api/recommender residual coverage", () => {
     mockGenerate.mockRejectedValue(groqFailure());
     const random = vi
       .spyOn(Math, "random")
+      // The route creates a request ID with Math.random before selecting garments.
+      .mockReturnValueOnce(0.5)
+      .mockReturnValueOnce(0)
       .mockReturnValueOnce(0)
       .mockReturnValueOnce(0.9)
       .mockReturnValueOnce(0.9)
       .mockReturnValueOnce(0)
-      .mockReturnValueOnce(0)
-      .mockReturnValueOnce(0);
+      .mockReturnValueOnce(0.9);
     try {
       const response = await POST(
         buildRequest({ garments, temperatureC: 20 }),
