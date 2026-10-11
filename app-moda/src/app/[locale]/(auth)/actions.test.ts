@@ -26,6 +26,7 @@ vi.mock("next/headers", () => ({
   cookies: vi.fn(async () => ({
     set: mockCookieSet,
     delete: mockCookieDelete,
+    getAll: () => [],
   })),
 }));
 
@@ -75,23 +76,25 @@ interface AuthMockOptions {
 }
 
 function mockSupabase({ signIn, signUp, profile, profileRejects }: AuthMockOptions) {
-  const signInWithPassword = vi.fn(async () => {
-    if (signIn instanceof Error) {
-      throw signIn;
-    }
-    return signIn ?? { data: { user: null }, error: null };
-  });
-  const signUpFn = vi.fn(async () => {
-    if (signUp instanceof Error) {
-      throw signUp;
-    }
-    return signUp ?? { data: { user: null, session: null }, error: null };
-  });
-  mockCreateClient.mockResolvedValue({
-    auth: { signInWithPassword, signUp: signUpFn },
+  const authMock = {
+    signInWithPassword: vi.fn(async () => {
+      if (signIn instanceof Error) {
+        return Promise.reject(signIn);
+      }
+      return signIn ?? { data: { user: null }, error: null };
+    }),
+    signUp: vi.fn(async () => {
+      if (signUp instanceof Error) {
+        return Promise.reject(signUp);
+      }
+      return signUp ?? { data: { user: null, session: null }, error: null };
+    }),
+  };
+  mockCreateClient.mockImplementation(async () => ({
+    auth: authMock,
     from: profileChain(profile ?? null, profileRejects ?? false),
-  } as unknown as Awaited<ReturnType<typeof createClient>>);
-  return { signInWithPassword, signUp: signUpFn };
+  }));
+  return authMock;
 }
 
 const COMPLETE_PROFILE = {
