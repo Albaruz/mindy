@@ -1,24 +1,34 @@
-// Auth bootstrap for seeded E2E runs (skipped by default).
+// Auth bootstrap for seeded E2E runs.
 // Stores an authenticated storageState via email/password so specs can
 // run against a seeded user. Requires env:
 // TEST_USER_EMAIL and TEST_USER_PASSWORD.
-// Referenced by specs in comments only; no project consumes it yet.
+// Wired as the "setup" project in playwright.config.ts; the "mobile"
+// project depends on it and consumes STORAGE_STATE_PATH.
 // Run once with:
 // TEST_USER_EMAIL=... TEST_USER_PASSWORD=... pnpm exec playwright test --project=setup e2e/auth.setup.ts
 import { test as setup } from "@playwright/test";
+import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { STORAGE_STATE_PATH } from "./seeded-auth";
 
-const STORAGE_STATE_PATH = path.join(__dirname, ".auth", "user.json");
+function writeEmptyState(): void {
+  mkdirSync(path.dirname(STORAGE_STATE_PATH), { recursive: true });
+  writeFileSync(
+    STORAGE_STATE_PATH,
+    JSON.stringify({ cookies: [], origins: [] }),
+  );
+}
 
-// TODO: wire a "setup" project in playwright.config.ts using this file as
-// testMatch and consuming STORAGE_STATE_PATH via use.storageState.
 setup("authenticate with seeded user", async ({ page }) => {
   const email = process.env.TEST_USER_EMAIL;
   const password = process.env.TEST_USER_PASSWORD;
-  setup.skip(
-    email === undefined || password === undefined,
-    "TODO: set TEST_USER_EMAIL and TEST_USER_PASSWORD for seeded auth",
-  );
+  if (email === undefined || password === undefined) {
+    // Always leave a (empty) state file so dependent projects do not fail
+    // on a missing file; specs self-skip at runtime via hasSeededAuth().
+    writeEmptyState();
+    setup.skip(true, "set TEST_USER_EMAIL and TEST_USER_PASSWORD for seeded auth");
+    return;
+  }
 
   await page.goto("/es");
   await page.locator('input[type="email"]').fill(email as string);

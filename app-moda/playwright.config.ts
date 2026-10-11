@@ -1,4 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
+import path from "node:path";
+
+const STORAGE_STATE_PATH = path.join(__dirname, "e2e", ".auth", "user.json");
 
 export default defineConfig({
   testDir: "./e2e",
@@ -13,14 +16,23 @@ export default defineConfig({
   },
   projects: [
     {
+      name: "setup",
+      testMatch: /auth\.setup\.ts/,
+    },
+    {
       name: "mobile",
-      use: { ...devices["Pixel 7"] },
+      dependencies: ["setup"],
+      testIgnore: /auth\.setup\.ts/,
+      use: {
+        ...devices["Pixel 7"],
+        storageState: STORAGE_STATE_PATH,
+      },
     },
   ],
   webServer: {
-    command: "pnpm dev",
+    command: process.env.CI ? "pnpm build --webpack && pnpm start" : "pnpm dev",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
+    timeout: 180 * 1000,
   },
 });

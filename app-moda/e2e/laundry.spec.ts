@@ -1,10 +1,12 @@
 // Laundry flow E2E: wear a garment, open the basket, do the laundry.
-// TODO: enable once seeded auth exists (see e2e/auth.setup.ts with
-// TEST_USER_EMAIL/TEST_USER_PASSWORD); skipped by default.
+// Runs when seeded auth exists (see e2e/auth.setup.ts); self-skips otherwise.
 import { expect, test } from "@playwright/test";
+import { hasSeededAuth, SEEDED_AUTH_HELP } from "./seeded-auth";
 
 test.describe("laundry", () => {
-  test.skip(true, "TODO: requires seeded auth bootstrap (e2e/auth.setup.ts)");
+  test.beforeEach(async () => {
+    test.skip(!hasSeededAuth(), SEEDED_AUTH_HELP);
+  });
 
   test("wear then basket then do-laundry empties the basket", async ({
     page,

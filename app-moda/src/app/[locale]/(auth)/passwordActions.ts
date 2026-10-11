@@ -49,7 +49,15 @@ export async function requestPasswordResetAction(
 
   const supabase = await createClient();
   const locale = await resolveRequestLocale();
-  const redirectTo = `${await requestOrigin()}${localizePath("/reset-password", locale)}`;
+  let redirectTo: string;
+  try {
+    redirectTo = `${await requestOrigin()}${localizePath("/reset-password", locale)}`;
+  } catch (originError) {
+    // Missing site URL must not crash the page with an error digest in
+    // production; return the generic failure message instead.
+    console.error("[password-reset] missing site URL", originError);
+    return { ...INITIAL_STATE, error: t("resetRequestFailed") };
+  }
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo,
   });

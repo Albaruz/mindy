@@ -21,6 +21,8 @@ jobs:
           cache-dependency-path: app-moda/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
         working-directory: app-moda
+      - run: pnpm tokens:build
+        working-directory: app-moda
       - run: pnpm typecheck
         working-directory: app-moda
       - run: pnpm lint
@@ -28,8 +30,29 @@ jobs:
       - run: pnpm test:coverage
         working-directory: app-moda
 
-  # Mobile ES critical flows + axe (specs self-skip without seeded auth
-  # bootstrap; needs TEST_USER_EMAIL/TEST_USER_PASSWORD secrets).
+  # Production build + shared-JS bundle budget gate (<180KB gzip).
+  build:
+    runs-on: ubuntu-latest
+    needs: unit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.8.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: app-moda/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: app-moda
+      - run: pnpm build --webpack
+        working-directory: app-moda
+      - run: pnpm budget
+        working-directory: app-moda
+
+  # Mobile ES critical flows + axe (specs self-skip at runtime without
+  # seeded auth; setup project authenticates when secrets exist).
   e2e:
     runs-on: ubuntu-latest
     needs: unit
@@ -52,6 +75,27 @@ jobs:
         env:
           TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+
+  # Lighthouse CI gate (perf >=90, a11y >=95, best-practices >=90, SEO >=90).
+  lighthouse:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.8.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: app-moda/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: app-moda
+      - run: pnpm build --webpack
+        working-directory: app-moda
+      - run: pnpm exec lhci autorun
+        working-directory: app-moda
 
   # RLS isolation via pgTAP against a Supabase branch (supabase/tests/).
   # Requires SUPABASE_DB_URL secret; skipped otherwise.

@@ -1,10 +1,12 @@
 // Onboarding wizard E2E: identity -> measurements -> preferences -> success.
-// TODO: enable once seeded auth exists (see e2e/auth.setup.ts with
-// TEST_USER_EMAIL/TEST_USER_PASSWORD); skipped by default.
+// Runs when seeded auth exists (see e2e/auth.setup.ts); self-skips otherwise.
 import { expect, test } from "@playwright/test";
+import { hasSeededAuth, SEEDED_AUTH_HELP } from "./seeded-auth";
 
 test.describe("onboarding wizard", () => {
-  test.skip(true, "TODO: requires seeded auth bootstrap (e2e/auth.setup.ts)");
+  test.beforeEach(async () => {
+    test.skip(!hasSeededAuth(), SEEDED_AUTH_HELP);
+  });
 
   test("walks the 5 steps and reaches the success screen", async ({
     page,

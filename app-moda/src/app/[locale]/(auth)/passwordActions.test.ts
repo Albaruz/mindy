@@ -109,14 +109,16 @@ describe("requestPasswordResetAction", () => {
     });
   });
 
-  it("throws in production when no site URL is configured", async () => {
+  it("returns a generic failure in production when no site URL is configured", async () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "");
     vi.stubEnv("NODE_ENV", "production");
     const resetPasswordForEmail = vi.fn(async () => ({ error: null }));
     mockAuth({ resetPasswordForEmail });
-    await expect(
-      requestPasswordResetAction(INITIAL, emailForm("user@example.com")),
-    ).rejects.toThrow("Missing NEXT_PUBLIC_SITE_URL");
+    const result = await requestPasswordResetAction(
+      INITIAL,
+      emailForm("user@example.com"),
+    );
+    expect(result).toEqual({ ...INITIAL, error: "resetRequestFailed" });
     expect(resetPasswordForEmail).not.toHaveBeenCalled();
   });
 

@@ -1,8 +1,9 @@
-// Accessibility audit E2E with axe on key routes.
-// TODO: enable once seeded auth exists (see e2e/auth.setup.ts with
-// TEST_USER_EMAIL/TEST_USER_PASSWORD); skipped by default.
+// Accessibility audit E2E with axe on key routes (WCAG 2.2 AA).
+// Runs when seeded auth exists (see e2e/auth.setup.ts with
+// TEST_USER_EMAIL/TEST_USER_PASSWORD); self-skips at runtime otherwise.
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { hasSeededAuth, SEEDED_AUTH_HELP } from "./seeded-auth";
 
 const ROUTES = [
   "/es/generator",
@@ -11,14 +12,18 @@ const ROUTES = [
 ] as const;
 
 test.describe("accessibility", () => {
-  test.skip(true, "TODO: requires seeded auth bootstrap (e2e/auth.setup.ts)");
+  test.beforeEach(async () => {
+    test.skip(!hasSeededAuth(), SEEDED_AUTH_HELP);
+  });
 
   for (const route of ROUTES) {
     test(`has no serious/critical axe violations on ${route}`, async ({
       page,
     }) => {
-      await page.goto(route);
-      const results = await new AxeBuilder({ page }).analyze();
+      await page.goto(route, { waitUntil: "networkidle" });
+      const results = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag22aa"])
+        .analyze();
       const blocking = results.violations.filter(
         (violation) =>
           violation.impact === "serious" || violation.impact === "critical",
