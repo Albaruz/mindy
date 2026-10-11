@@ -44,7 +44,7 @@ setup("authenticate with seeded user", async ({ page }) => {
   await form.locator('input[type="password"]').fill(password);
   await form.locator('button[type="submit"]').click();
 
-  const authError = page.getByRole("alert");
+  const authError = form.getByRole("alert");
   const outcome = await Promise.race([
     page
       .waitForURL(/\/es\/(generator|profile\/onboarding)/, { timeout: 30_000 })
