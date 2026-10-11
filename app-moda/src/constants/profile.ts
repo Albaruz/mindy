@@ -175,10 +175,12 @@ const DEEP_SKIN_TONES: readonly SkinTone[] = ["medium", "olive", "brown", "deep"
  * Infers colorimetry season from skin tone + jewelry preference.
  * Warm (gold) + deep = autumn, warm + fair = spring
  * Cool (silver) + deep = winter, cool + fair = summer
+ * Skipped jewelry (optional step) falls back to the cool branch so the
+ * result stays deterministic from skin tone alone.
  */
 export function inferColorimetry(
   skinTone: string,
-  jewelry: JewelryPick,
+  jewelry: JewelryPick | "",
 ): Colorimetry {
   const deepSkin = DEEP_SKIN_TONES.includes(skinTone.toLowerCase() as SkinTone);
   if (jewelry === "gold") {

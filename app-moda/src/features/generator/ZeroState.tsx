@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/Button/Button";
+import { GREETING_MIN_DISPLAY_MS } from "@/constants/animations";
 import type { Colorimetry } from "@/types/user";
 import styles from "./ZeroState.module.scss";
 import type { WeatherInfo } from "./useWeatherQuery";
@@ -74,32 +76,63 @@ export function ZeroState({
   onManual,
 }: ZeroStateProps) {
   const t = useTranslations("Generator");
-  const message = useWeatherMessage(weather);
-  const showIcon =
+  // The neutral hello owns the screen for a minimum display time: even a
+  // fast forecast fetch never swaps the copy mid-read. Weather arriving
+  // later than the window reveals immediately.
+  const [minDisplayElapsed, setMinDisplayElapsed] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(
+      () => setMinDisplayElapsed(true),
+      GREETING_MIN_DISPLAY_MS,
+    );
+    return () => clearTimeout(timer);
+  }, []);
+  const weatherReady =
     weather !== null && weather !== undefined && !weather.fallback;
+  // Narrowed once: non-null from here on, so the icon helpers below
+  // typecheck without aliased-condition chains.
+  const revealedWeather =
+    weatherReady && minDisplayElapsed ? weather : null;
+  const message = useWeatherMessage(revealedWeather);
+  const showIcon = revealedWeather !== null;
   const conditionKey =
-    showIcon &&
-    weather.condition !== null &&
-    CONDITION_KEYS[weather.condition] !== undefined
-      ? CONDITION_KEYS[weather.condition]
+    revealedWeather !== null &&
+    revealedWeather.condition !== null &&
+    CONDITION_KEYS[revealedWeather.condition] !== undefined
+      ? CONDITION_KEYS[revealedWeather.condition]
       : "other";
 
   return (
     <div className={styles.zeroState} data-testid="generator-zero-state">
-      {showIcon ? (
-        <div
-          role="img"
-          aria-label={t(`conditions.${conditionKey}`)}
-          className={styles["zeroState__weatherIcon"]}
-        >
-          <WeatherThreadIcon
-            kind={resolveThreadKind(weather)}
-            accent={seasonAccent(colorimetry ?? null)}
-          />
-        </div>
-      ) : null}
+      {/* The icon slot is always rendered so the weather icon fades in
+      without shoving the greeting down when the forecast resolves. */}
+      <div
+        className={styles["zeroState__weatherIcon"]}
+        aria-hidden={!showIcon}
+      >
+        {revealedWeather !== null ? (
+          <div
+            role="img"
+            aria-label={t(`conditions.${conditionKey}`)}
+            key={conditionKey}
+            className={styles["zeroState__weatherIconArt"]}
+          >
+            <WeatherThreadIcon
+              kind={resolveThreadKind(revealedWeather)}
+              accent={seasonAccent(colorimetry ?? null)}
+            />
+          </div>
+        ) : null}
+      </div>
+      {/* The live region stays mounted so screen readers keep announcing;
+      only the inner copy remounts (key) to replay the crossfade. */}
       <p aria-live="polite" className={styles["zeroState__greeting"]}>
-        {message}
+        <span
+          key={message}
+          className={styles["zeroState__greetingText"]}
+        >
+          {message}
+        </span>
       </p>
       <div className={styles["zeroState__actions"]}>
         <Button type="button" onClick={onAuto}>

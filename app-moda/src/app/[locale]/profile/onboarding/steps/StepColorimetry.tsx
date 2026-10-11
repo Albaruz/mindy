@@ -63,6 +63,7 @@ export function StepColorimetry() {
         swatches={JEWELRY_SWATCHES}
         value={jewelry}
         onSelect={setJewelry}
+        allowDeselect
         formatOption={(option) => t(`jewelry.${option}`)}
       />
     </>

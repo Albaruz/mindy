@@ -5,6 +5,7 @@ import {
   CELEBRATION_BURST_MS,
   DRAG_CONSTRAINTS,
   DRAG_ELASTIC,
+  GREETING_MIN_DISPLAY_MS,
   INDICATOR_SPRING,
   NOTIFICATION_DURATION_MS,
   NOTIFICATION_EXIT_MS,
@@ -26,6 +27,7 @@ describe("animations constants", () => {
     expect(SWIPE_FADE_START_PX).toBe(40);
     expect(SAVE_ARM_DELAY_MS).toBe(500);
     expect(SUCCESS_AUTO_ADVANCE_MS).toBe(6000);
+    expect(GREETING_MIN_DISPLAY_MS).toBe(3000);
     expect(REDIRECT_DELAY_MS).toBe(1500);
     expect(SESSION_RETRY_DELAY_MS).toBe(800);
   });
@@ -39,6 +41,7 @@ describe("animations constants", () => {
       SWIPE_FADE_START_PX,
       SAVE_ARM_DELAY_MS,
       SUCCESS_AUTO_ADVANCE_MS,
+      GREETING_MIN_DISPLAY_MS,
       REDIRECT_DELAY_MS,
       SESSION_RETRY_DELAY_MS,
     ]) {

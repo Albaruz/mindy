@@ -276,7 +276,7 @@
       "gray": "Gray",
       "black": "Black"
     },
-    "jewelryQuestion": "Which jewelry suits you best?",
+    "jewelryQuestion": "Which jewelry suits you best? (optional)",
     "jewelry": {
       "gold": "Gold",
       "silver": "Silver"
@@ -305,7 +305,7 @@
     "saving": "Saving…",
     "saveError": "Could not save your profile. Try again.",
     "successTitle": "Profile saved. Get ready to crush it.",
-    "successCta": "See my looks"
+    "successCta": "See my closet"
   },
   "Notifications": {
     "chooseImage": "Please choose an image file.",

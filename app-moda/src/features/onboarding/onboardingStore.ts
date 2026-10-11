@@ -60,7 +60,7 @@ interface OnboardingState {
   setFit: (value: FitChoice) => void;
   setSkinTone: (value: string) => void;
   setEyeColor: (value: string) => void;
-  setJewelry: (value: JewelryPick) => void;
+  setJewelry: (value: JewelryPick | "") => void;
   setThermal: (value: number) => void;
   toggleForbiddenColor: (hex: string) => void;
   reset: () => void;

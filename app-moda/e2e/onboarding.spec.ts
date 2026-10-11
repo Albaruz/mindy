@@ -42,9 +42,9 @@ test.describe("onboarding wizard", () => {
       .toBe(true);
     await saveButton.click();
 
-    // Success celebration with a CTA into the generator.
+    // Success celebration with a CTA into the closet.
     await expect(page.getByRole("img")).toBeVisible({ timeout: 15_000 });
     await page.getByRole("button").last().click();
-    await expect(page).toHaveURL(/\/es\/generator/);
+    await expect(page).toHaveURL(/\/es\/closet/);
   });
 });

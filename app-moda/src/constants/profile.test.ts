@@ -23,6 +23,11 @@ describe("inferColorimetry", () => {
   it("maps silver plus fair skin to summer", () => {
     expect(inferColorimetry("light", "silver")).toBe("summer");
   });
+
+  it("falls back to the cool branch when jewelry is skipped", () => {
+    expect(inferColorimetry("olive", "")).toBe("winter");
+    expect(inferColorimetry("light", "")).toBe("summer");
+  });
 });
 
 describe("inferMorphology", () => {

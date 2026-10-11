@@ -58,7 +58,7 @@ export interface WizardAnswers {
   waistCm: number;
   hipCm: number;
   fit: FitChoice;
-  jewelry: JewelryPick;
+  jewelry: JewelryPick | "";
   thermal: number;
   forbiddenColors: string[];
 }

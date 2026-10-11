@@ -42,11 +42,8 @@ function isStepComplete(
     case 3:
       return answers.fit !== "";
     case 4:
-      return (
-        answers.skinTone !== "" &&
-        answers.eyeColor !== "" &&
-        answers.jewelry !== ""
-      );
+      // Jewelry is optional: skin and eyes alone unlock Continue.
+      return answers.skinTone !== "" && answers.eyeColor !== "";
     case 5:
       return true;
     default:
@@ -122,8 +119,8 @@ export function OnboardingWizard({
     setStep((current) => Math.max(1, current - 1));
   };
 
-  const goGenerator = useCallback(() => {
-    router.push("/generator");
+  const goCloset = useCallback(() => {
+    router.push("/closet");
   }, [router]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -136,8 +133,7 @@ export function OnboardingWizard({
       style === "" ||
       fit === "" ||
       skinTone === "" ||
-      eyeColor === "" ||
-      jewelry === ""
+      eyeColor === ""
     ) {
       return;
     }
@@ -174,7 +170,7 @@ export function OnboardingWizard({
     });
 
     // The server no longer redirects: success transitions to the
-    // celebration screen, which navigates to the generator.
+    // celebration screen, which navigates to the closet.
     if (result.error !== null) {
       setError(result.error);
       setIsSaving(false);
@@ -187,7 +183,7 @@ export function OnboardingWizard({
     return (
       <MotionConfig reducedMotion="user">
         <section className={styles.page}>
-          <OnboardingSuccess onDone={goGenerator} />
+          <OnboardingSuccess onDone={goCloset} />
         </section>
       </MotionConfig>
     );

@@ -57,4 +57,16 @@ describe("StepColorimetry", () => {
     expect(state.eyeColor).toBe("green");
     expect(state.jewelry).toBe("gold");
   });
+
+  it("deselects jewelry when the selected option is clicked again", async () => {
+    const user = userEvent.setup();
+    useOnboardingStore.getState().setJewelry("silver");
+    const { container } = render(<StepColorimetry />);
+    const silver = container.querySelector(
+      'input[name="jewelry"][value="silver"]',
+    );
+    expect(silver).not.toBeNull();
+    await user.click(silver as HTMLElement);
+    expect(useOnboardingStore.getState().jewelry).toBe("");
+  });
 });

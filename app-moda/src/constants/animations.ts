@@ -26,6 +26,11 @@ export const SAVE_ARM_DELAY_MS = 500;
 // Onboarding success auto-advance (hands-free completion).
 export const SUCCESS_AUTO_ADVANCE_MS = 6000;
 
+// Home greeting minimum display: the neutral hello stays on screen at
+// least this long before the forecast copy takes over, so a fast weather
+// fetch never yanks the text away mid-read.
+export const GREETING_MIN_DISPLAY_MS = 3000;
+
 // Post-password-reset redirect delay.
 export const REDIRECT_DELAY_MS = 1500;
 

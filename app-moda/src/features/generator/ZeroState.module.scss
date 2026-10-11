@@ -16,8 +16,16 @@
 }
 
 .zeroState__weatherIcon {
+  display: grid;
+  place-items: center;
   width: 6rem;
   height: 6rem;
+}
+
+.zeroState__weatherIconArt {
+  width: 100%;
+  height: 100%;
+  animation: zeroState-icon-in var(--duration-slow) var(--ease-out);
 
   svg {
     width: 100%;
@@ -31,6 +39,11 @@
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-black);
   text-wrap: balance;
+}
+
+.zeroState__greetingText {
+  display: block;
+  animation: zeroState-greeting-in var(--duration-slow) var(--ease-out);
 }
 
 .zeroState__actions {
@@ -52,8 +65,40 @@
   }
 }
 
+// Weather copy swap: soft rise with a hint of blur so the neutral
+// greeting melts into the forecast copy instead of popping.
+@keyframes zeroState-greeting-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+// Weather icon arrival: gentle scale-in inside its reserved slot.
+@keyframes zeroState-icon-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .zeroState {
+    animation: none;
+  }
+
+  .zeroState__weatherIconArt,
+  .zeroState__greetingText {
     animation: none;
   }
 }

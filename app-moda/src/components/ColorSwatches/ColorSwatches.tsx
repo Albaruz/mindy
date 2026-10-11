@@ -9,7 +9,11 @@ interface ColorSwatchesProps<T extends string> {
   options: readonly T[];
   swatches: Record<string, string>;
   value: T | "";
-  onSelect: (value: T) => void;
+  onSelect: (value: T | "") => void;
+  // When true, activating the already-selected option clears the value.
+  // Native radios never emit change for a checked input, so the toggle
+  // is handled on click (covers mouse, touch and keyboard activation).
+  allowDeselect?: boolean;
   formatOption?: (value: T) => string;
 }
 
@@ -22,6 +26,7 @@ export function ColorSwatches<T extends string>({
   swatches,
   value,
   onSelect,
+  allowDeselect = false,
   formatOption = (option) => option,
 }: ColorSwatchesProps<T>) {
   return (
@@ -48,6 +53,11 @@ export function ColorSwatches<T extends string>({
                 value={option}
                 checked={selected}
                 onChange={() => onSelect(option)}
+                onClick={() => {
+                  if (allowDeselect && selected) {
+                    onSelect("");
+                  }
+                }}
                 className={styles.radio}
                 aria-label={optionLabel}
               />

@@ -55,6 +55,39 @@ describe("ColorSwatches", () => {
     expect(onSelect).toHaveBeenCalledWith("green");
   });
 
+  it("clears the value when the selected option is clicked and deselect is allowed", async () => {
+    const onSelect = vi.fn();
+    render(
+      <ColorSwatches
+        name="color"
+        label="Color"
+        options={OPTIONS}
+        swatches={SWATCHES}
+        value="blue"
+        onSelect={onSelect}
+        allowDeselect
+      />,
+    );
+    await userEvent.click(screen.getByRole("radio", { name: "blue" }));
+    expect(onSelect).toHaveBeenCalledWith("");
+  });
+
+  it("keeps the value when the selected option is clicked without deselect", async () => {
+    const onSelect = vi.fn();
+    render(
+      <ColorSwatches
+        name="color"
+        label="Color"
+        options={OPTIONS}
+        swatches={SWATCHES}
+        value="blue"
+        onSelect={onSelect}
+      />,
+    );
+    await userEvent.click(screen.getByRole("radio", { name: "blue" }));
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
   it("applies formatOption to labels", () => {
     render(
       <ColorSwatches

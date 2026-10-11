@@ -9,7 +9,7 @@ import styles from "../page.module.scss";
 
 // Full-screen success moment: no garment cards, just a drawn celebration
 // mark with softly floating sparkles, the Playfair headline and one
-// terracotta action into the generator.
+// terracotta action into the closet.
 const SPARKS = [
   { x: "12%", y: "18%", delay: 0, size: 14 },
   { x: "84%", y: "14%", delay: 0.4, size: 18 },

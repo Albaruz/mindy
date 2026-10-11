@@ -150,13 +150,39 @@ describe("OnboardingWizard", () => {
     ).toBeInTheDocument();
   });
 
-  it("navigates to the generator from the success screen", async () => {
+  it("navigates to the closet from the success screen", async () => {
     const user = userEvent.setup();
     await goToFinalStep(user);
     await user.click(screen.getByRole("button", { name: "save" }));
     const cta = await screen.findByRole("button", { name: "successCta" });
     await user.click(cta);
-    expect(pushMock).toHaveBeenCalledWith("/generator");
+    expect(pushMock).toHaveBeenCalledWith("/closet");
+  });
+
+  it("lets users continue past colorimetry without picking jewelry", async () => {
+    const user = userEvent.setup();
+    const store = useOnboardingStore.getState();
+    store.setDisplayName("Ada Lovelace");
+    store.setSection("women");
+    store.setStyle("minimalist");
+    store.setFit("regular");
+    store.setSkinTone("medium");
+    store.setEyeColor("brown");
+    render(<OnboardingWizard />);
+    for (let step = 1; step < TOTAL_STEPS; step += 1) {
+      const continueButton = screen.getByRole("button", { name: "continue" });
+      expect(continueButton).toBeEnabled();
+      await user.click(continueButton);
+    }
+    expect(screen.getByTestId("mock-step-finetuning")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "save" })).toBeEnabled();
+    });
+    await user.click(screen.getByRole("button", { name: "save" }));
+    expect(
+      await screen.findByRole("button", { name: "successCta" }),
+    ).toBeInTheDocument();
+    expect(saveMock).toHaveBeenCalledTimes(1);
   });
 
   it("shows a server error without leaving the final step", async () => {

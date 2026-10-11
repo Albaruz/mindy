@@ -35,6 +35,12 @@ describe("buildWizardPayload", () => {
     expect(payload.preferredFit).toBe("regular");
   });
 
+  it("infers winter colorimetry when jewelry is skipped", () => {
+    const payload = buildWizardPayload(buildAnswers({ jewelry: "" }));
+    expect(payload.colorimetry).toBe("winter");
+    expect(payload.extraPreferences.jewelry).toBe("");
+  });
+
   it("copies forbidden colors without mutation", () => {
     const answers = buildAnswers({ forbiddenColors: ["blue"] });
     const payload = buildWizardPayload(answers);

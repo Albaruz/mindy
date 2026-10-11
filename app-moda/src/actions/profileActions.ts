@@ -235,6 +235,6 @@ export async function saveProfileAction(
   const locale = await resolveRequestLocale();
   revalidatePath(localizePath("/profile", locale));
   // No server redirect: the client transitions to the success screen first
-  // and navigates to the generator from there.
+  // and navigates to the closet from there.
   return { error: null };
 }
