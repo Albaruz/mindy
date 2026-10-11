@@ -1,75 +1,217 @@
-# 👗 App de Moda Inteligente
+# 👗 Mindy Smart Closet
 
-Una Progressive Web App (PWA) diseñada para gestionar tu armario digital y generar combinaciones de ropa (*outfits*) inteligentes. La aplicación utiliza Inteligencia Artificial para recomendar el conjunto perfecto basándose en tu colorimetría personal, tu morfología, tu estado de ánimo y las condiciones climáticas en tiempo real.
+> A PWA to digitize your closet, discover AI-powered outfit combinations, and optimize your personal style.
 
-## ✨ Características Principales
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-000000?style=flat-square&logo=vercel)](https://mindy-closet.vercel.app)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16.3.8-0070F3?style=flat-square&logo=nextjs)](https://nextjs.org)
+[![React 19](https://img.shields.io/badge/React-19.2.8-61dafb?style=flat-square&logo=react)](https://react.dev)
+[![TypeScript Strict](https://img.shields.io/badge/TypeScript-Strict-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org)
 
-*   🤖 **Generador de Looks con IA:** Carruseles interactivos que proponen conjuntos calculando un "Suitability Ratio" (Porcentaje de idoneidad) impulsado por Llama 3.
-*   🌦️ **Conciencia Climática:** Filtrado automático y estricto de prendas según la temperatura y precipitación local mediante la API de OpenWeather.
-*   📸 **Armario Digital (Digital Closet):** Subida de fotografías con eliminación automática de fondo ejecutada localmente en el dispositivo del usuario.
-*   🧺 **Gestión del Ciclo de Ropa:** Calendario integrado y "Cesto de ropa sucia" para evitar recomendar prendas que ya han sido utilizadas.
-*   📱 **Experiencia Offline (PWA):** Interfaz instalable en dispositivos móviles con navegación ágil y acceso a tu catálogo sin conexión a internet.
-*   🎨 **Accesibilidad y Modo Oscuro:** Interfaz minimalista, soporte nativo para temas del sistema y áreas táctiles optimizadas para móviles.
+---
 
-## 🛠️ Stack Tecnológico
+## ✨ Features
 
-**Frontend & Orquestación:**
-*   **Core:** Next.js 14 (App Router), React 18, TypeScript.
-*   **Estilos:** SCSS Modules (Arquitectura atómica y Custom Properties).
-*   **Estado y Datos:** Zustand (estado global) y TanStack Query (sincronización y caché).
-*   **UI/UX:** Swiper.js (carruseles táctiles), Lucide React (iconografía).
+- **🤖 AI-Powered Outfits** — Personalized recommendations based on climate, style, and colorimetry
+- **🎨 Color Profile** — 5-step onboarding to detect your seasonal palette (spring/summer/autumn/winter)
+- **📸 Smart Closet** — Upload photos with auto background removal, AI-powered tagging
+- **🌦️ Climate-Aware** — Real-time weather integration (OpenWeather) with smart filtering
+- **📅 History & Calendar** — Track your looks, view monthly usage patterns
+- **🧺 Laundry Management** — Selective dirty tracking (footwear & outerwear exempt)
+- **📱 Offline PWA** — Works without internet, syncs when back online
+- **🌍 i18n** — Spanish & English with device-level preferences
+- **♿ Accessible** — ARIA labels, 44px touch targets, dark mode support
 
-**Backend (BaaS) & APIs:**
-*   **Base de Datos & Auth:** Supabase (PostgreSQL con RLS, Storage y Autenticación).
-*   **Procesamiento Local:** `@imgly/background-removal` (WebAssembly).
-*   **Inteligencia Artificial:** Groq API (LLMs de código abierto - Llama 3).
-*   **Clima:** OpenWeather API.
+---
 
-## 🚀 Instalación y Despliegue Local
+## 🚀 Quick Start
 
-### Prerrequisitos
-Asegúrate de tener instalado [Node.js](https://nodejs.org/) (v18 o superior) y **pnpm** como gestor de paquetes.
+### Prerequisites
+- **Node.js** 18+ and **pnpm** 12.8+
+- **Supabase**, **Groq**, and **OpenWeather** accounts (free tier)
 
-### 1. Clonar el repositorio
+### Installation
+
 ```bash
-git clone [https://github.com/tu-usuario/app-moda-inteligente.git](https://github.com/tu-usuario/app-moda-inteligente.git)
-cd app-moda-inteligente
-```
-
-### 2. Instalar dependencias
-```bash
+cd app-moda
 pnpm install
 ```
 
-### 3. Configuración de Variables de Entorno
-Crea un archivo `.env.local` en la raíz del proyecto copiando el formato de `.env.example`. Necesitarás registrarte en Supabase, Groq y OpenWeather para obtener estas claves de capa gratuita:
+### Environment Setup
+
+Create `.env.local`:
 
 ```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL="[https://tu-proyecto.supabase.co](https://tu-proyecto.supabase.co)"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="tu_clave_anonima"
-
-# APIs Externas (Gestionadas de forma segura vía Server Route Handlers)
-GROQ_API_KEY="tu_clave_de_groq"
-OPENWEATHER_API_KEY="tu_clave_de_openweather"
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+GROQ_API_KEY=your_groq_key
+OPENWEATHER_API_KEY=your_weather_key
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-### 4. Configurar la Base de Datos
-Ejecuta el script SQL proporcionado en el Documento de Diseño del Sistema (SDD) directamente en el editor SQL de tu panel de Supabase. Esto creará las tablas (`perfiles`, `prendas`, `historial_looks`) y configurará las Políticas de Seguridad de Nivel de Fila (RLS).
+### Run Development Server
 
-### 5. Iniciar el Servidor de Desarrollo
 ```bash
 pnpm dev
 ```
-Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver la aplicación.
 
-## 📁 Arquitectura del Proyecto
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-El proyecto sigue una arquitectura **Feature-Driven** (orientada a funcionalidades) para maximizar la escalabilidad:
+---
 
-*   `/src/app`: Enrutador de Next.js, Layouts y vistas principales.
-*   `/src/features`: Módulos de dominio de negocio encapsulados (ej. `armario`, `generador`, `perfil`).
-*   `/src/components`: UI Kit global y agnóstico (Botones, Skeletons, BottomTabBar).
-*   `/src/api`: Route Handlers de Next.js que actúan como capa de servidor segura para orquestar la IA y el clima.
-*   `/src/types`: Interfaces estrictas de TypeScript para los modelos de datos.
+## 🛠️ Tech Stack
 
+| Layer | Tech |
+|---|---|
+| **Frontend** | Next.js 16 • React 19 • TypeScript • SCSS Modules |
+| **State** | Zustand • TanStack Query (IndexedDB persistence) |
+| **Backend** | Supabase (PostgreSQL + Auth + Storage) |
+| **AI/Vision** | Groq (gpt-oss-20b + qwen vision) |
+| **Weather** | OpenWeather API |
+| **PWA** | next-pwa • Service Worker • Workbox |
+| **UI** | Swiper • Framer Motion • Lucide React |
+| **Testing** | Vitest • Playwright • k6 |
+
+---
+
+## 📦 Project Structure
+
+```
+src/
+├── app/[locale]/
+│   ├── (auth)/          # Login, register, callbacks
+│   ├── onboarding/      # 5-step wizard
+│   ├── generator/       # AI outfit generation (home)
+│   ├── closet/          # Digital wardrobe
+│   ├── calendar/        # Outfit history
+│   └── profile/         # Settings & laundry
+├── api/                 # Route handlers: weather, recommender, analyze
+├── features/            # Feature-driven domains
+├── components/          # Reusable UI components
+├── lib/                 # Utilities, hooks, AI engine
+├── constants/           # SSOT (11 modules)
+├── types/               # TypeScript interfaces
+└── styles/              # SCSS modules + tokens
+```
+
+[Full architecture →](./docs/ARCHITECTURE.md)
+
+---
+
+## 🧪 Testing & Quality
+
+```bash
+pnpm test              # Unit tests (Vitest, 90% coverage)
+pnpm test:e2e          # E2E tests (Playwright, Pixel 7)
+pnpm typecheck         # TypeScript strict
+pnpm lint              # ESLint
+pnpm analyze           # Bundle size (<180KB gzip)
+```
+
+**Performance baselines** (2026-10-10):
+- Weather API: p95 = 35ms
+- Recommender API: p95 = 41ms
+- Bundle size: <180KB gzip
+
+[Testing details →](./docs/TESTING.md)
+
+---
+
+## 🚀 Deployment
+
+Deployed on **Vercel Serverless** (native Next.js support).
+
+### Pre-Deploy Checks
+
+```bash
+pnpm typecheck && pnpm lint && pnpm test && pnpm build --webpack
+```
+
+### Environment Variables
+
+Add to Vercel dashboard:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `GROQ_API_KEY`
+- `OPENWEATHER_API_KEY`
+- `NEXT_PUBLIC_SITE_URL`
+
+[Deployment guide →](./docs/DEPLOYMENT.md)
+
+---
+
+## 📚 Documentation
+
+- **[SDD (System Design)](./Software%20Design%20Document%20(SDD)%20-%20App%20de%20Moda%20Inteligente.md)** — Complete technical specification
+- **[Architecture](./docs/ARCHITECTURE.md)** — Design decisions & data flow
+- **[API Reference](./docs/API.md)** — Endpoint documentation
+- **[Testing Strategy](./docs/TESTING.md)** — Unit, E2E, load testing
+- **[Contributing Guide](./docs/CONTRIBUTING.md)** — Code style & workflow
+- **[Performance Baseline](./PERFORMANCE_BASELINE.md)** — Metrics & benchmarks
+
+---
+
+## 🔒 Security
+
+- **Authentication:** Required (Supabase SSR, no anonymous access)
+- **Authorization:** RLS on all tables + Storage policies
+- **Rate Limiting:** 30 req/h (weather), 5 req/min (recommender), 30 req/10m (vision)
+- **Headers:** HSTS, CSP, X-Frame-Options, nosniff
+- **Input Validation:** Strict types, SQL injection prevention, image size limits
+
+[Security details →](./docs/SECURITY.md)
+
+---
+
+## 🎯 Roadmap
+
+### ✅ MVP Complete
+- Onboarding wizard (5 steps)
+- AI outfit generation (5-state machine)
+- Smart closet with search & filters
+- Weather integration
+- Offline PWA support
+- Testing (unit, E2E, load)
+
+### 🔄 In Progress
+- WCAG 2.2 AA audit
+- Visual regression tests
+
+### 📋 Coming Soon
+- Outfit similarity (embeddings)
+- Starter wardrobe (basic pieces)
+- Tomorrow's outfit (forecast-based)
+- Material filtering for rain
+- CI/CD automation
+
+[Full roadmap →](./docs/ROADMAP.md)
+
+---
+
+## 🤝 Contributing
+
+1. Fork and clone
+2. Create feature branch: `git checkout -b feature/my-feature`
+3. Run tests: `pnpm test`
+4. Commit: `git commit -am "feat: add my feature"`
+5. Push and open a Pull Request
+
+[Contributing guide →](./docs/CONTRIBUTING.md)
+
+---
+
+## 📜 License
+
+MIT — See [LICENSE.md](./LICENSE.md)
+
+---
+
+## 📞 Support
+
+- 🐛 [Report issues](https://github.com/tu-usuario/mindy-smart-closet/issues)
+- 💬 [Discussions](https://github.com/tu-usuario/mindy-smart-closet/discussions)
+- 📧 Email: equipo@mindy-closet.dev
+
+---
+
+**Built with ❤️ by the Mindy team**  
+**Last updated:** 2026-10-11
