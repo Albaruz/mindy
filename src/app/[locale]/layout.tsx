@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { AppHeader } from "@/components/AppHeader/AppHeader";
 import { NotificationContainer } from "@/components/Notification/NotificationContainer";
+import { VercelAnalytics } from "@/components/VercelAnalytics/VercelAnalytics";
 import { THEME_STORAGE_KEY } from "@/constants/storage";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { Providers } from "../providers";
@@ -81,6 +82,7 @@ export default async function LocaleLayout({
             </main>
           </Providers>
         </NextIntlClientProvider>
+        <VercelAnalytics />
       </body>
     </html>
   );
