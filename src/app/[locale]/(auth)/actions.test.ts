@@ -48,10 +48,20 @@ const mockRevalidatePath = vi.mocked(revalidatePath);
 
 const INITIAL = { error: null, message: null };
 
-function formData(email: string, password: string, remember = false): FormData {
+const STRONG_PASSWORD = "Secret12!";
+
+function formData(
+  email: string,
+  password: string,
+  remember = false,
+  confirm?: string,
+): FormData {
   const data = new FormData();
   data.set("email", email);
   data.set("password", password);
+  // Sign-up sends the confirmation field; default it to the password so
+  // existing sign-in calls keep working unchanged.
+  data.set("confirm", confirm ?? password);
   if (remember) {
     data.set("remember", "on");
   }
@@ -190,14 +200,29 @@ describe("signUpAction", () => {
   });
 
   it("rejects an invalid email without calling Supabase", async () => {
-    const result = await signUpAction(INITIAL, formData("bad", "secret12"));
+    const result = await signUpAction(INITIAL, formData("bad", STRONG_PASSWORD));
     expect(result).toEqual({ ...INITIAL, error: "invalidEmail" });
+    expect(mockCreateServerClient).not.toHaveBeenCalled();
+  });
+
+  it("rejects a weak password without calling Supabase", async () => {
+    const result = await signUpAction(INITIAL, formData("user@example.com", "secret12"));
+    expect(result).toEqual({ ...INITIAL, error: "weakPassword" });
     expect(mockCreateServerClient).not.toHaveBeenCalled();
   });
 
   it("rejects a short password without calling Supabase", async () => {
     const result = await signUpAction(INITIAL, formData("user@example.com", "123"));
-    expect(result).toEqual({ ...INITIAL, error: "shortPassword" });
+    expect(result).toEqual({ ...INITIAL, error: "weakPassword" });
+    expect(mockCreateServerClient).not.toHaveBeenCalled();
+  });
+
+  it("rejects a mismatched confirmation without calling Supabase", async () => {
+    const result = await signUpAction(
+      INITIAL,
+      formData("user@example.com", STRONG_PASSWORD, false, "Different12!"),
+    );
+    expect(result).toEqual({ ...INITIAL, error: "passwordMismatch" });
     expect(mockCreateServerClient).not.toHaveBeenCalled();
   });
 
@@ -205,7 +230,7 @@ describe("signUpAction", () => {
     mockSupabase({
       signUp: { data: {}, error: { message: "User already registered" } },
     });
-    const result = await signUpAction(INITIAL, formData("user@example.com", "secret12"));
+    const result = await signUpAction(INITIAL, formData("user@example.com", STRONG_PASSWORD));
     expect(result).toEqual({ ...INITIAL, error: "accountExists" });
     expect(mockRevalidatePath).not.toHaveBeenCalled();
   });
@@ -214,13 +239,13 @@ describe("signUpAction", () => {
     mockSupabase({
       signUp: { data: {}, error: { message: "database offline" } },
     });
-    const result = await signUpAction(INITIAL, formData("user@example.com", "secret12"));
+    const result = await signUpAction(INITIAL, formData("user@example.com", STRONG_PASSWORD));
     expect(result).toEqual({ ...INITIAL, error: "noService" });
   });
 
   it("returns noService when sign-up throws", async () => {
     mockSupabase({ signUp: new Error("network down") });
-    const result = await signUpAction(INITIAL, formData("user@example.com", "secret12"));
+    const result = await signUpAction(INITIAL, formData("user@example.com", STRONG_PASSWORD));
     expect(result).toEqual({ ...INITIAL, error: "noService" });
   });
 
@@ -228,7 +253,7 @@ describe("signUpAction", () => {
     mockSupabase({
       signUp: { data: { user: { id: "user-1" }, session: null }, error: null },
     });
-    const result = await signUpAction(INITIAL, formData("user@example.com", "secret12"));
+    const result = await signUpAction(INITIAL, formData("user@example.com", STRONG_PASSWORD));
     expect(result).toEqual({ ...INITIAL, message: "confirmEmail" });
     expect(mockRevalidatePath).not.toHaveBeenCalled();
   });
@@ -241,7 +266,7 @@ describe("signUpAction", () => {
       },
     });
     await expect(
-      signUpAction(INITIAL, formData("user@example.com", "secret12", true)),
+      signUpAction(INITIAL, formData("user@example.com", STRONG_PASSWORD, true)),
     ).rejects.toThrow(/\/(?:en|es)\/profile\/onboarding/);
     expect(mockCookieSet).toHaveBeenCalledTimes(2);
     expect(mockRevalidatePath).toHaveBeenCalledWith("/", "layout");

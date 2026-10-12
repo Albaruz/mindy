@@ -3,8 +3,31 @@
 // Names are semantic per field even when values coincide today, so each
 // rule can evolve independently.
 
-/** Minimum password length (Supabase Auth default). */
+/** Minimum password length (Supabase Auth default, sign-in + reset flows). */
 export const PASSWORD_MIN_LENGTH = 6;
+
+/** Minimum length for new passwords created at sign-up (ASVS 6.2.1: >= 8). */
+export const SIGNUP_PASSWORD_MIN_LENGTH = 8;
+
+/** Character classes required for sign-up passwords (diversity, not blocklist). */
+export const PASSWORD_UPPERCASE_PATTERN = /[A-Z]/;
+export const PASSWORD_LOWERCASE_PATTERN = /[a-z]/;
+export const PASSWORD_DIGIT_PATTERN = /[0-9]/;
+export const PASSWORD_SYMBOL_PATTERN = /[^A-Za-z0-9]/;
+
+/**
+ * Returns true when a password meets the sign-up policy: minimum length
+ * plus one uppercase, one lowercase, one digit and one symbol.
+ */
+export function meetsSignupPasswordPolicy(password: string): boolean {
+  return (
+    password.length >= SIGNUP_PASSWORD_MIN_LENGTH &&
+    PASSWORD_UPPERCASE_PATTERN.test(password) &&
+    PASSWORD_LOWERCASE_PATTERN.test(password) &&
+    PASSWORD_DIGIT_PATTERN.test(password) &&
+    PASSWORD_SYMBOL_PATTERN.test(password)
+  );
+}
 
 /** Pragmatic email shape check (server does not verify deliverability). */
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

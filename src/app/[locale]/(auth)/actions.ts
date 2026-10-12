@@ -17,7 +17,11 @@ import {
   postAuthDestination,
 } from "@/lib/onboarding";
 import { resolveRequestLocale } from "@/lib/serverLocale";
-import { EMAIL_PATTERN, PASSWORD_MIN_LENGTH } from "@/constants/validation";
+import {
+  EMAIL_PATTERN,
+  PASSWORD_MIN_LENGTH,
+  meetsSignupPasswordPolicy,
+} from "@/constants/validation";
 
 export interface AuthActionState {
   error: string | null;
@@ -29,8 +33,9 @@ const INITIAL_STATE: AuthActionState = { error: null, message: null };
 function readCredentials(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
   const remember = formData.get("remember") === "on";
-  return { email, password, remember };
+  return { email, password, confirm, remember };
 }
 
 // Persists (or clears) the remember-me flag so sign-in cookies and
@@ -65,6 +70,26 @@ function validateCredentials(
   }
   if (password.length < PASSWORD_MIN_LENGTH) {
     return t("shortPassword");
+  }
+  return null;
+}
+
+function validateSignUp(
+  email: string,
+  password: string,
+  confirm: string,
+  t: (key: string) => string,
+): string | null {
+  if (!EMAIL_PATTERN.test(email)) {
+    return t("invalidEmail");
+  }
+  // Server is the trust boundary: re-check the full policy here even
+  // though the client also hints at it (never trust client validation).
+  if (!meetsSignupPasswordPolicy(password)) {
+    return t("weakPassword");
+  }
+  if (password !== confirm) {
+    return t("passwordMismatch");
   }
   return null;
 }
@@ -118,9 +143,9 @@ export async function signUpAction(
   formData: FormData,
 ): Promise<AuthActionState> {
   const t = await getTranslations("Auth");
-  const { email, password, remember } = readCredentials(formData);
+  const { email, password, confirm, remember } = readCredentials(formData);
 
-  const validationError = validateCredentials(email, password, t);
+  const validationError = validateSignUp(email, password, confirm, t);
   if (validationError !== null) {
     return { ...INITIAL_STATE, error: validationError };
   }

@@ -3,10 +3,19 @@
 import { useState } from "react";
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
+import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/Button/Button";
 import { PasswordInput } from "@/components/PasswordInput/PasswordInput";
 import { Link } from "@/i18n/navigation";
+import {
+  PASSWORD_DIGIT_PATTERN,
+  PASSWORD_LOWERCASE_PATTERN,
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_SYMBOL_PATTERN,
+  PASSWORD_UPPERCASE_PATTERN,
+  SIGNUP_PASSWORD_MIN_LENGTH,
+} from "@/constants/validation";
 // TODO(v2.0): re-enable Google OAuth (client + button below are parked).
 // import { createClient } from "@/lib/supabase/client";
 import { signInAction, signUpAction, type AuthActionState } from "./actions";
@@ -20,6 +29,11 @@ export function AuthForm() {
   const t = useTranslations("Auth");
   const ta = useTranslations("Accessibility");
   const [mode, setMode] = useState<AuthMode>("login");
+  // Controlled fields so a failed submit keeps what the user typed
+  // (email especially) instead of resetting the form.
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [signInState, signInFormAction, isSigningIn] = useActionState(
     signInAction,
     INITIAL_STATE,
@@ -32,33 +46,38 @@ export function AuthForm() {
   const isLogin = mode === "login";
   const state = isLogin ? signInState : signUpState;
   const isPending = isSigningIn || isSigningUp;
-  // TODO(v2.0): Google OAuth parked (handler + states below).
-  // const [oauthError, setOauthError] = useState<string | null>(null);
-  // const [isOauthPending, setIsOauthPending] = useState(false);
 
-  // OAuth is a redirect flow: the browser leaves for Google and returns
-  // to /auth/callback, which applies the post-auth destination rule.
-  // const handleGoogleSignIn = async () => {
-  //   setOauthError(null);
-  //   setIsOauthPending(true);
-  //   try {
-  //     const supabase = createClient();
-  //     const { error } = await supabase.auth.signInWithOAuth({
-  //       provider: "google",
-  //       options: {
-  //         redirectTo: `${window.location.origin}/auth/callback`,
-  //       },
-  //     });
-  //     if (error) {
-  //       setOauthError(t("oauthError"));
-  //       setIsOauthPending(false);
-  //     }
-  //     // Success navigates away; nothing else to do here.
-  //   } catch {
-  //     setOauthError(t("oauthError"));
-  //     setIsOauthPending(false);
-  //   }
-  // };
+  const handleModeChange = (next: AuthMode) => {
+    setMode(next);
+    // Keep the email, clear secrets when switching modes.
+    setPassword("");
+    setConfirm("");
+  };
+
+  // Derived during render: live checklist for the sign-up policy.
+  const requirements = [
+    {
+      key: "passwordReqLength",
+      met: password.length >= SIGNUP_PASSWORD_MIN_LENGTH,
+    },
+    {
+      key: "passwordReqUpper",
+      met: PASSWORD_UPPERCASE_PATTERN.test(password),
+    },
+    {
+      key: "passwordReqLower",
+      met: PASSWORD_LOWERCASE_PATTERN.test(password),
+    },
+    { key: "passwordReqDigit", met: PASSWORD_DIGIT_PATTERN.test(password) },
+    {
+      key: "passwordReqSymbol",
+      met: PASSWORD_SYMBOL_PATTERN.test(password),
+    },
+    {
+      key: "passwordReqMatch",
+      met: password.length > 0 && password === confirm,
+    },
+  ];
 
   return (
     <div>
@@ -67,7 +86,7 @@ export function AuthForm() {
           type="button"
           aria-pressed={isLogin}
           className={cn(styles.tab, isLogin && styles.tabActive)}
-          onClick={() => setMode("login")}
+          onClick={() => handleModeChange("login")}
         >
           {t("login")}
         </button>
@@ -75,7 +94,7 @@ export function AuthForm() {
           type="button"
           aria-pressed={!isLogin}
           className={cn(styles.tab, !isLogin && styles.tabActive)}
-          onClick={() => setMode("signup")}
+          onClick={() => handleModeChange("signup")}
         >
           {t("signup")}
         </button>
@@ -94,6 +113,8 @@ export function AuthForm() {
             required
             autoComplete="email"
             placeholder="you@example.com"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
             aria-invalid={state.error !== null}
             aria-describedby={state.error !== null ? "auth-form-error" : undefined}
           />
@@ -104,15 +125,66 @@ export function AuthForm() {
             id="auth-password"
             name="password"
             required
-            minLength={6}
+            minLength={isLogin ? PASSWORD_MIN_LENGTH : SIGNUP_PASSWORD_MIN_LENGTH}
             autoComplete={isLogin ? "current-password" : "new-password"}
             placeholder={t("passwordHint")}
             showPasswordLabel={t("showPassword")}
             hidePasswordLabel={t("hidePassword")}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
             aria-invalid={state.error !== null}
-            aria-describedby={state.error !== null ? "auth-form-error" : undefined}
+            aria-describedby={
+              isLogin
+                ? state.error !== null
+                  ? "auth-form-error"
+                  : undefined
+                : state.error !== null
+                  ? "auth-password-requirements auth-form-error"
+                  : "auth-password-requirements"
+            }
           />
+          {!isLogin ? (
+            <div id="auth-password-requirements">
+              <p className={styles.hint}>{t("passwordRequirements")}</p>
+              <ul className={styles.checklist} aria-live="polite">
+                {requirements.map((requirement) => {
+                  const Icon = requirement.met ? Check : X;
+                  return (
+                    <li
+                      key={requirement.key}
+                      className={cn(
+                        styles.checkItem,
+                        requirement.met ? styles.met : styles.missing,
+                      )}
+                    >
+                      <Icon aria-hidden="true" size={14} strokeWidth={2.5} />
+                      {t(requirement.key)}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ) : null}
         </div>
+        {!isLogin ? (
+          <div className={styles.field}>
+            <label htmlFor="auth-confirm">{t("confirmPassword")}</label>
+            <PasswordInput
+              id="auth-confirm"
+              name="confirm"
+              required
+              minLength={SIGNUP_PASSWORD_MIN_LENGTH}
+              autoComplete="new-password"
+              placeholder={t("confirmPassword")}
+              showPasswordLabel={t("showPassword")}
+              hidePasswordLabel={t("hidePassword")}
+              value={confirm}
+              onChange={(event) => setConfirm(event.target.value)}
+              aria-invalid={state.error !== null}
+              aria-describedby={state.error !== null ? "auth-form-error" : undefined}
+            />
+          </div>
+        ) : null}
 
         {state.error !== null ? (
           <p id="auth-form-error" role="alert" className={styles.error}>

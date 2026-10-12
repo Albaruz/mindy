@@ -87,11 +87,52 @@ describe("AuthForm", () => {
     await user.click(screen.getByRole("button", { name: "signup" }));
     const form = screen.getByRole("form", { name: "signup" });
     await user.type(screen.getByLabelText("email"), "new@example.com");
-    await user.type(screen.getByLabelText("password"), "secret123");
+    await user.type(screen.getByLabelText("password"), "Secret123!");
+    await user.type(screen.getByLabelText("confirmPassword"), "Secret123!");
     await user.click(within(form).getByRole("button", { name: "signup" }));
     await waitFor(() => {
       expect(signUpMock).toHaveBeenCalled();
     });
+  });
+
+  it("shows password requirements and confirmation only in signup mode", async () => {
+    const user = userEvent.setup();
+    render(<AuthForm />);
+    expect(
+      screen.queryByLabelText("confirmPassword"),
+    ).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "signup" }));
+    expect(screen.getByLabelText("confirmPassword")).toBeRequired();
+    expect(screen.getByText("passwordRequirements")).toBeInTheDocument();
+    expect(screen.getByText("passwordReqLength")).toBeInTheDocument();
+    expect(screen.getByText("passwordReqMatch")).toBeInTheDocument();
+  });
+
+  it("updates the password checklist live as the user types", async () => {
+    const user = userEvent.setup();
+    render(<AuthForm />);
+    await user.click(screen.getByRole("button", { name: "signup" }));
+    const lengthItem = screen.getByText("passwordReqLength").closest("li");
+    const upperItem = screen.getByText("passwordReqUpper").closest("li");
+    expect(lengthItem?.className).toMatch(/missing/);
+    await user.type(screen.getByLabelText("password"), "Secret123!");
+    expect(lengthItem?.className).toMatch(/met/);
+    expect(upperItem?.className).toMatch(/met/);
+    const matchItem = screen.getByText("passwordReqMatch").closest("li");
+    expect(matchItem?.className).toMatch(/missing/);
+    await user.type(screen.getByLabelText("confirmPassword"), "Secret123!");
+    expect(matchItem?.className).toMatch(/met/);
+  });
+
+  it("keeps the email filled after a failed sign-in", async () => {
+    const user = userEvent.setup();
+    render(<AuthForm />);
+    const form = screen.getByRole("form", { name: "login" });
+    await user.type(screen.getByLabelText("email"), "unknown@example.com");
+    await user.type(screen.getByLabelText("password"), "secret123");
+    await user.click(within(form).getByRole("button", { name: "login" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("badCredentials");
+    expect(screen.getByLabelText("email")).toHaveValue("unknown@example.com");
   });
 
   it("shows the server error message on failed sign-in", async () => {

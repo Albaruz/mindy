@@ -7,6 +7,7 @@ import { AnimatePresence } from "framer-motion";
 import { RotateCcw, X } from "lucide-react";
 import { SmartSkeleton } from "@/components/Skeletons/SmartSkeleton";
 import { BottomActionBar } from "@/components/BottomActionBar/BottomActionBar";
+import { useRouter } from "@/i18n/navigation";
 import { useClosetQuery } from "@/features/closet/useClosetQuery";
 import { useProfileQuery } from "@/features/profile/useProfileQuery";
 import { useGeneratorStore } from "./useGeneratorStore";
@@ -136,6 +137,13 @@ export function Home() {
   const activeLook = aiLooks[activeLookIndex] ?? null;
   const t = useTranslations("Generator");
   const ta = useTranslations("Accessibility");
+  const router = useRouter();
+  // The look is already worn + saved in history: closing the celebration
+  // lands on the calendar so the user sees today filled in.
+  const handleCelebrationClose = () => {
+    useGeneratorStore.getState().resetFlow();
+    router.push("/calendar");
+  };
   const handleWearActiveLook = () => {
     if (activeLook && !wearToday.isPending) {
       wearToday.mutate(activeLook.garments);
@@ -237,7 +245,7 @@ export function Home() {
           <OutfitCelebrationScreen
             key="outfit-celebration"
             garments={celebrationGarments}
-            onClose={() => useGeneratorStore.getState().resetFlow()}
+            onClose={handleCelebrationClose}
           />
         ) : null}
       </AnimatePresence>

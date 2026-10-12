@@ -45,6 +45,10 @@ vi.mock("next/dynamic", () => ({
   },
 }));
 
+vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({ push: mockRouterPush }),
+}));
+
 vi.mock("framer-motion", async (importOriginal) => {
   const actual = await importOriginal<typeof import("framer-motion")>();
   return {
@@ -74,12 +78,14 @@ const {
   mockWeatherData,
   mockProfileData,
   mockClosetData,
+  mockRouterPush,
 } = vi.hoisted(() => ({
   mockGenerateMutate: vi.fn(),
   mockWearMutate: vi.fn(),
   mockWeatherData: vi.fn<() => WeatherInfo | null>(() => null),
   mockProfileData: vi.fn<() => UserProfile | null>(() => null),
   mockClosetData: vi.fn<() => Garment[]>(() => []),
+  mockRouterPush: vi.fn(),
 }));
 
 let mockGeneratePending = false;
@@ -345,6 +351,7 @@ describe("Home interactions", () => {
     useGeneratorStore.getState().resetFlow();
     mockGenerateMutate.mockClear();
     mockWearMutate.mockClear();
+    mockRouterPush.mockClear();
     mockGeneratePending = false;
     mockWearPending = false;
     mockWeatherData.mockImplementation(() => null);
@@ -467,6 +474,13 @@ describe("Home interactions", () => {
     expect(
       screen.queryByTestId("celebration"),
     ).not.toBeInTheDocument();
+  });
+
+  it("navigates to the calendar when the celebration closes", async () => {
+    useGeneratorStore.getState().showCelebration([buildGarment("t1", "top")]);
+    render(<Home />);
+    await userEvent.click(screen.getByTestId("celebration-close"));
+    expect(mockRouterPush).toHaveBeenCalledWith("/calendar");
   });
 
   it("shows outerwear skeletons on cold days", () => {
