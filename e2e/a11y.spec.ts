@@ -9,7 +9,11 @@ import { hasSeededAuth, SEEDED_AUTH_HELP } from "./seeded-auth";
 const ROUTES = [
   "/es/generator",
   "/es/closet",
+  "/es/calendar",
+  "/es/profile",
   "/es/profile/onboarding",
+  "/es/forgot-password",
+  "/es/reset-password",
 ] as const;
 const THEMES = ["light", "dark"] as const;
 
@@ -20,7 +24,7 @@ test.describe("accessibility", () => {
 
   for (const route of ROUTES) {
     for (const theme of THEMES) {
-      test(`has no serious/critical axe violations on ${route} in ${theme} theme`, async ({
+      test(`has no axe violations on ${route} in ${theme} theme`, async ({
         page,
       }) => {
         await page.addInitScript(
@@ -33,11 +37,7 @@ test.describe("accessibility", () => {
         const results = await new AxeBuilder({ page })
           .withTags(["wcag2a", "wcag2aa", "wcag22aa"])
           .analyze();
-        const blocking = results.violations.filter(
-          (violation) =>
-            violation.impact === "serious" || violation.impact === "critical",
-        );
-        const diagnostics = blocking.map((violation) => ({
+        const diagnostics = results.violations.map((violation) => ({
           id: violation.id,
           impact: violation.impact,
           help: violation.help,

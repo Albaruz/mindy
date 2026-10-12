@@ -12,7 +12,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "test:a11y": "playwright test e2e/a11y.spec.ts",
+    "test:a11y": "playwright test e2e/a11y.spec.ts --workers=1",
     "budget": "node scripts/check-bundle-budget.mjs",
     "lhci": "lhci autorun",
     "tokens:build": "ts-node scripts/build-tokens.ts",
