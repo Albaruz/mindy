@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import type {
+  CutoutDifficulty,
   GarmentColor,
   GarmentCut,
   GarmentMaterial,
@@ -10,6 +11,7 @@ import type {
   GarmentStyle,
   GarmentType,
 } from "@/types/garment";
+import { CUTOUT_DIFFICULTY_VALUES } from "@/types/garment";
 import {
   normalizeGarmentColor,
   normalizeGarmentCut,
@@ -20,6 +22,7 @@ import {
 } from "./garmentOptions";
 import { useNotificationStore } from "@/features/ui/useNotificationStore";
 import { API_ROUTES } from "@/constants/api";
+import { MAX_IMAGE_PROCESSING_DIMENSION_PX } from "@/constants/validation";
 import { STORAGE_BUCKETS, TABLES } from "@/constants/storage";
 import { GARMENTS_QUERY_KEY } from "./useClosetQuery";
 import { buildVisionExtraTags } from "./garmentMappers";
@@ -30,25 +33,13 @@ export const GARMENT_STORAGE_BUCKET = STORAGE_BUCKETS.garments;
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 const ANALYZE_TIMEOUT_MS = 30000;
-const ANALYZE_MAX_DIMENSION_PX = 1024;
 // Storage width for uploaded garments: keeps every file light while
 // looking sharp on cards and the edit preview.
 const UPLOAD_WIDTH_PX = 300;
 
 export type UploadPhase = "idle" | "processing";
 
-export interface GarmentFormInput {
-  garmentType: GarmentType | "";
-  season: GarmentSeason | "";
-  color: GarmentColor | "";
-  material: GarmentMaterial | "";
-  style: GarmentStyle | "";
-  cutLength: GarmentCut | "";
-  // Free-form extra tags edited as chips (aiCategory, color_base, ...).
-  extraTags: Record<string, string>;
-}
-
-interface InferredTags {
+export interface InferredTags {
   category: GarmentType | "";
   garmentType: GarmentType | "";
   season: GarmentSeason | "";
@@ -56,10 +47,16 @@ interface InferredTags {
   material: GarmentMaterial | "";
   style: GarmentStyle | "";
   cutLength: GarmentCut | "";
-  // Raw details preserved in extra_tags when the AI returns a shade or
-  // specific name outside the closed base (turquoise, sneakers, ...).
   typeDetail: string;
   colorShade: string;
+  cutoutDifficulty: CutoutDifficulty | "";
+  qualityNote: string;
+  visualDescription: string;
+}
+
+export interface QualityGateRequest {
+  file: File;
+  tags: InferredTags;
 }
 
 const EMPTY_TAGS: InferredTags = {
@@ -72,74 +69,62 @@ const EMPTY_TAGS: InferredTags = {
   cutLength: "",
   typeDetail: "",
   colorShade: "",
+  cutoutDifficulty: "",
+  qualityNote: "",
+  visualDescription: "",
 };
 
-// Automatic upload pipeline: background removal, AI tagging (Groq vision
-// over a downscaled base64 copy), resize to 300 px wide, then Storage
-// upload and save with the inferred tags. No mandatory form: the user
-// refines tags later through the edit action on each card.
+export interface GarmentFormInput {
+  garmentType: GarmentType | "";
+  season: GarmentSeason | "";
+  color: GarmentColor | "";
+  material: GarmentMaterial | "";
+  style: GarmentStyle | "";
+  cutLength: GarmentCut | "";
+  // Free-form extra tags edited as chips (aiCategory, color_base, ...).
+  extraTags: Record<string, string>;
+}
+
+// Analyze the original photo first. Difficult images pause for an explicit
+// user choice; good images keep the usual automatic background-removal flow.
 export function useUploadGarment() {
   const queryClient = useQueryClient();
   const { addNotification } = useNotificationStore.getState();
+  const locale = useLocale();
   const t = useTranslations("Notifications");
   const [phase, setPhase] = useState<UploadPhase>("idle");
   const [progressNote, setProgressNote] = useState<string | null>(null);
+  const [qualityGate, setQualityGate] = useState<QualityGateRequest | null>(
+    null,
+  );
+  const [cutoutFailed, setCutoutFailed] = useState(false);
 
-  async function processPhoto(file: File): Promise<void> {
-    if (!file.type.startsWith("image/")) {
-      addNotification("error", t("chooseImage"));
-      return;
+  async function persistGarment(source: Blob, tags: InferredTags): Promise<void> {
+    setProgressNote(t("uploadResizing"));
+    const uploadBlob = await resizeToWidth(source, UPLOAD_WIDTH_PX);
+
+    setProgressNote(t("uploadUploading"));
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error("You must be signed in to add garments.");
     }
-    if (file.size > MAX_FILE_SIZE_BYTES) {
-      addNotification("error", t("tooBig"));
-      return;
+
+    const path = `${user.id}/${crypto.randomUUID()}.png`;
+    const { error: uploadError } = await supabase.storage
+      .from(GARMENT_STORAGE_BUCKET)
+      .upload(path, uploadBlob, {
+        contentType: "image/png",
+        upsert: false,
+      });
+    if (uploadError) {
+      throw uploadError;
     }
-
-    setPhase("processing");
-    try {
-      setProgressNote(t("uploadRemoving"));
-      let png: Blob;
-      try {
-        png = await removeBackgroundInWorker(file, {
-          output: { format: "image/png", quality: 1 },
-        });
-      } catch (workerErr) {
-        // Fallback to main-thread dynamic import if worker fails
-        console.warn('[useUploadGarment] Worker failed, falling back to main thread:', workerErr);
-        setProgressNote(t("uploadRemovingFallback"));
-        png = await removeBackgroundFallback(file, {
-          output: { format: "image/png", quality: 1 },
-        });
-      }
-
-      setProgressNote(t("uploadTagging"));
-      const tags = await suggestTags(await toDownscaledDataUrl(png));
-
-      setProgressNote(t("uploadResizing"));
-      const uploadBlob = await resizeToWidth(png, UPLOAD_WIDTH_PX);
-
-      setProgressNote(t("uploadUploading"));
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error("You must be signed in to add garments.");
-      }
-
-      const path = `${user.id}/${crypto.randomUUID()}.png`;
-      const { error: uploadError } = await supabase.storage
-        .from(GARMENT_STORAGE_BUCKET)
-        .upload(path, uploadBlob, {
-          contentType: "image/png",
-          upsert: false,
-        });
-      if (uploadError) {
-        throw uploadError;
-      }
-      const imageUrl = supabase.storage
-        .from(GARMENT_STORAGE_BUCKET)
-        .getPublicUrl(path).data.publicUrl;
+    const imageUrl = supabase.storage
+      .from(GARMENT_STORAGE_BUCKET)
+      .getPublicUrl(path).data.publicUrl;
 
       const { error: insertError } = await supabase.from(TABLES.garments).insert({
         user_id: user.id,
@@ -161,33 +146,143 @@ export function useUploadGarment() {
         throw insertError;
       }
 
-      await queryClient.invalidateQueries({ queryKey: GARMENTS_QUERY_KEY });
-      setProgressNote(null);
+    await queryClient.invalidateQueries({ queryKey: GARMENTS_QUERY_KEY });
+  }
+
+  async function processPhoto(file: File): Promise<void> {
+    if (!file.type.startsWith("image/")) {
+      addNotification("error", t("chooseImage"));
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      addNotification("error", t("tooBig"));
+      return;
+    }
+
+    setQualityGate(null);
+    setCutoutFailed(false);
+    setPhase("processing");
+    try {
+      // Vision must see the original: its background, contrast, lighting and
+      // framing are needed for the cutout-quality decision.
+      setProgressNote(t("uploadTagging"));
+      const tags = await suggestTags(
+        await toDownscaledDataUrl(file),
+        locale === "es" ? "es" : "en",
+      );
+      if (tags.cutoutDifficulty === "hard") {
+        setQualityGate({ file, tags });
+        return;
+      }
+
+      setProgressNote(t("uploadRemoving"));
+      let png: Blob;
+      try {
+        png = await removeBackgroundWithFallback(file, () =>
+          setProgressNote(t("uploadRemovingFallback")),
+        );
+      } catch {
+        setQualityGate({ file, tags });
+        setCutoutFailed(true);
+        return;
+      }
+
+      await persistGarment(png, tags);
       addNotification("success", t("added"));
-      setPhase("idle");
     } catch (err) {
-      setProgressNote(null);
       addNotification(
         "error",
         err instanceof Error
           ? err.message
           : "Could not process the photo. Try another one.",
       );
+    } finally {
+      setProgressNote(null);
       setPhase("idle");
     }
   }
 
-  return { phase, progressNote, processPhoto };
+  async function removeBackground(): Promise<void> {
+    if (qualityGate === null || phase === "processing") {
+      return;
+    }
+    setPhase("processing");
+    setCutoutFailed(false);
+    try {
+      setProgressNote(t("uploadRemoving"));
+      let png: Blob;
+      try {
+        png = await removeBackgroundWithFallback(qualityGate.file, () =>
+          setProgressNote(t("uploadRemovingFallback")),
+        );
+      } catch {
+        setCutoutFailed(true);
+        return;
+      }
+      await persistGarment(png, qualityGate.tags);
+      setQualityGate(null);
+      addNotification("success", t("added"));
+    } catch (err) {
+      addNotification(
+        "error",
+        err instanceof Error ? err.message : t("uploadFailed"),
+      );
+    } finally {
+      setProgressNote(null);
+      setPhase("idle");
+    }
+  }
+
+  async function useOriginalPhoto(): Promise<void> {
+    if (qualityGate === null || phase === "processing") {
+      return;
+    }
+    setPhase("processing");
+    try {
+      setProgressNote(t("uploadUploading"));
+      // Normalize JPEG/WebP/PNG to the bucket's image/png policy.
+      await persistGarment(qualityGate.file, qualityGate.tags);
+      setQualityGate(null);
+      setCutoutFailed(false);
+      addNotification("success", t("added"));
+    } catch (err) {
+      addNotification(
+        "error",
+        err instanceof Error ? err.message : t("uploadFailed"),
+      );
+    } finally {
+      setProgressNote(null);
+      setPhase("idle");
+    }
+  }
+
+  function dismissQualityGate(): void {
+    if (phase === "processing") {
+      return;
+    }
+    setQualityGate(null);
+    setCutoutFailed(false);
+  }
+
+  return {
+    phase,
+    progressNote,
+    processPhoto,
+    qualityGate,
+    cutoutFailed,
+    removeBackground,
+    useOriginalPhoto,
+    dismissQualityGate,
+  };
 }
 
-// Resizes the processed PNG down to the given width so Storage uploads
-// stay light. Never upscales: small images are returned untouched.
-// PNG output preserves the cutout transparency.
+// Resizes to the upload width and always emits PNG, including original-photo
+// uploads, to satisfy the garment Storage bucket's MIME policy.
 async function resizeToWidth(blob: Blob, targetWidthPx: number): Promise<Blob> {
   const bitmap = await createImageBitmap(blob);
   try {
     const scale = Math.min(1, targetWidthPx / bitmap.width);
-    if (scale === 1) {
+    if (scale === 1 && blob.type === "image/png") {
       return blob;
     }
     const width = Math.max(1, Math.round(bitmap.width * scale));
@@ -212,6 +307,74 @@ async function resizeToWidth(blob: Blob, targetWidthPx: number): Promise<Blob> {
   }
 }
 
+async function removeBackgroundWithFallback(
+  file: File,
+  onFallback: () => void,
+): Promise<Blob> {
+  const processingImage = await downscaleForBackgroundRemoval(
+    file,
+    MAX_IMAGE_PROCESSING_DIMENSION_PX,
+  );
+  try {
+    return await removeBackgroundInWorker(processingImage, {
+      output: { format: "image/png", quality: 1 },
+    });
+  } catch (workerErr) {
+    console.warn(
+      "[useUploadGarment] Worker failed, falling back to main thread:",
+      workerErr,
+    );
+    onFallback();
+    try {
+      return await removeBackgroundFallback(processingImage, {
+        output: { format: "image/png", quality: 1 },
+      });
+    } catch (fallbackError) {
+      console.error(
+        "[useUploadGarment] Background removal failed in both worker and fallback:",
+        { workerErr, fallbackError },
+      );
+      throw fallbackError;
+    }
+  }
+}
+
+async function downscaleForBackgroundRemoval(
+  source: Blob,
+  maxDimensionPx: number,
+): Promise<Blob> {
+  const bitmap = await createImageBitmap(source);
+  try {
+    const scale = Math.min(
+      1,
+      maxDimensionPx / Math.max(bitmap.width, bitmap.height),
+    );
+    if (scale === 1) {
+      return source;
+    }
+
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    if (context === null) {
+      throw new Error("Canvas is not available.");
+    }
+    context.drawImage(bitmap, 0, 0, width, height);
+    const resized = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/png"),
+    );
+    if (resized === null) {
+      throw new Error("Could not prepare the image for background removal.");
+    }
+    return resized;
+  } finally {
+    bitmap.close();
+  }
+}
+
 // Downscales the processed PNG so the vision payload stays small.
 // Transparency is preserved (PNG), which helps the tagging model.
 async function toDownscaledDataUrl(blob: Blob): Promise<string> {
@@ -219,7 +382,7 @@ async function toDownscaledDataUrl(blob: Blob): Promise<string> {
   try {
     const scale = Math.min(
       1,
-      ANALYZE_MAX_DIMENSION_PX / Math.max(bitmap.width, bitmap.height),
+      MAX_IMAGE_PROCESSING_DIMENSION_PX / Math.max(bitmap.width, bitmap.height),
     );
     const width = Math.max(1, Math.round(bitmap.width * scale));
     const height = Math.max(1, Math.round(bitmap.height * scale));
@@ -253,12 +416,15 @@ function readDetail(
   return detail ?? "";
 }
 
-async function suggestTags(imageBase64: string): Promise<InferredTags> {
+async function suggestTags(
+  imageBase64: string,
+  locale: "en" | "es",
+): Promise<InferredTags> {
   try {
     const response = await fetch(API_ROUTES.analyze, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ imageBase64 }),
+      body: JSON.stringify({ imageBase64, locale }),
       signal: AbortSignal.timeout(ANALYZE_TIMEOUT_MS),
     });
     if (!response.ok) {
@@ -287,6 +453,19 @@ async function suggestTags(imageBase64: string): Promise<InferredTags> {
       colorShade:
         readDetail(record.colorDetail ?? record.shade, normalizeGarmentColor) ||
         readDetail(colorValue, normalizeGarmentColor),
+      cutoutDifficulty:
+        typeof record.cutoutDifficulty === "string" &&
+        (CUTOUT_DIFFICULTY_VALUES as readonly string[]).includes(
+          record.cutoutDifficulty,
+        )
+          ? (record.cutoutDifficulty as CutoutDifficulty)
+          : "",
+      qualityNote:
+        typeof record.qualityNote === "string" ? record.qualityNote : "",
+      visualDescription:
+        typeof record.visualDescription === "string"
+          ? record.visualDescription
+          : "",
     };
   } catch {
     return EMPTY_TAGS;
@@ -296,7 +475,7 @@ async function suggestTags(imageBase64: string): Promise<InferredTags> {
 // Runs @imgly/background-removal in a Web Worker to avoid blocking the main thread.
 // The worker loads the UMD build from jsDelivr CDN (cached by browser).
 async function removeBackgroundInWorker(
-  file: File,
+  file: Blob,
   options: { output: { format: "image/png"; quality: number } }
 ): Promise<Blob> {
   return new Promise((resolve, reject) => {
@@ -347,7 +526,7 @@ async function removeBackgroundInWorker(
 
 // Fallback: original dynamic import on main thread (used if worker fails)
 async function removeBackgroundFallback(
-  file: File,
+  file: Blob,
   options: { output: { format: "image/png"; quality: number } }
 ): Promise<Blob> {
   const { removeBackground } = await import("@imgly/background-removal");

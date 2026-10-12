@@ -40,8 +40,15 @@ export const VISION_TIMEOUT_MS = 30_000;
 /** Vision temperature: 0 for deterministic tagging. */
 export const VISION_TEMPERATURE = 0;
 
-/** Vision response cap: the tag JSON is tiny. */
-export const VISION_MAX_TOKENS = 300;
+/** Vision response cap for tags, quality assessment, and garment description. */
+export const VISION_MAX_TOKENS = 500;
+
+/** Maximum length of Vision's user-facing photo-quality explanation. */
+export const VISION_QUALITY_NOTE_MAX_LENGTH = 140;
+
+/** Maximum length of the garment-only description retained for later use. */
+export const VISION_VISUAL_DESCRIPTION_MAX_LENGTH = 400;
+
 
 // ---------------------------------------------------------------------------
 // Outfit reason localization

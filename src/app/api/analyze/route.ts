@@ -7,8 +7,10 @@ import { buildAnalysisPrompt } from "@/lib/ai/prompts";
 import {
   AI_VISION_MODEL,
   VISION_MAX_TOKENS,
+  VISION_QUALITY_NOTE_MAX_LENGTH,
   VISION_TEMPERATURE,
   VISION_TIMEOUT_MS,
+  VISION_VISUAL_DESCRIPTION_MAX_LENGTH,
 } from "@/constants/ai";
 import {
   IMAGE_DATA_URL_PREFIX,
@@ -21,6 +23,7 @@ import {
   GARMENT_SEASON_VALUES,
   GARMENT_STYLE_VALUES,
   GARMENT_TYPE_VALUES,
+  CUTOUT_DIFFICULTY_VALUES,
 } from "@/types/garment";
 import { logger, generateRequestId } from "@/lib/logger";
 
@@ -101,10 +104,11 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   }
-  const imageBase64 =
+  const requestBody =
     typeof body === "object" && body !== null
-      ? (body as Record<string, unknown>).imageBase64
+      ? (body as Record<string, unknown>)
       : null;
+  const imageBase64 = requestBody?.imageBase64;
   if (
     typeof imageBase64 !== "string" ||
     !imageBase64.startsWith(IMAGE_DATA_URL_PREFIX) ||
@@ -118,7 +122,8 @@ export async function POST(req: Request) {
 
   try {
     const groq = new Groq({ apiKey });
-    const { systemPrompt } = buildAnalysisPrompt();
+    const locale = requestBody?.locale === "es" ? "es" : "en";
+    const { systemPrompt } = buildAnalysisPrompt(locale);
     const groqStart = Date.now();
     const response = await groq.chat.completions.create(
       {
@@ -175,6 +180,18 @@ export async function POST(req: Request) {
       material: readClosedText(record.material, GARMENT_MATERIAL_VALUES),
       cutLength: readClosedText(record.cutLength, GARMENT_CUT_VALUES),
       typeDetail: readText(record.typeDetail ?? record.specificType, 60),
+      cutoutDifficulty: readClosedText(
+        record.cutoutDifficulty,
+        CUTOUT_DIFFICULTY_VALUES,
+      ),
+      qualityNote: readText(
+        record.qualityNote,
+        VISION_QUALITY_NOTE_MAX_LENGTH,
+      ),
+      visualDescription: readText(
+        record.visualDescription,
+        VISION_VISUAL_DESCRIPTION_MAX_LENGTH,
+      ),
     });
   } catch (error) {
     const durationMs = Date.now() - startTime;

@@ -120,6 +120,18 @@
     "deleteTitle": "¿Eliminar {name}?",
     "deleteConfirmYes": "Eliminar",
     "deleteConfirm": "¿Eliminar {name}? No se puede deshacer.",
+    "qualityTitle": "Uy, esta foto me lo pone difícil",
+    "qualityMessage": "La prenda se ve, pero el recorte puede complicarse. ¿Cómo seguimos?",
+    "qualityWorking": "Un segundo, estoy cuidando la foto…",
+    "qualityClose": "Cerrar y descartar esta foto",
+    "qualityTipsTitle": "Para la próxima foto",
+    "qualityTipBackground": "Fondo neutro que contraste con la prenda.",
+    "qualityTipLighting": "Luz uniforme, sin sombras fuertes.",
+    "qualityTipFraming": "Prenda completa, enfocada y sin nada que la tape.",
+    "qualityChooseAnother": "Elegir otra (Recomendado)",
+    "qualityRemoveBackground": "Probar a quitar el fondo",
+    "qualityUseOriginal": "Usar la foto tal cual",
+    "qualityCutoutFailed": "El recorte no ha salido bien. Prueba otra vez o elige cómo seguir.",
     "form": {
       "type": "¿Qué es?",
       "season": "Temporada",
@@ -323,7 +335,8 @@
     "uploadRemovingFallback": "Eliminando fondo (modo seguro)…",
     "uploadTagging": "Etiquetando con IA…",
     "uploadResizing": "Redimensionando imagen…",
-    "uploadUploading": "Subiendo…"
+    "uploadUploading": "Subiendo…",
+    "uploadFailed": "No he podido guardar la foto. Inténtalo de nuevo."
   },
   "Accessibility": {
     "mainNavigation": "Navegación principal",

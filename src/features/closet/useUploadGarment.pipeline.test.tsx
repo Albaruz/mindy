@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import React from "react";
 
 const {
@@ -22,6 +22,7 @@ const {
 }));
 
 vi.mock("next-intl", () => ({
+  useLocale: () => "en",
   useTranslations: () => (key: string) => key,
 }));
 
@@ -97,6 +98,8 @@ function mockAnalyzeSuccess() {
         season: "all",
         material: "cotton",
         style: "casual",
+        cutoutDifficulty: "easy",
+        visualDescription: "A black cotton tee with short sleeves.",
       }),
     ),
   );
@@ -141,6 +144,147 @@ describe("useUploadGarment pipeline", () => {
       garment_type: "top",
     });
     expect(result.current.phase).toBe("idle");
+  });
+
+  it("downscales large originals before background removal", async () => {
+    setupSupabaseSuccess();
+    mockAnalyzeSuccess();
+    vi.stubGlobal(
+      "createImageBitmap",
+      vi.fn(async () => ({ width: 2400, height: 1600, close: vi.fn() })),
+    );
+    const { result } = renderHook(() => useUploadGarment(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () =>
+      result.current.processPhoto(
+        new File(["large photo"], "photo.jpg", { type: "image/jpeg" }),
+      ),
+    );
+
+    expect(mockRemoveBackground).toHaveBeenCalledOnce();
+    expect(mockRemoveBackground.mock.calls[0][0]).toBeInstanceOf(Blob);
+    expect(mockRemoveBackground.mock.calls[0][0].type).toBe("image/png");
+  });
+
+  it("analyzes the original first and pauses difficult photos before cutout", async () => {
+    setupSupabaseSuccess();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Response.json({
+          category: "top",
+          garmentType: "top",
+          cutoutDifficulty: "hard",
+          qualityNote: "The dark fabric blends into the background.",
+          visualDescription: "A black cotton tee with short sleeves.",
+        }),
+      ),
+    );
+    const { result } = renderHook(() => useUploadGarment(), {
+      wrapper: createWrapper(),
+    });
+    const original = new File(["photo"], "photo.png", { type: "image/png" });
+
+    await act(async () => result.current.processPhoto(original));
+
+    expect(result.current.qualityGate?.file).toBe(original);
+    expect(result.current.qualityGate?.tags.visualDescription).toBe(
+      "A black cotton tee with short sleeves.",
+    );
+    expect(result.current.qualityGate?.tags.qualityNote).toBe(
+      "The dark fabric blends into the background.",
+    );
+    expect(mockRemoveBackground).not.toHaveBeenCalled();
+    expect(mockUpload).not.toHaveBeenCalled();
+    expect(result.current.phase).toBe("idle");
+  });
+
+  it("saves the selected original without running background removal", async () => {
+    setupSupabaseSuccess();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Response.json({
+          garmentType: "top",
+          color: "black",
+          cutoutDifficulty: "hard",
+        }),
+      ),
+    );
+    const { result } = renderHook(() => useUploadGarment(), {
+      wrapper: createWrapper(),
+    });
+    await act(async () =>
+      result.current.processPhoto(
+        new File(["photo"], "photo.jpg", { type: "image/jpeg" }),
+      ),
+    );
+
+    await act(async () => result.current.useOriginalPhoto());
+
+    expect(mockRemoveBackground).not.toHaveBeenCalled();
+    expect(mockUpload).toHaveBeenCalledOnce();
+    expect(mockUpload.mock.calls[0][1].type).toBe("image/png");
+    expect(mockInsert.mock.calls[0][0]).toMatchObject({
+      garment_type: "top",
+      color: "black",
+    });
+    expect(result.current.qualityGate).toBeNull();
+  });
+
+  it("runs background removal on the held photo when the user chooses it", async () => {
+    setupSupabaseSuccess();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Response.json({
+          garmentType: "top",
+          color: "black",
+          cutoutDifficulty: "hard",
+          visualDescription: "A black cotton tee with short sleeves.",
+        }),
+      ),
+    );
+    const { result } = renderHook(() => useUploadGarment(), {
+      wrapper: createWrapper(),
+    });
+    await act(async () =>
+      result.current.processPhoto(
+        new File(["photo"], "photo.png", { type: "image/png" }),
+      ),
+    );
+
+    await act(async () => result.current.removeBackground());
+
+    expect(mockRemoveBackground).toHaveBeenCalledOnce();
+    expect(mockUpload).toHaveBeenCalledOnce();
+    expect(mockInsert.mock.calls[0][0]).toMatchObject({
+      garment_type: "top",
+      color: "black",
+    });
+    expect(result.current.qualityGate).toBeNull();
+    expect(result.current.cutoutFailed).toBe(false);
+  });
+
+  it("keeps the decision modal available when background removal fails", async () => {
+    setupSupabaseSuccess();
+    mockRemoveBackground.mockRejectedValue(new Error("cutout failed"));
+    mockAnalyzeSuccess();
+    const { result } = renderHook(() => useUploadGarment(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () =>
+      result.current.processPhoto(
+        new File(["photo"], "photo.png", { type: "image/png" }),
+      ),
+    );
+
+    expect(result.current.qualityGate).not.toBeNull();
+    expect(result.current.cutoutFailed).toBe(true);
+    expect(mockUpload).not.toHaveBeenCalled();
   });
 
   it("falls back to empty tags when analysis fails", async () => {

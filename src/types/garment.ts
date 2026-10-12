@@ -77,6 +77,10 @@ export const GARMENT_SEASON_VALUES = [
 ] as const;
 export type GarmentSeason = (typeof GARMENT_SEASON_VALUES)[number];
 
+/** Vision's assessment of how difficult a clean garment cutout will be. */
+export const CUTOUT_DIFFICULTY_VALUES = ["easy", "hard"] as const;
+export type CutoutDifficulty = (typeof CUTOUT_DIFFICULTY_VALUES)[number];
+
 // Detail keys stored inside extra_tags when the original value is more
 // specific than the closed base (sneakers -> footwear, turquoise -> blue).
 export interface GarmentExtraTags {

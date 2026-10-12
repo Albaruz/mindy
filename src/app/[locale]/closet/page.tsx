@@ -34,6 +34,7 @@ import { useGarmentTranslator } from "@/lib/translateGarment";
 import { isLaundryExemptGarment } from "@/features/generator/categorizeGarments";
 import { GarmentCard } from "@/features/closet/GarmentCard";
 import { GarmentFormModal } from "@/features/closet/GarmentFormModal";
+import { PhotoQualityDialog } from "@/features/closet/PhotoQualityDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog/ConfirmDialog";
 import styles from "./page.module.scss";
 
@@ -345,7 +346,7 @@ export default function ClosetPage() {
         </>
       )}
 
-      {upload.phase === "processing" ? (
+      {upload.phase === "processing" && upload.qualityGate === null ? (
         <ProcessingOverlay message={upload.progressNote} />
       ) : null}
 
@@ -454,6 +455,22 @@ export default function ClosetPage() {
           isPending={deleteGarment.isPending}
           onConfirm={handleConfirmDelete}
           onClose={() => setPendingDelete(null)}
+        />
+      ) : null}
+
+      {upload.qualityGate !== null ? (
+        <PhotoQualityDialog
+          qualityNote={upload.qualityGate.tags.qualityNote || null}
+          cutoutFailed={upload.cutoutFailed}
+          isWorking={upload.phase === "processing"}
+          progressNote={upload.progressNote}
+          onRemoveBackground={() => void upload.removeBackground()}
+          onUseOriginal={() => void upload.useOriginalPhoto()}
+          onChangePhoto={() => {
+            upload.dismissQualityGate();
+            setIsSourceMenuOpen(true);
+          }}
+          onClose={upload.dismissQualityGate}
         />
       ) : null}
 

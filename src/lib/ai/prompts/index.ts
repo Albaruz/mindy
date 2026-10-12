@@ -2,7 +2,7 @@
 // dynamic user payloads; the engine only transports the result.
 
 import { buildOutfitSystemPrompt } from "./system/outfitStylist.v1";
-import { buildAnalysisSystemPrompt } from "./system/garmentAnalysis.v1";
+import { buildAnalysisSystemPromptV2 } from "./system/garmentAnalysis.v2";
 import {
   buildOutfitUserPayload,
   type BuildOutfitPromptInput,
@@ -36,20 +36,21 @@ export function buildOutfitPrompt(input: BuildOutfitPromptInput): BuiltOutfitPro
   };
 }
 
-// Single garment-analysis prompt (vision): versioned instructions, no
-// per-request payload beyond the image itself.
-export function buildAnalysisPrompt(): {
+// Single garment-analysis prompt (vision): tags, a garment-only description,
+// and cutout assessment from the original image.
+export function buildAnalysisPrompt(locale: "en" | "es" = "en"): {
   version: PromptVersion;
   systemPrompt: string;
 } {
   return {
     version: GARMENT_ANALYSIS_PROMPT_VERSION,
-    systemPrompt: buildAnalysisSystemPrompt(),
+    systemPrompt: buildAnalysisSystemPromptV2(locale),
   };
 }
 
 export { buildOutfitSystemPrompt } from "./system/outfitStylist.v1";
 export { buildAnalysisSystemPrompt } from "./system/garmentAnalysis.v1";
+export { buildAnalysisSystemPromptV2 } from "./system/garmentAnalysis.v2";
 export { buildOutfitUserPayload } from "./user/outfitUserPayload";
 export type {
   BuildOutfitPromptInput,

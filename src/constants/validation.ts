@@ -24,5 +24,8 @@ export const MEASUREMENT_MAX_CM = 300;
 /** Maximum image data-URL length accepted by the vision endpoint. */
 export const MAX_IMAGE_DATA_CHARS = 7_000_000;
 
+/** Cap expensive client-side image processing while preserving garment detail. */
+export const MAX_IMAGE_PROCESSING_DIMENSION_PX = 1024;
+
 /** Required data-URL prefix for uploaded images. */
 export const IMAGE_DATA_URL_PREFIX = "data:image/";

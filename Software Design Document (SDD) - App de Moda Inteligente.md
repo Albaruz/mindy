@@ -3,7 +3,7 @@
 **App de Moda Inteligente | MVP Full-Feature Deployed**
 
 > **Revisión post-deploy** — Estado verificado contra código en la raíz del repositorio | Next 16.3.8 • React 19.2.8 • Vercel Serverless
-> **Fecha:** 2026-10-11
+> **Fecha:** 2026-10-12
 
 ---
 
@@ -147,7 +147,7 @@ Desactivado: en desarrollo
 - **IndexedDB** para armario sin conexión
 - **Persistencia TanStack Query** sincroniza al volver online
 
-### APIs Externas (3 Route Handlers)
+### APIs Externas (3 Route Handlers activos)
 
 #### 1️⃣ Clima — `GET /api/weather?lat&lon`
 ```javascript
@@ -189,20 +189,52 @@ Error 422: INSUFFICIENT_STYLE_GARMENTS
 ```javascript
 Proveedor: Groq Vision (qwen/qwen3.8-27b)
 Temperatura: 0 (exacto)
-Tokens: 300 máximo
-Entrada: imageBase64 (máx 7M chars)
+Tokens: 500 máximo (`VISION_MAX_TOKENS`)
+Entrada: imageBase64 (máx 7M chars; copia redimensionada)
 Timeout: 30000ms
 Rate: 30/10 minutos
 Salida JSON: {
-  garment_type,     // Tipo de prenda
-  style,            // Estilo (casual/formal/sport/etc)
-  cut_length,       // Largo
-  color,            // Color principal
-  colorDetail,      // Detalle de color
-  material,         // Material (cotton/silk/etc)
-  season            // Temporada
+  category, garmentType, // Categorías cerradas
+  style, cutLength,      // Estilo y corte
+  color, material, season,
+  visualDescription,     // Descripción textual breve para etiquetado/fase 2
+  cutoutDifficulty,      // easy / hard / desconocido
+  qualityNote            // Motivo breve si la foto es difícil
 }
 ```
+
+Groq Vision analiza y etiqueta la prenda, devuelve una descripción visual
+concisa y evalúa la dificultad de recorte. No genera imágenes. La descripción
+se obtiene durante la fase 1 y se reutilizará en la fase 2. La imagen original
+no se enviará al proveedor de generación.
+
+### Generación de imagen alternativa (PLANIFICADA — fase 2)
+
+La búsqueda de fotografías en catálogos externos queda descartada: no se
+integrarán Unsplash, Wikimedia Commons, Pixabay ni otros proveedores de
+imágenes de catálogo como fallback. La alternativa prevista será generada a
+partir de una descripción de la prenda, no seleccionada de un catálogo.
+
+| Componente | Tecnología prevista | Responsabilidad |
+|---|---|---|
+| Análisis y descripción | Groq Vision | Etiquetar la prenda y devolver una descripción visual breve, limitada a rasgos observables |
+| Generación | Cloudflare Workers AI, modelo `@cf/black-forest-labs/flux-1-schnell` | Crear una imagen de producto de estudio a partir del texto |
+| Persistencia | Supabase Storage (`garments`) | Guardar la imagen solo después de que la persona revise y acepte la vista previa |
+| Orquestación | Route Handler autenticado de Next.js (propuesta: `POST /api/studio-generate`) | Validar texto/tags, aplicar límite de uso, mantener credenciales en servidor y llamar a Cloudflare |
+
+Cloudflare Workers AI publica una asignación gratuita diaria de 10.000 Neurons
+en el plan Free (documentación consultada en octubre de 2026). No equivale a
+un número garantizado de imágenes: el consumo depende del modelo/parámetros y
+la cuota y sus condiciones pueden cambiar. La feature debe manejar límites,
+errores de proveedor y falta de configuración sin bloquear las otras opciones
+de subida.
+
+**Privacidad y límites:** solo se enviará la descripción de Groq y atributos
+cerrados de la prenda; nunca la foto original. `CLOUDFLARE_ACCOUNT_ID` y
+`CLOUDFLARE_API_TOKEN` serán secretos server-only, nunca `NEXT_PUBLIC_*`. La
+generación requerirá sesión, validación de entrada, límite de solicitudes y
+respuesta no cacheable. La imagen generada se presentará como interpretación
+de IA y requerirá confirmación explícita antes de guardarse.
 
 ### Quality & Testing
 
@@ -272,13 +304,56 @@ Visualización: PaletteFan + MorphoIcon
 1. 📷 Captura/selecciona foto
 2. 🎯 Análisis automático con vision IA
    - Envía: `POST /api/analyze` con imagen redimensionada
-   - Recibe: Tipo, estilo, largo, color, material, temporada
-3. 🗑️ Eliminación de fondo (Web Worker CDN, zero-bundle)
-4. 💾 Almacenamiento: `garments/user_id/uuid.png` en Supabase Storage
-5. 🏷️ Edición de tags
+   - Recibe: tags de prenda y evaluación de dificultad/calidad de la foto
+3. ✅ Si Vision considera que el recorte es fácil, se elimina el fondo automáticamente.
+   - El original se reduce a un máximo de 1024 px por lado antes de ejecutar
+     `@imgly/background-removal`, para reducir memoria y tiempo de proceso.
+   - Primero se usa el Web Worker; si falla, se usa el fallback en el hilo
+     principal. El resultado final se normaliza a 300 px de ancho para Storage.
+4. ⚠️ Si Vision marca la foto como difícil, detener la subida y abrir la modal
+   con el motivo (si está disponible) y consejos breves:
+   - fondo neutro que contraste con la prenda;
+   - luz uniforme, sin sombras fuertes;
+   - prenda completa, enfocada y sin nada que la tape.
+5. La modal ofrece estas acciones, en este orden:
+   - **Elegir otra (Recomendado):** cierra la modal y abre la selección de
+     cámara o galería; no persiste la selección pendiente.
+   - **Usar la foto tal cual:** conserva el fondo, normaliza la imagen y la
+     guarda como PNG.
+   - **Probar a quitar el fondo:** ejecuta el mismo procesamiento; si los dos
+     intentos fallan, mantiene la modal abierta para que la persona elija otra
+     acción.
+   - La generación de imagen con IA todavía no se muestra ni ejecuta. Su
+     implementación queda anotada como TODO en el código para la fase 2.
+6. Cerrar con Escape o con el botón de cierre descarta la foto pendiente. No se
+   guarda ni se sustituye una imagen sin una decisión explícita.
+7. 💾 Almacenamiento: `garments/user_id/uuid.png` en Supabase Storage
+8. 🏷️ Edición de tags
    - Tags IA automáticos: `aiCategory`, `specificType`, `colorShade`
    - Tags extra: key/value customizados (límites configurables)
    - Editor visual con chips `ExtraTagsEditor`
+
+**Fase 2 — generación de alternativa con IA (pendiente):**
+1. Reutilizar la descripción concisa, solo textual, que Groq Vision produjo
+   durante el etiquetado en la fase 1: rasgos visibles de la prenda (tipo,
+   silueta, color, material, patrón y detalles relevantes; sin persona, pose
+   ni fondo).
+2. Al elegir **Generar alternativa con IA**, el servidor envía la descripción
+   obtenida por Groq en la fase de etiquetado y tags validados a Cloudflare
+   Workers AI / FLUX.1 Schnell; no envía la foto.
+3. Mostrar la imagen generada en una vista previa, claramente identificada
+   como generada por IA. Permitir aceptarla, generar otra o volver a las
+   opciones anteriores. No sustituir ni guardar nada automáticamente.
+4. Al aceptar, guardar la imagen generada en Supabase Storage y asociar
+   metadatos de procedencia; conservar las etiquetas de la prenda original.
+5. Si el proveedor no está configurado, agota su cuota o falla, informar sin
+   perder la posibilidad de usar la foto original, eliminar el fondo o cambiar
+   la foto.
+
+**Accesibilidad y pruebas de la modal:** foco gestionado y contenido anunciado
+por lector de pantalla; operable con teclado; acciones con nombres inequívocos;
+mensajes de carga/error; traducciones EN/ES. Cubrir fotos fáciles/difíciles,
+cada elección, cancelación, fallo de eliminación de fondo y cambio de foto.
 
 **Búsqueda y filtrado:**
 - 🔍 Buscador cliente (sin servidor)
@@ -857,6 +932,13 @@ CSP                        // Content Security Policy
 - **UI:** Chips editables en modal `ExtraTagsEditor`
 - **Validación:** Vocabularios cerrados
 
+### 📷 Ayuda con fotos difíciles (fase 1 — completada)
+- Groq Vision analiza la foto original antes de ejecutar la eliminación de fondo y devuelve etiquetas, una descripción breve y la dificultad de recorte.
+- Si la foto es difícil, una modal accesible explica el problema y recomienda un fondo neutro con contraste, luz uniforme y mostrar la prenda completa y enfocada.
+- Acciones, en orden: **Elegir otra (Recomendado)**, **Usar la foto tal cual** y **Probar a quitar el fondo**.
+- Para fotos fáciles se mantiene la eliminación automática. Las fotos grandes se reducen a 1024 px para el procesamiento y a 300 px para Storage.
+- Si fallan el worker y el fallback, la modal conserva las alternativas. La acción de generación IA no se muestra; queda como TODO de la fase 2.
+
 ### 🧺 Cesto Selectivo
 - **Exentos:** Footwear + Outerwear (no se ensucian)
 - **Individual:** `useWashGarment` (descuenta 1)
@@ -899,6 +981,20 @@ CSP                        // Content Security Policy
 Situación actual: Lluvia → fuerza abrigo, NO filtra materiales
 Necesidad: isRainy → excluir suede, silk, etc.
 Estimación: 2 puntos
+```
+
+#### 2. Generación de alternativa con IA (PENDIENTE — fase 2)
+```
+Estado: pendiente; la fase 1 de evaluación de calidad e interacción ya está implementada.
+Objetivo: generar una fotografía alternativa de producto cuando la persona no quiera usar la foto difícil.
+Tecnología: Groq Vision → Cloudflare Workers AI / FLUX.1 Schnell (`@cf/black-forest-labs/flux-1-schnell`) → Supabase Storage.
+Entrada: reutilizar la descripción de la prenda guardada en el resultado de Groq y sus tags validados. Nunca enviar la foto original al generador.
+Interacción: volver a añadir una acción «Generar alternativa con IA» en la modal; generar y mostrar una vista previa etiquetada como IA; permitir aceptar, generar otra o volver a las opciones.
+Persistencia: guardar en Supabase Storage y registrar procedencia solo tras la aceptación explícita.
+Seguridad: credenciales `CLOUDFLARE_ACCOUNT_ID` y `CLOUDFLARE_API_TOKEN` solo en servidor; endpoint autenticado, validación y límite por usuario.
+Resiliencia: gestionar timeout, cuota gratuita diaria, falta de configuración y errores sin desactivar las opciones de fase 1.
+Nota: la cuota de 10.000 Neurons/día publicada por Cloudflare puede cambiar y no define una cantidad fija de imágenes.
+Estimación: por determinar.
 ```
 
 #### 3. Similitud en Descartes (PENDIENTE)

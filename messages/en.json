@@ -120,6 +120,18 @@
     "deleteTitle": "Delete {name}?",
     "deleteConfirmYes": "Delete",
     "deleteConfirm": "Delete {name}? This cannot be undone.",
+    "qualityTitle": "Oops, this photo's making it tricky",
+    "qualityMessage": "I can see the garment, but the cutout may be tricky. What should we do?",
+    "qualityWorking": "One moment, I'm taking care of the photo…",
+    "qualityClose": "Close and discard this photo",
+    "qualityTipsTitle": "For next time",
+    "qualityTipBackground": "A neutral background that contrasts with the garment.",
+    "qualityTipLighting": "Even lighting, without harsh shadows.",
+    "qualityTipFraming": "Keep the whole garment in frame, in focus, and unobstructed.",
+    "qualityChooseAnother": "Choose another (Recommended)",
+    "qualityRemoveBackground": "Try removing the background",
+    "qualityUseOriginal": "Use the photo as-is",
+    "qualityCutoutFailed": "That cutout didn't work. Try again or choose what to do next.",
     "form": {
       "type": "What is it?",
       "season": "Season",
@@ -323,7 +335,8 @@
     "uploadRemovingFallback": "Removing background (safe mode)…",
     "uploadTagging": "Tagging with AI…",
     "uploadResizing": "Resizing image…",
-    "uploadUploading": "Uploading…"
+    "uploadUploading": "Uploading…",
+    "uploadFailed": "I couldn't save that photo. Please try again."
   },
   "Accessibility": {
     "mainNavigation": "Main navigation",
