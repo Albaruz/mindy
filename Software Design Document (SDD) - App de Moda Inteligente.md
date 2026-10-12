@@ -1110,12 +1110,16 @@ Estimación: 3 puntos
 
 ### ⚡ Performance & Optimización
 
-#### PurgeCSS (PENDIENTE)
+#### PurgeCSS (HECHO — sin herramienta)
 ```
 Beneficio: Eliminar CSS no usado
-Bundle actual: <180KB gzip (sin PurgeCSS)
-Herramienta: purgecss + webpack plugin
-Estimación: 2 puntos
+Método: en vez de añadir PurgeCSS (inseguro con CSS Modules + clases
+  dinámicas), se eliminó la capa global muerta: 15 parciales de
+  components/* + layout/header + layout/main de main.scss. Ningún TSX/JS
+  usaba esas clases (todo usa CSS Modules); solo se conserva
+  layout/skip-link (usado en layout.tsx).
+Resultado medido (build --webpack): CSS 143,1 KB → 103,8 KB (−39,3 KB, −27%)
+Guardia: src/styles/main.test.ts falla si se reintroducen esos imports
 ```
 
 #### Bundle Analysis en CI (PENDIENTE)

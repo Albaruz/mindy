@@ -15,7 +15,7 @@ Tabla con los items del backlog del documento SDD, ordenados por prioridad y dif
 | #BKL-010 | 9 | Accessibility Audit Final (WCAG 2.2 AA) | Axe 7 rutas × 2 temas + diálogos + targets 24px + reduced-motion; falta teclado completo y lector de pantalla | Alta | Medio | 5 pts | Parcial |
 | #BKL-011 | 10 | Performance Budgets | PurgeCSS + tree-shaking mixins + CI gate <180KB gzip | Media | Fácil | 3 pts | Pendiente |
 | #BKL-012 | 11 | Lighthouse CI (LHCI) | CI gate: Perf ≥90, a11y ≥95, Best ≥90, SEO ≥90; necesita .github/workflows | Media | Medio | 3 pts | Pendiente |
-| #BKL-013 | 12 | PurgeCSS Integration | Eliminar CSS no usado en build | Media | Fácil | 2 pts | Pendiente |
+| #BKL-013 | 12 | PurgeCSS Integration | Eliminada capa global muerta (17 parciales); CSS 143→104 KB; guardia en main.test.ts | Media | Fácil | 2 pts | Hecho |
 | #BKL-014 | 13 | Bundle Analysis en CI | Gate en CI si bundle > 180KB (@next/bundle-analyzer + threshold check) | Media | Fácil | 2 pts | Pendiente |
 | #BKL-015 | 14 | Tree-shaking de Mixins SCSS | Refactorizar mixins SCSS a CSS Vars cuando sea posible | Baja | Medio | 3 pts | Pendiente |
 
@@ -24,10 +24,10 @@ Tabla con los items del backlog del documento SDD, ordenados por prioridad y dif
 ## Resumen
 
 - **Total items:** 14 (del SDD §11)
-- **Pendiente:** 11
+- **Pendiente:** 10
 - **Parcial:** 2
-- **Hecho:** 1 (#BKL-004 color_base)
-- **Total esfuerzo:** ~56 story points (~53 restantes estimados)
+- **Hecho:** 2 (#BKL-004 color_base, #BKL-013 PurgeCSS)
+- **Total esfuerzo:** ~56 story points (~51 restantes estimados)
 - **Alta:** 1 | **Media:** 9 | **Baja:** 4
 
 **Prioridad recomendada:**

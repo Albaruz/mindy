@@ -31,30 +31,21 @@
 @use 'base/global';
 
 // =============================================================================
-// 6. LAYOUT (header, main, footer, skip-link)
+// 6. LAYOUT (skip-link: used by src/app/[locale]/layout.tsx)
+// Note: layout/header and layout/main were removed (2026-10-12): their
+// classes (.app-header, .main, .page, .container) had no usages — every
+// component styles itself via CSS Modules. See main.test.ts guard.
 // =============================================================================
-@use 'layout/header';
-@use 'layout/main';
 @use 'layout/skip-link';
 
 // =============================================================================
-// 7. COMPONENTS (shared UI kit components)
+// 7. COMPONENTS — intentionally empty.
+// The former global components/* layer was removed (2026-10-12): every
+// class it emitted (.button, .card, .dialog, ...) was dead — components
+// style themselves via CSS Modules. This is the PurgeCSS outcome without
+// the tool (unsafe with CSS Modules + dynamic class names).
+// See src/styles/main.test.ts guard.
 // =============================================================================
-@use 'components/button';
-@use 'components/card';
-@use 'components/dialog';
-@use 'components/form';
-@use 'components/navigation';
-@use 'components/empty-state';
-@use 'components/page-header';
-@use 'components/action-bar';
-@use 'components/notification';
-@use 'components/icon-button';
-@use 'components/avatar';
-@use 'components/badge';
-@use 'components/separator';
-@use 'components/tooltip';
-@use 'components/dropdown';
 
 // =============================================================================
 // 8. UTILITIES (generated utility classes if needed)
