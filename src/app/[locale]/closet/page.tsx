@@ -67,7 +67,10 @@ export default function ClosetPage() {
   // not laundry-exempt, mirroring the basket query). Search and category
   // filters apply on top of the active view.
   const cleanGarments = useMemo(
-    () => garments.filter((garment) => !garment.isDirty),
+    () =>
+      garments.filter(
+        (garment) => !garment.isDirty || isLaundryExemptGarment(garment),
+      ),
     [garments],
   );
   const dirtyGarments = useMemo(
@@ -77,6 +80,13 @@ export default function ClosetPage() {
       ),
     [garments],
   );
+  const washableGarments = useMemo(
+    () => garments.filter((garment) => !isLaundryExemptGarment(garment)),
+    [garments],
+  );
+  const allWashableGarmentsAreDirty =
+    washableGarments.length > 0 &&
+    washableGarments.every((garment) => garment.isDirty);
   const baseGarments = inventoryView === "clean" ? cleanGarments : dirtyGarments;
   // Strict category prefilter first, then the strict text search on top.
   const filteredGarments = useMemo(
@@ -246,18 +256,30 @@ export default function ClosetPage() {
     );
   };
 
-  // Empty-state copy depends on the view: an empty basket celebrates,
-  // an empty clean side (or a fully dirty closet) nudges to the laundry.
+  // Keep a truly empty wardrobe distinct from a wardrobe whose clothes
+  // are all waiting for laundry.
   const hasQuery =
     deferredQuery.trim() !== "" || activeCategory !== "all";
+  const isActuallyEmpty = garments.length === 0;
+  const shouldShowLaundryState =
+    inventoryView === "clean" && allWashableGarmentsAreDirty;
   const emptyMessage =
     filteredGarments.length > 0
       ? null
       : hasQuery
         ? t("noResults")
-        : inventoryView === "dirty"
-          ? t("basketEmpty")
-          : t("closetEmpty");
+        : isActuallyEmpty
+          ? t("closetEmpty")
+          : inventoryView === "dirty"
+            ? t("basketEmpty")
+            : shouldShowLaundryState
+              ? t("closetAllDirty")
+              : t("closetNoCleanItems");
+  const emptyDescription = isActuallyEmpty
+    ? t("closetEmptyDescription")
+    : shouldShowLaundryState
+      ? t("closetAllDirtyDescription")
+      : undefined;
 
   return (
     <section className={styles.page}>
@@ -273,6 +295,12 @@ export default function ClosetPage() {
       ) : isError ? (
         <EmptyState message={t("loadError")}>
           <Button onClick={() => void refetch()}>{tc("retry")}</Button>
+        </EmptyState>
+      ) : isActuallyEmpty ? (
+        <EmptyState message={t("closetEmpty")} description={t("closetEmptyDescription")}>
+          <Button type="button" onClick={() => setIsSourceMenuOpen(true)}>
+            {t("addFirstGarment")}
+          </Button>
         </EmptyState>
       ) : (
         <>
@@ -305,8 +333,35 @@ export default function ClosetPage() {
           <p className={styles.count}>
             {t("count", { shown: filteredGarments.length, total })}
           </p>
+          {shouldShowLaundryState && !hasQuery && filteredGarments.length > 0 ? (
+            <EmptyState
+              message={t("closetAllDirty")}
+              description={t("closetAllDirtyDescription")}
+              compact
+            >
+              <Button
+                type="button"
+                disabled={doLaundry.isPending}
+                aria-busy={doLaundry.isPending}
+                onClick={handleWashAll}
+              >
+                {doLaundry.isPending ? t("washing") : t("washAll")}
+              </Button>
+            </EmptyState>
+          ) : null}
           {emptyMessage !== null ? (
-            <EmptyState message={emptyMessage} />
+            <EmptyState message={emptyMessage} description={emptyDescription}>
+              {!hasQuery && shouldShowLaundryState ? (
+                <Button
+                  type="button"
+                  disabled={doLaundry.isPending}
+                  aria-busy={doLaundry.isPending}
+                  onClick={handleWashAll}
+                >
+                  {doLaundry.isPending ? t("washing") : t("washAll")}
+                </Button>
+              ) : undefined}
+            </EmptyState>
           ) : (
             <MotionConfig reducedMotion="user">
               <div className={styles.grid}>

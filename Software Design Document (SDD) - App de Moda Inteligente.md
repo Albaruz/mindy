@@ -413,6 +413,7 @@ cada elección, cancelación, fallo de eliminación de fondo y cambio de foto.
 - Confetti terracota con framer-motion (no Lottie)
 - `OutfitCelebrationScreen`
 - Retroalimentación positiva de UX
+- **Navegación al cerrar:** El botón de acción ("A arrasar" / "Go crush it") ejecuta `resetFlow()` y redirige automáticamente al usuario a `/calendar` (`router.push('/calendar')`) para ver su look registrado en el historial de hoy.
 
 ### 📅 Historial (Calendario)
 
@@ -653,6 +654,25 @@ created_at             timestamp
   - Se excluyen del cesto visual
   - Se excluyen de `cleanGarments` en el generador
 
+### 🚦 Disponibilidad del Generador (`generatorReadiness`)
+
+- **Requisito mínimo de armario:** Al menos una prenda limpia disponible en cada categoría nuclear requerida (`top`, `bottom`, `footwear`).
+  - `outerwear` permanece como categoría opcional según clima.
+  - Una prenda de una pieza (`dress`, `jumpsuit`, `gown`) cubre simultáneamente `top` y `bottom`.
+- **Estados de bloqueo (EmptyState contextual + CTA directo):**
+  - **Armario vacío (`empty`):** Copy gamberro invitando a subir prendas (`goToCloset` hacia `/closet`).
+  - **Categorías faltantes (`missing`):** Indica con precisión qué familias de prendas faltan (`categories`) con CTA hacia `/closet`.
+  - **Ropa en la colada (`laundry`):** Se bloquea la generación si no hay suficientes prendas limpias pero sí existen en el cesto de sucias; ofrece botón de acción directa para lavar todo (`useDoLaundry`) sin salir del generador.
+
+### 🚪 Armario Inicial y Gestión de Vacíos (`closet`)
+
+- **Armario sin prendas (`isActuallyEmpty`):**
+  - Si el usuario no tiene ninguna prenda registrada en base de datos, se ocultan el buscador, las pestañas de limpio/sucio, los filtros de categoría y el contador.
+  - Se presenta únicamente el `EmptyState` central con CTA directo para abrir el menú de subida/cámara.
+- **Distinción entre vacío y colada completa:**
+  - `isActuallyEmpty`: Armario sin ropa cargada.
+  - `allWashableGarmentsAreDirty`: Toda la ropa lavable está en el cesto de sucia; muestra mensaje gamberro específico y CTA rápido para lavar todo.
+
 ### ⭐ Suitability Ratio
 
 - **Cálculo:** LLM ordena opciones por score (0-100 clamped)
@@ -789,6 +809,13 @@ idb-keyval (IndexedDB)
 - **Requerida:** Desde login (sin anónimo)
 - **Session:** `getUser()` + `updateSession()` en middleware
 - **APIs:** 401 si no hay usuario
+- **Política de Contraseñas Seguras (Sign-up):**
+  - Mínimo de 8 caracteres (`SIGNUP_PASSWORD_MIN_LENGTH = 8`).
+  - Requisitos de composición: mayúscula (`[A-Z]`), minúscula (`[a-z]`), dígito (`[0-9]`) y símbolo (`[^A-Za-z0-9]`).
+  - Validación espejo en servidor (`signUpAction`) y confirmación de contraseña requerida (`passwordMismatch`).
+- **Experiencia de Usuario en Auth:**
+  - Checklist interactivo y reactivo en vivo según el usuario tipea (`aria-live="polite"`).
+  - Persistencia de campos de credenciales (`email`) en estado controlado tras errores de autenticación para mitigar fricción.
 
 ### Autorización
 
@@ -840,8 +867,9 @@ CSP                        // Content Security Policy
 | Marrón Ceniza (Texto) | `#4A3F39` | Texto principal |
 
 **Tipografía:**
-- Serif alto contraste en encabezados
-- Tipografía standard en body (legibilidad)
+- Serif alto contraste en encabezados (`Playfair Display`, `--font-family-display`), aplicado a títulos principales, diálogos modales y titulares de `EmptyState` (`--font-size-3xl`).
+- Tipografía standard en body (legibilidad: `Inter`, `--font-family-base`).
+- Tono conversacional nivel 10 ("amigo sincero y gamberro"), con contraste irónico frente a la estética limpia de catálogo.
 
 **Dark Mode:**
 - Activado por `[data-theme]`

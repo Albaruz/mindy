@@ -12,3 +12,7 @@ export const MAX_DISCARD_COUNT = 4;
 
 // Infinite carousel loop needs at least 3 slides to duplicate cleanly.
 export const CAROUSEL_LOOP_MIN_SLIDES = 3;
+
+// Auto-generated looks need the three core outfit categories. A dress or
+// jumpsuit may cover both top and bottom; outerwear remains optional.
+export const REQUIRED_GENERATOR_CATEGORIES = ["top", "bottom", "footwear"] as const;

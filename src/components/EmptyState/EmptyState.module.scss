@@ -24,10 +24,14 @@
 
 .emptyState__message {
   margin: 0;
-  font-size: var(--font-size-md);
-  color: var(--color-muted);
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-foreground);
   text-wrap: balance;
-  max-width: 24rem;
+  max-width: 28rem;
 }
 
 .emptyState__description {
@@ -72,5 +76,5 @@
 }
 
 .emptyState--compact .emptyState__message {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-xl);
 }

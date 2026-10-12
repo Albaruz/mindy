@@ -67,6 +67,10 @@ vi.mock("@/features/profile/useProfileQuery", () => ({
   useProfileQuery: () => ({ data: mockProfileData() }),
 }));
 
+vi.mock("@/features/profile/useDoLaundry", () => ({
+  useDoLaundry: () => ({ isPending: false, mutate: mockDoLaundry }),
+}));
+
 vi.mock("./useWeatherQuery", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./useWeatherQuery")>();
   return { ...actual, useWeatherQuery: () => ({ data: mockWeatherData() }) };
@@ -79,6 +83,7 @@ const {
   mockProfileData,
   mockClosetData,
   mockRouterPush,
+  mockDoLaundry,
 } = vi.hoisted(() => ({
   mockGenerateMutate: vi.fn(),
   mockWearMutate: vi.fn(),
@@ -86,6 +91,7 @@ const {
   mockProfileData: vi.fn<() => UserProfile | null>(() => null),
   mockClosetData: vi.fn<() => Garment[]>(() => []),
   mockRouterPush: vi.fn(),
+  mockDoLaundry: vi.fn(),
 }));
 
 let mockGeneratePending = false;
@@ -278,9 +284,16 @@ function buildLook(id = "ai-look-0"): AiLook {
   };
 }
 
+const READY_CLOSET = [
+  buildGarment("top-1", "top"),
+  buildGarment("bottom-1", "bottom"),
+  buildGarment("shoes-1", "footwear"),
+];
+
 describe("Home view state machine", () => {
   beforeEach(() => {
     useGeneratorStore.getState().resetFlow();
+    mockClosetData.mockImplementation(() => READY_CLOSET);
   });
 
   it("renders the zero state by default", () => {
@@ -290,6 +303,39 @@ describe("Home view state machine", () => {
       "data-view",
       "zero",
     );
+  });
+
+  it("blocks the generator and links to the closet when it is empty", async () => {
+    mockClosetData.mockImplementation(() => []);
+    render(<Home />);
+    expect(screen.getByTestId("generator-blocked")).toHaveTextContent(
+      "closetRequiredTitle",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "goToCloset" }));
+    expect(mockRouterPush).toHaveBeenCalledWith("/closet");
+  });
+
+  it("explains which categories are missing before enabling the generator", () => {
+    mockClosetData.mockImplementation(() => [buildGarment("top-1", "top")]);
+    render(<Home />);
+    expect(screen.getByTestId("generator-blocked")).toHaveTextContent(
+      "garmentsRequiredTitle",
+    );
+    expect(screen.getByText("garmentsRequiredDescription")).toBeInTheDocument();
+  });
+
+  it("offers to wash clothes when the required categories are all dirty", async () => {
+    mockClosetData.mockImplementation(() => [
+      { ...buildGarment("top-1", "top"), isDirty: true },
+      { ...buildGarment("bottom-1", "bottom"), isDirty: true },
+      buildGarment("shoes-1", "footwear"),
+    ]);
+    render(<Home />);
+    expect(screen.getByTestId("generator-blocked")).toHaveTextContent(
+      "laundryRequiredTitle",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "washToGenerate" }));
+    expect(mockDoLaundry).toHaveBeenCalledTimes(1);
   });
 
   it("renders style selection in auto-select", () => {
@@ -352,11 +398,12 @@ describe("Home interactions", () => {
     mockGenerateMutate.mockClear();
     mockWearMutate.mockClear();
     mockRouterPush.mockClear();
+    mockDoLaundry.mockClear();
     mockGeneratePending = false;
     mockWearPending = false;
     mockWeatherData.mockImplementation(() => null);
     mockProfileData.mockImplementation(() => null);
-    mockClosetData.mockImplementation(() => []);
+    mockClosetData.mockImplementation(() => READY_CLOSET);
   });
 
   it("navigates from zero state via auto and manual", async () => {
@@ -495,8 +542,10 @@ describe("Home interactions", () => {
       fallback: false,
     }));
     mockClosetData.mockImplementation(() => [
-      { ...buildGarment("t1", "top"), isDirty: true },
-      { ...buildGarment("s1", "footwear"), isDirty: true },
+      buildGarment("t1", "top"),
+      buildGarment("b1", "bottom"),
+      buildGarment("s1", "footwear"),
+      buildGarment("o1", "outerwear"),
     ]);
     useGeneratorStore.getState().startLoading();
     render(<Home />);

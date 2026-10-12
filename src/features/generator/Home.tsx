@@ -6,9 +6,12 @@ import { useTranslations } from "next-intl";
 import { AnimatePresence } from "framer-motion";
 import { RotateCcw, X } from "lucide-react";
 import { SmartSkeleton } from "@/components/Skeletons/SmartSkeleton";
+import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { BottomActionBar } from "@/components/BottomActionBar/BottomActionBar";
+import { Button } from "@/components/Button/Button";
 import { useRouter } from "@/i18n/navigation";
 import { useClosetQuery } from "@/features/closet/useClosetQuery";
+import { useDoLaundry } from "@/features/profile/useDoLaundry";
 import { useProfileQuery } from "@/features/profile/useProfileQuery";
 import { useGeneratorStore } from "./useGeneratorStore";
 import { MAX_DISCARD_COUNT } from "@/constants/generator";
@@ -21,6 +24,7 @@ import { ZeroState } from "./ZeroState";
 import { StyleStep } from "./StyleStep";
 import { LookShowcase, ShowcaseEmptyState } from "./LookShowcase";
 import { InsufficientStyleEmpty } from "./InsufficientStyleEmpty";
+import { getGeneratorReadiness } from "./generatorReadiness";
 import styles from "./Home.module.scss";
 
 // Swiper carousels are heavy: split them so the zero state stays instant.
@@ -79,7 +83,12 @@ function LoadingLooks({ showOuterwear }: { showOuterwear: boolean }) {
 // Main generator flow: zero -> auto-select -> loading -> showcase, with
 // manual carousels as the full-canvas alternative and escape hatch.
 export function Home() {
-  const { data: garments = [] } = useClosetQuery();
+  const {
+    data: garments = [],
+    isPending: isClosetPending,
+    isError: isClosetError,
+    refetch: refetchCloset,
+  } = useClosetQuery();
   const { data: profile } = useProfileQuery();
   const { data: weather } = useWeatherQuery();
 
@@ -98,6 +107,7 @@ export function Home() {
 
   const generateLooks = useGenerateLooks();
   const wearToday = useWearToday();
+  const doLaundry = useDoLaundry();
 
   const cleanGarments = useMemo(
     () =>
@@ -114,6 +124,7 @@ export function Home() {
     weather,
     byCategory.outerwear.length,
   );
+  const readiness = getGeneratorReadiness(garments);
 
   const recommenderProfile: RecommenderProfile | null =
     profile === null || profile === undefined
@@ -126,6 +137,9 @@ export function Home() {
         };
 
   const handleConfirmStyle = () => {
+    if (readiness.status !== "ready") {
+      return;
+    }
     useGeneratorStore.getState().startLoading();
     generateLooks.mutate({
       garments,
@@ -137,6 +151,7 @@ export function Home() {
   const activeLook = aiLooks[activeLookIndex] ?? null;
   const t = useTranslations("Generator");
   const ta = useTranslations("Accessibility");
+  const tc = useTranslations("Common");
   const router = useRouter();
   // The look is already worn + saved in history: closing the celebration
   // lands on the calendar so the user sees today filled in.
@@ -157,6 +172,53 @@ export function Home() {
 
   return (
     <section aria-label={t("sectionLabel")} className={styles.viewport} data-view={view}>
+      {isClosetPending ? (
+        <SmartSkeleton label={t("checkingCloset")} variant="brand" />
+      ) : isClosetError ? (
+        <EmptyState message={t("closetLoadError")}>
+          <Button type="button" onClick={() => void refetchCloset()}>
+            {tc("retry")}
+          </Button>
+        </EmptyState>
+      ) : readiness.status !== "ready" ? (
+        <EmptyState
+          message={
+            readiness.status === "empty"
+              ? t("closetRequiredTitle")
+              : readiness.status === "laundry"
+                ? t("laundryRequiredTitle")
+                : t("garmentsRequiredTitle")
+          }
+          description={
+            readiness.status === "empty"
+              ? t("closetRequiredDescription")
+              : readiness.status === "laundry"
+                ? t("laundryRequiredDescription")
+                : t("garmentsRequiredDescription", {
+                    categories: readiness.categories
+                      .map((category) => t(`carousels.${category}`))
+                      .join(", "),
+                  })
+          }
+          testId="generator-blocked"
+        >
+          {readiness.status === "laundry" ? (
+            <Button
+              type="button"
+              disabled={doLaundry.isPending}
+              aria-busy={doLaundry.isPending}
+              onClick={() => doLaundry.mutate()}
+            >
+              {doLaundry.isPending ? t("washing") : t("washToGenerate")}
+            </Button>
+          ) : (
+            <Button type="button" onClick={() => router.push("/closet")}>
+              {t("goToCloset")}
+            </Button>
+          )}
+        </EmptyState>
+      ) : (
+      <>
       {view === "zero" ? (
         <ZeroState
           weather={weather}
@@ -239,6 +301,8 @@ export function Home() {
       {view === "manual" ? (
         <ManualCarousels />
       ) : null}
+      </>
+      )}
 
       <AnimatePresence>
         {celebrationGarments !== null ? (
