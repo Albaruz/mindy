@@ -32,20 +32,15 @@
 ### Installation
 
 ```bash
-cd app-moda
 pnpm install
 ```
 
 ### Environment Setup
 
-Create `.env.local`:
+Copy `.env.example` to `.env.local` and fill in the values:
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-GROQ_API_KEY=your_groq_key
-OPENWEATHER_API_KEY=your_weather_key
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```bash
+cp .env.example .env.local
 ```
 
 ### Run Development Server
@@ -77,20 +72,15 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ```
 src/
-├── app/[locale]/
-│   ├── (auth)/          # Login, register, callbacks
-│   ├── onboarding/      # 5-step wizard
-│   ├── generator/       # AI outfit generation (home)
-│   ├── closet/          # Digital wardrobe
-│   ├── calendar/        # Outfit history
-│   └── profile/         # Settings & laundry
-├── api/                 # Route handlers: weather, recommender, analyze
-├── features/            # Feature-driven domains
-├── components/          # Reusable UI components
-├── lib/                 # Utilities, hooks, AI engine
-├── constants/           # SSOT (11 modules)
-├── types/               # TypeScript interfaces
-└── styles/              # SCSS modules + tokens
+├── app/
+│   ├── [locale]/         # Localized routes and views
+│   └── api/              # Route handlers: weather, recommender, analyze
+├── features/             # Feature-driven domains
+├── components/           # Reusable UI components
+├── lib/                  # Utilities, hooks, AI engine
+├── constants/            # SSOT modules
+├── types/                # TypeScript interfaces
+└── styles/               # SCSS modules + tokens
 ```
 
 [Full architecture →](./docs/ARCHITECTURE.md)
@@ -100,11 +90,11 @@ src/
 ## 🧪 Testing & Quality
 
 ```bash
-pnpm test              # Unit tests (Vitest, 90% coverage)
+pnpm test:coverage     # Unit tests with coverage (Vitest)
 pnpm test:e2e          # E2E tests (Playwright, Pixel 7)
 pnpm typecheck         # TypeScript strict
 pnpm lint              # ESLint
-pnpm analyze           # Bundle size (<180KB gzip)
+pnpm budget            # Enforce shared-JS bundle budget
 ```
 
 **Performance baselines** (2026-10-10):
@@ -123,7 +113,7 @@ Deployed on **Vercel Serverless** (native Next.js support).
 ### Pre-Deploy Checks
 
 ```bash
-pnpm typecheck && pnpm lint && pnpm test && pnpm build --webpack
+pnpm typecheck && pnpm lint && pnpm test:coverage && pnpm build
 ```
 
 ### Environment Variables
@@ -191,7 +181,7 @@ Add to Vercel dashboard:
 
 1. Fork and clone
 2. Create feature branch: `git checkout -b feature/my-feature`
-3. Run tests: `pnpm test`
+3. Run tests: `pnpm test:coverage`
 4. Commit: `git commit -am "feat: add my feature"`
 5. Push and open a Pull Request
 
@@ -214,4 +204,4 @@ MIT — See [LICENSE.md](./LICENSE.md)
 ---
 
 **Built with ❤️ by the Mindy team**  
-**Last updated:** 2026-10-11
+**Last updated:** 2026-10-12
