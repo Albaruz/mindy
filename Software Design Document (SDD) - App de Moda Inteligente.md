@@ -895,14 +895,6 @@ Necesidad: isRainy → excluir suede, silk, etc.
 Estimación: 2 puntos
 ```
 
-#### 2. Onboarding Indirecto Completo (PARCIAL)
-```
-Completado: Joyería (oro/plata) → paleta estacional
-Pendiente: Test de venas, preguntas indirectas de morfología
-Legacy: inferProfile aún activo (0 hits de 'vein')
-Estimación: 5 puntos
-```
-
 #### 3. Similitud en Descartes (PENDIENTE)
 ```
 Situación: garment_feedback escrito pero nunca leído
