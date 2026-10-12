@@ -60,6 +60,23 @@ All core features are live and production-ready. This roadmap outlines improveme
 
 ---
 
+## ✅ Completed after MVP (2026-10-12)
+
+### Difficult Garment Photo Flow — Phase 1
+- [x] Analyze the original image with Groq Vision before background removal; return garment tags, a localized quality note, cutout difficulty, and a garment-only description
+- [x] Keep automatic background removal for photos classified as easy
+- [x] For difficult photos, show a localized accessible dialog with concise guidance on neutral contrasting backgrounds, even lighting, and clear framing
+- [x] Provide the actions in this order: **Choose another (Recommended)**, **Use photo as-is**, and **Try removing the background**
+- [x] Keep the original pending until the user explicitly chooses an action; closing the dialog discards it
+- [x] Reduce large images to 1024 px before cutout and normalize saved images to 300 px wide
+- [x] Use the Web Worker with a main-thread fallback; fix Blob message handling to avoid treating Blob as transferable
+- [x] Keep the dialog and remaining options available if both cutout attempts fail
+- [x] Add English/Spanish copy and tests for analysis, choices, and cutout failures
+- **Status:** Complete
+- **AI image generation:** Not implemented; its action is not rendered. A source TODO marks Phase 2.
+
+---
+
 ## 🔄 In Progress / Next Sprint
 
 ### WCAG 2.2 AA Accessibility Audit
@@ -87,6 +104,22 @@ All core features are live and production-ready. This roadmap outlines improveme
 - **Timeline:** Sprint 7 (2-3 days)
 - **Priority:** High
 - **Effort:** 3 points
+
+### AI-Generated Garment Alternative — Phase 2
+- [ ] Reuse the garment-only visual description captured during Phase 1
+- [ ] Integrate Cloudflare Workers AI using FLUX.1 Schnell (`@cf/black-forest-labs/flux-1-schnell`) as the preferred hosted text-to-image candidate
+- [ ] Generate from the text description and validated garment tags only; never send the uploaded photo to the image generator
+- [ ] Keep `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` server-only; authenticate requests, validate inputs, and apply per-user rate limits
+- [ ] Add a preview step with explicit accept, generate-another, and return-to-options actions; persist to Supabase Storage only after acceptance
+- [ ] Store provenance for generated garments and preserve existing garment tags
+- [ ] Handle unconfigured credentials, provider failures, timeout, and exhausted free allocation without disabling phase 1 options
+- [ ] Verify current Cloudflare plan quota and terms before release; Workers AI currently advertises 10,000 free Neurons per day, but image count depends on model usage and terms may change
+- **Priority:** Medium (after Phase 1)
+- **Status:** Planned; not implemented
+- **Technology:** Groq Vision → Cloudflare Workers AI / FLUX.1 Schnell → Supabase Storage
+- **Privacy:** Text-only generation; source photo is not forwarded
+
+**Product decision:** Do not resume image-catalog search (Unsplash, Wikimedia Commons, Pixabay, or similar). The alternative-image direction is AI generation from Groq’s garment description.
 
 ---
 
@@ -311,4 +344,4 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 - Found a bug? Open a GitHub Issue with reproduction steps
 - Want to discuss priorities? Start a Discussion
 
-**Last updated:** 2026-10-11
+**Last updated:** 2026-10-12

@@ -116,6 +116,36 @@ describe("POST /api/analyze vision success and failures", () => {
     expect(body.typeDetail).toBe("Crew neck");
   });
 
+  it("returns validated cutout assessment and garment description", async () => {
+    groqResolves(
+      JSON.stringify({
+        category: "top",
+        garmentType: "top",
+        cutoutDifficulty: "hard",
+        qualityNote: "The dark fabric blends into the background.",
+        visualDescription: "A relaxed black cotton tee with short sleeves.",
+      }),
+    );
+    const response = await POST(buildRequest({ imageBase64: validImage }));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      cutoutDifficulty: "hard",
+      qualityNote: "The dark fabric blends into the background.",
+      visualDescription: "A relaxed black cotton tee with short sleeves.",
+    });
+  });
+
+  it("asks Vision for localized user-facing text", async () => {
+    groqResolves(JSON.stringify({ qualityNote: "El fondo se parece a la prenda." }));
+    const response = await POST(
+      buildRequest({ imageBase64: validImage, locale: "es" }),
+    );
+    expect(response.status).toBe(200);
+    const visionPrompt = mockGroqCreate.mock.calls[0][0].messages[0].content[0]
+      .text as string;
+    expect(visionPrompt).toContain("in Spanish");
+  });
+
   it("resolves legacy alias keys type, shade and specificType", async () => {
     groqResolves(
       JSON.stringify({
@@ -243,5 +273,28 @@ describe("POST /api/analyze residual validation", () => {
     expect(body.colorDetail).toBeNull();
     expect(body.season).toBeNull();
     expect(body.typeDetail).toBeNull();
+  });
+
+  it("nulls invalid quality values and oversized descriptions", async () => {
+    mockGroqCreate.mockResolvedValue({
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              cutoutDifficulty: "impossible",
+              qualityNote: "x".repeat(141),
+              visualDescription: "y".repeat(401),
+            }),
+          },
+        },
+      ],
+    });
+    const response = await POST(buildRequest({ imageBase64: validImage }));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      cutoutDifficulty: null,
+      qualityNote: null,
+      visualDescription: null,
+    });
   });
 });

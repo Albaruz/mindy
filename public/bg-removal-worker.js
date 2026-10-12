@@ -65,7 +65,10 @@ self.onmessage = async (event) => {
     console.log('[bg-removal-worker] Processing image:', imageBlob?.size, 'bytes');
     const result = await removeBackgroundFn(imageBlob, options);
     console.log('[bg-removal-worker] Success, result:', result?.size, 'bytes');
-    self.postMessage({ success: true, result }, [result]);
+    // Blob is structured-cloneable but not transferable; passing it in the
+    // transfer list raises DataCloneError and turns a successful cutout into
+    // a worker failure followed by an unnecessary duplicate inference.
+    self.postMessage({ success: true, result });
   } catch (error) {
     console.error('[bg-removal-worker] Processing error:', error);
     self.postMessage({ 
