@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.0",
-    "@lhci/cli": "^0.14.0",
+    "@lhci/cli": "^0.15.1",
     "@next/bundle-analyzer": "^16.3.8",
     "@playwright/test": "^1.49.1",
     "@testing-library/jest-dom": "^6.6.3",

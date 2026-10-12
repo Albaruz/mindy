@@ -13,10 +13,10 @@ Tabla con los items del backlog del documento SDD, ordenados por prioridad y dif
 | #BKL-008 | 7 | Visual Regression | Playwright snapshots (toHaveScreenshot) en home, closet, profile, dialogs | Baja | Medio | 8 pts | Pendiente |
 | #BKL-009 | 8 | BEM Completo | Completar BEM en: WeatherThreadIcon, MorphoIcon, OptionPills, ColorSwatches, LazyImage, SmartSkeleton, pasos wizard | Baja | Fácil | 3 pts | Parcial |
 | #BKL-010 | 9 | Accessibility Audit Final (WCAG 2.2 AA) | Axe 7 rutas × 2 temas + diálogos + targets 24px + reduced-motion; falta teclado completo y lector de pantalla | Alta | Medio | 5 pts | Parcial |
-| #BKL-011 | 10 | Performance Budgets | PurgeCSS + tree-shaking mixins + CI gate <180KB gzip | Media | Fácil | 3 pts | Pendiente |
-| #BKL-012 | 11 | Lighthouse CI (LHCI) | CI gate: Perf ≥90, a11y ≥95, Best ≥90, SEO ≥90; necesita .github/workflows | Media | Medio | 3 pts | Pendiente |
+| #BKL-011 | 10 | Performance Budgets | Purga hecha (#BKL-013) + gate 180KB en CI pasando (140KB); tree-shaking mixins sigue en #BKL-015 | Media | Fácil | 3 pts | Hecho |
+| #BKL-012 | 11 | Lighthouse CI (LHCI) | Producción aislada (`:3003`); LHCI actualizado; split de TopNavigation sube /es de ~0,84 a 0,87 (LCP mediano 3,8s), aún bajo 0,90 | Media | Medio | 3 pts | Pendiente |
 | #BKL-013 | 12 | PurgeCSS Integration | Eliminada capa global muerta (17 parciales); CSS 143→104 KB; guardia en main.test.ts | Media | Fácil | 2 pts | Hecho |
-| #BKL-014 | 13 | Bundle Analysis en CI | Gate en CI si bundle > 180KB (@next/bundle-analyzer + threshold check) | Media | Fácil | 2 pts | Pendiente |
+| #BKL-014 | 13 | Bundle Analysis en CI | Gate existe (budget script + job CI) y pasa: 140,2/180 KB | Media | Fácil | 2 pts | Hecho |
 | #BKL-015 | 14 | Tree-shaking de Mixins SCSS | Refactorizar mixins SCSS a CSS Vars cuando sea posible | Baja | Medio | 3 pts | Pendiente |
 
 ---
@@ -24,10 +24,10 @@ Tabla con los items del backlog del documento SDD, ordenados por prioridad y dif
 ## Resumen
 
 - **Total items:** 14 (del SDD §11)
-- **Pendiente:** 10
+- **Pendiente:** 8
 - **Parcial:** 2
-- **Hecho:** 2 (#BKL-004 color_base, #BKL-013 PurgeCSS)
-- **Total esfuerzo:** ~56 story points (~51 restantes estimados)
+- **Hecho:** 4 (#BKL-004, #BKL-010, #BKL-013, #BKL-014)
+- **Total esfuerzo:** ~56 story points (~46 restantes estimados)
 - **Alta:** 1 | **Media:** 9 | **Baja:** 4
 
 **Prioridad recomendada:**

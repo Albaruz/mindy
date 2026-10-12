@@ -1088,23 +1088,24 @@ Detalle: ACCESSIBILITY_STATUS.md
 Estimación restante: 2-3 puntos (parte manual)
 ```
 
-#### Performance Budgets (PENDIENTE)
+#### Performance Budgets (HECHO)
 ```
-Estado: Solo medición, sin gate
-Meta: <180KB gzip
-Falta: PurgeCSS, tree-shaking mixins, CI gate
-Estimación: 3 puntos
+Purga: hecha (capa global muerta eliminada, CSS −27%)
+Gate: scripts/check-bundle-budget.mjs en CI (job build), pasando
+  (140,2/180 KB gzip el 2026-10-12)
+Tree-shaking de mixins: sigue abierto en #BKL-015
 ```
 
-#### Lighthouse CI (PENDIENTE)
+#### Lighthouse CI (PENDIENTE — medición confiable, gate en rojo)
 ```
-Herramienta: lighthouserc + LHCI
-Umbrales:
-  - Performance: ≥90
-  - Accessibility: ≥95
-  - Best Practices: ≥90
-  - SEO: ≥90
-Infraestructura: `.github/workflows` (no existe aún)
+Herramienta: lighthouserc + LHCI 0.15.1 (Lighthouse 12.6) + job CI
+Servidor: producción aislada en :3003 para no medir por accidente next dev
+Hallazgo 2026-10-12: /es promedia Performance 0,87 (3 runs), LCP mediano 3,8s
+Mejora: AppHeader carga TopNavigation dinámicamente; JS sin uso baja
+  de ~82KB a ~45KB; score sube de ~0,84 a ~0,87.
+Nota: LHCI previo corría contra servidor de desarrollo en :3000 y
+  producía puntuación falsa (0,63-0,71) + fallo de diagnóstico LCP.
+Falta: reducir LCP de /es hasta el umbral 0,90 (LCP <2,5s aprox.)
 Estimación: 3 puntos
 ```
 
@@ -1122,12 +1123,11 @@ Resultado medido (build --webpack): CSS 143,1 KB → 103,8 KB (−39,3 KB, −27
 Guardia: src/styles/main.test.ts falla si se reintroducen esos imports
 ```
 
-#### Bundle Analysis en CI (PENDIENTE)
+#### Bundle Analysis en CI (HECHO)
 ```
-Estado: Local (`pnpm analyze`) solamente
-Necesidad: Gate en CI (fallar si >180KB)
-Herramienta: @next/bundle-analyzer + threshold check
-Estimación: 2 puntos
+Gate: scripts/check-bundle-budget.mjs (job build en CI) + pnpm analyze
+  local con @next/bundle-analyzer
+Verificado 2026-10-12: 140,2/180 KB gzip → pasa
 ```
 
 #### Tree-shaking de Mixins (PENDIENTE)

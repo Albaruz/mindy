@@ -16,6 +16,10 @@ vi.mock("@/components/TopNavigation/TopNavigation", () => ({
   TopNavigation: () => <nav data-testid="top-navigation" />,
 }));
 
+vi.mock("next/dynamic", () => ({
+  default: () => () => <nav data-testid="top-navigation" />,
+}));
+
 vi.mock("next/image", () => ({
   default: ({
     alt,

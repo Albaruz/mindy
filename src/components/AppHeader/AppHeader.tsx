@@ -1,9 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { TopNavigation } from "@/components/TopNavigation/TopNavigation";
+import dynamic from "next/dynamic";
 import { usePathname } from "@/i18n/navigation";
 import styles from "./AppHeader.module.scss";
+
+const TopNavigation = dynamic(
+  () =>
+    import("@/components/TopNavigation/TopNavigation").then(
+      (module) => module.TopNavigation,
+    ),
+  { loading: () => null },
+);
 
 // Global header (logo + pill menu), hidden on the auth gate and the
 // password recovery flow: those screens carry their own centered logo

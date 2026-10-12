@@ -18,6 +18,12 @@ vi.mock("@/components/TopNavigation/TopNavigation", () => ({
   },
 }));
 
+vi.mock("next/dynamic", () => ({
+  default: () => function MockDynamicTopNavigation() {
+    return <nav data-testid="top-navigation" />;
+  },
+}));
+
 vi.mock("next/image", () => ({
   default: function MockImage({ alt }: { alt: string }) {
     // eslint-disable-next-line @next/next/no-img-element

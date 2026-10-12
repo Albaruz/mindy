@@ -2,11 +2,11 @@
   "ci": {
     "collect": {
       "url": [
-        "http://localhost:3000/es",
-        "http://localhost:3000/es/generator",
-        "http://localhost:3000/es/closet"
+        "http://localhost:3003/es",
+        "http://localhost:3003/es/generator",
+        "http://localhost:3003/es/closet"
       ],
-      "startServerCommand": "pnpm start",
+      "startServerCommand": "pnpm start --port 3003",
       "startServerReadyPattern": "Ready",
       "numberOfRuns": 1,
       "settings": {
