@@ -220,7 +220,8 @@ Salida JSON: {
 - `laundry.spec.ts` — Cesto y lavado
 - `onboarding.spec.ts` — 5 pasos
 - `offline.spec.ts` — Modo sin conexión
-- `a11y.spec.ts` — Accesibilidad (actualmente skip)
+- `a11y.spec.ts` — Accesibilidad (axe en 7 rutas × 2 temas + diálogos con teclado)
+- `a11y-targets-motion.spec.ts` — Touch targets 24px + reduced-motion en 5 rutas
 - `auth.setup.ts` — Autenticación
 
 **Performance Baseline** (`PERFORMANCE_BASELINE.md` - 2026-10-10)
@@ -807,11 +808,16 @@ CSP                        // Content Security Policy
 - Visible al tabbing
 - Salta navegación principal
 
-### Accesibilidad Pendiente
+### Accesibilidad (Parcial — audit automático superado)
 
 - ✅ Infraestructura lista
-- ⏳ Audit final WCAG 2.2 AA (spec axe en skip)
-- Falta seed con auth para specs E2E a11y
+- ✅ Axe sin infracciones en 7 rutas × tema claro/oscuro (14 combinaciones)
+- ✅ Diálogos de alta, edición y confirmación del armario: Axe + Escape + restauración de foco
+- ✅ Touch targets ≥24px en 5 rutas (navegación corregida de 20×32px a 44px)
+- ✅ Movimiento reducido: sin animaciones CSS supervivientes en 5 rutas
+- ✅ Contraste: token `--color-muted` corregido (`#6b7280` → `#686868`, 4,48:1 → 5,17:1)
+- ❌ Pendiente manual: teclado completo, lector de pantalla, revisión visual de foco/contraste
+- Detalle: `ACCESSIBILITY_STATUS.md`
 
 ---
 
@@ -968,16 +974,19 @@ Estimación: 3 puntos
 
 ### 🛡️ Quality Gates
 
-#### Accessibility Audit Final (PENDIENTE)
+#### Accessibility Audit Final (PARCIAL)
 ```
 Checklist WCAG 2.2 AA:
-  - Foco visible: ✅ (ready)
-  - Contraste dark/light: ⏳
-  - Touch targets ≥44px: ✅ (tokens)
-  - ARIA: ✅ (carousels, dropdowns ready)
-  - Reduced motion: ✅ (media query)
-Spec: e2e/a11y.spec.ts (actualmente skip, necesita seed auth)
-Estimación: 5 puntos
+  - Foco visible: ✅ parcial (anillo global + verificado en diálogos; falta revisión visual completa)
+  - Contraste dark/light: ✅ parcial (7 rutas × 2 temas sin infracciones Axe; token muted corregido)
+  - Touch targets ≥24px: ✅ verificado en 5 rutas (navegación corregida a 44px)
+  - ARIA: ✅ (carousels, dropdowns ready + diálogos auditados)
+  - Reduced motion: ✅ verificado (fallback global + MotionConfig; sin animaciones supervivientes)
+  - Teclado completo: ⏳ (solo diálogos del armario automatizados)
+  - Lector de pantalla: ⏳ (requiere prueba manual con NVDA)
+Specs: e2e/a11y.spec.ts (19 tests) + e2e/a11y-targets-motion.spec.ts (10 tests)
+Detalle: ACCESSIBILITY_STATUS.md
+Estimación restante: 2-3 puntos (parte manual)
 ```
 
 #### Performance Budgets (PENDIENTE)

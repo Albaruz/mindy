@@ -99,7 +99,7 @@ export default function ClosetPage() {
   const [pendingDelete, setPendingDelete] = useState<Garment | null>(null);
   const [isSourceMenuOpen, setIsSourceMenuOpen] = useState(false);
   const fabRef = useRef<HTMLButtonElement | null>(null);
-  const firstSheetOptionRef = useRef<HTMLButtonElement | null>(null);
+  const sourceMenuRef = useRef<HTMLDivElement | null>(null);
   // Optimistic wash: cards shrink away instantly while the mutation
   // lands; a failure puts the card back.
   const [washingGarmentIds, setWashingGarmentIds] = useState<Set<string>>(
@@ -110,18 +110,50 @@ export default function ClosetPage() {
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const uploadInputRef = useRef<HTMLInputElement>(null);
 
-  // Close the source sheet with Escape and move focus into it on open.
+  // Keep keyboard focus inside the modal source sheet until it closes.
   useEffect(() => {
     if (!isSourceMenuOpen) {
       return;
     }
-    firstSheetOptionRef.current?.focus();
+    const dialog = sourceMenuRef.current;
+    const getFocusableButtons = () =>
+      Array.from(
+        dialog?.querySelectorAll<HTMLButtonElement>("button:not(:disabled)") ??
+          [],
+      );
+    getFocusableButtons()[0]?.focus();
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setIsSourceMenuOpen(false);
         fabRef.current?.focus();
+        return;
+      }
+      if (event.key !== "Tab") {
+        return;
+      }
+
+      const focusable = getFocusableButtons();
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (first === undefined || last === undefined) {
+        event.preventDefault();
+        return;
+      }
+
+      const activeElement = document.activeElement;
+      if (!dialog?.contains(activeElement)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+      } else if (event.shiftKey && activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
+
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isSourceMenuOpen]);
@@ -375,6 +407,7 @@ export default function ClosetPage() {
         >
           <div
             id="add-garment-sheet"
+            ref={sourceMenuRef}
             role="dialog"
             aria-modal="true"
             aria-label={ta("addGarmentFrom")}
@@ -382,7 +415,6 @@ export default function ClosetPage() {
             onClick={(event) => event.stopPropagation()}
           >
             <button
-              ref={firstSheetOptionRef}
               type="button"
               className={styles.sheetOption}
               onClick={() => {
