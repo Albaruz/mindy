@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { Garment } from "@/types/garment";
 import {
   useGeneratorStore,
@@ -185,6 +185,7 @@ function resolveLook(
 // pushes the array to the store, which flips the view to showcase.
 export function useGenerateLooks() {
   const t = useTranslations("Notifications");
+  const locale = useLocale();
   return useMutation({
     mutationFn: async (input: GenerateLooksInput): Promise<GenerateLooksResult> => {
       const { dismissedIds, getLockedGarments } =
@@ -222,6 +223,7 @@ export function useGenerateLooks() {
           profile: input.profile,
           mood: LOOK_STYLE_TO_MOOD[input.style],
           style: input.style,
+          locale,
           lockedGarmentIds: [...lockedIds],
           dismissedGarmentIds: [...dismissed],
         }),

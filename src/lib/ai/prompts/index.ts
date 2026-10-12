@@ -30,6 +30,7 @@ export function buildOutfitPrompt(input: BuildOutfitPromptInput): BuiltOutfitPro
       input.lockedGarments,
       input.styleFilter,
       input.requireOuterwear,
+      input.locale ?? "en",
     ),
     userPayload: buildOutfitUserPayload(input.payload),
   };

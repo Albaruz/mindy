@@ -10,6 +10,7 @@ import type {
   LockedGarmentSummary,
   PromptProfile,
 } from "../types";
+import { AI_REASON_LANGUAGES } from "@/constants/ai";
 
 function describeProfile(profile: PromptProfile): string {
   if (profile === null) {
@@ -35,6 +36,7 @@ export function buildOutfitSystemPrompt(
   lockedGarments: LockedGarmentSummary[],
   styleFilter: string | null = null,
   requireOuterwear = false,
+  locale: string = "en",
 ): string {
   const lockedSection =
     lockedGarments.length > 0
@@ -45,6 +47,11 @@ export function buildOutfitSystemPrompt(
           )
           .join("\n")
       : "None.";
+
+  const languageName =
+    AI_REASON_LANGUAGES[
+      locale as keyof typeof AI_REASON_LANGUAGES
+    ] ?? AI_REASON_LANGUAGES.en;
 
   return `You are Mindy, a professional personal stylist.
 
@@ -65,5 +72,6 @@ Rules:
 - Return 2 or 3 outfit options, ordered by suitability (best first).
 - Use ONLY garment IDs from the candidate list. Never invent IDs.
 - Every option needs at least a top and a bottom (plus footwear when available).${styleFilter !== null ? `\n- Style filter (strict): every outfit must be wearable for ${styleFilter}. Never mix in another style to fill a gap.` : ""}${requireOuterwear ? "\n- Outerwear (mandatory): it is raining or cold and the candidate list contains outerwear. Every outfit MUST include exactly one outerwear garment." : ""}
-- Keep "reason" to one short sentence per option.`;
+- Keep "reason" to one short sentence per option.
+- Write every "reason" in ${languageName}. Keep JSON keys in English.`;
 }

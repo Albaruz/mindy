@@ -5,6 +5,7 @@ import React from "react";
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
+  useLocale: () => "en",
 }));
 
 import { useCombineLocked } from "./useCombineLocked";

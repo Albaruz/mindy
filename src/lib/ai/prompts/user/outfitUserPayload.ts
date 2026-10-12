@@ -21,6 +21,9 @@ export interface OutfitUserPayloadInput {
   lockedGarmentIds: string[];
   // Minimized candidate list owned by the route (id + closed tags only).
   candidates: unknown[];
+  // Active app locale echoed for the model (redundant with the system
+  // prompt rule, but keeps the language intent next to the data).
+  locale?: string;
 }
 
 export function buildOutfitUserPayload(
@@ -37,6 +40,7 @@ export function buildOutfitUserPayload(
     style: input.style,
     lockedGarmentIds: [...input.lockedGarmentIds],
     candidates: input.candidates,
+    language: input.locale ?? "en",
   };
 }
 
@@ -46,5 +50,8 @@ export interface BuildOutfitPromptInput {
   lockedGarments: LockedGarmentSummary[];
   styleFilter: string | null;
   requireOuterwear: boolean;
+  // Active app locale ("en" | "es"): only localizes the "reason" text,
+  // JSON keys stay in English. Defaults to "en" when omitted.
+  locale?: string;
   payload: OutfitUserPayloadInput;
 }

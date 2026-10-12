@@ -14,6 +14,8 @@ import {
   buildOutfitPrompt,
   type StylistProfile,
 } from "@/lib/ai/prompts";
+import { resolvePreferredLocale } from "@/lib/negotiateLocale";
+import { routing, type AppLocale } from "@/i18n/routing";
 import {
   generateOutfitRecommendation,
   getEngineModel,
@@ -160,6 +162,28 @@ function readIdList(value: unknown): string[] {
   return value.filter(
     (entry): entry is string => typeof entry === "string" && entry !== "",
   );
+}
+
+// Client sends its active next-intl locale in the body (the URL locale is
+// the source of truth). Fallback: NEXT_LOCALE cookie, then Accept-Language,
+// then the default. Unknown values never reach the prompt.
+// Accepts the `language` alias for forward compatibility.
+function readLocale(
+  value: unknown,
+  request: Request,
+): AppLocale {
+  if (typeof value === "string" && routing.locales.includes(value as AppLocale)) {
+    return value as AppLocale;
+  }
+  const cookieHeader = request.headers.get("cookie") ?? "";
+  const cookieValue = cookieHeader
+    .split(";")
+    .map((part) => part.trim().split("="))
+    .find(([name]) => name === "NEXT_LOCALE")?.[1];
+  return resolvePreferredLocale({
+    cookieValue: cookieValue ?? null,
+    acceptLanguage: request.headers.get("accept-language"),
+  });
 }
 
 // Strict style filtering: the requested look style only admits garments
@@ -793,6 +817,8 @@ export async function POST(request: Request) {
     (isRainyWeather(condition, rainProbability) ||
       (dayLow ?? temperatureC) < COLD_THRESHOLD_C);
 
+  const locale = readLocale(input.locale ?? input.language, request);
+
   const { systemPrompt, userPayload } = buildOutfitPrompt({
     profile: readStylistProfile(input.profile),
     climate: {
@@ -810,6 +836,7 @@ export async function POST(request: Request) {
     styleFilter:
       requestedStyle !== null ? STYLE_PROMPT_LABELS[requestedStyle] : null,
     requireOuterwear: outerwearRequired,
+    locale,
     payload: {
       temperatureC,
       dayLow,
@@ -821,6 +848,7 @@ export async function POST(request: Request) {
       style: requestedStyle,
       lockedGarmentIds: [...lockedIds],
       candidates: cappedPool,
+      locale,
     },
   });
 

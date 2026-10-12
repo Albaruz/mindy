@@ -42,3 +42,13 @@ export const VISION_TEMPERATURE = 0;
 
 /** Vision response cap: the tag JSON is tiny. */
 export const VISION_MAX_TOKENS = 300;
+
+// ---------------------------------------------------------------------------
+// Outfit reason localization
+// ---------------------------------------------------------------------------
+
+/** Display names for the outfit "reason" language, keyed by app locale. */
+export const AI_REASON_LANGUAGES = {
+  en: "English",
+  es: "Spanish",
+} as const;

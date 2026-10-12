@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { Garment } from "@/types/garment";
 import {
   useGeneratorStore,
@@ -66,6 +66,7 @@ async function readResponseErrorCode(
 // and the wizard alias fixed_garments (hard constraints).
 export function useCombineLocked() {
   const t = useTranslations("Notifications");
+  const locale = useLocale();
 
   return useMutation({
     mutationFn: async (
@@ -106,6 +107,7 @@ export function useCombineLocked() {
           // not apply (it would 422 on mixed-style closets).
           mood: null,
           style: null,
+          locale,
           lockedGarmentIds: [...lockedIds],
           fixed_garments: [...lockedIds],
           dismissedGarmentIds: [...dismissed],
