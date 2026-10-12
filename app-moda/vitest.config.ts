@@ -1,8 +1,12 @@
 import { defineConfig } from "vitest/config";
-import tsconfigPaths from "vite-tsconfig-paths";
+import path from "node:path";
 
 export default defineConfig({
-  plugins: [tsconfigPaths()],
+  // Explicit alias: tsconfig excludes test files, so tsconfig-based path
+  // resolution would not apply to them (vi.mock("@/...") would miss).
+  resolve: {
+    alias: { "@": path.resolve(__dirname, "src") },
+  },
   test: {
     environment: "jsdom",
     globals: true,

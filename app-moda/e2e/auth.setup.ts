@@ -1,7 +1,7 @@
 // Auth bootstrap for seeded E2E runs.
 // Stores an authenticated storageState via email/password so specs can
-// run against a seeded user. Requires env:
-// TEST_USER_EMAIL and TEST_USER_PASSWORD.
+// run against a seeded user. Requires TEST_USER_EMAIL, TEST_USER_PASSWORD,
+// NEXT_PUBLIC_SUPABASE_URL, and NEXT_PUBLIC_SUPABASE_ANON_KEY.
 // Wired as the "setup" project in playwright.config.ts; the "mobile"
 // project depends on it and consumes STORAGE_STATE_PATH.
 // Run once with:
@@ -22,18 +22,24 @@ function writeEmptyState(): void {
 setup("authenticate with seeded user", async ({ page }) => {
   const email = process.env.TEST_USER_EMAIL;
   const password = process.env.TEST_USER_PASSWORD;
-  const missingCredentials =
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const missingRequirements =
+    email?.trim() === "" ||
     email === undefined ||
-    email.trim() === "" ||
     password === undefined ||
-    password === "";
-  if (missingCredentials) {
+    password === "" ||
+    supabaseUrl?.trim() === "" ||
+    supabaseUrl === undefined ||
+    supabaseAnonKey?.trim() === "" ||
+    supabaseAnonKey === undefined;
+  if (missingRequirements) {
     // Always leave a (empty) state file so dependent projects do not fail
     // on a missing file; specs self-skip at runtime via hasSeededAuth().
     writeEmptyState();
     setup.skip(
       true,
-      "set TEST_USER_EMAIL and TEST_USER_PASSWORD for seeded auth",
+      "set TEST_USER_EMAIL, TEST_USER_PASSWORD, NEXT_PUBLIC_SUPABASE_URL, and NEXT_PUBLIC_SUPABASE_ANON_KEY for seeded auth",
     );
     return;
   }
