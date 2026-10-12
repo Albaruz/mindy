@@ -2,7 +2,7 @@
 
 **App de Moda Inteligente | MVP Full-Feature Deployed**
 
-> **Revisión post-deploy** — Estado verificado contra código en `app-moda/` | Next 16.3.8 • React 19.2.8 • Vercel Serverless  
+> **Revisión post-deploy** — Estado verificado contra código en la raíz del repositorio | Next 16.3.8 • React 19.2.8 • Vercel Serverless
 > **Fecha:** 2026-10-11
 
 ---
@@ -1100,7 +1100,7 @@ pnpm analyze                 # Bundle analysis
 
 ## 📞 Contacto y Referencias
 
-**Repositorio:** `app-moda/` en workspace
+**Repositorio:** raíz del workspace
 **Deployment:** Vercel native serverless
 **Database:** Supabase project
 **Observability:** Vercel OTEL + local logger

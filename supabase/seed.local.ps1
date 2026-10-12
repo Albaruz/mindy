@@ -1,6 +1,6 @@
 # Seed runner: loads credentials from .env.seed.local (gitignored, never
 # committed or printed) and runs the wardrobe seed.
-# Usage from the app-moda directory:
+# Usage from the repository root:
 #   powershell -ExecutionPolicy Bypass -File supabase/seed.local.ps1
 $ErrorActionPreference = "Stop"
 

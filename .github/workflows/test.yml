@@ -18,17 +18,12 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: app-moda/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-        working-directory: app-moda
       - run: pnpm tokens:build
-        working-directory: app-moda
       - run: pnpm typecheck
-        working-directory: app-moda
       - run: pnpm lint
-        working-directory: app-moda
       - run: pnpm test:coverage
-        working-directory: app-moda
 
   # Production build + shared-JS bundle budget gate (<180KB gzip).
   build:
@@ -43,13 +38,10 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: app-moda/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-        working-directory: app-moda
       - run: pnpm build --webpack
-        working-directory: app-moda
       - run: pnpm budget
-        working-directory: app-moda
 
   # Mobile ES critical flows + axe (specs self-skip at runtime without
   # seeded auth; setup project authenticates when secrets exist).
@@ -65,13 +57,10 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: app-moda/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-        working-directory: app-moda
       - run: pnpm exec playwright install --with-deps chromium
-        working-directory: app-moda
       - run: pnpm test:e2e
-        working-directory: app-moda
         env:
           TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
@@ -91,13 +80,10 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: app-moda/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-        working-directory: app-moda
       - run: pnpm build --webpack
-        working-directory: app-moda
       - run: pnpm exec lhci autorun
-        working-directory: app-moda
 
   # RLS isolation via pgTAP against a Supabase branch (supabase/tests/).
   # Requires SUPABASE_DB_URL secret; skipped otherwise.
@@ -111,4 +97,4 @@ jobs:
             echo "SUPABASE_DB_URL not set, skipping RLS tests."
             exit 0
           fi
-          psql "${{ secrets.SUPABASE_DB_URL }}" -f app-moda/supabase/tests/rls_isolation.sql
+          psql "${{ secrets.SUPABASE_DB_URL }}" -f supabase/tests/rls_isolation.sql

@@ -92,7 +92,7 @@ async function main(): Promise<void> {
 
   const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-  // Resolved from the repo root (run the script from app-moda/).
+  // Run this script from the repository root.
   const raw = readFileSync(join(process.cwd(), "supabase", "garments_mock.json"), "utf8");
   const mocks = JSON.parse(raw) as MockGarment[];
   if (!Array.isArray(mocks) || mocks.length === 0) {

@@ -8,7 +8,7 @@ Thank you for contributing to Mindy Smart Closet! 👗
 
 ```bash
 git clone https://github.com/your-username/mindy-smart-closet.git
-cd mindy-smart-closet/app-moda
+cd mindy-smart-closet
 ```
 
 ### 2. Install & Setup
