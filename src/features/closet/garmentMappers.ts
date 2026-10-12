@@ -45,3 +45,27 @@ export function toGarment(row: GarmentRow): Garment {
     createdAt: row.created_at,
   };
 }
+
+// Vision-tagged values (closed columns plus free-form details) as
+// produced by the /api/analyze pipeline.
+export interface VisionTags {
+  category: GarmentType | "";
+  color: GarmentColor | "";
+  typeDetail: string;
+  colorShade: string;
+}
+
+// Builds the extra_tags payload for a vision-tagged insert. color_base
+// mirrors the closed color column: the vision prompt already constrains
+// "color" to the base spectrum, so deriving it deterministically keeps
+// the closed vocabulary guaranteed (no extra LLM field needed).
+// Readers (recommender fallback, search, future similarity) consume
+// extra_tags.color_base.
+export function buildVisionExtraTags(tags: VisionTags): Record<string, string> {
+  return {
+    ...(tags.category === "" ? {} : { aiCategory: tags.category }),
+    ...(tags.typeDetail === "" ? {} : { specificType: tags.typeDetail }),
+    ...(tags.colorShade === "" ? {} : { colorShade: tags.colorShade }),
+    ...(tags.color === "" ? {} : { color_base: tags.color }),
+  };
+}

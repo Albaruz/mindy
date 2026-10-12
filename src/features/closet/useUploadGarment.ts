@@ -22,6 +22,7 @@ import { useNotificationStore } from "@/features/ui/useNotificationStore";
 import { API_ROUTES } from "@/constants/api";
 import { STORAGE_BUCKETS, TABLES } from "@/constants/storage";
 import { GARMENTS_QUERY_KEY } from "./useClosetQuery";
+import { buildVisionExtraTags } from "./garmentMappers";
 
 // Storage bucket for garment photos. Re-exported from centralized
 // constants for backward compatibility.
@@ -149,11 +150,12 @@ export function useUploadGarment() {
         color: tags.color === "" ? null : tags.color,
         material: tags.material === "" ? null : tags.material,
         season: tags.season === "" ? null : tags.season,
-        extra_tags: {
-          ...(tags.category === "" ? {} : { aiCategory: tags.category }),
-          ...(tags.typeDetail === "" ? {} : { specificType: tags.typeDetail }),
-          ...(tags.colorShade === "" ? {} : { colorShade: tags.colorShade }),
-        },
+        extra_tags: buildVisionExtraTags({
+          category: tags.category,
+          color: tags.color,
+          typeDetail: tags.typeDetail,
+          colorShade: tags.colorShade,
+        }),
       });
       if (insertError) {
         throw insertError;

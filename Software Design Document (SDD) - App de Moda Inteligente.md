@@ -909,12 +909,15 @@ Técnica: Embeddings + cosine similarity
 Estimación: 8 puntos
 ```
 
-#### 4. Etiquetado de color_base (PENDIENTE)
+#### 4. Etiquetado de color_base (HECHO)
 ```
-Situación: Leído en búsqueda/recomendador, pero no escrito
-Necesidad: Vision IA debe extraer color_base en extra_tags
-Dependencia: #3 (similitud) usa color_base como atributo
-Estimación: 3 puntos
+Situación anterior: Leído en búsqueda/recomendador, pero no escrito
+Solución: el pipeline de visión escribe extra_tags.color_base derivado
+  del color cerrado (el prompt ya lo limita al espectro base), vía
+  buildVisionExtraTags() en garmentMappers.ts (con tests)
+Dependencia: #3 (similitud) ya puede usar color_base como atributo
+Nota: prendas subidas antes de este cambio no tienen color_base
+  (los lectores siguen usando la columna color como fallback)
 ```
 
 #### 5. Starter Wardrobe (PENDIENTE - NUEVO)

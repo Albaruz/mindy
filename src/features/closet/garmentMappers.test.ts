@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { toGarment, type GarmentRow } from "./garmentMappers";
+import {
+  buildVisionExtraTags,
+  toGarment,
+  type GarmentRow,
+} from "./garmentMappers";
 
 function buildRow(overrides: Partial<GarmentRow> = {}): GarmentRow {
   return {
@@ -34,5 +38,34 @@ describe("toGarment", () => {
       buildRow({ extra_tags: { color_base: "rojo" } }),
     );
     expect(result.extraTags).toEqual({ color_base: "rojo" });
+  });
+});
+
+describe("buildVisionExtraTags", () => {
+  it("writes color_base from the closed vision color", () => {
+    expect(
+      buildVisionExtraTags({
+        category: "top",
+        color: "blue",
+        typeDetail: "sneakers",
+        colorShade: "turquoise",
+      }),
+    ).toEqual({
+      aiCategory: "top",
+      specificType: "sneakers",
+      colorShade: "turquoise",
+      color_base: "blue",
+    });
+  });
+
+  it("omits color_base when vision returned no color", () => {
+    expect(
+      buildVisionExtraTags({
+        category: "",
+        color: "",
+        typeDetail: "",
+        colorShade: "",
+      }),
+    ).toEqual({});
   });
 });
