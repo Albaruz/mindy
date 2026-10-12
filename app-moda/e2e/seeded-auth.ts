@@ -7,7 +7,7 @@ import path from "node:path";
 export const STORAGE_STATE_PATH = path.join(__dirname, ".auth", "user.json");
 
 export const SEEDED_AUTH_HELP =
-  "requires seeded auth: run e2e/auth.setup.ts with TEST_USER_EMAIL/TEST_USER_PASSWORD";
+  "requires seeded auth: run e2e/auth.setup.ts with test credentials and Supabase configuration";
 
 export function hasSeededAuth(): boolean {
   try {
