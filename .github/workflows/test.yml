@@ -43,8 +43,8 @@ jobs:
       - run: pnpm build --webpack
       - run: pnpm budget
 
-  # Mobile ES critical flows + axe (specs self-skip at runtime without
-  # seeded auth; setup project authenticates when secrets exist).
+  # Mobile ES flows, accessibility, and visual snapshots. Specs self-skip at
+  # runtime without seeded auth; setup authenticates when secrets exist.
   e2e:
     runs-on: ubuntu-latest
     needs: unit

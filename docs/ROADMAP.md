@@ -89,10 +89,11 @@ All core features are live and production-ready. This roadmap outlines improveme
 - **Priority:** High
 
 ### Visual Regression Testing
-- [ ] Set up Playwright snapshots
-- [ ] Screenshot critical pages (generator, closet, profile)
-- [ ] Configure snapshot thresholds
-- [ ] Add CI gate for visual diffs
+- [x] Set up Playwright snapshots
+- [x] Screenshot critical pages (generator, closet, profile) in light and dark themes
+- [x] Configure snapshot threshold (1% pixel-diff ratio)
+- [x] Add CI gate for visual diffs
+- **Status:** 8 versioned baselines: 6 page views + 2 closet add-garment dialogs
 - **Timeline:** Sprint 7 (1 week)
 - **Priority:** Medium
 
