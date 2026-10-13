@@ -9,15 +9,17 @@ import {
 } from "./useGeneratorStore";
 import {
   categorizeGarment,
-  isLaundryExemptGarment,
   withoutHiddenBottom,
 } from "./categorizeGarments";
 import { useNotificationStore } from "@/features/ui/useNotificationStore";
 import { MAX_LOOK_OPTIONS } from "@/constants/generator";
 import { DEFAULT_TEMPERATURE_C } from "@/constants/weather";
 import { GEOLOCATION_MAX_AGE_MS, GEOLOCATION_TIMEOUT_MS } from "@/constants/geo";
-import { API_ROUTES, buildWeatherUrl } from "@/constants/api";
-import type { Mood, RecommenderProfile } from "./generatorTypes";
+import { buildWeatherUrl } from "@/constants/api";
+import type { Mood, GenerateLooksInput, GenerateLooksResult } from "./generatorTypes";
+import { buildCandidates } from "./generatorCandidates";
+import { callRecommender, buildRecommenderGarments, type RecommenderRequest } from "./generatorApi";
+import { readRecommenderError, formatRecommenderError, validateRecommenderResponse, type RecommenderResponse } from "./generatorResponse";
 
 export const LOOK_STYLE_TO_MOOD: Record<LookStyle, Mood> = {
   casual: "relaxed",
@@ -27,45 +29,6 @@ export const LOOK_STYLE_TO_MOOD: Record<LookStyle, Mood> = {
   streetwear: "relaxed",
   party: "elegant",
 };
-
-export interface GenerateLooksInput {
-  garments: Garment[];
-  profile: RecommenderProfile | null;
-  style: LookStyle;
-}
-
-interface RecommenderOption {
-  garmentIds: string[];
-  suitabilityRatio?: number;
-  reason?: string;
-}
-
-interface RecommenderResponse {
-  options: RecommenderOption[];
-  _isFallback?: boolean;
-}
-
-interface GenerateLooksResult {
-  looks: AiLook[];
-  isFallback: boolean;
-}
-
-// Server error payloads are short user-safe messages: forward them so the
-// toast shows the real cause instead of a generic fallback.
-async function readResponseErrorCode(response: Response): Promise<string | null> {
-  try {
-    const payload: unknown = await response.json();
-    if (typeof payload === "object" && payload !== null) {
-      const message = (payload as Record<string, unknown>).error;
-      if (typeof message === "string" && message !== "") {
-        return message;
-      }
-    }
-  } catch {
-    // Fall through to null below.
-  }
-  return null;
-}
 
 // Typed rejection for strict style filtering: the server answered 422
 // because no buildable look exists in the requested style.
@@ -194,56 +157,40 @@ export function useGenerateLooks() {
       const lockedIds = new Set(locked.map((g) => g.garmentId));
       const dismissed = new Set(dismissedIds);
 
-      const candidates = input.garments.filter(
-        (garment) =>
-          (!dismissed.has(garment.garmentId) &&
-            (!garment.isDirty || isLaundryExemptGarment(garment))) ||
-          lockedIds.has(garment.garmentId),
-      );
+      const candidates = buildCandidates(input.garments, lockedIds, dismissed);
       if (candidates.length === 0) {
         throw new Error("Add garments to your closet first.");
       }
 
       const climate = await resolveClimate();
-      const apiGarments = candidates.map((garment) =>
-        garment.isDirty && isLaundryExemptGarment(garment)
-          ? { ...garment, isDirty: false }
-          : garment,
-      );
-      const response = await fetch(API_ROUTES.recommender, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          garments: apiGarments,
-          temperatureC: climate.temperatureC,
-          condition: climate.condition,
-          dayLow: climate.dayLow,
-          dayHigh: climate.dayHigh,
-          rainProbability: climate.rainProbability,
-          profile: input.profile,
-          mood: LOOK_STYLE_TO_MOOD[input.style],
-          style: input.style,
-          locale,
-          lockedGarmentIds: [...lockedIds],
-          dismissedGarmentIds: [...dismissed],
-        }),
-      });
+      const apiGarments = buildRecommenderGarments(candidates);
+      const request: RecommenderRequest = {
+        garments: apiGarments,
+        temperatureC: climate.temperatureC,
+        condition: climate.condition,
+        dayLow: climate.dayLow,
+        dayHigh: climate.dayHigh,
+        rainProbability: climate.rainProbability,
+        profile: input.profile,
+        mood: LOOK_STYLE_TO_MOOD[input.style],
+        style: input.style,
+        locale,
+        lockedGarmentIds: [...lockedIds],
+        dismissedGarmentIds: [...dismissed],
+      };
+      const response = await callRecommender(request);
       if (!response.ok) {
-        const code = await readResponseErrorCode(response);
+        const code = await readRecommenderError(response);
         if (
           response.status === 422 &&
           code === "INSUFFICIENT_STYLE_GARMENTS"
         ) {
           throw new InsufficientStyleGarmentsError(input.style);
         }
-        throw new Error(
-          code !== null
-            ? `${code} (status ${response.status})`
-            : `The stylist is unavailable right now. (status ${response.status})`,
-        );
+        throw formatRecommenderError(response, code);
       }
       const payload = (await response.json()) as RecommenderResponse;
-      if (!Array.isArray(payload.options) || payload.options.length === 0) {
+      if (!validateRecommenderResponse(payload)) {
         throw new Error("The stylist returned no options.");
       }
 

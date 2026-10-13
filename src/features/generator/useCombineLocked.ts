@@ -7,57 +7,15 @@ import {
 } from "./useGeneratorStore";
 import {
   categorizeGarment,
-  isLaundryExemptGarment,
   isOnePieceGarment,
 } from "./categorizeGarments";
 import { useNotificationStore } from "@/features/ui/useNotificationStore";
 import { MAX_LOOK_OPTIONS } from "@/constants/generator";
-import { API_ROUTES } from "@/constants/api";
-import type { RecommenderProfile } from "./generatorTypes";
+import type { CombineLockedInput, CombineLockedResult } from "./generatorTypes";
 import { resolveClimate } from "./useGenerateLooks";
-
-export interface CombineLockedInput {
-  garments: Garment[];
-  profile: RecommenderProfile | null;
-}
-
-interface CombineLockedResult {
-  // Ordered suggestion IDs per unlocked category (best option first).
-  suggestions: Partial<Record<Category, string[]>>;
-  // Top suggestion per unlocked category, centered after combining.
-  firstLook: Partial<Record<Category, Garment>>;
-  isFallback: boolean;
-  // Every suggested ID when the local fallback answered (amnesia set).
-  fallbackIds: string[];
-}
-
-interface RecommenderOption {
-  garmentIds: string[];
-}
-
-interface RecommenderResponse {
-  options: RecommenderOption[];
-  _isFallback?: boolean;
-}
-
-// Server error payloads are short user-safe messages: forward them so the
-// toast shows the real cause instead of a generic fallback.
-async function readResponseErrorCode(
-  response: Response,
-): Promise<string | null> {
-  try {
-    const payload: unknown = await response.json();
-    if (typeof payload === "object" && payload !== null) {
-      const message = (payload as Record<string, unknown>).error;
-      if (typeof message === "string" && message !== "") {
-        return message;
-      }
-    }
-  } catch {
-    // Fall through to null below.
-  }
-  return null;
-}
+import { buildCandidates } from "./generatorCandidates";
+import { callRecommender, buildRecommenderGarments, type RecommenderRequest } from "./generatorApi";
+import { readRecommenderError, formatRecommenderError, validateRecommenderResponse, type RecommenderResponse } from "./generatorResponse";
 
 // Manual "Bloquear y Generar" (wizard) inference. Unlike the auto flow,
 // it never leaves the manual view: locked carousels stay static while the
@@ -80,49 +38,38 @@ export function useCombineLocked() {
       // this is a plain style-free generation over the clean closet.
       const dismissed = new Set(dismissedIds);
 
-      const candidates = input.garments.filter(
-        (garment) =>
-          (!dismissed.has(garment.garmentId) &&
-            (!garment.isDirty || isLaundryExemptGarment(garment))) ||
-          lockedIds.has(garment.garmentId),
-      );
+      const candidates = buildCandidates(input.garments, lockedIds, dismissed);
       if (candidates.length === 0) {
         throw new Error("Add garments to your closet first.");
       }
 
       const climate = await resolveClimate();
-      const response = await fetch(API_ROUTES.recommender, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          garments: candidates,
-          temperatureC: climate.temperatureC,
-          condition: climate.condition,
-          dayLow: climate.dayLow,
-          dayHigh: climate.dayHigh,
-          rainProbability: climate.rainProbability,
-          profile: input.profile,
-          // No style pre-selection in manual mode: the user combines
-          // arbitrary pinned garments, so strict style filtering must
-          // not apply (it would 422 on mixed-style closets).
-          mood: null,
-          style: null,
-          locale,
-          lockedGarmentIds: [...lockedIds],
-          fixed_garments: [...lockedIds],
-          dismissedGarmentIds: [...dismissed],
-        }),
-      });
+      const apiGarments = buildRecommenderGarments(candidates);
+      const request: RecommenderRequest = {
+        garments: apiGarments,
+        temperatureC: climate.temperatureC,
+        condition: climate.condition,
+        dayLow: climate.dayLow,
+        dayHigh: climate.dayHigh,
+        rainProbability: climate.rainProbability,
+        profile: input.profile,
+        // No style pre-selection in manual mode: the user combines
+        // arbitrary pinned garments, so strict style filtering must
+        // not apply (it would 422 on mixed-style closets).
+        mood: null,
+        style: null,
+        locale,
+        lockedGarmentIds: [...lockedIds],
+        fixed_garments: [...lockedIds],
+        dismissedGarmentIds: [...dismissed],
+      };
+      const response = await callRecommender(request);
       if (!response.ok) {
-        const code = await readResponseErrorCode(response);
-        throw new Error(
-          code !== null
-            ? `${code} (status ${response.status})`
-            : `The stylist is unavailable right now. (status ${response.status})`,
-        );
+        const code = await readRecommenderError(response);
+        throw formatRecommenderError(response, code);
       }
       const payload = (await response.json()) as RecommenderResponse;
-      if (!Array.isArray(payload.options) || payload.options.length === 0) {
+      if (!validateRecommenderResponse(payload)) {
         throw new Error(t("stylistUnavailable"));
       }
 
