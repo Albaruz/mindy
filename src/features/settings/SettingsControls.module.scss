@@ -35,9 +35,10 @@
   color: var(--color-muted);
 }
 
-// Single pill track; the terracotta indicator glides inside via layoutId.
+// Fixed-width segments keep the track stable while the active state changes.
 .settingsControls__segmented {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-1);
   padding: var(--space-1);
   background: var(--color-canvas);
@@ -48,7 +49,7 @@
 .settingsControls__segment {
   position: relative;
   display: flex;
-  flex: 1 1 0;
+  min-width: 0;
   align-items: center;
   justify-content: center;
   min-height: 2.75rem;
@@ -61,7 +62,9 @@
   background: transparent;
   border: none;
   border-radius: var(--radius-pill);
-  transition: color var(--duration-fast) var(--ease-standard);
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
 
   &:focus-visible {
     outline: var(--focus-ring-width) solid var(--focus-ring-color);
@@ -76,8 +79,18 @@
 .settingsControls__indicator {
   position: absolute;
   inset: 0;
+  z-index: 0;
   background: var(--color-accent);
   border-radius: var(--radius-pill);
+  pointer-events: none;
+}
+
+.settingsControls__group:first-child .settingsControls__segmented {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.settingsControls__group:last-child .settingsControls__segment--active {
+  background: var(--color-accent);
 }
 
 .settingsControls__segmentContent {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { MotionConfig, motion } from "framer-motion";
+import { LayoutGroup, MotionConfig, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Calendar, LayoutGrid, User, WandSparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -17,7 +17,6 @@ const TABS = [
 
 const LOCALE_PREFIX_PATTERN = /^\/(en|es)(?=\/|$)/;
 
-// Soft spring for the sliding pill: fluid travel without overshoot.
 const INDICATOR_SPRING = {
   type: "spring",
   stiffness: 300,
@@ -45,49 +44,58 @@ export function TopNavigation() {
   }, [activeSegment]);
 
   return (
-    <MotionConfig reducedMotion="user">
-      <nav
-        ref={navRef}
-        aria-label={ta("mainNavigation")}
-        className={styles.navigation}
-      >
-        <ul className={styles["navigation__list"]} role="tablist">
-          {TABS.map(({ segment, labelKey, Icon }) => {
-            const href = `/${segment}`;
-            const active = activeSegment === segment;
-            return (
-              <li
-                key={segment}
-                className={cn(
-                  styles["navigation__item"],
-                  active && styles["navigation__item--active"]
-                )}
-                role="presentation"
-              >
-                <Link
-                  href={href}
-                  aria-current={active ? "page" : undefined}
-                  role="tab"
-                  className={styles["navigation__link"]}
-                >
-                  {active && (
-                    <motion.span
-                      layoutId="activeTabIndicator"
-                      aria-hidden="true"
-                      className={styles["navigation__indicator"]}
-                      transition={INDICATOR_SPRING}
-                    />
+    <LayoutGroup id="top-navigation">
+      <MotionConfig reducedMotion="user">
+        <nav
+          ref={navRef}
+          aria-label={ta("mainNavigation")}
+          className={styles.navigation}
+        >
+          <ul className={styles["navigation__list"]} role="tablist">
+            {TABS.map(({ segment, labelKey, Icon }) => {
+              const href = `/${segment}`;
+              const active = activeSegment === segment;
+              return (
+                <li
+                  key={segment}
+                  className={cn(
+                    styles["navigation__item"],
+                    active && styles["navigation__item--active"],
                   )}
-                  <span className={styles["navigation__content"]}>
-                    <Icon aria-hidden="true" size={18} className={styles["navigation__icon"]} />
-                    <span className={styles["navigation__label"]}>{t(labelKey)}</span>
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-    </MotionConfig>
+                  role="presentation"
+                >
+                  <Link
+                    href={href}
+                    aria-current={active ? "page" : undefined}
+                    role="tab"
+                    className={styles["navigation__link"]}
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId="activeTabIndicator"
+                        initial={false}
+                        aria-hidden="true"
+                        className={styles["navigation__indicator"]}
+                        transition={INDICATOR_SPRING}
+                      />
+                    )}
+                    <span className={styles["navigation__content"]}>
+                      <Icon
+                        aria-hidden="true"
+                        size={18}
+                        className={styles["navigation__icon"]}
+                      />
+                      <span className={styles["navigation__label"]}>
+                        {t(labelKey)}
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      </MotionConfig>
+    </LayoutGroup>
   );
 }

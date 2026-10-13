@@ -51,6 +51,7 @@ describe("SettingsControls", () => {
     );
     expect(mockReplace).toHaveBeenCalledWith("/en/settings", {
       locale: "es",
+      scroll: false,
     });
   });
 

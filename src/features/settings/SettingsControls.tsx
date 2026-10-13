@@ -1,6 +1,6 @@
 "use client";
 
-import { MotionConfig, motion } from "framer-motion";
+import { LayoutGroup, motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -24,11 +24,15 @@ const THEME_META: Record<ThemeMode, { labelKey: string; Icon: typeof Sun }> = {
   dark: { labelKey: "themeDark", Icon: Moon },
 };
 
-const SPRING = { type: "spring", stiffness: 300, damping: 30 } as const;
+const INDICATOR_SPRING = {
+  type: "spring",
+  stiffness: 300,
+  damping: 30,
+} as const;
 
-// Sliding-pill segmented controls for language and theme, breathing flat
-// on the parent card (no nested boxes, no shadows). The terracotta pill
-// is shared per group via layoutId so it glides between options.
+// Segmented controls for language and theme, breathing flat on the parent
+// card (no nested boxes, no shadows). Selection transitions stay local to
+// the clicked control instead of using shared layout animations.
 // Language switches via locale-prefixed navigation (NEXT_LOCALE persists
 // on device); theme flips CSS variables instantly (no reload).
 export function SettingsControls() {
@@ -41,14 +45,14 @@ export function SettingsControls() {
 
   const handleLocaleChange = (nextLocale: AppLocale) => {
     if (nextLocale !== locale) {
-      router.replace(pathname, { locale: nextLocale });
+      router.replace(pathname, { locale: nextLocale, scroll: false });
     }
   };
 
   return (
-    <MotionConfig reducedMotion="user">
+    <LayoutGroup id="settings-controls">
       <div className={styles.settingsControls}>
-        <fieldset className={styles["settingsControls__group"]}>
+      <fieldset className={styles["settingsControls__group"]}>
           <legend className={styles["settingsControls__legend"]}>
             <span className={styles["settingsControls__title"]}>{t("language")}</span>
             <span className={styles["settingsControls__description"]}>
@@ -75,10 +79,11 @@ export function SettingsControls() {
                 >
                   {selected ? (
                     <motion.span
-                      layoutId="settingsLanguageIndicator"
+                      layoutId="languageIndicator"
+                      initial={false}
                       aria-hidden="true"
                       className={styles["settingsControls__indicator"]}
-                      transition={SPRING}
+                      transition={INDICATOR_SPRING}
                     />
                   ) : null}
                   <span className={styles["settingsControls__segmentContent"]}>
@@ -88,9 +93,9 @@ export function SettingsControls() {
               );
             })}
           </div>
-        </fieldset>
+      </fieldset>
 
-        <fieldset className={styles["settingsControls__group"]}>
+      <fieldset className={styles["settingsControls__group"]}>
           <legend className={styles["settingsControls__legend"]}>
             <span className={styles["settingsControls__title"]}>{t("theme")}</span>
             <span className={styles["settingsControls__description"]}>
@@ -116,14 +121,6 @@ export function SettingsControls() {
                     selected && styles["settingsControls__segment--active"],
                   )}
                 >
-                  {selected ? (
-                    <motion.span
-                      layoutId="settingsThemeIndicator"
-                      aria-hidden="true"
-                      className={styles["settingsControls__indicator"]}
-                      transition={SPRING}
-                    />
-                  ) : null}
                   <span className={styles["settingsControls__segmentContent"]}>
                     <Icon
                       aria-hidden="true"
@@ -136,8 +133,8 @@ export function SettingsControls() {
               );
             })}
           </div>
-        </fieldset>
+      </fieldset>
       </div>
-    </MotionConfig>
+    </LayoutGroup>
   );
 }
