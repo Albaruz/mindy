@@ -212,24 +212,6 @@ All core features are live and production-ready. This roadmap outlines improveme
 - **Status:** Not started
 - **Effort:** 8 points
 
-### Social & Sharing
-
-#### Outfit Sharing
-- **Description:** Share looks with friends for feedback
-- **Benefits:**
-  - Community engagement
-  - User retention
-- **Status:** Not started
-- **Effort:** 13 points (includes auth, permissions, UI)
-
-#### Inspiration Feed
-- **Description:** Public gallery of looks from other users (opt-in)
-- **Benefits:**
-  - Style inspiration
-  - Engagement loop
-- **Status:** Not started
-- **Effort:** 13 points
-
 ---
 
 ## 🛠️ Infrastructure & DevOps
@@ -261,9 +243,10 @@ All core features are live and production-ready. This roadmap outlines improveme
 - **Effort:** 3 points
 
 #### LHCI (Lighthouse CI)
-- [ ] Configure thresholds (perf ≥90, a11y ≥95)
-- [ ] Add GitHub status checks
+- [x] Configure thresholds (perf ≥90, a11y ≥95)
+- [x] Add GitHub Actions gate (`lighthouse` job)
 - [ ] Track metrics over time
+- **Status:** Threshold gate passing locally: performance 92–94, accessibility ≥95
 - **Timeline:** Sprint 9
 - **Priority:** Low
 - **Effort:** 2 points
@@ -302,6 +285,11 @@ All core features are live and production-ready. This roadmap outlines improveme
 - [ ] Calendar sync (export outfits to calendar app)
 - [ ] Analytics dashboard (most-worn pieces, color usage, etc.)
 
+### 🗃️ Archived / Post-MVP Validation Required
+
+- [ ] **Outfit Sharing** — Share looks with friends for feedback (13 pts, requires auth/permissions/moderation/realtime)
+- [ ] **Inspiration Feed** — Public gallery of looks from other users opt-in (13 pts, requires ranking algorithm/moderation/GDPR)
+
 ---
 
 ## 🗓️ Timeline Overview
@@ -324,8 +312,8 @@ Dec 2026 (Sprint 9)
 
 2027+ (H2)
   - 🎯 ML Features (vein test, clustering)
-  - 🎯 Social Features (sharing, inspiration)
   - 🎯 Mobile Native (if needed)
+  - 🎯 Social Features (archived — see Ideas/Backlog)
 ```
 
 ---
@@ -344,4 +332,4 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 - Found a bug? Open a GitHub Issue with reproduction steps
 - Want to discuss priorities? Start a Discussion
 
-**Last updated:** 2026-10-12
+**Last updated:** 2026-10-13
