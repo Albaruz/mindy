@@ -37,12 +37,10 @@ function main() {
     process.exit(2);
   }
 
-  let totalRaw = 0;
   let totalGzip = 0;
   const rows = files.map((file) => {
     const buf = readFileSync(file);
     const gz = gzipSync(buf);
-    totalRaw += buf.length;
     totalGzip += gz.length;
     return { file: file.split(".next")[1], raw: buf.length, gzip: gz.length };
   });

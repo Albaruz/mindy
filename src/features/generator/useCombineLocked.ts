@@ -13,7 +13,7 @@ import {
 import { useNotificationStore } from "@/features/ui/useNotificationStore";
 import { MAX_LOOK_OPTIONS } from "@/constants/generator";
 import { API_ROUTES } from "@/constants/api";
-import type { RecommenderProfile } from "./useGenerateLook";
+import type { RecommenderProfile } from "./generatorTypes";
 import { resolveClimate } from "./useGenerateLooks";
 
 export interface CombineLockedInput {

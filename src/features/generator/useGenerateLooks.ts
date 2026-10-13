@@ -17,7 +17,7 @@ import { MAX_LOOK_OPTIONS } from "@/constants/generator";
 import { DEFAULT_TEMPERATURE_C } from "@/constants/weather";
 import { GEOLOCATION_MAX_AGE_MS, GEOLOCATION_TIMEOUT_MS } from "@/constants/geo";
 import { API_ROUTES, buildWeatherUrl } from "@/constants/api";
-import type { Mood, RecommenderProfile } from "./useGenerateLook";
+import type { Mood, RecommenderProfile } from "./generatorTypes";
 
 export const LOOK_STYLE_TO_MOOD: Record<LookStyle, Mood> = {
   casual: "relaxed",

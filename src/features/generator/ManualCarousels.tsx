@@ -18,7 +18,7 @@ import { shouldShowOuterwear, useWeatherQuery } from "./useWeatherQuery";
 import { useDismissGarment } from "./useDismissGarment";
 import { useCombineLocked } from "./useCombineLocked";
 import { useWearToday } from "./useWearToday";
-import type { RecommenderProfile } from "./useGenerateLook";
+import type { RecommenderProfile } from "./generatorTypes";
 import type { Garment } from "@/types/garment";
 import { CategoryCarousel } from "./CategoryCarousel";
 import styles from "./ManualCarousels.module.scss";

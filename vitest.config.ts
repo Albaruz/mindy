@@ -31,7 +31,6 @@ export default defineConfig({
         "src/app/**/loading.tsx",
         "src/app/**/error.tsx",
         "src/app/**/not-found.tsx",
-        "src/app/__art-preview/**",
         ".next/**",
       ],
       thresholds: {

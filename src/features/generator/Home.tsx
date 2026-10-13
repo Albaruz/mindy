@@ -18,7 +18,7 @@ import { MAX_DISCARD_COUNT } from "@/constants/generator";
 import { shouldShowOuterwear, useWeatherQuery } from "./useWeatherQuery";
 import { useGenerateLooks } from "./useGenerateLooks";
 import { useWearToday } from "./useWearToday";
-import type { RecommenderProfile } from "./useGenerateLook";
+import type { RecommenderProfile } from "./generatorTypes";
 import { categorizeGarments, isLaundryExemptGarment } from "./categorizeGarments";
 import { ZeroState } from "./ZeroState";
 import { StyleStep } from "./StyleStep";

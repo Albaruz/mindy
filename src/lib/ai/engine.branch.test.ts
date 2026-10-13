@@ -26,7 +26,7 @@ vi.mock("groq-sdk", () => {
   class APIConnectionTimeoutError extends Error {}
   class MockGroq {
     chat = { completions: { create: mockCreate } };
-    constructor(_options?: unknown) {}
+    constructor() {}
     static RateLimitError = RateLimitError;
     static BadRequestError = BadRequestError;
     static InternalServerError = InternalServerError;
