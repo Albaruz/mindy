@@ -3,6 +3,7 @@
 import { MotionConfig, motion, useReducedMotion } from "framer-motion";
 import type { Colorimetry } from "@/types/user";
 import { isRainExpected, type WeatherInfo } from "./useWeatherQuery";
+import styles from "./WeatherThreadIcon.module.scss";
 
 // Animated single-thread weather icons echoing the Mindy logo metaphor.
 // The ink stays Brown Ash (the logo thread); the accent (tip, rain, rays)
@@ -181,7 +182,7 @@ export function WeatherThreadIcon({
         viewBox="0 0 96 96"
         role="presentation"
         aria-hidden="true"
-        className="weatherThread"
+        className={styles.weatherThreadIcon}
       >
         {kind === "umbrella" ? (
           <>

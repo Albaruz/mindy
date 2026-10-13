@@ -1,4 +1,6 @@
+import { cn } from "@/lib/utils";
 import type { Morphology } from "@/types/user";
+import styles from "./MorphoIcon.module.scss";
 
 // Continuous-line body icons, one per morphology type. Shared stroke
 // language with the onboarding thread illustrations: Brown Ash ink via
@@ -32,7 +34,7 @@ export function MorphoIcon({
       viewBox="0 0 96 128"
       aria-hidden="true"
       focusable="false"
-      className={className}
+      className={cn(styles.morphoIcon, className)}
     >
       <circle
         cx="48"
