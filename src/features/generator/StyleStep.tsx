@@ -18,8 +18,8 @@ const OPTIONS: readonly LookStyle[] = GARMENT_STYLES;
 export function StyleStep({ value, isPending, onChange, onConfirm, onBack }: StyleStepProps) {
   const t = useTranslations("Generator");
   return (
-    <div className={styles.styleStep} data-testid="generator-auto-select">
-      <h2 className={styles["styleStep__heading"]}>{t("styleHeading")}</h2>
+    <div className={styles["style-step"]} data-testid="generator-auto-select">
+      <h2 className={styles["style-step__heading"]}>{t("styleHeading")}</h2>
       <OptionPills
         name="look-style"
         label={t("styleHeading")}
@@ -29,7 +29,7 @@ export function StyleStep({ value, isPending, onChange, onConfirm, onBack }: Sty
         onSelect={onChange}
         formatOption={(option) => t(`styles.${option}`)}
       />
-      <div className={styles["styleStep__actions"]}>
+      <div className={styles["style-step__actions"]}>
         <Button
           type="button"
           onClick={onConfirm}

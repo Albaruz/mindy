@@ -2,14 +2,14 @@
 // BEM structure using global design tokens.
 // Pure CSS with BEM naming - no @use imports.
 
-.historyCard {
+.history-card {
   padding: var(--space-4);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
 }
 
-.historyCard__date {
+.history-card__date {
   margin: 0 0 var(--space-3);
   font-family: var(--font-family-display);
   font-size: var(--font-size-base);
@@ -17,7 +17,7 @@
   color: var(--color-tab-inactive);
 }
 
-.historyCard__strip {
+.history-card__strip {
   display: flex;
   gap: var(--space-2);
   padding: 0;
@@ -26,7 +26,7 @@
   list-style: none;
 }
 
-.historyCard__thumb {
+.history-card__thumb {
   flex: 0 0 auto;
   width: 4.5rem;
   aspect-ratio: 1;
@@ -42,7 +42,7 @@
   }
 }
 
-.historyCard__unavailable {
+.history-card__unavailable {
   margin: 0;
   font-size: var(--font-size-base);
   color: var(--color-muted);

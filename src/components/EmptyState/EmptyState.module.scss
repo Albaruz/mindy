@@ -2,7 +2,7 @@
 // Uses global design tokens via CSS custom properties.
 // Pure CSS with BEM naming - no @use imports.
 
-.emptyState {
+.empty-state {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -13,7 +13,7 @@
   text-align: center;
 }
 
-.emptyState__icon {
+.empty-state__icon {
   display: flex;
   width: 4rem;
   height: 4rem;
@@ -22,7 +22,7 @@
   flex-shrink: 0;
 }
 
-.emptyState__message {
+.empty-state__message {
   margin: 0;
   font-family: var(--font-family-display);
   font-size: var(--font-size-3xl);
@@ -34,7 +34,7 @@
   max-width: 28rem;
 }
 
-.emptyState__description {
+.empty-state__description {
   margin: 0;
   font-family: var(--font-family-base);
   font-size: var(--font-size-base);
@@ -44,7 +44,7 @@
   max-width: 28rem;
 }
 
-.emptyState__actions {
+.empty-state__actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
@@ -53,11 +53,11 @@
   margin-top: var(--space-2);
 }
 
-.emptyState__actions .button {
+.empty-state__actions .button {
   flex: 0 1 auto;
 }
 
-.emptyState__illustration {
+.empty-state__illustration {
   display: block;
   max-width: 100%;
   height: auto;
@@ -65,16 +65,16 @@
 }
 
 /* Modifiers */
-.emptyState--compact {
+.empty-state--compact {
   padding: var(--space-6) var(--space-4);
   gap: var(--space-3);
 }
 
-.emptyState--compact .emptyState__icon {
+.empty-state--compact .empty-state__icon {
   width: 3rem;
   height: 3rem;
 }
 
-.emptyState--compact .emptyState__message {
+.empty-state--compact .empty-state__message {
   font-size: var(--font-size-xl);
 }

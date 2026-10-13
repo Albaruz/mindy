@@ -1,65 +1,12 @@
-// ConfirmDialog Component Styles (CSS Module)
-// Uses global design tokens via CSS custom properties.
-// Extends shared dialog shell from @/styles/components/_dialog-shell.
-
-@use "@/styles/components/_dialog-shell" as dialog;
-
-// CSS custom properties for this component
-:root {
-  --confirmdialog-overlay: var(--dialog-overlay, rgba(0, 0, 0, 0.5));
-  --confirmdialog-bg: var(--dialog-bg, var(--color-surface));
-  --confirmdialog-max-width: var(--dialog-max-width, 28rem);
-  --confirmdialog-radius: var(--dialog-radius, var(--radius-xl));
-  --confirmdialog-padding: var(--dialog-padding, var(--space-5) var(--space-6));
-  --confirmdialog-overlay: var(--dialog-overlay);
-  --confirmdialog-bg: var(--dialog-bg);
+// ConfirmDialog-specific shell configuration.
+.confirm-dialog__overlay {
+  --dialog-shell-overlay: var(--confirmdialog-overlay, rgba(0, 0, 0, 0.5));
 }
 
-// Extend shared shell classes
-.confirmDialog__overlay {
-  @extend dialog.dialog-overlay;
-  container-name: confirm-dialog-overlay;
-}
-
-.confirmDialog__container {
-  @extend dialog.dialog-container;
-  container-name: confirm-dialog-overlay;
-}
-
-.confirmDialog__header {
-  @extend dialog.dialog-header;
-}
-
-.confirmDialog__title {
-  @extend dialog.dialog-title;
-}
-
-.confirmDialog__body {
-  @extend dialog.dialog-body;
-}
-
-.confirmDialog__body > *:first-child {
-  margin-top: 0;
-}
-
-.confirmDialog__body > *:last-child {
-  margin-bottom: 0;
-}
-
-.confirmDialog__message {
-  @extend dialog.dialog-message;
-}
-
-.confirmDialog__footer {
-  @extend dialog.dialog-footer;
-}
-
-@container confirm-dialog-overlay (max-width: 40rem) {
-  .confirmDialog__footer {
-    padding: var(--space-3) var(--space-4);
-  }
-}
-
-.confirmDialog__actions {
-  @extend dialog.dialog-actions;
+.confirm-dialog__container {
+  --dialog-shell-bg: var(--confirmdialog-bg, var(--color-surface));
+  --dialog-shell-max-width: var(--confirmdialog-max-width, 28rem);
+  --dialog-shell-max-height: calc(100dvh - (var(--space-4) * 2));
+  --dialog-shell-radius: var(--confirmdialog-radius, var(--radius-xl));
+  --dialog-shell-padding: var(--confirmdialog-padding, var(--space-5) var(--space-6));
 }

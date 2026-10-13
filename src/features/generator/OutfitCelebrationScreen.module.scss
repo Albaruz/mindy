@@ -2,7 +2,7 @@
 // BEM structure using global design tokens.
 // Pure CSS with BEM naming - no @use imports.
 
-.outfitCelebration {
+.outfit-celebration {
   position: fixed;
   inset: 0;
   z-index: var(--z-modal);
@@ -16,19 +16,19 @@
   background: var(--color-canvas);
 }
 
-.outfitCelebration__mask {
+.outfit-celebration__mask {
   max-width: 24rem;
   overflow: hidden;
   text-align: center;
 }
 
-.outfitCelebration__title {
+.outfit-celebration__title {
   margin: 0;
   font-size: var(--font-size-4xl);
   text-wrap: balance;
 }
 
-.outfitCelebration__poster {
+.outfit-celebration__poster {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -36,7 +36,7 @@
   max-width: 26rem;
 }
 
-.outfitCelebration__piece {
+.outfit-celebration__piece {
   width: 7.5rem;
   margin: 0 -1rem;
   overflow: hidden;
@@ -46,30 +46,30 @@
   box-shadow: 0 10px 24px rgb(74 63 57 / 0.12);
 }
 
-.outfitCelebration__piece:nth-child(even) {
+.outfit-celebration__piece:nth-child(even) {
   margin-top: 1.5rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .outfitCelebration__piece:nth-child(even) {
+  .outfit-celebration__piece:nth-child(even) {
     margin-top: 0;
   }
 }
 
-.outfitCelebration__image {
+.outfit-celebration__image {
   display: block;
   aspect-ratio: 3 / 4;
   width: 100%;
   object-fit: contain;
 }
 
-.outfitCelebration__placeholder {
+.outfit-celebration__placeholder {
   aspect-ratio: 3 / 4;
   width: 100%;
   background: var(--color-border);
 }
 
-.outfitCelebration__caption {
+.outfit-celebration__caption {
   padding: var(--space-1) var(--space-2);
   font-size: var(--font-size-xs);
   color: var(--color-muted);
@@ -78,7 +78,7 @@
 }
 
 // Confetti field
-.outfitCelebration__confettiField {
+.outfit-celebration__confetti-field {
   position: absolute;
   top: 42%;
   left: 50%;
@@ -87,13 +87,13 @@
   pointer-events: none;
 }
 
-.outfitCelebration__spark {
+.outfit-celebration__spark {
   position: absolute;
   top: 0;
   left: 0;
   border-radius: 50%;
 }
 
-.outfitCelebration__closeButton {
+.outfit-celebration__close-button {
   min-width: 12rem;
 }

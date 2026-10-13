@@ -11,14 +11,14 @@
 }
 
 // Headline row with a discreet edit shortcut to the wizard.
-.headerRow {
+.header-row {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.75rem;
 }
 
-.editLink {
+.edit-link {
   display: flex;
   flex-shrink: 0;
   align-items: center;
@@ -42,42 +42,42 @@
   gap: 0.75rem;
 }
 
-.colorCard,
-.morphoCard,
-.fitCard,
-.lifeCard {
+.color-card,
+.morpho-card,
+.fit-card,
+.life-card {
   padding: 1.125rem;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
 }
 
-.colorCard {
+.color-card {
   grid-column: 1 / -1;
 }
 
-.morphoCard {
+.morpho-card {
   position: relative;
   grid-row: span 2;
   overflow: hidden;
 }
 
-.fitCard {
+.fit-card {
   grid-column: 2;
 }
 
-.lifeCard {
+.life-card {
   grid-column: 2;
   background: var(--color-tab-inactive, #4a3f39);
   border-color: var(--color-tab-inactive, #4a3f39);
 
-  .cardCaption,
-  .cardValue {
+  .card-caption,
+  .card-value {
     color: var(--color-oat, #f9f6f0);
   }
 }
 
-.cardKicker {
+.card-kicker {
   margin: 0 0 0.25rem;
   font-size: 0.75rem;
   font-weight: 700;
@@ -86,7 +86,7 @@
   color: var(--color-muted);
 }
 
-.cardHero {
+.card-hero {
   margin: 0;
   font-family:
     var(--font-display, Georgia),
@@ -99,7 +99,7 @@
 }
 
 // Personality captions in italic Playfair, values in Inter.
-.cardCaption {
+.card-caption {
   margin: 0 0 0.375rem;
   font-family:
     var(--font-display, Georgia),
@@ -112,7 +112,7 @@
   color: var(--color-tab-inactive, #4a3f39);
 }
 
-.cardValue {
+.card-value {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
@@ -125,7 +125,7 @@
   margin-top: 0.75rem;
 }
 
-.fanDot {
+.fan-dot {
   width: 2rem;
   height: 2rem;
   border: 2px solid var(--color-surface);
@@ -137,7 +137,7 @@
 }
 
 // Continuous-line figure behind the morphology text.
-.morphoArt {
+.morpho-art {
   position: absolute;
   right: -1rem;
   bottom: -0.5rem;
@@ -148,11 +148,11 @@
   stroke: currentcolor;
 }
 
-.morphoText {
+.morpho-text {
   position: relative;
 }
 
-.onboardingLink {
+.onboarding-link {
   font-weight: 600;
   color: var(--color-accent, #c87966);
 }
@@ -165,13 +165,13 @@
   border-radius: var(--radius-lg);
 }
 
-.preferencesTitle {
+.preferences-title {
   margin: 0 0 1rem;
   font-size: 1.125rem;
 }
 
 // Discreet centered ghost sign-out.
-.signOut {
+.sign-out {
   align-self: center;
   min-height: 2.75rem;
   padding: 0.5rem 1rem;

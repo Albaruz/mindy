@@ -111,17 +111,17 @@ export function CategoryCarousel({
   };
 
   return (
-    <section aria-label={ta("carousel", { title })} className={styles.categoryCarousel}>
-      <div className={styles["categoryCarousel__header"]}>
-        <h2 className={styles["categoryCarousel__title"]}>{title}</h2>
+    <section aria-label={ta("carousel", { title })} className={styles["category-carousel"]}>
+      <div className={styles["category-carousel__header"]}>
+        <h2 className={styles["category-carousel__title"]}>{title}</h2>
         {garments.length > 0 && !isLoading ? (
-          <div className={styles["categoryCarousel__headerActions"]}>
+          <div className={styles["category-carousel__header-actions"]}>
             <button
               type="button"
               aria-pressed={isLocked}
               aria-label={isLocked ? ta("unlockGarment", { title }) : ta("lockGarment", { title })}
               title={isLocked ? ta("unlockGarment", { title }) : ta("lockGarment", { title })}
-              className={cn(styles["categoryCarousel__lockButton"], isLocked && styles["categoryCarousel__lockButton--locked"])}
+              className={cn(styles["category-carousel__lock-button"], isLocked && styles["category-carousel__lock-button--locked"])}
               onClick={() => onToggleLock(category)}
             >
               <LockIcon aria-hidden="true" size={20} />
@@ -132,7 +132,7 @@ export function CategoryCarousel({
               title={
                 isLocked ? ta("lockedGarment", { title }) : ta("changeGarment", { title })
               }
-              className={styles["categoryCarousel__changeButton"]}
+              className={styles["category-carousel__change-button"]}
               disabled={isLocked}
               onClick={() => onChangeGarment(category)}
             >
@@ -145,19 +145,19 @@ export function CategoryCarousel({
         <SmartSkeleton
           variant={category}
           label={ta("carousel", { title })}
-          className={styles["categoryCarousel__slide"]}
+          className={styles["category-carousel__slide"]}
         />
       ) : garments.length === 0 ? (
-        <p className={styles["categoryCarousel__empty"]}>
+        <p className={styles["category-carousel__empty"]}>
           {t("carouselEmpty", { title: title.toLowerCase() })}
         </p>
       ) : (
-      <div className={cn(styles["categoryCarousel__viewport"], isCoverflow && styles["categoryCarousel__coverflow"])}>
+      <div className={cn(styles["category-carousel__viewport"], isCoverflow && styles["category-carousel__coverflow"])}>
         <button
           type="button"
           aria-label={ta("previousGarment", { title })}
           title={ta("previousGarment", { title })}
-          className={cn(styles["categoryCarousel__navButton"], styles["categoryCarousel__prevButton"])}
+          className={cn(styles["category-carousel__nav-button"], styles["category-carousel__prev-button"])}
           disabled={isLocked}
           onClick={() => swiperRef.current?.slidePrev()}
         >
@@ -197,12 +197,12 @@ export function CategoryCarousel({
             <SwiperSlide key={garment.garmentId}>
               <div
                 className={cn(
-                  styles["categoryCarousel__slide"],
-                  isLocked && index === activeIndex && styles["categoryCarousel__slideLocked"],
+                  styles["category-carousel__slide"],
+                  isLocked && index === activeIndex && styles["category-carousel__slide-locked"],
                 )}
               >
                 {isLocked && index === activeIndex ? (
-                  <span className={styles["categoryCarousel__lockBadge"]} aria-hidden="true">
+                  <span className={styles["category-carousel__lock-badge"]} aria-hidden="true">
                     <Lock size={14} />
                   </span>
                 ) : null}
@@ -219,10 +219,10 @@ export function CategoryCarousel({
                       title
                     }
                     loading={isSlideEager(index) ? "eager" : "lazy"}
-                    className={styles["categoryCarousel__image"]}
+                    className={styles["category-carousel__image"]}
                   />
                 ) : (
-                  <div className={styles["categoryCarousel__placeholder"]} aria-hidden="true" />
+                  <div className={styles["category-carousel__placeholder"]} aria-hidden="true" />
                 )}
               </div>
             </SwiperSlide>
@@ -232,7 +232,7 @@ export function CategoryCarousel({
           type="button"
           aria-label={ta("nextGarment", { title })}
           title={ta("nextGarment", { title })}
-          className={cn(styles["categoryCarousel__navButton"], styles["categoryCarousel__nextButton"])}
+          className={cn(styles["category-carousel__nav-button"], styles["category-carousel__next-button"])}
           disabled={isLocked}
           onClick={() => swiperRef.current?.slideNext()}
         >

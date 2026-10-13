@@ -71,7 +71,7 @@ export default function ForgotPasswordPage() {
             </Button>
           </form>
         )}
-        <Link href="/" className={styles.backLink}>
+        <Link href="/" className={styles["back-link"]}>
           {t("backToLogin")}
         </Link>
       </div>

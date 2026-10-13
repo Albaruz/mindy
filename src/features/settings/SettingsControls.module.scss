@@ -2,32 +2,32 @@
 // BEM structure using global design tokens.
 // Pure CSS with BEM naming - no @use imports.
 
-.settingsControls {
+.settings-controls {
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
 }
 
-.settingsControls__group {
+.settings-controls__group {
   padding: 0;
   margin: 0;
   background: transparent;
   border: none;
 }
 
-.settingsControls__legend {
+.settings-controls__legend {
   padding: 0;
   margin-bottom: var(--space-2);
 }
 
-.settingsControls__title {
+.settings-controls__title {
   display: block;
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-bold);
   color: var(--color-tab-inactive);
 }
 
-.settingsControls__description {
+.settings-controls__description {
   display: block;
   margin-top: var(--space-1);
   font-size: var(--font-size-sm);
@@ -36,7 +36,7 @@
 }
 
 // Fixed-width segments keep the track stable while the active state changes.
-.settingsControls__segmented {
+.settings-controls__segmented {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-1);
@@ -46,7 +46,7 @@
   border-radius: var(--radius-pill);
 }
 
-.settingsControls__segment {
+.settings-controls__segment {
   position: relative;
   display: flex;
   min-width: 0;
@@ -76,7 +76,7 @@
   }
 }
 
-.settingsControls__indicator {
+.settings-controls__indicator {
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -85,15 +85,15 @@
   pointer-events: none;
 }
 
-.settingsControls__group:first-child .settingsControls__segmented {
+.settings-controls__group:first-child .settings-controls__segmented {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.settingsControls__group:last-child .settingsControls__segment--active {
+.settings-controls__group:last-child .settings-controls__segment--active {
   background: var(--color-accent);
 }
 
-.settingsControls__segmentContent {
+.settings-controls__segment-content {
   position: relative;
   z-index: 1;
   display: flex;
@@ -103,7 +103,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .settingsControls__segment {
+  .settings-controls__segment {
     transition: none;
   }
 }

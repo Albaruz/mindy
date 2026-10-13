@@ -31,21 +31,21 @@ export function PageHeader({
   return (
     <div
       className={cn(
-        styles.pageHeader,
-        align === "center" && styles["pageHeader--centered"],
-        compact && styles["pageHeader--compact"],
-        avatar != null && styles["pageHeader--with-avatar"]
+        styles["page-header"],
+        align === "center" && styles["page-header--centered"],
+        compact && styles["page-header--compact"],
+        avatar != null && styles["page-header--with-avatar"]
       )}
     >
-      {avatar && <div className={styles["pageHeader__avatar"]}>{avatar}</div>}
-      <div className={styles["pageHeader__content"]}>
-        <h1 className={styles["pageHeader__title"]}>{title}</h1>
+      {avatar && <div className={styles["page-header__avatar"]}>{avatar}</div>}
+      <div className={styles["page-header__content"]}>
+        <h1 className={styles["page-header__title"]}>{title}</h1>
         {description !== undefined && (
-          <p className={styles["pageHeader__description"]}>{description}</p>
+          <p className={styles["page-header__description"]}>{description}</p>
         )}
       </div>
       {actions !== undefined && (
-        <div className={styles["pageHeader__actions"]}>{actions}</div>
+        <div className={styles["page-header__actions"]}>{actions}</div>
       )}
     </div>
   );

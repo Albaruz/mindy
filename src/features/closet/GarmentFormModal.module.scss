@@ -1,57 +1,37 @@
-// GarmentFormModal Component Styles (CSS Module)
-// BEM structure using global design tokens.
-// Extends shared dialog shell from @/styles/components/_dialog-shell.
-
-@use "@/styles/components/_dialog-shell" as dialog;
-
-// CSS custom properties for this component
-:root {
-  --garment-form-overlay: rgba(0, 0, 0, 0.5);
-  --garment-form-bg: var(--color-surface);
-  --garment-form-max-width: 28rem;
-  --garment-form-radius: var(--radius-xl);
-  --garment-form-padding: var(--space-6);
+// GarmentFormModal-specific dialog skin and form controls.
+.garment-form-modal__overlay {
+  --dialog-shell-overlay: rgba(0, 0, 0, 0.5);
 }
 
-// Extend shared shell classes
-.garmentFormModal__overlay {
-  @extend dialog.dialog-overlay;
-  background: var(--garment-form-overlay);
-}
-
-.garmentFormModal__dialog {
-  @extend dialog.dialog-container;
-  max-width: var(--garment-form-max-width);
-  max-height: 90dvh;
-  background: var(--garment-form-bg);
-  border-radius: var(--garment-form-radius);
-  padding: var(--garment-form-padding);
+.garment-form-modal__dialog {
+  --dialog-shell-bg: var(--color-surface);
+  --dialog-shell-max-width: 28rem;
+  --dialog-shell-max-height: 90dvh;
+  --dialog-shell-radius: var(--radius-xl);
+  padding: var(--space-6);
   box-sizing: border-box;
 }
 
-.garmentFormModal__header {
-  @extend dialog.dialog-header;
+.garment-form-modal__title {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-2xl);
+}
+
+.garment-form-modal__header {
   margin-bottom: var(--space-4);
   padding: 0;
   border-bottom: none;
 }
 
-.garmentFormModal__title {
-  @extend dialog.dialog-title;
-  margin: 0 0 var(--space-4);
-  font-size: var(--font-size-2xl);
-}
-
-.garmentFormModal__close {
-  @extend dialog.dialog-close;
+.garment-form-modal__close {
   width: 2.5rem;
   height: 2.5rem;
   color: var(--color-tab-inactive);
+  transition: color var(--duration-fast), background var(--duration-fast);
 
   &:hover {
-    color: var(--color-error);
-    background: var(--color-error);
     color: var(--color-oat);
+    background: var(--color-error);
   }
 
   &:focus-visible {
@@ -60,7 +40,7 @@
   }
 }
 
-.garmentFormModal__preview {
+.garment-form-modal__preview {
   display: block;
   width: 100%;
   max-height: 12rem;
@@ -70,11 +50,11 @@
   border-radius: var(--radius-md);
 }
 
-.garmentFormModal__content {
-  @extend dialog.dialog-body;
+.garment-form-modal__content {
+  --dialog-shell-padding: 0;
 }
 
-.garmentFormModal__field {
+.garment-form-modal__field {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
@@ -93,7 +73,7 @@
 }
 
 // Quick-pick button groups (type, season, material, cut).
-.garmentFormModal__group {
+.garment-form-modal__group {
   padding: 0;
   margin: 0 0 var(--space-3);
   border: none;
@@ -105,13 +85,13 @@
   }
 }
 
-.garmentFormModal__options {
+.garment-form-modal__options {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
 }
 
-.garmentFormModal__option {
+.garment-form-modal__option {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
@@ -130,7 +110,7 @@
   }
 }
 
-.garmentFormModal__radio {
+.garment-form-modal__radio {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -144,19 +124,18 @@
   }
 }
 
-.garmentFormModal__error {
+.garment-form-modal__error {
   margin: 0 0 var(--space-3);
   font-size: var(--font-size-base);
   color: var(--color-error);
 }
 
-.garmentFormModal__actions {
-  @extend dialog.dialog-actions;
+.garment-form-modal__actions {
   justify-content: flex-end;
   margin-top: var(--space-4);
 }
 
-.garmentFormModal form {
+.garment-form-modal form {
   max-width: 100%;
   overflow-x: hidden;
 }

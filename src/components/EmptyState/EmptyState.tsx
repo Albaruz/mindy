@@ -31,14 +31,14 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div
-      className={cn(styles.emptyState, compact && styles["emptyState--compact"])}
+      className={cn(styles["empty-state"], compact && styles["empty-state--compact"])}
       data-testid={testId}
     >
-      {icon && <div className={styles["emptyState__icon"]}>{icon}</div>}
-      <p className={styles["emptyState__message"]}>{message}</p>
-      {description && <p className={styles["emptyState__description"]}>{description}</p>}
+      {icon && <div className={styles["empty-state__icon"]}>{icon}</div>}
+      <p className={styles["empty-state__message"]}>{message}</p>
+      {description && <p className={styles["empty-state__description"]}>{description}</p>}
       {children !== undefined && (
-        <div className={styles["emptyState__actions"]}>{children}</div>
+        <div className={styles["empty-state__actions"]}>{children}</div>
       )}
     </div>
   );

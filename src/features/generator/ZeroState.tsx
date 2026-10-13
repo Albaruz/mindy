@@ -103,11 +103,11 @@ export function ZeroState({
       : "other";
 
   return (
-    <div className={styles.zeroState} data-testid="generator-zero-state">
+    <div className={styles["zero-state"]} data-testid="generator-zero-state">
       {/* The icon slot is always rendered so the weather icon fades in
       without shoving the greeting down when the forecast resolves. */}
       <div
-        className={styles["zeroState__weatherIcon"]}
+        className={styles["zero-state__weather-icon"]}
         aria-hidden={!showIcon}
       >
         {revealedWeather !== null ? (
@@ -115,7 +115,7 @@ export function ZeroState({
             role="img"
             aria-label={t(`conditions.${conditionKey}`)}
             key={conditionKey}
-            className={styles["zeroState__weatherIconArt"]}
+            className={styles["zero-state__weather-icon-art"]}
           >
             <WeatherThreadIcon
               kind={resolveThreadKind(revealedWeather)}
@@ -126,15 +126,15 @@ export function ZeroState({
       </div>
       {/* The live region stays mounted so screen readers keep announcing;
       only the inner copy remounts (key) to replay the crossfade. */}
-      <p aria-live="polite" className={styles["zeroState__greeting"]}>
+      <p aria-live="polite" className={styles["zero-state__greeting"]}>
         <span
           key={message}
-          className={styles["zeroState__greetingText"]}
+          className={styles["zero-state__greeting-text"]}
         >
           {message}
         </span>
       </p>
-      <div className={styles["zeroState__actions"]}>
+      <div className={styles["zero-state__actions"]}>
         <Button type="button" onClick={onAuto}>
           {t("autoButton")}
         </Button>

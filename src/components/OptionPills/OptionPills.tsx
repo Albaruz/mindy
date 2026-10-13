@@ -28,7 +28,7 @@ export function OptionPills<T extends string>({
 }: OptionPillsProps<T>) {
   return (
     <fieldset className={styles.group}>
-      <legend className={hideLabel ? styles.visuallyHidden : undefined}>
+      <legend className={hideLabel ? styles["visually-hidden"] : undefined}>
         {label}
       </legend>
       <div className={styles.options} role="radiogroup" aria-label={label}>

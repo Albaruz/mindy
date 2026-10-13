@@ -2,14 +2,14 @@
 // Uses global design tokens via CSS custom properties.
 // Pure CSS with BEM naming - no @use imports.
 
-.garmentCard {
+.garment-card {
   position: relative;
   background: var(--garmentcard-bg);
   border-radius: var(--garmentcard-radius);
   overflow: hidden;
 }
 
-.garmentCard__image {
+.garment-card__image {
   display: block;
   width: 100%;
   aspect-ratio: 1;
@@ -17,13 +17,13 @@
   background: var(--garmentcard-image-bg);
 }
 
-.garmentCard__placeholder {
+.garment-card__placeholder {
   width: 100%;
   aspect-ratio: 1;
   background: var(--garmentcard-image-bg);
 }
 
-.garmentCard__action {
+.garment-card__action {
   min-width: var(--touch-target-min);
   min-height: var(--touch-target-min);
   position: absolute;
@@ -41,30 +41,30 @@
     border-color var(--duration-fast);
 }
 
-.garmentCard__action:hover:not(:disabled) {
+.garment-card__action:hover:not(:disabled) {
   background: var(--color-border);
 }
 
-.garmentCard__action:focus-visible {
+.garment-card__action:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
 }
 
-.garmentCard__action--topRight {
+.garment-card__action--top-right {
   top: var(--space-2);
   right: var(--space-2);
 }
 
-.garmentCard__action--topLeft {
+.garment-card__action--top-left {
   top: var(--space-2);
   left: var(--space-2);
 }
 
-.garmentCard__body {
+.garment-card__body {
   padding: var(--garmentcard-body-padding);
 }
 
-.garmentCard__title {
+.garment-card__title {
   margin: 0;
   font-family: var(--font-family-base);
   font-size: var(--font-size-sm);
@@ -73,7 +73,7 @@
   color: var(--color-foreground);
 }
 
-.garmentCard__meta {
+.garment-card__meta {
   margin: var(--space-1) 0 0;
   font-size: var(--font-size-xs);
   color: var(--color-muted);
@@ -81,7 +81,7 @@
 }
 
 /* IconButton styles (local) */
-.iconButton {
+.icon-button {
   min-width: var(--touch-target-min);
   min-height: var(--touch-target-min);
   display: inline-flex;
@@ -101,12 +101,12 @@
     border-color var(--duration-fast);
 }
 
-.iconButton:focus-visible {
+.icon-button:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
 }
 
-.iconButton__icon {
+.icon-button__icon {
   display: flex;
   width: 1.125rem;
   height: 1.125rem;
@@ -114,9 +114,9 @@
   flex-shrink: 0;
 }
 
-.iconButton:disabled,
-.iconButton[aria-disabled="true"],
-.iconButton.is-disabled {
+.icon-button:disabled,
+.icon-button[aria-disabled="true"],
+.icon-button.is-disabled {
   opacity: 0.5;
   cursor: not-allowed;
   pointer-events: none;

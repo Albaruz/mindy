@@ -2,7 +2,7 @@
 // Uses global design tokens via CSS custom properties.
 // Pure CSS with BEM naming - no @use imports.
 
-.showcaseCard {
+.showcase-card {
   position: relative;
   width: 100%;
   max-width: var(--showcasecard-max-width);
@@ -15,7 +15,7 @@
   animation: card-in var(--duration-slow) var(--ease-out);
 }
 
-.showcaseCard__srHint {
+.showcase-card__sr-hint {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -27,7 +27,7 @@
   border: 0;
 }
 
-.showcaseCard__overlay {
+.showcase-card__overlay {
   position: absolute;
   top: var(--space-3);
   z-index: 1;
@@ -42,45 +42,45 @@
   pointer-events: none;
 }
 
-.showcaseCard__overlay--accept {
+.showcase-card__overlay--accept {
   left: var(--space-3);
   color: var(--showcasecard-accept-text);
   background: var(--showcasecard-accept-bg);
 }
 
-.showcaseCard__overlay--reject {
+.showcase-card__overlay--reject {
   right: var(--space-3);
   color: var(--showcasecard-reject-text);
   background: var(--showcasecard-reject-bg);
 }
 
-.showcaseCard__grid {
+.showcase-card__grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--showcasecard-grid-gap);
 }
 
-.showcaseCard__item {
+.showcase-card__item {
   margin: 0;
   overflow: hidden;
   background: var(--showcasecard-item-bg);
   border-radius: var(--showcasecard-item-radius);
 }
 
-.showcaseCard__image {
+.showcase-card__image {
   display: block;
   aspect-ratio: 3 / 4;
   width: 100%;
   object-fit: contain;
 }
 
-.showcaseCard__placeholder {
+.showcase-card__placeholder {
   aspect-ratio: 3 / 4;
   width: 100%;
   background: var(--color-border);
 }
 
-.showcaseCard__caption {
+.showcase-card__caption {
   padding: var(--space-1) var(--space-2);
   font-size: var(--font-size-xs);
   color: var(--color-muted);
@@ -88,7 +88,7 @@
   text-transform: capitalize;
 }
 
-.showcaseCard__reason {
+.showcase-card__reason {
   margin: var(--space-3) 0 0;
   font-size: var(--font-size-sm);
   color: var(--showcasecard-reason-color);
@@ -97,7 +97,7 @@
 }
 
 @container look-showcase (max-width: 40rem) {
-  .showcaseCard {
+  .showcase-card {
     padding: var(--space-3);
   }
 }
@@ -114,7 +114,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .showcaseCard {
+  .showcase-card {
     animation: none;
   }
 }

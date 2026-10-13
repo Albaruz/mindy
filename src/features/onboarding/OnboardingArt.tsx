@@ -25,10 +25,10 @@ interface OnboardingArtProps {
 
 export function OnboardingArt({ step, label, className }: OnboardingArtProps) {
   return (
-    <div role="img" aria-label={label} className={cn(styles.onboardingArt, className)}>
+    <div role="img" aria-label={label} className={cn(styles["onboarding-art"], className)}>
       <motion.div
         aria-hidden="true"
-        className={styles["onboardingArt__float"]}
+        className={styles["onboarding-art__float"]}
         initial={{ opacity: 0, y: 24, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ type: "spring", stiffness: 260, damping: 24 }}
@@ -40,7 +40,7 @@ export function OnboardingArt({ step, label, className }: OnboardingArtProps) {
           src={ART[step]}
           alt=""
           draggable={false}
-          className={styles["onboardingArt__player"]}
+          className={styles["onboarding-art__player"]}
         />
       </motion.div>
     </div>

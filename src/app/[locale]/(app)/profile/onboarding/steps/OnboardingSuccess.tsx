@@ -84,8 +84,8 @@ export function OnboardingSuccess({ onDone }: { onDone: () => void }) {
       <svg
         viewBox="0 0 120 120"
         role="img"
-        aria-label={t("successTitle")}
-        className={styles.successMark}
+        aria-label={t("success-title")}
+        className={styles["success-mark"]}
       >
         <motion.circle
           cx={60}
@@ -111,7 +111,7 @@ export function OnboardingSuccess({ onDone }: { onDone: () => void }) {
           transition={{ duration: 0.7, delay: reduce ? 0 : 0.7, ease: "easeOut" }}
         />
       </svg>
-      <h1 className={styles.successTitle}>{t("successTitle")}</h1>
+      <h1 className={styles["success-title"]}>{t("success-title")}</h1>
       <Button type="button" variant="primary" onClick={onDone}>
         {t("successCta")}
       </Button>

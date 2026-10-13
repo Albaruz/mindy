@@ -31,7 +31,7 @@ afterEach(() => {
 describe("OnboardingSuccess", () => {
   it("renders the success title and CTA", () => {
     render(<OnboardingSuccess onDone={() => {}} />);
-    expect(screen.getByText("successTitle")).toBeInTheDocument();
+    expect(screen.getByText("success-title")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "successCta" }),
     ).toBeInTheDocument();

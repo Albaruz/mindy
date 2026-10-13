@@ -28,17 +28,17 @@ export function AppHeader() {
     return null;
   }
   return (
-    <header className={styles.appHeader}>
-      <div className={styles["appHeader__content"]}>
+    <header className={styles["app-header"]}>
+      <div className={styles["app-header__content"]}>
         <Image
           src="/images/logo-mindy.svg"
           alt="Mindy"
           width={96}
           height={52}
           priority
-          className={styles["appHeader__logo"]}
+          className={styles["app-header__logo"]}
         />
-        <nav className={styles["appHeader__nav"]}>
+        <nav className={styles["app-header__nav"]}>
           <TopNavigation />
         </nav>
       </div>

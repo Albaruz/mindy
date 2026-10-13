@@ -29,10 +29,10 @@ export function StepFineTuning() {
       <p className={styles.lead}>{t("quirksTitle")}</p>
 
       <div className={styles.fieldset}>
-        <label htmlFor="thermal" className={styles.thermalLabel}>
-          {t("thermalLabel")}
+        <label htmlFor="thermal" className={styles["thermal-label"]}>
+          {t("thermal-label")}
         </label>
-        <div className={styles.thermalScale} aria-hidden="true">
+        <div className={styles["thermal-scale"]} aria-hidden="true">
           <span>{t("thermalCold")}</span>
           <span>{t("thermalHot")}</span>
         </div>
@@ -45,18 +45,18 @@ export function StepFineTuning() {
           step={1}
           value={thermal}
           onChange={(event) => setThermal(Number(event.target.value))}
-          aria-label={t("thermalLabel")}
-          aria-valuetext={t("thermalValue", { value: thermal })}
-          className={styles.thickRange}
+          aria-label={t("thermal-label")}
+          aria-valuetext={t("thermal-value", { value: thermal })}
+          className={styles["thick-range"]}
         />
-        <p className={styles.thermalValue} aria-hidden="true">
-          {t("thermalValue", { value: thermal })}
+        <p className={styles["thermal-value"]} aria-hidden="true">
+          {t("thermal-value", { value: thermal })}
         </p>
       </div>
 
       <fieldset className={styles.fieldset}>
         <legend>{t("forbiddenLabel")}</legend>
-        <div className={styles.vetoRow}>
+        <div className={styles["veto-row"]}>
           {FORBIDDEN_COLOR_OPTIONS.map((hex) => {
             const vetoed = forbiddenColors.includes(hex);
             return (
@@ -76,7 +76,7 @@ export function StepFineTuning() {
                 />
                 <span
                   aria-hidden="true"
-                  className={styles.vetoDot}
+                  className={styles["veto-dot"]}
                   style={{ backgroundColor: hex }}
                 />
               </label>

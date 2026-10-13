@@ -345,7 +345,7 @@ export default function ClosetPage() {
                 aria-busy={doLaundry.isPending}
                 onClick={handleWashAll}
               >
-                {doLaundry.isPending ? t("washing") : t("washAll")}
+                {doLaundry.isPending ? t("washing") : t("wash-all")}
               </Button>
             </EmptyState>
           ) : null}
@@ -358,7 +358,7 @@ export default function ClosetPage() {
                   aria-busy={doLaundry.isPending}
                   onClick={handleWashAll}
                 >
-                  {doLaundry.isPending ? t("washing") : t("washAll")}
+                  {doLaundry.isPending ? t("washing") : t("wash-all")}
                 </Button>
               ) : undefined}
             </EmptyState>
@@ -412,7 +412,7 @@ export default function ClosetPage() {
         capture="environment"
         aria-hidden="true"
         tabIndex={-1}
-        className={styles.fileInput}
+        className={styles["file-input"]}
         onChange={handleFileChange}
       />
       <input
@@ -421,7 +421,7 @@ export default function ClosetPage() {
         accept="image/*"
         aria-hidden="true"
         tabIndex={-1}
-        className={styles.fileInput}
+        className={styles["file-input"]}
         onChange={handleFileChange}
       />
       <button
@@ -438,14 +438,14 @@ export default function ClosetPage() {
       </button>
 
       {inventoryView === "dirty" && dirtyGarments.length > 0 ? (
-        <div className={styles.washAllWrap}>
+        <div className={styles["wash-all-wrap"]}>
           <Button
             type="button"
             disabled={doLaundry.isPending}
             onClick={handleWashAll}
-            className={styles.washAll}
+            className={styles["wash-all"]}
           >
-            {doLaundry.isPending ? t("washing") : t("washAll")}
+            {doLaundry.isPending ? t("washing") : t("wash-all")}
           </Button>
         </div>
       ) : null}
@@ -455,7 +455,7 @@ export default function ClosetPage() {
 
       {isSourceMenuOpen ? (
         <div
-          className={styles.sheetBackdrop}
+          className={styles["sheet-backdrop"]}
           onClick={() => {
             setIsSourceMenuOpen(false);
             fabRef.current?.focus();
@@ -472,7 +472,7 @@ export default function ClosetPage() {
           >
             <button
               type="button"
-              className={styles.sheetOption}
+              className={styles["sheet-option"]}
               onClick={() => {
                 setIsSourceMenuOpen(false);
                 cameraInputRef.current?.click();
@@ -483,7 +483,7 @@ export default function ClosetPage() {
             </button>
             <button
               type="button"
-              className={styles.sheetOption}
+              className={styles["sheet-option"]}
               onClick={() => {
                 setIsSourceMenuOpen(false);
                 uploadInputRef.current?.click();

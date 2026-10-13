@@ -40,7 +40,7 @@ export function StepIdentity() {
             <label
               key={option}
               className={cn(
-                styles.segmentOption,
+                styles["segment-option"],
                 section === option && styles.selected,
               )}
             >
@@ -60,7 +60,7 @@ export function StepIdentity() {
 
       <fieldset className={styles.fieldset}>
         <legend>{t("styleLabel")}</legend>
-        <div className={styles.editorialStack}>
+        <div className={styles["editorial-stack"]}>
           {STYLE_TRIBES.map((option) => {
             const selected = style === option;
             return (
@@ -71,7 +71,7 @@ export function StepIdentity() {
                 whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 300, damping: 22 }}
                 className={cn(
-                  styles.editorialCard,
+                  styles["editorial-card"],
                   selected && styles.selected,
                 )}
               >
@@ -83,10 +83,10 @@ export function StepIdentity() {
                   onChange={() => setStyle(option)}
                   className={styles.radio}
                 />
-                <span className={styles.editorialName}>
+                <span className={styles["editorial-name"]}>
                   {t(`styles.${option}`)}
                 </span>
-                <span className={styles.editorialHint}>
+                <span className={styles["editorial-hint"]}>
                   {t(`styleHints.${option}`)}
                 </span>
               </motion.label>

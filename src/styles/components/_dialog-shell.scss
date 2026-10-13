@@ -1,13 +1,9 @@
-// Shared modal/dialog shell styles
-// Import with: @use "@/styles/components/_dialog-shell" as dialog;
-// Usage: extend classes via @extend or apply mixins
+// Shared modal shell classes used directly by dialog markup.
+// Component CSS Modules provide skin-specific custom properties and details.
 
 @use "sass:color";
 
-// ============================================================================
-// Overlay - full-screen backdrop
-// ============================================================================
-.dialog-overlay {
+.dialog-shell__overlay {
   position: fixed;
   inset: 0;
   z-index: var(--z-modalBackdrop);
@@ -15,44 +11,30 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-4);
-  background: var(--dialog-overlay, rgba(0, 0, 0, 0.5));
+  background: var(--dialog-shell-overlay, rgba(0, 0, 0, 0.5));
   animation: fade-in var(--duration-fast) var(--ease-out);
   overflow: hidden;
   overscroll-behavior: contain;
   container-type: inline-size;
-  container-name: dialog-overlay;
+  container-name: dialog-shell-overlay;
 }
 
-// ============================================================================
-// Dialog container
-// ============================================================================
-.dialog-container {
+.dialog-shell__container {
   position: relative;
   z-index: var(--z-modal);
-  width: 100%;
-  max-width: var(--dialog-max-width, 28rem);
-  max-height: var(--dialog-max-height, calc(100dvh - var(--space-8)));
   display: flex;
   flex-direction: column;
-  background: var(--dialog-bg, var(--color-surface));
-  border-radius: var(--dialog-radius, var(--radius-xl));
+  width: 100%;
+  max-width: var(--dialog-shell-max-width, 28rem);
+  max-height: var(--dialog-shell-max-height, calc(100dvh - var(--space-8)));
+  overflow: hidden;
+  background: var(--dialog-shell-bg, var(--color-surface));
+  border-radius: var(--dialog-shell-radius, var(--radius-xl));
   box-shadow: var(--shadow-xl);
   animation: scale-in var(--duration-normal) var(--ease-spring);
-  overflow: hidden;
 }
 
-// Responsive container query
-@container dialog-overlay (max-width: 40rem) {
-  .dialog-container {
-    max-width: calc(100% - var(--space-4));
-    border-radius: var(--radius-lg);
-  }
-}
-
-// ============================================================================
-// Header
-// ============================================================================
-.dialog-header {
+.dialog-shell__header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -61,36 +43,33 @@
   border-bottom: 1px solid var(--color-border);
 }
 
-.dialog-title {
+.dialog-shell__title {
+  flex: 1;
   margin: 0;
   font-family: var(--font-family-display);
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   letter-spacing: var(--letter-spacing-tight);
   line-height: var(--line-height-tight);
-  flex: 1;
 }
 
-// ============================================================================
-// Body
-// ============================================================================
-.dialog-body {
+.dialog-shell__body {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: var(--dialog-padding, var(--space-5) var(--space-6));
+  padding: var(--dialog-shell-padding, var(--space-5) var(--space-6));
 }
 
-.dialog-body > *:first-child {
+.dialog-shell__body > *:first-child {
   margin-top: 0;
 }
 
-.dialog-body > *:last-child {
+.dialog-shell__body > *:last-child {
   margin-bottom: 0;
 }
 
-.dialog-message {
+.dialog-shell__message {
   margin: 0;
   font-family: var(--font-family-base);
   font-size: var(--font-size-base);
@@ -99,10 +78,7 @@
   color: var(--color-foreground);
 }
 
-// ============================================================================
-// Footer
-// ============================================================================
-.dialog-footer {
+.dialog-shell__footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -113,22 +89,13 @@
   flex-wrap: wrap;
 }
 
-@container dialog-overlay (max-width: 40rem) {
-  .dialog-footer {
-    padding: var(--space-3) var(--space-4);
-  }
-}
-
-.dialog-actions {
+.dialog-shell__actions {
   display: flex;
   gap: var(--space-3);
   flex-wrap: wrap;
 }
 
-// ============================================================================
-// Close button (reusable)
-// ============================================================================
-.dialog-close {
+.dialog-shell__close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -142,27 +109,35 @@
   cursor: pointer;
 }
 
-.dialog-close:hover:not(:disabled) {
+.dialog-shell__close:hover:not(:disabled) {
   color: var(--color-foreground);
   background: var(--color-oat);
 }
 
-.dialog-close:focus-visible {
+.dialog-shell__close:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
 }
 
-.dialog-close:disabled {
+.dialog-shell__close:disabled {
   cursor: not-allowed;
   opacity: 0.5;
 }
 
-// ============================================================================
-// Reduced motion
-// ============================================================================
+@container dialog-shell-overlay (max-width: 40rem) {
+  .dialog-shell__container {
+    max-width: calc(100% - var(--space-4));
+    border-radius: var(--radius-lg);
+  }
+
+  .dialog-shell__footer {
+    padding: var(--space-3) var(--space-4);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .dialog-overlay,
-  .dialog-container {
+  .dialog-shell__overlay,
+  .dialog-shell__container {
     animation: none;
   }
 }

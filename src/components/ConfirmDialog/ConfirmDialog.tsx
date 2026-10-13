@@ -38,7 +38,10 @@ export function ConfirmDialog({
   const dialogRef = useDialogFocus<HTMLDivElement>(onClose);
 
   return (
-    <div className={styles["confirmDialog__overlay"]} onClick={onClose}>
+    <div
+      className={`dialog-shell__overlay ${styles["confirm-dialog__overlay"]}`}
+      onClick={onClose}
+    >
       <div
         ref={dialogRef}
         role="alertdialog"
@@ -46,21 +49,21 @@ export function ConfirmDialog({
         aria-labelledby="confirm-dialog-title"
         aria-describedby="confirm-dialog-message"
         tabIndex={-1}
-        className={styles["confirmDialog__container"]}
+        className={`dialog-shell__container ${styles["confirm-dialog__container"]}`}
         onClick={(event) => event.stopPropagation()}
       >
-        <header className={styles["confirmDialog__header"]}>
-          <h2 id="confirm-dialog-title" className={styles["confirmDialog__title"]}>
+        <header className="dialog-shell__header">
+          <h2 id="confirm-dialog-title" className="dialog-shell__title">
             {title}
           </h2>
         </header>
-        <div className={styles["confirmDialog__body"]}>
-          <p id="confirm-dialog-message" className={styles["confirmDialog__message"]}>
+        <div className="dialog-shell__body">
+          <p id="confirm-dialog-message" className="dialog-shell__message">
             {message}
           </p>
         </div>
-        <footer className={styles["confirmDialog__footer"]}>
-          <div className={styles["confirmDialog__actions"]}>
+        <footer className="dialog-shell__footer">
+          <div className="dialog-shell__actions">
             <Button
               type="button"
               variant="ghost"

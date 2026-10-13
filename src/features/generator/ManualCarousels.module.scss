@@ -2,16 +2,16 @@
 // BEM structure using global design tokens.
 // Pure CSS with BEM naming - no @use imports.
 
-.manualCarousels {
+.manual-carousels {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
   gap: var(--space-2);
   min-height: 0;
-  animation: manualCarousels-in var(--duration-normal) var(--ease-out);
+  animation: manual-carousels-in var(--duration-normal) var(--ease-out);
 }
 
-.manualCarousels__carousels {
+.manual-carousels__carousels {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -20,7 +20,7 @@
   min-height: 0;
 }
 
-@keyframes manualCarousels-in {
+@keyframes manual-carousels-in {
   from {
     opacity: 0;
     transform: translateY(8px);
@@ -32,7 +32,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .manualCarousels {
+  .manual-carousels {
     animation: none;
   }
 }

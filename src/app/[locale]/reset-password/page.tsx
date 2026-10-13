@@ -102,7 +102,7 @@ function ResetPasswordForm() {
             <p role="alert" className={styles.error}>
               {t("resetInvalid")}
             </p>
-            <Link href="/forgot-password" className={styles.backLink}>
+            <Link href="/forgot-password" className={styles["back-link"]}>
               {t("sendResetLink")}
             </Link>
           </>

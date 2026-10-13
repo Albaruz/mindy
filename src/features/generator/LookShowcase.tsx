@@ -31,7 +31,7 @@ export function LookShowcase({
 }: LookShowcaseProps) {
   const t = useTranslations("Generator");
   return (
-    <div className={styles.lookShowcase} data-testid="generator-showcase">
+    <div className={styles["look-showcase"]} data-testid="generator-showcase">
       <ShowcaseCard
         look={look}
         position={position}
@@ -44,7 +44,7 @@ export function LookShowcase({
       <button
         type="button"
         onClick={onEditManual}
-        className={styles["lookShowcase__editLink"]}
+        className={styles["look-showcase__edit-link"]}
       >
         {t("editManual")}
       </button>

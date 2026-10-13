@@ -46,6 +46,9 @@
 // the tool (unsafe with CSS Modules + dynamic class names).
 // See src/styles/main.test.ts guard.
 // =============================================================================
+// Dialog shell is a focused exception: the same structural classes are used
+// directly by the three dialog components, while their skins remain modular.
+@use 'components/dialog-shell';
 
 // =============================================================================
 // 8. UTILITIES (generated utility classes if needed)

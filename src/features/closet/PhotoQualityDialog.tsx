@@ -32,7 +32,10 @@ export function PhotoQualityDialog({
   const dialogRef = useDialogFocus<HTMLDivElement>(onClose);
 
   return (
-    <div className={styles["photoQuality__overlay"]} onClick={onClose}>
+    <div
+      className={`dialog-shell__overlay ${styles["photo-quality__overlay"]}`}
+      onClick={onClose}
+    >
       <div
         ref={dialogRef}
         role="dialog"
@@ -40,18 +43,18 @@ export function PhotoQualityDialog({
         aria-labelledby="photo-quality-title"
         aria-describedby="photo-quality-description"
         tabIndex={-1}
-        className={styles["photoQuality__dialog"]}
+        className={`dialog-shell__container ${styles["photo-quality__dialog"]}`}
         onClick={(event) => event.stopPropagation()}
       >
-        <header className={styles["photoQuality__header"]}>
-          <div className={styles["photoQuality__heading"]}>
-            <h2 id="photo-quality-title" className={styles["photoQuality__title"]}>
+        <header className="dialog-shell__header">
+          <div className={styles["photo-quality__heading"]}>
+            <h2 id="photo-quality-title" className={`dialog-shell__title ${styles["photo-quality__title"]}`}>
               {t("qualityTitle")}
             </h2>
           </div>
           <button
             type="button"
-            className={styles["photoQuality__close"]}
+            className="dialog-shell__close"
             onClick={onClose}
             disabled={isWorking}
             aria-label={t("qualityClose")}
@@ -60,38 +63,38 @@ export function PhotoQualityDialog({
           </button>
         </header>
 
-        <div className={styles["photoQuality__body"]}>
+        <div className={`dialog-shell__body ${styles["photo-quality__body"]}`}>
           <p
             id="photo-quality-description"
-            className={styles["photoQuality__message"]}
+            className="dialog-shell__message"
           >
             {t("qualityMessage")}
           </p>
 
           {qualityNote !== null && qualityNote !== "" ? (
-            <p className={styles["photoQuality__note"]}>
+            <p className={styles["photo-quality__note"]}>
               <Sparkles aria-hidden="true" size={18} />
               <span>{qualityNote}</span>
             </p>
           ) : null}
 
           {cutoutFailed ? (
-            <p role="alert" className={styles["photoQuality__error"]}>
+            <p role="alert" className={styles["photo-quality__error"]}>
               {t("qualityCutoutFailed")}
             </p>
           ) : null}
 
           <section
-            className={styles["photoQuality__tips"]}
+            className={styles["photo-quality__tips"]}
             aria-labelledby="photo-quality-tips-title"
           >
             <h3
               id="photo-quality-tips-title"
-              className={styles["photoQuality__tips-title"]}
+              className={styles["photo-quality__tips-title"]}
             >
               {t("qualityTipsTitle")}
             </h3>
-            <ul className={styles["photoQuality__tips-list"]}>
+            <ul className={styles["photo-quality__tips-list"]}>
               <li>{t("qualityTipBackground")}</li>
               <li>{t("qualityTipLighting")}</li>
               <li>{t("qualityTipFraming")}</li>
@@ -102,15 +105,15 @@ export function PhotoQualityDialog({
             <p
               role="status"
               aria-live="polite"
-              className={styles["photoQuality__status"]}
+              className={styles["photo-quality__status"]}
             >
               {progressNote ?? t("qualityWorking")}
             </p>
           ) : null}
         </div>
 
-        <footer className={styles["photoQuality__footer"]}>
-          <div className={styles["photoQuality__actions"]}>
+        <footer className="dialog-shell__footer">
+          <div className={styles["photo-quality__actions"]}>
             <Button
               type="button"
               variant="primary"
@@ -133,7 +136,7 @@ export function PhotoQualityDialog({
             <Button
               type="button"
               variant="ghost"
-              className={styles["photoQuality__linkAction"]}
+              className={styles["photo-quality__link-action"]}
               disabled={isWorking}
               onClick={onRemoveBackground}
             >

@@ -2,7 +2,7 @@
 // BEM structure using global design tokens.
 // Pure CSS with BEM naming - no @use imports.
 
-.lookShowcase {
+.look-showcase {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -17,7 +17,7 @@
   container-name: look-showcase;
 }
 
-.lookShowcase__editLink {
+.look-showcase__edit-link {
   min-height: var(--touch-target-min);
   padding: var(--space-2) var(--space-4);
   font-size: var(--font-size-base);

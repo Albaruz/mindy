@@ -201,11 +201,11 @@ export function OnboardingWizard({
           className={styles.progress}
         >
           <div
-            className={styles.progressFill}
+            className={styles["progress-fill"]}
             style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
           />
         </div>
-        <p className={styles.stepCounter}>
+        <p className={styles["step-counter"]}>
           {t("counter", { step, total: TOTAL_STEPS })}
         </p>
 

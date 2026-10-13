@@ -2,18 +2,18 @@
 // Uses global design tokens via CSS custom properties.
 // Pure CSS with BEM naming - no @use imports.
 
-.onboardingArt {
+.onboarding-art {
   display: flex;
   justify-content: center;
 }
 
-.onboardingArt__float {
+.onboarding-art__float {
   display: flex;
   justify-content: center;
   animation: float-gentle 5s ease-in-out infinite;
 }
 
-.onboardingArt__player {
+.onboarding-art__player {
   display: block;
   width: auto;
   max-width: 100%;
@@ -26,7 +26,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .onboardingArt__float {
+  .onboarding-art__float {
     animation: none;
   }
 }

@@ -195,8 +195,8 @@ export function ManualCarousels({
   };
 
   return (
-    <div className={styles.manualCarousels} data-testid="generator-manual">
-      <div className={styles["manualCarousels__carousels"]}>
+    <div className={styles["manual-carousels"]} data-testid="generator-manual">
+      <div className={styles["manual-carousels__carousels"]}>
         {showOuterwear ? renderCarousel("outerwear") : null}
         {BASE_CAROUSELS.filter(
           ({ category }) => !(category === "bottom" && topIsOnePiece),

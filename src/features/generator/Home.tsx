@@ -73,7 +73,7 @@ function LoadingLooks({ showOuterwear }: { showOuterwear: boolean }) {
           key={variant}
           variant={variant}
           label={t(`carousels.${variant}`)}
-          className={styles.loadingCard}
+          className={styles["loading-card"]}
         />
       ))}
     </div>

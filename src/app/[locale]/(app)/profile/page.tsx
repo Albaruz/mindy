@@ -26,7 +26,7 @@ function PaletteFan({ season }: { season: Colorimetry }) {
       {swatches.map((hex) => (
         <span
           key={hex}
-          className={styles.fanDot}
+          className={styles["fan-dot"]}
           style={{ backgroundColor: hex }}
         />
       ))}
@@ -84,7 +84,7 @@ export default function ProfilePage() {
 
   return (
     <section className={styles.page}>
-      <div className={styles.headerRow}>
+      <div className={styles["header-row"]}>
         <h1 className={styles.headline}>
           {displayName !== null
             ? t("headlineNamed", { name: displayName })
@@ -93,7 +93,7 @@ export default function ProfilePage() {
         <Link
           href="/profile/onboarding?edit=true"
           aria-label={t("edit")}
-          className={styles.editLink}
+          className={styles["edit-link"]}
         >
           <Pencil aria-hidden="true" size={18} />
         </Link>
@@ -113,15 +113,15 @@ export default function ProfilePage() {
         </EmptyState>
       ) : profile === null || profile === undefined ? (
         <EmptyState message={t("unlockMessage")}>
-          <Link href="/profile/onboarding" className={styles.onboardingLink}>
-            {t("onboardingLink")}
+          <Link href="/profile/onboarding" className={styles["onboarding-link"]}>
+            {t("onboarding-link")}
           </Link>
         </EmptyState>
       ) : (
         <div className={styles.bento}>
-          <article className={styles.colorCard}>
-            <p className={styles.cardKicker}>{t("labels.colorimetry")}</p>
-            <p className={styles.cardHero}>
+          <article className={styles["color-card"]}>
+            <p className={styles["card-kicker"]}>{t("labels.colorimetry")}</p>
+            <p className={styles["card-hero"]}>
               {formatValue(profile.colorimetry, t("notSet"))}
             </p>
             {profile.colorimetry !== null ? (
@@ -129,31 +129,31 @@ export default function ProfilePage() {
             ) : null}
           </article>
 
-          <article className={styles.morphoCard}>
+          <article className={styles["morpho-card"]}>
             {profile.morphology !== null ? (
               <MorphoIcon
                 type={profile.morphology}
-                className={styles.morphoArt}
+                className={styles["morpho-art"]}
               />
             ) : null}
-            <div className={styles.morphoText}>
-              <p className={styles.cardKicker}>{t("labels.morphology")}</p>
-              <p className={styles.cardHero}>
+            <div className={styles["morpho-text"]}>
+              <p className={styles["card-kicker"]}>{t("labels.morphology")}</p>
+              <p className={styles["card-hero"]}>
                 {formatValue(profile.morphology, t("notSet"))}
               </p>
             </div>
           </article>
 
-          <article className={styles.fitCard}>
-            <p className={styles.cardCaption}>{t("fitCaption")}</p>
-            <p className={styles.cardValue}>
+          <article className={styles["fit-card"]}>
+            <p className={styles["card-caption"]}>{t("fitCaption")}</p>
+            <p className={styles["card-value"]}>
               {formatValue(profile.preferredFit, t("notSet"))}
             </p>
           </article>
 
-          <article className={styles.lifeCard}>
-            <p className={styles.cardCaption}>{t("lifestyleCaption")}</p>
-            <p className={styles.cardValue}>
+          <article className={styles["life-card"]}>
+            <p className={styles["card-caption"]}>{t("lifestyleCaption")}</p>
+            <p className={styles["card-value"]}>
               {formatValue(profile.lifestyle, t("notSet"))}
             </p>
           </article>
@@ -161,7 +161,7 @@ export default function ProfilePage() {
       )}
 
       <section aria-label={ts("title")} className={styles.preferences}>
-        <h2 className={styles.preferencesTitle}>{ts("title")}</h2>
+        <h2 className={styles["preferences-title"]}>{ts("title")}</h2>
         <SettingsControls />
       </section>
 
@@ -169,9 +169,9 @@ export default function ProfilePage() {
         type="button"
         onClick={handleSignOut}
         disabled={isSigningOut}
-        className={styles.signOut}
+        className={styles["sign-out"]}
       >
-        {isSigningOut ? t("signingOut") : t("signOut")}
+        {isSigningOut ? t("signingOut") : t("sign-out")}
       </button>
     </section>
   );

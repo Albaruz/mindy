@@ -2,7 +2,7 @@
 // Uses global design tokens via CSS custom properties.
 // Pure CSS with BEM naming - no @use imports.
 
-.actionBar {
+.action-bar {
   position: fixed;
   inset-inline: 0;
   bottom: 0;
@@ -14,25 +14,25 @@
   pointer-events: none;
 }
 
-.actionBar__core {
+.action-bar__core {
   display: flex;
   gap: var(--space-4);
   align-items: flex-end;
   justify-content: center;
 }
 
-.actionBar__edge {
+.action-bar__edge {
   min-width: 0;
 }
 
-.actionBar__edgeEnd {
+.action-bar__edge-end {
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
 }
 
-.actionBar__side,
-.actionBar__primary {
+.action-bar__side,
+.action-bar__primary {
   min-width: var(--touch-target-min);
   min-height: var(--touch-target-min);
   pointer-events: auto;
@@ -47,24 +47,24 @@
   cursor: pointer;
 }
 
-.actionBar__side:disabled,
-.actionBar__primary:disabled {
+.action-bar__side:disabled,
+.action-bar__primary:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
 
-.actionBar__side:focus-visible,
-.actionBar__primary:focus-visible {
+.action-bar__side:focus-visible,
+.action-bar__primary:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
 }
 
-.actionBar__side {
+.action-bar__side {
   width: 3rem;
   height: 3rem;
 }
 
-.actionBar__primary {
+.action-bar__primary {
   flex-direction: column;
   gap: var(--space-1);
   width: 4.5rem;
@@ -74,11 +74,11 @@
   border: none;
 }
 
-.actionBar__primary:not(:disabled):active {
+.action-bar__primary:not(:disabled):active {
   animation: heartbeat 0.45s ease;
 }
 
-.actionBar__primaryLabel {
+.action-bar__primary-label {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -88,7 +88,7 @@
 }
 
 /* Success burst overlay */
-.actionBar__burst {
+.action-bar__burst {
   position: fixed;
   inset: 0;
   z-index: 40;
@@ -99,12 +99,12 @@
   padding-bottom: 6rem;
 }
 
-.actionBar__lottie {
+.action-bar__lottie {
   width: 12rem;
   height: 12rem;
 }
 
-.actionBar__confetti {
+.action-bar__confetti {
   position: absolute;
   bottom: 6rem;
   left: 50%;
@@ -115,19 +115,19 @@
   animation: burst-fly 1.1s ease-out forwards;
 }
 
-.actionBar__confetti0 {
+.action-bar__confetti0 {
   background: var(--color-accent);
 }
 
-.actionBar__confetti1 {
+.action-bar__confetti1 {
   background: #e9b44c;
 }
 
-.actionBar__confetti2 {
+.action-bar__confetti2 {
   background: #7fb069;
 }
 
-.actionBar__confetti3 {
+.action-bar__confetti3 {
   background: var(--color-tab-inactive);
 }
 
@@ -149,10 +149,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .actionBar__primary:not(:disabled):active {
+  .action-bar__primary:not(:disabled):active {
     animation: none;
   }
-  .actionBar__confetti {
+  .action-bar__confetti {
     animation: none;
     opacity: 0;
   }

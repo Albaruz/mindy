@@ -182,7 +182,7 @@ export function WeatherThreadIcon({
         viewBox="0 0 96 96"
         role="presentation"
         aria-hidden="true"
-        className={styles.weatherThreadIcon}
+        className={styles["weather-thread-icon"]}
       >
         {kind === "umbrella" ? (
           <>

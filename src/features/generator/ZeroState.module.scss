@@ -2,7 +2,7 @@
 // BEM structure using global design tokens.
 // Pure CSS with BEM naming - no @use imports.
 
-.zeroState {
+.zero-state {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -12,20 +12,20 @@
   min-height: 0;
   padding: var(--space-8) var(--space-6);
   text-align: center;
-  animation: zeroState-in var(--duration-normal) var(--ease-out);
+  animation: zero-state-in var(--duration-normal) var(--ease-out);
 }
 
-.zeroState__weatherIcon {
+.zero-state__weather-icon {
   display: grid;
   place-items: center;
   width: 6rem;
   height: 6rem;
 }
 
-.zeroState__weatherIconArt {
+.zero-state__weather-icon-art {
   width: 100%;
   height: 100%;
-  animation: zeroState-icon-in var(--duration-slow) var(--ease-out);
+  animation: zero-state-icon-in var(--duration-slow) var(--ease-out);
 
   svg {
     width: 100%;
@@ -33,7 +33,7 @@
   }
 }
 
-.zeroState__greeting {
+.zero-state__greeting {
   margin: 0;
   font-family: var(--font-family-display);
   font-size: var(--font-size-2xl);
@@ -41,12 +41,12 @@
   text-wrap: balance;
 }
 
-.zeroState__greetingText {
+.zero-state__greeting-text {
   display: block;
-  animation: zeroState-greeting-in var(--duration-slow) var(--ease-out);
+  animation: zero-state-greeting-in var(--duration-slow) var(--ease-out);
 }
 
-.zeroState__actions {
+.zero-state__actions {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -54,7 +54,7 @@
   max-width: 22rem;
 }
 
-@keyframes zeroState-in {
+@keyframes zero-state-in {
   from {
     opacity: 0;
     transform: translateY(8px);
@@ -67,7 +67,7 @@
 
 // Weather copy swap: soft rise with a hint of blur so the neutral
 // greeting melts into the forecast copy instead of popping.
-@keyframes zeroState-greeting-in {
+@keyframes zero-state-greeting-in {
   from {
     opacity: 0;
     transform: translateY(10px);
@@ -81,7 +81,7 @@
 }
 
 // Weather icon arrival: gentle scale-in inside its reserved slot.
-@keyframes zeroState-icon-in {
+@keyframes zero-state-icon-in {
   from {
     opacity: 0;
     transform: scale(0.85);
@@ -93,12 +93,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .zeroState {
+  .zero-state {
     animation: none;
   }
 
-  .zeroState__weatherIconArt,
-  .zeroState__greetingText {
+  .zero-state__weather-icon-art,
+  .zero-state__greeting-text {
     animation: none;
   }
 }

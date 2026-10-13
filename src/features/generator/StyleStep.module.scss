@@ -2,7 +2,7 @@
 // BEM structure using global design tokens.
 // Pure CSS with BEM naming - no @use imports.
 
-.styleStep {
+.style-step {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -10,15 +10,15 @@
   justify-content: center;
   gap: var(--space-5);
   padding: var(--space-8) var(--space-6);
-  animation: styleStep-in var(--duration-normal) var(--ease-out);
+  animation: style-step-in var(--duration-normal) var(--ease-out);
 }
 
-.styleStep__heading {
+.style-step__heading {
   margin: 0;
   font-size: var(--font-size-lg);
 }
 
-.styleStep__actions {
+.style-step__actions {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -26,7 +26,7 @@
   max-width: 22rem;
 }
 
-@keyframes styleStep-in {
+@keyframes style-step-in {
   from {
     opacity: 0;
     transform: translateY(8px);
@@ -38,7 +38,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .styleStep {
+  .style-step {
     animation: none;
   }
 }

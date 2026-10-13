@@ -18,7 +18,7 @@ export function StepWelcome() {
       <OnboardingArt step={1} label={ta("threadArt")} className={styles.art} />
       <h1 className={styles.question}>{t("nameKeyword")}</h1>
       <p className={styles.lead}>{t("welcomeTitle")}</p>
-      <label htmlFor="displayName" className={styles.giantLabel}>
+      <label htmlFor="displayName" className={styles["giant-label"]}>
         {t("nameLabel")}
       </label>
       <input
@@ -30,7 +30,7 @@ export function StepWelcome() {
         placeholder={t("namePlaceholder")}
         value={displayName}
         onChange={(event) => setDisplayName(event.target.value)}
-        className={styles.giantInput}
+        className={styles["giant-input"]}
       />
     </>
   );

@@ -2,7 +2,7 @@
 // Uses global design tokens via CSS custom properties.
 // Pure CSS with BEM naming - no @use imports.
 
-.appHeader {
+.app-header {
   position: sticky;
   top: 0;
   z-index: var(--header-z);
@@ -12,7 +12,7 @@
   border-bottom: 1px solid var(--header-border);
 }
 
-.appHeader__content {
+.app-header__content {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -24,14 +24,14 @@
   container-name: app-header;
 }
 
-.appHeader__logo {
+.app-header__logo {
   display: block;
   width: auto;
   height: var(--logo-height);
   flex-shrink: 0;
 }
 
-.appHeader__nav {
+.app-header__nav {
   flex: 1;
   display: flex;
   justify-content: flex-end;
@@ -39,30 +39,30 @@
 }
 
 @media (max-width: 48rem) {
-  .appHeader__content {
+  .app-header__content {
     gap: var(--space-2);
     padding: var(--space-2) var(--space-3);
   }
 }
 
 @container app-header (max-width: 48rem) {
-  .appHeader__nav {
+  .app-header__nav {
     order: 2;
     width: 100%;
     justify-content: flex-end;
   }
 
-  .appHeader__logo {
+  .app-header__logo {
     order: 1;
   }
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .appHeader__logo {
+  :root:not([data-theme="light"]) .app-header__logo {
     /* Logo maintains its colors in dark mode */
   }
 }
 
-:root[data-theme="dark"] .appHeader__logo {
+:root[data-theme="dark"] .app-header__logo {
   /* Logo maintains its colors in dark mode */
 }

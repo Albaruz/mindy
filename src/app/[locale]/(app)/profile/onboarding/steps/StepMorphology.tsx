@@ -26,17 +26,17 @@ function MeasureSlider({ field, label, guideSrc }: MeasureSliderProps) {
   const setMeasurement = useOnboardingStore((state) => state.setMeasurement);
 
   return (
-    <div className={styles.measureCol}>
+    <div className={styles["measure-col"]}>
       <Image
         src={guideSrc}
         alt={label}
         width={72}
         height={96}
-        className={styles.measureGuide}
+        className={styles["measure-guide"]}
       />
-      <output htmlFor={field} className={styles.measureValue}>
+      <output htmlFor={field} className={styles["measure-value"]}>
         {value}
-        <span className={styles.measureUnit}>cm</span>
+        <span className={styles["measure-unit"]}>cm</span>
       </output>
       <input
         id={field}
@@ -50,10 +50,10 @@ function MeasureSlider({ field, label, guideSrc }: MeasureSliderProps) {
           setMeasurement(field, Number(event.target.value))
         }
         aria-label={ta("measureCentimeters", { label })}
-        aria-valuetext={ta("measureValue", { value })}
-        className={styles.verticalRange}
+        aria-valuetext={ta("measure-value", { value })}
+        className={styles["vertical-range"]}
       />
-      <span className={styles.measureName}>{label}</span>
+      <span className={styles["measure-name"]}>{label}</span>
     </div>
   );
 }
@@ -72,7 +72,7 @@ export function StepMorphology() {
       <p className={styles.lead}>{t("measuresTitle")}</p>
       <p className={styles.subcopy}>{t("measuresSubtitle")}</p>
 
-      <div className={styles.measureRow}>
+      <div className={styles["measure-row"]}>
         <MeasureSlider
           field="chestCm"
           label={t("chest")}
@@ -97,7 +97,7 @@ export function StepMorphology() {
             <label
               key={option}
               className={cn(
-                styles.segmentOption,
+                styles["segment-option"],
                 fit === option && styles.selected,
               )}
             >

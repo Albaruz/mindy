@@ -64,12 +64,12 @@ export function BottomActionBar({
 
   return (
     <>
-      <div role="group" aria-label={label} className={styles.actionBar}>
-        <div className={styles.actionBar__edge} aria-hidden="true" />
-        <div className={styles.actionBar__core}>
+      <div role="group" aria-label={label} className={styles["action-bar"]}>
+        <div className={styles["action-bar__edge"]} aria-hidden="true" />
+        <div className={styles["action-bar__core"]}>
           <SideButton
             {...left}
-            className={cn(styles.actionBar__side, styles["actionBar__side--left"])}
+            className={cn(styles["action-bar__side"], styles["action-bar__side--left"])}
           />
           <button
             type="button"
@@ -77,21 +77,21 @@ export function BottomActionBar({
             disabled={primaryDisabled || isPrimaryPending}
             aria-label={primaryLabel}
             title={primaryLabel}
-            className={styles.actionBar__primary}
+            className={styles["action-bar__primary"]}
           >
             <Check aria-hidden="true" size={30} />
-            <span className={styles.actionBar__primaryLabel}>{primaryLabel}</span>
+            <span className={styles["action-bar__primary-label"]}>{primaryLabel}</span>
           </button>
           <SideButton
             {...right}
-            className={cn(styles.actionBar__side, styles["actionBar__side--right"])}
+            className={cn(styles["action-bar__side"], styles["action-bar__side--right"])}
           />
         </div>
-        <div className={styles.actionBar__edgeEnd}>
+        <div className={styles["action-bar__edge-end"]}>
           {extraRight !== undefined ? (
             <SideButton
               {...extraRight}
-              className={cn(styles.actionBar__side, styles["actionBar__side--right"])}
+              className={cn(styles["action-bar__side"], styles["action-bar__side--right"])}
             />
           ) : null}
         </div>
@@ -117,7 +117,7 @@ function SideButton({
       disabled={disabled}
       aria-label={label}
       title={label}
-      className={cn(styles.actionBar__side, className)}
+      className={cn(styles["action-bar__side"], className)}
     >
       {icon}
     </button>
@@ -131,17 +131,17 @@ export function CelebrationBurst({
 }) {
   if (animationSrc !== undefined) {
     return (
-      <div className={styles.actionBar__burst} aria-hidden="true">
-        <Lottie src={animationSrc} loop={false} autoplay className={styles.actionBar__lottie} />
+      <div className={styles["action-bar__burst"]} aria-hidden="true">
+        <Lottie src={animationSrc} loop={false} autoplay className={styles["action-bar__lottie"]} />
       </div>
     );
   }
   return (
-    <div className={styles.actionBar__burst} aria-hidden="true">
+    <div className={styles["action-bar__burst"]} aria-hidden="true">
       {Array.from({ length: 12 }, (_, index) => (
         <span
           key={index}
-          className={cn(styles.actionBar__confetti, styles[`actionBar__confetti${index % 4}`])}
+          className={cn(styles["action-bar__confetti"], styles[`action-bar__confetti${index % 4}`])}
           style={{ ["--burst-angle" as string]: `${index * 30}deg` }}
         />
       ))}

@@ -109,7 +109,10 @@ export function GarmentFormModal({
   };
 
   return (
-    <div className={styles["garmentFormModal__overlay"]} onClick={onClose}>
+    <div
+      className={`dialog-shell__overlay ${styles["garment-form-modal__overlay"]}`}
+      onClick={onClose}
+    >
       <div
         ref={dialogRef}
         role="dialog"
@@ -123,25 +126,25 @@ export function GarmentFormModal({
               : undefined
         }
         tabIndex={-1}
-        className={styles["garmentFormModal__dialog"]}
+        className={`dialog-shell__container ${styles["garment-form-modal__dialog"]}`}
         onClick={(event) => event.stopPropagation()}
       >
-        <header className={styles["garmentFormModal__header"]}>
-          <h2 id="garment-modal-title" className={styles["garmentFormModal__title"]}>
+        <header className={`dialog-shell__header ${styles["garment-form-modal__header"]}`}>
+          <h2 id="garment-modal-title" className={`dialog-shell__title ${styles["garment-form-modal__title"]}`}>
             {title}
           </h2>
           <button
             type="button"
-            className={styles["garmentFormModal__close"]}
+            className={`dialog-shell__close ${styles["garment-form-modal__close"]}`}
             onClick={onClose}
             aria-label="Cerrar"
           >
             <X aria-hidden="true" size={20} />
           </button>
         </header>
-        <div className={styles["garmentFormModal__content"]}>
+        <div className={`dialog-shell__body ${styles["garment-form-modal__content"]}`}>
           {previewUrl !== null ? (
-            <img src={previewUrl} alt={previewAlt} className={styles["garmentFormModal__preview"]} />
+            <img src={previewUrl} alt={previewAlt} className={styles["garment-form-modal__preview"]} />
           ) : null}
           <form onSubmit={handleSubmit}>
           <OptionPills
@@ -153,16 +156,16 @@ export function GarmentFormModal({
             formatOption={(option) => translate(option, "type") ?? option}
           />
 
-          <fieldset className={styles["garmentFormModal__group"]}>
+          <fieldset className={styles["garment-form-modal__group"]}>
             <legend>{t("form.season")}</legend>
-            <div className={styles["garmentFormModal__options"]} role="radiogroup" aria-label={t("form.season")}>
+            <div className={styles["garment-form-modal__options"]} role="radiogroup" aria-label={t("form.season")}>
               {(Object.keys(SEASON_ICONS) as GarmentSeason[]).map((option) => {
                 const Icon = SEASON_ICONS[option];
                 const selected = season === option;
                 return (
                   <label
                     key={option}
-                    className={cn(styles["garmentFormModal__option"], selected && styles["garmentFormModal__option--selected"])}
+                    className={cn(styles["garment-form-modal__option"], selected && styles["garment-form-modal__option--selected"])}
                   >
                     <input
                       type="radio"
@@ -170,7 +173,7 @@ export function GarmentFormModal({
                       value={option}
                       checked={selected}
                       onChange={() => setSeason(option)}
-                      className={styles["garmentFormModal__radio"]}
+                      className={styles["garment-form-modal__radio"]}
                     />
                     <Icon aria-hidden="true" size={18} />
                     <span>{t(`form.seasons.${option}`)}</span>
@@ -225,17 +228,17 @@ export function GarmentFormModal({
               ref={errorRef}
               role="alert"
               tabIndex={-1}
-              className={styles["garmentFormModal__error"]}
+              className={styles["garment-form-modal__error"]}
             >
               {validationError}
             </p>
           ) : null}
           {submitError !== null ? (
-            <p id="garment-modal-submit-error" role="alert" className={styles["garmentFormModal__error"]}>
+            <p id="garment-modal-submit-error" role="alert" className={styles["garment-form-modal__error"]}>
               {submitError}
             </p>
           ) : null}
-          <div className={styles["garmentFormModal__actions"]}>
+          <div className={`dialog-shell__actions ${styles["garment-form-modal__actions"]}`}>
             <Button
               type="button"
               variant="ghost"

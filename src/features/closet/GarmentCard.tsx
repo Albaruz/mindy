@@ -45,30 +45,30 @@ export function GarmentCard({
   const imageAlt = subtitle !== "" ? `${displayType} (${subtitle})` : displayType;
 
   return (
-    <article className={styles.garmentCard}>
+    <article className={styles["garment-card"]}>
       {garment.imageUrl !== null ? (
         <img
           src={garment.imageUrl}
           alt={imageAlt}
           loading="lazy"
-          className={styles["garmentCard__image"]}
+          className={styles["garment-card__image"]}
         />
       ) : (
-        <div className={styles["garmentCard__placeholder"]} aria-hidden="true" />
+        <div className={styles["garment-card__placeholder"]} aria-hidden="true" />
       )}
       {onDelete && (
         <button
           type="button"
           aria-label={ta("deleteGarment", { name: displayType })}
           className={cn(
-            styles["garmentCard__action"],
-            styles["garmentCard__action--topLeft"],
-            styles["iconButton"]
+            styles["garment-card__action"],
+            styles["garment-card__action--top-left"],
+            styles["icon-button"]
           )}
           disabled={isDeleting}
           onClick={() => onDelete(garment)}
         >
-          <Trash2 aria-hidden="true" size={18} className={styles["iconButton__icon"]} />
+          <Trash2 aria-hidden="true" size={18} className={styles["icon-button__icon"]} />
         </button>
       )}
       {onWash && (
@@ -76,14 +76,14 @@ export function GarmentCard({
           type="button"
           aria-label={ta("washGarment", { name: displayType })}
           className={cn(
-            styles["garmentCard__action"],
-            styles["garmentCard__action--topRight"],
-            styles["iconButton"]
+            styles["garment-card__action"],
+            styles["garment-card__action--top-right"],
+            styles["icon-button"]
           )}
           disabled={isWashing}
           onClick={() => onWash(garment)}
         >
-          <Sparkles aria-hidden="true" size={18} className={styles["iconButton__icon"]} />
+          <Sparkles aria-hidden="true" size={18} className={styles["icon-button__icon"]} />
         </button>
       )}
       {onEdit && (
@@ -91,18 +91,18 @@ export function GarmentCard({
           type="button"
           aria-label={ta("editGarment", { name: displayType })}
           className={cn(
-            styles["garmentCard__action"],
-            styles["garmentCard__action--topRight"],
-            styles["iconButton"]
+            styles["garment-card__action"],
+            styles["garment-card__action--top-right"],
+            styles["icon-button"]
           )}
           onClick={() => onEdit(garment)}
         >
-          <Pencil aria-hidden="true" size={18} className={styles["iconButton__icon"]} />
+          <Pencil aria-hidden="true" size={18} className={styles["icon-button__icon"]} />
         </button>
       )}
-      <div className={styles["garmentCard__body"]}>
-        <h2 className={styles["garmentCard__title"]}>{displayType}</h2>
-        {subtitle !== "" && <p className={styles["garmentCard__meta"]}>{subtitle}</p>}
+      <div className={styles["garment-card__body"]}>
+        <h2 className={styles["garment-card__title"]}>{displayType}</h2>
+        {subtitle !== "" && <p className={styles["garment-card__meta"]}>{subtitle}</p>}
       </div>
     </article>
   );

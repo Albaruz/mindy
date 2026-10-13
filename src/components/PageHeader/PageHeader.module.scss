@@ -2,38 +2,38 @@
 // Uses global design tokens via CSS custom properties.
 // Pure CSS with BEM naming - no @use imports.
 
-.pageHeader {
+.page-header {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   margin-bottom: var(--space-4);
 }
 
-.pageHeader--centered {
+.page-header--centered {
   align-items: center;
   text-align: center;
 }
 
-.pageHeader--with-avatar {
+.page-header--with-avatar {
   flex-direction: row;
   align-items: flex-start;
   gap: var(--space-4);
 }
 
 @media (max-width: 48rem) {
-  .pageHeader--with-avatar {
+  .page-header--with-avatar {
     flex-direction: column;
     align-items: center;
     text-align: center;
   }
 }
 
-.pageHeader--compact {
+.page-header--compact {
   margin-bottom: var(--space-3);
   gap: var(--space-1);
 }
 
-.pageHeader--compact .pageHeader__title {
+.page-header--compact .page-header__title {
   font-family: var(--font-family-display);
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
@@ -41,7 +41,7 @@
   line-height: var(--line-height-tight);
 }
 
-.pageHeader--compact .pageHeader__description {
+.page-header--compact .page-header__description {
   font-family: var(--font-family-base);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-normal);
@@ -49,16 +49,16 @@
   color: var(--color-muted);
 }
 
-.pageHeader__avatar {
+.page-header__avatar {
   flex-shrink: 0;
 }
 
-.pageHeader__content {
+.page-header__content {
   flex: 1;
   min-width: 0;
 }
 
-.pageHeader__title {
+.page-header__title {
   margin: 0;
   font-family: var(--font-family-display);
   font-size: var(--font-size-3xl);
@@ -68,7 +68,7 @@
   color: var(--color-clay);
 }
 
-.pageHeader__description {
+.page-header__description {
   margin: 0;
   font-family: var(--font-family-base);
   font-size: var(--font-size-lg);
@@ -78,7 +78,7 @@
   max-width: 36rem;
 }
 
-.pageHeader__actions {
+.page-header__actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
@@ -86,11 +86,11 @@
   margin-top: var(--space-1);
 }
 
-.pageHeader__actions--centered {
+.page-header__actions--centered {
   justify-content: center;
 }
 
-.pageHeader__divider {
+.page-header__divider {
   width: 100%;
   height: 1px;
   background: var(--color-border);

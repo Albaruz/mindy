@@ -34,7 +34,7 @@ export function MorphoIcon({
       viewBox="0 0 96 128"
       aria-hidden="true"
       focusable="false"
-      className={cn(styles.morphoIcon, className)}
+      className={cn(styles["morpho-icon"], className)}
     >
       <circle
         cx="48"

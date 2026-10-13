@@ -1,5 +1,3 @@
-"use server";
-
 /**
  * Shared profile validation constants and helpers.
  * Single source of truth for server and client validation.

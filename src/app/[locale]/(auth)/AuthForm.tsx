@@ -85,7 +85,7 @@ export function AuthForm() {
         <button
           type="button"
           aria-pressed={isLogin}
-          className={cn(styles.tab, isLogin && styles.tabActive)}
+          className={cn(styles.tab, isLogin && styles["tab-active"])}
           onClick={() => handleModeChange("login")}
         >
           {t("login")}
@@ -93,7 +93,7 @@ export function AuthForm() {
         <button
           type="button"
           aria-pressed={!isLogin}
-          className={cn(styles.tab, !isLogin && styles.tabActive)}
+          className={cn(styles.tab, !isLogin && styles["tab-active"])}
           onClick={() => handleModeChange("signup")}
         >
           {t("signup")}
@@ -153,7 +153,7 @@ export function AuthForm() {
                     <li
                       key={requirement.key}
                       className={cn(
-                        styles.checkItem,
+                        styles["check-item"],
                         requirement.met ? styles.met : styles.missing,
                       )}
                     >
@@ -197,12 +197,12 @@ export function AuthForm() {
           </p>
         ) : null}
 
-        <div className={styles.sessionRow}>
+        <div className={styles["session-row"]}>
           <label className={styles.remember}>
             <input type="checkbox" name="remember" defaultChecked />
             {t("rememberMe")}
           </label>
-          <Link href="/forgot-password" className={styles.forgotLink}>
+          <Link href="/forgot-password" className={styles["forgot-link"]}>
             {t("forgotPassword")}
           </Link>
         </div>
@@ -232,7 +232,7 @@ export function AuthForm() {
         variant="secondary"
         disabled={isOauthPending}
         onClick={() => void handleGoogleSignIn()}
-        className={styles.oauthButton}
+        className={styles["oauth-button"]}
       >
         {isOauthPending ? t("redirecting") : t("google")}
       </Button>

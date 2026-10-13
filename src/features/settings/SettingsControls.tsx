@@ -51,18 +51,18 @@ export function SettingsControls() {
 
   return (
     <LayoutGroup id="settings-controls">
-      <div className={styles.settingsControls}>
-      <fieldset className={styles["settingsControls__group"]}>
-          <legend className={styles["settingsControls__legend"]}>
-            <span className={styles["settingsControls__title"]}>{t("language")}</span>
-            <span className={styles["settingsControls__description"]}>
+      <div className={styles["settings-controls"]}>
+      <fieldset className={styles["settings-controls__group"]}>
+          <legend className={styles["settings-controls__legend"]}>
+            <span className={styles["settings-controls__title"]}>{t("language")}</span>
+            <span className={styles["settings-controls__description"]}>
               {t("languageDescription")}
             </span>
           </legend>
           <div
             role="group"
             aria-label={t("language")}
-            className={styles["settingsControls__segmented"]}
+            className={styles["settings-controls__segmented"]}
           >
             {routing.locales.map((option) => {
               const selected = locale === option;
@@ -73,8 +73,8 @@ export function SettingsControls() {
                   aria-pressed={selected}
                   onClick={() => handleLocaleChange(option)}
                   className={cn(
-                    styles["settingsControls__segment"],
-                    selected && styles["settingsControls__segment--active"],
+                    styles["settings-controls__segment"],
+                    selected && styles["settings-controls__segment--active"],
                   )}
                 >
                   {selected ? (
@@ -82,11 +82,11 @@ export function SettingsControls() {
                       layoutId="languageIndicator"
                       initial={false}
                       aria-hidden="true"
-                      className={styles["settingsControls__indicator"]}
+                      className={styles["settings-controls__indicator"]}
                       transition={INDICATOR_SPRING}
                     />
                   ) : null}
-                  <span className={styles["settingsControls__segmentContent"]}>
+                  <span className={styles["settings-controls__segment-content"]}>
                     {LANGUAGE_LABELS[option]}
                   </span>
                 </button>
@@ -95,17 +95,17 @@ export function SettingsControls() {
           </div>
       </fieldset>
 
-      <fieldset className={styles["settingsControls__group"]}>
-          <legend className={styles["settingsControls__legend"]}>
-            <span className={styles["settingsControls__title"]}>{t("theme")}</span>
-            <span className={styles["settingsControls__description"]}>
+      <fieldset className={styles["settings-controls__group"]}>
+          <legend className={styles["settings-controls__legend"]}>
+            <span className={styles["settings-controls__title"]}>{t("theme")}</span>
+            <span className={styles["settings-controls__description"]}>
               {t("themeDescription")}
             </span>
           </legend>
           <div
             role="group"
             aria-label={t("theme")}
-            className={styles["settingsControls__segmented"]}
+            className={styles["settings-controls__segmented"]}
           >
             {THEME_MODES.map((option) => {
               const { labelKey, Icon } = THEME_META[option];
@@ -117,11 +117,11 @@ export function SettingsControls() {
                   aria-pressed={selected}
                   onClick={() => setThemeMode(option)}
                   className={cn(
-                    styles["settingsControls__segment"],
-                    selected && styles["settingsControls__segment--active"],
+                    styles["settings-controls__segment"],
+                    selected && styles["settings-controls__segment--active"],
                   )}
                 >
-                  <span className={styles["settingsControls__segmentContent"]}>
+                  <span className={styles["settings-controls__segment-content"]}>
                     <Icon
                       aria-hidden="true"
                       size={18}

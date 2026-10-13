@@ -34,10 +34,10 @@ export function ColorSwatches<T extends string>({
       <legend>
         {label}
         {value !== "" ? (
-          <span className={styles.swatchValue}>{formatOption(value)}</span>
+          <span className={styles["swatch-value"]}>{formatOption(value)}</span>
         ) : null}
       </legend>
-      <div className={styles.swatchRow} role="radiogroup" aria-label={label}>
+      <div className={styles["swatch-row"]} role="radiogroup" aria-label={label}>
         {options.map((option) => {
           const selected = value === option;
           const optionLabel = formatOption(option);
@@ -63,10 +63,10 @@ export function ColorSwatches<T extends string>({
               />
               <span
                 aria-hidden="true"
-                className={styles.swatchDot}
+                className={styles["swatch-dot"]}
                 style={{ background: swatches[option] ?? "#ccc" }}
               />
-              <span className={styles.swatchName}>{optionLabel}</span>
+              <span className={styles["swatch-name"]}>{optionLabel}</span>
             </label>
           );
         })}

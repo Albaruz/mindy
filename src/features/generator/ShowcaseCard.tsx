@@ -73,7 +73,7 @@ export function ShowcaseCard({
       key={look.id}
       aria-live="polite"
       aria-label={ta("lookCard", { position, total })}
-      className={styles.showcaseCard}
+      className={styles["showcase-card"]}
       drag={draggable ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
       dragDirectionLock
@@ -82,14 +82,14 @@ export function ShowcaseCard({
       onDragEnd={handleDragEnd}
       style={draggable ? { x, rotate } : undefined}
     >
-      <span aria-hidden="true" className={styles["showcaseCard__srHint"]}>
+      <span aria-hidden="true" className={styles["showcase-card__sr-hint"]}>
         {ta("swipeHint")}
       </span>
       <motion.span
         aria-hidden="true"
         className={cn(
-          styles["showcaseCard__overlay"],
-          styles["showcaseCard__overlay--accept"]
+          styles["showcase-card__overlay"],
+          styles["showcase-card__overlay--accept"]
         )}
         style={draggable ? { opacity: acceptOpacity } : undefined}
       >
@@ -99,35 +99,35 @@ export function ShowcaseCard({
       <motion.span
         aria-hidden="true"
         className={cn(
-          styles["showcaseCard__overlay"],
-          styles["showcaseCard__overlay--reject"]
+          styles["showcase-card__overlay"],
+          styles["showcase-card__overlay--reject"]
         )}
         style={draggable ? { opacity: rejectOpacity } : undefined}
       >
         <X size={20} />
         {t("discard")}
       </motion.span>
-      <div className={styles["showcaseCard__grid"]}>
+      <div className={styles["showcase-card__grid"]}>
         {look.garments.map((garment) => (
-          <figure key={garment.garmentId} className={styles["showcaseCard__item"]}>
+          <figure key={garment.garmentId} className={styles["showcase-card__item"]}>
             {garment.imageUrl !== null ? (
               <img
                 src={garment.imageUrl}
                 alt={describeGarment(garment)}
                 loading="lazy"
-                className={styles["showcaseCard__image"]}
+                className={styles["showcase-card__image"]}
               />
             ) : (
-              <div className={styles["showcaseCard__placeholder"]} aria-hidden="true" />
+              <div className={styles["showcase-card__placeholder"]} aria-hidden="true" />
             )}
-            <figcaption className={styles["showcaseCard__caption"]}>
+            <figcaption className={styles["showcase-card__caption"]}>
               {describeGarment(garment)}
             </figcaption>
           </figure>
         ))}
       </div>
       {look.reason !== null && look.reason !== "" ? (
-        <p className={styles["showcaseCard__reason"]}>{look.reason}</p>
+        <p className={styles["showcase-card__reason"]}>{look.reason}</p>
       ) : null}
     </motion.article>
   );

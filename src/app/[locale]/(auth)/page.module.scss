@@ -29,7 +29,7 @@
   cursor: pointer;
 }
 
-.tabActive {
+.tab-active {
   background: var(--color-surface);
   box-shadow: 0 0.125rem 0.375rem rgba(74, 63, 57, 0.15);
 }
@@ -51,7 +51,7 @@
   list-style: none;
 }
 
-.checkItem {
+.check-item {
   display: flex;
   align-items: center;
   gap: 0.375rem;
@@ -68,7 +68,7 @@
   color: var(--color-muted);
 }
 
-.sessionRow {
+.session-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -92,7 +92,7 @@
   }
 }
 
-.forgotLink {
+.forgot-link {
   font-weight: 600;
   color: var(--color-accent);
 }
@@ -113,6 +113,6 @@
   }
 }
 
-.oauthButton {
+.oauth-button {
   width: 100%;
 }

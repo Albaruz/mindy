@@ -24,12 +24,12 @@ export function HistoryCard({ entry }: { entry: HistoryEntry }) {
   const dayLabel = (DAY_FORMATS[locale] ?? DAY_FORMATS.en).format(wornDate);
 
   return (
-    <article className={styles.historyCard}>
-      <h3 className={styles["historyCard__date"]}>{dayLabel}</h3>
+    <article className={styles["history-card"]}>
+      <h3 className={styles["history-card__date"]}>{dayLabel}</h3>
       {entry.garments.length > 0 ? (
-        <ul className={styles["historyCard__strip"]}>
+        <ul className={styles["history-card__strip"]}>
           {entry.garments.map((garment) => (
-            <li key={garment.garmentId} className={styles["historyCard__thumb"]}>
+            <li key={garment.garmentId} className={styles["history-card__thumb"]}>
               {garment.imageUrl !== null ? (
                 <img
                   src={garment.imageUrl}
@@ -49,7 +49,7 @@ export function HistoryCard({ entry }: { entry: HistoryEntry }) {
           ))}
         </ul>
       ) : (
-        <p className={styles["historyCard__unavailable"]}>
+        <p className={styles["history-card__unavailable"]}>
           {t("unavailable")}
         </p>
       )}
