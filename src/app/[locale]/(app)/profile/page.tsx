@@ -114,7 +114,7 @@ export default function ProfilePage() {
       ) : profile === null || profile === undefined ? (
         <EmptyState message={t("unlockMessage")}>
           <Link href="/profile/onboarding" className={styles["onboarding-link"]}>
-            {t("onboarding-link")}
+            {t("onboardingLink")}
           </Link>
         </EmptyState>
       ) : (
@@ -171,7 +171,7 @@ export default function ProfilePage() {
         disabled={isSigningOut}
         className={styles["sign-out"]}
       >
-        {isSigningOut ? t("signingOut") : t("sign-out")}
+        {isSigningOut ? t("signingOut") : t("signOut")}
       </button>
     </section>
   );

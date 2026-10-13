@@ -22,6 +22,11 @@
   gap: var(--space-4);
 }
 
+.photo-quality__footer {
+  // Stacked variant is applied in markup via dialog-shell__footer--stacked.
+  // Kept as a hook for future PhotoQuality-only footer tweaks.
+}
+
 .photo-quality__title {
   @media (max-width: 40rem) {
     font-size: var(--font-size-xl);
@@ -89,6 +94,7 @@
 
 .photo-quality__actions {
   display: grid;
+  width: 100%;
   gap: var(--space-2);
 }
 

@@ -89,6 +89,10 @@
   flex-wrap: wrap;
 }
 
+.dialog-shell__footer--stacked {
+  display: block;
+}
+
 .dialog-shell__actions {
   display: flex;
   gap: var(--space-3);

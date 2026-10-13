@@ -112,7 +112,7 @@ export function PhotoQualityDialog({
           ) : null}
         </div>
 
-        <footer className="dialog-shell__footer">
+        <footer className={`dialog-shell__footer dialog-shell__footer--stacked ${styles["photo-quality__footer"]}`}>
           <div className={styles["photo-quality__actions"]}>
             <Button
               type="button"
