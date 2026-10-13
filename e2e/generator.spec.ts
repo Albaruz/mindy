@@ -1,7 +1,30 @@
 // Generator flows E2E: auto, manual and wear-today celebration.
 // Runs when seeded auth exists (see e2e/auth.setup.ts); self-skips otherwise.
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { hasSeededAuth, SEEDED_AUTH_HELP } from "./seeded-auth";
+
+async function mockRecommender(page: Page, optionCount: number) {
+  await page.route("**/api/recommender", async (route) => {
+    const payload = route.request().postDataJSON() as {
+      garments?: { garmentId?: unknown }[];
+    };
+    const garmentIds = (payload.garments ?? []).flatMap(({ garmentId }) =>
+      typeof garmentId === "string" ? [garmentId] : [],
+    );
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        options: Array.from({ length: optionCount }, (_, index) => ({
+          garmentIds,
+          reason: `Test look ${index + 1}`,
+          suitabilityRatio: 1,
+        })),
+      }),
+    });
+  });
+}
 
 test.describe("generator", () => {
   test.beforeEach(async () => {
@@ -9,18 +32,7 @@ test.describe("generator", () => {
   });
 
   test("auto flow: select style then showcase appears", async ({ page }) => {
-    await page.route("**/api/recommender", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          looks: [
-            { id: "look-1", garments: [] },
-            { id: "look-2", garments: [] },
-          ],
-        }),
-      });
-    });
+    await mockRecommender(page, 2);
 
     await page.goto("/es/generator");
     await expect(page.getByTestId("generator-zero-state")).toBeVisible();
@@ -46,13 +58,7 @@ test.describe("generator", () => {
   });
 
   test("wear-today flow asserts the celebration dialog", async ({ page }) => {
-    await page.route("**/api/recommender", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({ looks: [{ id: "look-1", garments: [] }] }),
-      });
-    });
+    await mockRecommender(page, 1);
 
     await page.goto("/es/generator");
     await expect(page.getByTestId("generator-zero-state")).toBeVisible();
@@ -64,7 +70,9 @@ test.describe("generator", () => {
     });
 
     // Wear the active look and expect the celebration overlay.
-    await page.getByTestId("generator-showcase").getByRole("button").first().click();
+    await page
+      .getByRole("button", { name: /me lo pongo hoy/i })
+      .click();
     await expect(page.getByRole("dialog")).toBeVisible({ timeout: 30_000 });
   });
 });

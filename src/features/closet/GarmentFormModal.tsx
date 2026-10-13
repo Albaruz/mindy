@@ -139,10 +139,11 @@ export function GarmentFormModal({
             <X aria-hidden="true" size={20} />
           </button>
         </header>
-        {previewUrl !== null ? (
-          <img src={previewUrl} alt={previewAlt} className={styles["garmentFormModal__preview"]} />
-        ) : null}
-        <form onSubmit={handleSubmit}>
+        <div className={styles["garmentFormModal__content"]}>
+          {previewUrl !== null ? (
+            <img src={previewUrl} alt={previewAlt} className={styles["garmentFormModal__preview"]} />
+          ) : null}
+          <form onSubmit={handleSubmit}>
           <OptionPills
             name="garmentType"
             label={t("form.type")}
@@ -247,7 +248,8 @@ export function GarmentFormModal({
               {isSaving ? savingLabel : submitLabel}
             </Button>
           </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );

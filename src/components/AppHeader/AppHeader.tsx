@@ -29,17 +29,19 @@ export function AppHeader() {
   }
   return (
     <header className={styles.appHeader}>
-      <Image
-        src="/images/logo-mindy.svg"
-        alt="Mindy"
-        width={96}
-        height={52}
-        priority
-        className={styles["appHeader__logo"]}
-      />
-      <nav className={styles["appHeader__nav"]}>
-        <TopNavigation />
-      </nav>
+      <div className={styles["appHeader__content"]}>
+        <Image
+          src="/images/logo-mindy.svg"
+          alt="Mindy"
+          width={96}
+          height={52}
+          priority
+          className={styles["appHeader__logo"]}
+        />
+        <nav className={styles["appHeader__nav"]}>
+          <TopNavigation />
+        </nav>
+      </div>
     </header>
   );
 }

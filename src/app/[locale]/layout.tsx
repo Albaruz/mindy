@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { THEME_STORAGE_KEY } from "@/constants/storage";
@@ -53,11 +54,9 @@ export default async function LocaleLayout({
       data-scroll-behavior="smooth"
     >
       <body suppressHydrationWarning>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var m=localStorage.getItem('${THEME_STORAGE_KEY}');if(m==='light'||m==='dark'){document.documentElement.setAttribute('data-theme',m);}}catch(e){}})();`,
-          }}
-        />
+        <Script id="theme-preference" strategy="beforeInteractive">
+          {`(function(){try{var m=localStorage.getItem('${THEME_STORAGE_KEY}');if(m==='light'||m==='dark'){document.documentElement.setAttribute('data-theme',m);}}catch(e){}})();`}
+        </Script>
         <NextIntlClientProvider messages={messages}>
           <a href="#main-content" className="skip-link">
             {skipLabel}

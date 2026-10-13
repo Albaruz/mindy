@@ -33,4 +33,18 @@ describe("useDialogFocus", () => {
     fireEvent.keyDown(document, { key: "Enter" });
     expect(onClose).not.toHaveBeenCalled();
   });
+
+  it("locks page scrolling while the dialog is open and restores it on unmount", () => {
+    document.documentElement.style.overflow = "scroll";
+    document.body.style.overflow = "auto";
+    const { unmount } = render(<Harness onClose={() => {}} />);
+
+    expect(document.documentElement.style.overflow).toBe("hidden");
+    expect(document.body.style.overflow).toBe("hidden");
+
+    unmount();
+
+    expect(document.documentElement.style.overflow).toBe("scroll");
+    expect(document.body.style.overflow).toBe("auto");
+  });
 });

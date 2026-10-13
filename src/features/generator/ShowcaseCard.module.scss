@@ -96,7 +96,7 @@
   text-wrap: balance;
 }
 
-@media (max-width: 40rem) {
+@container look-showcase (max-width: 40rem) {
   .showcaseCard {
     padding: var(--space-3);
   }

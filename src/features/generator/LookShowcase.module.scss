@@ -13,6 +13,8 @@
   padding: var(--space-4);
   // Clearance so the last card never hides behind the floating bar.
   padding-bottom: calc(var(--tabbar-height) + var(--space-10));
+  container-type: inline-size;
+  container-name: look-showcase;
 }
 
 .lookShowcase__editLink {

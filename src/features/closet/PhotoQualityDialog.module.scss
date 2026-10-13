@@ -1,13 +1,17 @@
 .photoQuality__overlay {
   position: fixed;
   inset: 0;
-  z-index: var(--z-modal-backdrop);
+  z-index: var(--z-modalBackdrop);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--space-4);
   background: var(--confirmdialog-overlay);
   animation: fade-in var(--duration-fast) var(--ease-out);
+  overflow: hidden;
+  overscroll-behavior: contain;
+  container-type: inline-size;
+  container-name: photo-quality-overlay;
 }
 
 .photoQuality__dialog {
@@ -18,7 +22,7 @@
   width: 100%;
   max-width: 34rem;
   max-height: calc(100dvh - var(--space-8));
-  overflow: hidden auto;
+  overflow: hidden;
   color: var(--color-foreground);
   background: var(--confirmdialog-bg);
   border: 1px solid var(--color-border);
@@ -82,8 +86,11 @@
 
 .photoQuality__body {
   display: grid;
+  flex: 1 1 auto;
   gap: var(--space-4);
+  min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: var(--space-5) var(--space-6);
 }
 
@@ -174,7 +181,7 @@
   text-underline-offset: 0.2em;
 }
 
-@media (max-width: 40rem) {
+@container photo-quality-overlay (max-width: 40rem) {
   .photoQuality__header {
     padding: var(--space-4);
   }

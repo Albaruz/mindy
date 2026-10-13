@@ -5,13 +5,17 @@
 .confirmDialog__overlay {
   position: fixed;
   inset: 0;
-  z-index: var(--z-modal-backdrop);
+  z-index: var(--z-modalBackdrop);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--space-4);
   background: var(--confirmdialog-overlay);
   animation: fade-in var(--duration-fast) var(--ease-out);
+  overflow: hidden;
+  overscroll-behavior: contain;
+  container-type: inline-size;
+  container-name: confirm-dialog-overlay;
 }
 
 .confirmDialog__container {
@@ -19,6 +23,9 @@
   z-index: var(--z-modal);
   width: 100%;
   max-width: var(--confirmdialog-max-width);
+  max-height: calc(100dvh - (var(--space-4) * 2));
+  display: flex;
+  flex-direction: column;
   background: var(--confirmdialog-bg);
   border-radius: var(--confirmdialog-radius);
   box-shadow: var(--shadow-xl);
@@ -26,7 +33,7 @@
   overflow: hidden;
 }
 
-@media (max-width: 40rem) {
+@container confirm-dialog-overlay (max-width: 40rem) {
   .confirmDialog__container {
     max-width: calc(100% - var(--space-4));
     border-radius: var(--radius-lg);
@@ -53,6 +60,10 @@
 }
 
 .confirmDialog__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: var(--confirmdialog-padding);
 }
 
@@ -84,7 +95,7 @@
   flex-wrap: wrap;
 }
 
-@media (max-width: 40rem) {
+@container confirm-dialog-overlay (max-width: 40rem) {
   .confirmDialog__footer {
     padding: var(--space-3) var(--space-4);
   }

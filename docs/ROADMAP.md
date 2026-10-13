@@ -298,7 +298,8 @@ All core features are live and production-ready. This roadmap outlines improveme
 ```
 Oct 2026 (Sprint 7)
   - ✅ MVP Deployed
-  - 🔄 a11y Audit + Visual Regression
+  - 🔄 a11y Audit
+  - ✅ Visual Regression
   - 🔄 Rain → Material Filtering
 
 Nov 2026 (Sprint 8)

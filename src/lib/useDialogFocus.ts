@@ -2,17 +2,41 @@
 
 import { useEffect, useRef } from "react";
 
+let scrollLockCount = 0;
+let previousDocumentOverflow = "";
+let previousBodyOverflow = "";
+
+function lockPageScroll() {
+  if (scrollLockCount === 0) {
+    previousDocumentOverflow = document.documentElement.style.overflow;
+    previousBodyOverflow = document.body.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+  }
+  scrollLockCount += 1;
+
+  return () => {
+    scrollLockCount -= 1;
+    if (scrollLockCount === 0) {
+      document.documentElement.style.overflow = previousDocumentOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+    }
+  };
+}
+
 // Accessible modal focus management (WCAG 2.1.1, 2.4.3):
 // - moves focus into the dialog on mount
 // - traps Tab inside the dialog
 // - closes on Escape
 // - restores focus to the previously focused element on unmount
+// - locks document scrolling while one or more dialogs are open
 export function useDialogFocus<T extends HTMLElement>(onClose: () => void) {
   const dialogRef = useRef<T | null>(null);
   const previousFocusRef = useRef<Element | null>(null);
 
   useEffect(() => {
     previousFocusRef.current = document.activeElement;
+    const unlockPageScroll = lockPageScroll();
     const node = dialogRef.current;
     // Focus the dialog itself (tabIndex -1) or its first focusable child.
     const target =
@@ -53,6 +77,7 @@ export function useDialogFocus<T extends HTMLElement>(onClose: () => void) {
     document.addEventListener("keydown", handleKeyDown, true);
     return () => {
       document.removeEventListener("keydown", handleKeyDown, true);
+      unlockPageScroll();
       const previous = previousFocusRef.current as HTMLElement | null;
       previous?.focus?.();
     };
