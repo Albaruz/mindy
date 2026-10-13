@@ -1,70 +1,41 @@
 // ConfirmDialog Component Styles (CSS Module)
 // Uses global design tokens via CSS custom properties.
-// Pure CSS with BEM naming - no @use imports.
+// Extends shared dialog shell from @/styles/components/_dialog-shell.
 
+@use "@/styles/components/_dialog-shell" as dialog;
+
+// CSS custom properties for this component
+:root {
+  --confirmdialog-overlay: var(--dialog-overlay, rgba(0, 0, 0, 0.5));
+  --confirmdialog-bg: var(--dialog-bg, var(--color-surface));
+  --confirmdialog-max-width: var(--dialog-max-width, 28rem);
+  --confirmdialog-radius: var(--dialog-radius, var(--radius-xl));
+  --confirmdialog-padding: var(--dialog-padding, var(--space-5) var(--space-6));
+  --confirmdialog-overlay: var(--dialog-overlay);
+  --confirmdialog-bg: var(--dialog-bg);
+}
+
+// Extend shared shell classes
 .confirmDialog__overlay {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-modalBackdrop);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-4);
-  background: var(--confirmdialog-overlay);
-  animation: fade-in var(--duration-fast) var(--ease-out);
-  overflow: hidden;
-  overscroll-behavior: contain;
-  container-type: inline-size;
+  @extend dialog.dialog-overlay;
   container-name: confirm-dialog-overlay;
 }
 
 .confirmDialog__container {
-  position: relative;
-  z-index: var(--z-modal);
-  width: 100%;
-  max-width: var(--confirmdialog-max-width);
-  max-height: calc(100dvh - (var(--space-4) * 2));
-  display: flex;
-  flex-direction: column;
-  background: var(--confirmdialog-bg);
-  border-radius: var(--confirmdialog-radius);
-  box-shadow: var(--shadow-xl);
-  animation: scale-in var(--duration-normal) var(--ease-spring);
-  overflow: hidden;
-}
-
-@container confirm-dialog-overlay (max-width: 40rem) {
-  .confirmDialog__container {
-    max-width: calc(100% - var(--space-4));
-    border-radius: var(--radius-lg);
-  }
+  @extend dialog.dialog-container;
+  container-name: confirm-dialog-overlay;
 }
 
 .confirmDialog__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-4);
-  padding: var(--space-5) var(--space-6);
-  border-bottom: 1px solid var(--color-border);
+  @extend dialog.dialog-header;
 }
 
 .confirmDialog__title {
-  margin: 0;
-  font-family: var(--font-family-display);
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: var(--letter-spacing-tight);
-  line-height: var(--line-height-tight);
-  flex: 1;
+  @extend dialog.dialog-title;
 }
 
 .confirmDialog__body {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: var(--confirmdialog-padding);
+  @extend dialog.dialog-body;
 }
 
 .confirmDialog__body > *:first-child {
@@ -76,23 +47,11 @@
 }
 
 .confirmDialog__message {
-  margin: 0;
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-normal);
-  line-height: var(--line-height-base);
-  color: var(--color-foreground);
+  @extend dialog.dialog-message;
 }
 
 .confirmDialog__footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--space-6);
-  border-top: 1px solid var(--color-border);
-  background: color-mix(in srgb, var(--color-muted) 3%, transparent);
-  flex-wrap: wrap;
+  @extend dialog.dialog-footer;
 }
 
 @container confirm-dialog-overlay (max-width: 40rem) {
@@ -102,7 +61,5 @@
 }
 
 .confirmDialog__actions {
-  display: flex;
-  gap: var(--space-3);
-  flex-wrap: wrap;
+  @extend dialog.dialog-actions;
 }
