@@ -1,23 +1,18 @@
 // User profile types mirroring the public.profiles table.
 // Database uses snake_case; TypeScript uses camelCase properties.
 
-export type Colorimetry = "spring" | "summer" | "autumn" | "winter";
+import type {
+  ColorimetryValue,
+  LifestyleValue,
+  MorphologyValue,
+  PreferredFitValue,
+} from "@/constants/profile";
 
-export type Morphology =
-  | "triangle"
-  | "inverted_triangle"
-  | "hourglass"
-  | "rectangle"
-  | "oval";
-
-export type PreferredFit = "slim" | "regular" | "oversized" | "mixed";
-
-export type Lifestyle =
-  | "casual_daily"
-  | "corporate_office"
-  | "active_sports"
-  | "home_remote"
-  | "social_events";
+// Unions are derived from the constants arrays (single source of truth).
+export type Colorimetry = ColorimetryValue;
+export type Morphology = MorphologyValue;
+export type PreferredFit = PreferredFitValue;
+export type Lifestyle = LifestyleValue;
 
 export interface UserProfile {
   userId: string;
@@ -34,3 +29,4 @@ export interface UserProfile {
   extraPreferences: Record<string, unknown>;
   createdAt: string;
 }
+

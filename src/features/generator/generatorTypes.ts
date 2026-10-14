@@ -1,4 +1,5 @@
 import type { Garment } from "@/types/garment";
+import type { UserProfile } from "@/types/user";
 import type { AiLook, Category, LookStyle } from "./useGeneratorStore";
 
 // Generator domain types shared by the recommender hooks and views.
@@ -15,12 +16,11 @@ export const MOODS = [
 
 export type Mood = (typeof MOODS)[number];
 
-export interface RecommenderProfile {
-  colorimetry: string | null;
-  morphology: string | null;
-  preferredFit: string | null;
-  lifestyle: string | null;
-}
+// Minimized profile sent to the recommender (no body or contact data).
+export type RecommenderProfile = Pick<
+  UserProfile,
+  "colorimetry" | "morphology" | "preferredFit" | "lifestyle"
+>;
 
 export interface GenerateLooksInput {
   garments: Garment[];

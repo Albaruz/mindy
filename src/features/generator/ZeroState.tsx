@@ -4,7 +4,7 @@ import { Button } from "@/components/Button/Button";
 import { GREETING_MIN_DISPLAY_MS } from "@/constants/animations";
 import type { Colorimetry } from "@/types/user";
 import styles from "./ZeroState.module.scss";
-import type { WeatherInfo } from "./useWeatherQuery";
+import type { WeatherInfo } from "@/types/weather";
 import { isRainExpected, isRainyCondition } from "./useWeatherQuery";
 import {
   WeatherThreadIcon,

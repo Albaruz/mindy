@@ -7,7 +7,7 @@ import {
   resolveThreadKind,
   seasonAccent,
 } from "./WeatherThreadIcon";
-import type { WeatherInfo } from "./useWeatherQuery";
+import type { WeatherInfo } from "@/types/weather";
 
 function buildWeather(
   overrides: Partial<WeatherInfo> = {},

@@ -7,21 +7,9 @@ import {
 } from "@/constants/weather";
 import { GEOLOCATION_MAX_AGE_MS, GEOLOCATION_TIMEOUT_MS } from "@/constants/geo";
 import { buildWeatherUrl } from "@/constants/api";
+import type { WeatherInfo } from "@/types/weather";
 
 export const WEATHER_QUERY_KEY = QUERY_KEYS.weather;
-
-export interface WeatherInfo {
-  temperatureC: number;
-  condition: string | null;
-  city: string | null;
-  // Day summary (city-local today): min/max, worst expected condition.
-  dayLow: number | null;
-  dayHigh: number | null;
-  dayCondition: string | null;
-  // Precipitation probability (0-100) for the day, null if unknown.
-  rainProbability: number | null;
-  fallback: boolean;
-}
 
 // Outdoor conditions that call for an outerwear layer.
 export function isRainyCondition(condition: string | null | undefined): boolean {

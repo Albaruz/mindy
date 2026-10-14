@@ -1,5 +1,5 @@
 import type { Garment } from "@/types/garment";
-import type { CategoryFilter } from "@/components/FilterChips/FilterChips";
+import type { CategoryFilter } from "@/types/ui";
 import type { Category } from "@/features/generator/useGeneratorStore";
 import { categorizeGarment } from "@/features/generator/categorizeGarments";
 import { expandSearchQuery, normalizeSearchText } from "@/lib/taxonomy";

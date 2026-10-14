@@ -1,14 +1,9 @@
-import type {
-  Colorimetry,
-  Lifestyle,
-  Morphology,
-  PreferredFit,
-} from "@/types/user";
+import type { SaveProfileInput } from "@/constants/profileValidation";
 import type {
   FitChoice,
   JewelryPick,
   StyleTribe,
-} from "./onboardingStore";
+} from "@/constants/ui-config";
 import {
   inferColorimetry,
   inferMorphology,
@@ -27,25 +22,8 @@ export {
   mapFitToPreferredFit,
 };
 
-export interface WizardPayload {
+export interface WizardPayload extends SaveProfileInput {
   displayName: string;
-  skinTone: string;
-  eyeColor: string;
-  chestMeasurementCm: number;
-  waistMeasurementCm: number;
-  hipMeasurementCm: number;
-  colorimetry: Colorimetry;
-  morphology: Morphology;
-  preferredFit: PreferredFit;
-  lifestyle: Lifestyle;
-  extraPreferences: {
-    displayName: string;
-    section: string;
-    style: string;
-    jewelry: string;
-    thermostat: number;
-    forbiddenColors: string[];
-  };
 }
 
 export interface WizardAnswers {

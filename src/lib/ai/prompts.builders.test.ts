@@ -5,7 +5,7 @@ import { buildAnalysisSystemPromptV2 } from "./prompts/system/garmentAnalysis.v2
 import { buildOutfitSystemPrompt } from "./prompts/system/outfitStylist.v1";
 import { buildOutfitUserPayload } from "./prompts/user/outfitUserPayload";
 import type { ClimateInput, LockedGarmentSummary } from "./prompts/types";
-import { GARMENT_TYPE_VALUES } from "@/types/garment";
+import { GARMENT_TYPE_VALUES } from "@/constants/garment";
 
 const climate: ClimateInput = {
   temperatureC: 18,

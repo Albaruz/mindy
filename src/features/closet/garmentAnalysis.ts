@@ -7,7 +7,7 @@ import type {
   GarmentStyle,
   GarmentType,
 } from "@/types/garment";
-import { CUTOUT_DIFFICULTY_VALUES } from "@/types/garment";
+import { CUTOUT_DIFFICULTY_VALUES } from "@/constants/garment";
 import { ANALYZE_TIMEOUT_MS } from "@/constants/validation";
 import {
   normalizeGarmentColor,

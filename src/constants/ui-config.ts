@@ -62,30 +62,27 @@ export const FORBIDDEN_COLOR_OPTIONS: readonly string[] = [
 // Onboarding Wizard — Shop Section, Style Tribe, Fit Choice
 // ============================================================================
 
-export type ShopSection = "women" | "men" | "unisex";
-
-export const SHOP_SECTIONS: readonly ShopSection[] = [
-  "women",
+export const SHOP_SECTIONS = [  "women",
   "men",
   "unisex",
-];
+] as const;
 
-export type StyleTribe = "minimalist" | "streetwear" | "classic" | "boho";
+export type ShopSection = (typeof SHOP_SECTIONS)[number];
 
-export const STYLE_TRIBES: readonly StyleTribe[] = [
-  "minimalist",
+export const STYLE_TRIBES = [  "minimalist",
   "streetwear",
   "classic",
   "boho",
-];
+] as const;
 
-export type FitChoice = "oversized" | "regular" | "fitted";
+export type StyleTribe = (typeof STYLE_TRIBES)[number];
 
-export const FIT_CHOICES: readonly FitChoice[] = [
-  "oversized",
+export const FIT_CHOICES = [  "oversized",
   "regular",
   "fitted",
-];
+] as const;
+
+export type FitChoice = (typeof FIT_CHOICES)[number];
 
 export type JewelryPick = "gold" | "silver";
 

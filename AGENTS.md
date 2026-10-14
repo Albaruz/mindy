@@ -27,7 +27,8 @@ Follow the existing **Feature-Driven** structure:
 | Module | Domain | Example exports |
 |--------|--------|-----------------|
 | `ai.ts` | LLM engine config | `AI_MODEL`, `AI_TIMEOUT_MS`, `AI_TEMPERATURE`, `VISION_*` |
-| `profile.ts` | Profile/onboarding enums | `SKIN_TONES`, `EYE_COLORS`, `SEASON_PALETTES`, `inferColorimetry` |
+| `profile.ts` | Profile/onboarding enums | `SKIN_TONES`, `EYE_COLORS`, `COLORIMETRIES`, `MORPHOLOGIES`, `SEASON_PALETTES`, `inferColorimetry` |
+| `garment.ts` | Garment tag vocabularies | `GARMENT_TYPE_VALUES`, `GARMENT_COLOR_VALUES`, `CUTOUT_DIFFICULTY_VALUES` |
 | `ui-config.ts` | UI config & minimal tokens | `MEASURE_MIN/MAX_CM`, `FORBIDDEN_COLOR_OPTIONS`, `SHOP_SECTIONS`, `breakpoints` |
 | `validation.ts` | Input validation rules | `PASSWORD_MIN_LENGTH`, `DISPLAY_NAME_MIN/MAX`, `TAG_KEY/VALUE_MAX`, `MEASUREMENT_MIN/MAX_CM` |
 | `generator.ts` | Generator business caps | `MAX_LOOK_OPTIONS`, `MAX_DISCARD_COUNT`, `CAROUSEL_LOOP_MIN_SLIDES` |

@@ -3,6 +3,7 @@
 
 import type { Garment, GarmentColor, GarmentType } from "@/types/garment";
 import type { UserProfile } from "@/types/user";
+import type { WeatherInfo } from "@/types/weather";
 
 // Structural profile accepted by the prompt builders. A full UserProfile is
 // assignable; the API layer may pass the minimized recommender profile
@@ -19,13 +20,11 @@ export interface StylistProfile {
 
 export type PromptProfile = UserProfile | StylistProfile | null;
 
-export interface ClimateInput {
-  temperatureC: number;
-  condition?: string | null;
-  dayLow?: number | null;
-  dayHigh?: number | null;
-  rainProbability?: number | null;
-}
+// Looser than WeatherInfo: only the temperature is mandatory.
+export type ClimateInput = Pick<WeatherInfo, "temperatureC"> &
+  Partial<
+    Pick<WeatherInfo, "condition" | "dayLow" | "dayHigh" | "rainProbability">
+  >;
 
 // Minimized locked garment for the prompt. A summary (not the full Garment)
 // keeps unvalidated request payloads out of the prompt and the token count

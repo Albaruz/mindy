@@ -9,7 +9,7 @@ import {
   GARMENT_SEASON_VALUES,
   GARMENT_STYLE_VALUES,
   GARMENT_TYPE_VALUES,
-} from "@/types/garment";
+} from "@/constants/garment";
 
 // Closed vocabularies: the model must pick from these lists only.
 // garmentType uses macro categories; the specific name (sneakers,

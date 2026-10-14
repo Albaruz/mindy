@@ -12,10 +12,8 @@ import { SegmentedControl } from "@/components/SegmentedControl/SegmentedControl
 import { CelebrationBurst } from "@/components/BottomActionBar/BottomActionBar";
 import { ProcessingOverlay } from "@/components/ProcessingOverlay/ProcessingOverlay";
 import { SearchBar } from "@/components/SearchBar/SearchBar";
-import {
-  FilterChips,
-  type CategoryFilter,
-} from "@/components/FilterChips/FilterChips";
+import { FilterChips } from "@/components/FilterChips/FilterChips";
+import type { CategoryFilter } from "@/types/ui";
 import type { Garment } from "@/types/garment";
 import { useClosetQuery } from "@/features/closet/useClosetQuery";
 import {

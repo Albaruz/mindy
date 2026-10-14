@@ -16,6 +16,7 @@ import { MAX_LOOK_OPTIONS } from "@/constants/generator";
 import { DEFAULT_TEMPERATURE_C } from "@/constants/weather";
 import { GEOLOCATION_MAX_AGE_MS, GEOLOCATION_TIMEOUT_MS } from "@/constants/geo";
 import { buildWeatherUrl } from "@/constants/api";
+import type { WeatherInfo } from "@/types/weather";
 import type { Mood, GenerateLooksInput, GenerateLooksResult } from "./generatorTypes";
 import { buildCandidates } from "./generatorCandidates";
 import { callRecommender, buildRecommenderGarments, type RecommenderRequest } from "./generatorApi";
@@ -43,13 +44,10 @@ export class InsufficientStyleGarmentsError extends Error {
   }
 }
 
-interface Climate {
-  temperatureC: number;
-  condition: string | null;
-  dayLow: number | null;
-  dayHigh: number | null;
-  rainProbability: number | null;
-}
+type Climate = Pick<
+  WeatherInfo,
+  "temperatureC" | "condition" | "dayLow" | "dayHigh" | "rainProbability"
+>;
 
 const DEFAULT_CLIMATE: Climate = {
   temperatureC: DEFAULT_TEMPERATURE_C,

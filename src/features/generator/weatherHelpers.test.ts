@@ -3,8 +3,8 @@ import {
   isRainExpected,
   isRainyCondition,
   shouldShowOuterwear,
-  type WeatherInfo,
 } from "./useWeatherQuery";
+import type { WeatherInfo } from "@/types/weather";
 
 function buildWeather(overrides: Partial<WeatherInfo> = {}): WeatherInfo {
   return {

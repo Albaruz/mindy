@@ -9,7 +9,7 @@ import {
   GARMENT_SEASON_VALUES,
   GARMENT_STYLE_VALUES,
   GARMENT_TYPE_VALUES,
-} from "@/types/garment";
+} from "@/constants/garment";
 
 export function buildAnalysisSystemPromptV2(locale: "en" | "es" = "en"): string {
   const responseLanguage = locale === "es" ? "Spanish" : "English";

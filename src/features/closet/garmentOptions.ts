@@ -1,5 +1,5 @@
 // Closed vocabularies for garments. The const arrays live in
-// types/garment.ts (single source of truth); this module adds UI data
+// constants/garment.ts (single source of truth); this module adds UI data
 // (swatches, labels) and normalization from free/AI text to the closed
 // base + extra_tags detail.
 import {
@@ -9,12 +9,14 @@ import {
   GARMENT_SEASON_VALUES,
   GARMENT_STYLE_VALUES,
   GARMENT_TYPE_VALUES,
-  type GarmentColor,
-  type GarmentCut,
-  type GarmentMaterial,
-  type GarmentSeason,
-  type GarmentStyle,
-  type GarmentType,
+} from "@/constants/garment";
+import type {
+  GarmentColor,
+  GarmentCut,
+  GarmentMaterial,
+  GarmentSeason,
+  GarmentStyle,
+  GarmentType,
 } from "@/types/garment";
 
 export {

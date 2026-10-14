@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { FilterChips, CATEGORY_FILTERS } from "./FilterChips";
-import type { CategoryFilter } from "./FilterChips";
+import type { CategoryFilter } from "@/types/ui";
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,

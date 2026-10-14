@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils";
 import {
   THEME_MODES,
   useThemeStore,
-  type ThemeMode,
 } from "@/features/settings/themeStore";
+import type { ThemeMode } from "@/types/ui";
 import { routing, type AppLocale } from "@/i18n/routing";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import styles from "./SettingsControls.module.scss";

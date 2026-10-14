@@ -7,9 +7,7 @@ import {
   NOTIFICATION_DURATION_MS,
   NOTIFICATION_EXIT_MS,
 } from "@/constants/animations";
-import {
-  type NotificationType,
-} from "@/features/ui/useNotificationStore";
+import type { NotificationType } from "@/types/ui";
 import styles from "./NotificationBubble.module.scss";
 
 const ICONS = {

@@ -1,15 +1,7 @@
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import styles from "./FilterChips.module.scss";
-
-// Stable filter keys: labels translate, keys drive the taxonomy prefilter
-// (see searchGarments). Never use display text as filter state.
-export type CategoryFilter =
-  | "all"
-  | "tops"
-  | "bottoms"
-  | "shoes"
-  | "outerwear";
+import type { CategoryFilter } from "@/types/ui";
 
 export const CATEGORY_FILTERS: readonly CategoryFilter[] = [
   "all",

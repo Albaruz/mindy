@@ -104,26 +104,26 @@ src/
 │   │   └── ...
 │   └── index.ts
 │
-├── constants/                   # SSOT - Single Source of Truth (11 modules)
+├── constants/                   # SSOT: values only (closed vocabularies as `as const` arrays)
 │   ├── ai.ts                   # AI-related (prompts config, timeouts)
 │   ├── api.ts                  # API rate limits, timeouts
 │   ├── weather.ts              # Weather thresholds (HEAT, COLD, RAIN)
 │   ├── generator.ts            # Generator constants (MAX_DISCARD_COUNT, etc)
-│   ├── profile.ts              # Profile defaults, gender, etc
-│   ├── ui-config.ts            # UI constants (TOTAL_STEPS, NOTIFICATION_DURATION_MS)
+│   ├── garment.ts              # Garment tag vocabularies (GARMENT_*_VALUES)
+│   ├── profile.ts              # Profile enums (COLORIMETRIES, MORPHOLOGIES, ...) + inference
+│   ├── ui-config.ts            # UI constants (SHOP_SECTIONS, STYLE_TRIBES, TOTAL_STEPS, ...)
 │   ├── validation.ts           # Input validation rules
 │   ├── animations.ts           # Animation durations, easings
 │   ├── query.ts                # TanStack Query config
 │   ├── geo.ts                  # Geolocation settings
-│   ├── storage.ts              # LocalStorage & IndexedDB keys
-│   └── index.ts
+│   └── storage.ts              # LocalStorage & IndexedDB keys
 │
-├── types/                       # TypeScript interfaces
-│   ├── garment.ts
-│   ├── profile.ts
-│   ├── look.ts
-│   ├── ai.ts
-│   └── index.ts
+├── types/                       # Shared TypeScript types (derived from constants where possible)
+│   ├── garment.ts              # Garment, GarmentType, ... (unions derived from constants/garment)
+│   ├── user.ts                 # UserProfile, Colorimetry, ... (unions derived from constants/profile)
+│   ├── history.ts
+│   ├── weather.ts              # WeatherInfo
+│   └── ui.ts                   # ThemeMode, NotificationType, CategoryFilter
 │
 └── styles/
     ├── tokens/                  # JSON definitions (generated from here)

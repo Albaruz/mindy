@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { Garment } from "@/types/garment";
 import type { UserProfile } from "@/types/user";
-import type { WeatherInfo } from "./useWeatherQuery";
+import type { WeatherInfo } from "@/types/weather";
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,

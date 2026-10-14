@@ -24,7 +24,7 @@ import {
   GARMENT_STYLE_VALUES,
   GARMENT_TYPE_VALUES,
   CUTOUT_DIFFICULTY_VALUES,
-} from "@/types/garment";
+} from "@/constants/garment";
 import { logger, generateRequestId } from "@/lib/logger";
 
 function readClosedText(

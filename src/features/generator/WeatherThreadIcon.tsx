@@ -2,7 +2,8 @@
 
 import { MotionConfig, motion, useReducedMotion } from "framer-motion";
 import type { Colorimetry } from "@/types/user";
-import { isRainExpected, type WeatherInfo } from "./useWeatherQuery";
+import { isRainExpected } from "./useWeatherQuery";
+import type { WeatherInfo } from "@/types/weather";
 import styles from "./WeatherThreadIcon.module.scss";
 
 // Animated single-thread weather icons echoing the Mindy logo metaphor.

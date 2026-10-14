@@ -31,7 +31,7 @@ before review, docs updated every phase, `typecheck` + `eslint` + `vitest`
 | Phase | Scope | Status |
 |---|---|---|
 | 0 | Bug fixes + leftovers of the earlier cleanup | Done, pending review |
-| 1 | Types: `src/types/*`, single source for unions, strict types | Pending |
+| 1 | Types: `src/types/*`, single source for unions, strict types | Done, pending review |
 | 2 | Helpers: route guards, session, readers, laundry predicates, geo, dates | Pending |
 | 3 | Components: `QueryState`, `GarmentImage`, `FormField`/`SubmitButton`, `AuthCard`, `Dialog` | Pending |
 | 4 | CSS: global semantic classes, dead mixin/keyframe removal, tokens, hard-coded values | Pending |

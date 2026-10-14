@@ -12,7 +12,6 @@
 // They MUST be kept in sync with the CSS custom properties in src/styles/core/_tokens.scss.
 // Consider using the CSS variable helpers (skinToneToCssVar, etc.) for new code.
 
-import type { Colorimetry, Lifestyle, Morphology, PreferredFit } from "@/types/user";
 import type { FitChoice, JewelryPick, StyleTribe } from "./ui-config";
 
 // ============================================================================
@@ -60,6 +59,27 @@ export const PREFERRED_FITS = [
 ] as const;
 
 export type PreferredFitValue = (typeof PREFERRED_FITS)[number];
+
+/** Valid colorimetry seasons (matches DB CHECK constraint) */
+export const COLORIMETRIES = [
+  "spring",
+  "summer",
+  "autumn",
+  "winter",
+] as const;
+
+export type ColorimetryValue = (typeof COLORIMETRIES)[number];
+
+/** Valid body morphologies (matches DB CHECK constraint) */
+export const MORPHOLOGIES = [
+  "triangle",
+  "inverted_triangle",
+  "hourglass",
+  "rectangle",
+  "oval",
+] as const;
+
+export type MorphologyValue = (typeof MORPHOLOGIES)[number];
 
 export const LIFESTYLES = [
   "casual_daily",
@@ -109,7 +129,7 @@ export const HAIR_COLOR_SWATCHES: Record<HairColor, string> = {
 // MUST stay in sync with CSS custom properties in _tokens.scss
 // ============================================================================
 
-export const SEASON_PALETTES: Record<Colorimetry, readonly string[]> = {
+export const SEASON_PALETTES: Record<ColorimetryValue, readonly string[]> = {
   spring: ["#f6d8a8", "#f2b880", "#e88ca0", "#9cbe8f", "#7fb3b0"],
   summer: ["#c9d4e0", "#a8b8c8", "#d8a7b1", "#b5c4b1", "#8fa3bf"],
   autumn: ["#c87966", "#a65a3a", "#d9a441", "#6b7f3e", "#5a3b2e"],
@@ -138,7 +158,7 @@ export function hairColorToCssVar(hairColor: HairColor): string {
 }
 
 /** Maps Colorimetry season to array of CSS custom property names for the 5 swatches */
-export function seasonToCssVars(season: Colorimetry): readonly string[] {
+export function seasonToCssVars(season: ColorimetryValue): readonly string[] {
   return [
     `--season-${season}-1`,
     `--season-${season}-2`,
@@ -155,7 +175,7 @@ export function getColorFromCssVar(varName: string): string {
 }
 
 /** Gets all 5 season swatches as computed colors (client-side only) */
-export function getSeasonSwatches(season: Colorimetry): string[] {
+export function getSeasonSwatches(season: ColorimetryValue): string[] {
   if (typeof window === "undefined") return [];
   return seasonToCssVars(season).map(getColorFromCssVar);
 }
@@ -166,7 +186,6 @@ export function getSeasonSwatches(season: Colorimetry): string[] {
 // ============================================================================
 
 // Types re-exported from ui-config for backward compatibility
-export type { FitChoice, JewelryPick, StyleTribe };
 
 /** Deep skin tones that push warm→autumn, cool→winter */
 const DEEP_SKIN_TONES: readonly SkinTone[] = ["medium", "olive", "brown", "deep"];
@@ -181,7 +200,7 @@ const DEEP_SKIN_TONES: readonly SkinTone[] = ["medium", "olive", "brown", "deep"
 export function inferColorimetry(
   skinTone: string,
   jewelry: JewelryPick | "",
-): Colorimetry {
+): ColorimetryValue {
   const deepSkin = DEEP_SKIN_TONES.includes(skinTone.toLowerCase() as SkinTone);
   if (jewelry === "gold") {
     return deepSkin ? "autumn" : "spring";
@@ -197,7 +216,7 @@ export function inferMorphology(
   chestCm: number,
   waistCm: number,
   hipCm: number,
-): Morphology {
+): MorphologyValue {
   if (hipCm - chestCm > 3) {
     return "triangle";
   }
@@ -214,7 +233,7 @@ export function inferMorphology(
 }
 
 /** Maps StyleTribe (wizard) → Lifestyle (profile) */
-export function mapStyleToLifestyle(style: StyleTribe): Lifestyle {
+export function mapStyleToLifestyle(style: StyleTribe): LifestyleValue {
   switch (style) {
     case "minimalist":
       return "casual_daily";
@@ -228,7 +247,7 @@ export function mapStyleToLifestyle(style: StyleTribe): Lifestyle {
 }
 
 /** Maps FitChoice (wizard) → PreferredFit (profile) */
-export function mapFitToPreferredFit(fit: FitChoice): PreferredFit {
+export function mapFitToPreferredFit(fit: FitChoice): PreferredFitValue {
   switch (fit) {
     case "fitted":
       return "slim";

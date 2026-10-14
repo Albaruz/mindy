@@ -23,12 +23,6 @@ import {
 // they travel inside extra_preferences (see onboardingInference).
 // Types and constants re-exported from centralized config for backward compatibility.
 
-export type {
-  ShopSection,
-  StyleTribe,
-  FitChoice,
-  JewelryPick,
-};
 export {
   SHOP_SECTIONS,
   STYLE_TRIBES,

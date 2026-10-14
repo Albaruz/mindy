@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { NOTIFICATION_DURATION_MS } from "@/constants/animations";
+import type { NotificationType } from "@/types/ui";
 
-export type NotificationType = "success" | "error" | "info";
 
 export interface Notification {
   id: string;

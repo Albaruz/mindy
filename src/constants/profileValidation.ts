@@ -4,43 +4,28 @@
  * Mirrors database CHECK constraints.
  */
 
-import type { Colorimetry, Lifestyle, Morphology, PreferredFit } from "@/types/user";
 import {
+  COLORIMETRIES,
+  MORPHOLOGIES,
   SKIN_TONES,
   EYE_COLORS,
   PREFERRED_FITS,
   LIFESTYLES,
 } from "@/constants/profile";
-import { FORBIDDEN_COLOR_OPTIONS } from "@/constants/ui-config";
+import {
+  FORBIDDEN_COLOR_OPTIONS,
+  SHOP_SECTIONS,
+  STYLE_TRIBES,
+  type ShopSection,
+  type StyleTribe,
+} from "@/constants/ui-config";
+import type { Colorimetry, Lifestyle, Morphology, PreferredFit } from "@/types/user";
 import {
   DISPLAY_NAME_MAX_LENGTH,
   DISPLAY_NAME_MIN_LENGTH,
   MEASUREMENT_MAX_CM,
   MEASUREMENT_MIN_CM,
 } from "@/constants/validation";
-
-/** Valid colorimetry seasons (matches DB CHECK constraint) */
-export const COLORIMETRIES: readonly Colorimetry[] = [
-  "spring",
-  "summer",
-  "autumn",
-  "winter",
-] as const;
-
-/** Valid body morphologies (matches DB CHECK constraint) */
-export const MORPHOLOGIES: readonly Morphology[] = [
-  "triangle",
-  "inverted_triangle",
-  "hourglass",
-  "rectangle",
-  "oval",
-] as const;
-
-/** Valid shopping sections (wizard step 1) */
-export const SECTIONS = ["women", "men", "unisex"] as const;
-
-/** Valid style tribes (wizard step 2) */
-export const STYLES = ["minimalist", "streetwear", "classic", "boho"] as const;
 
 /** Thermal range (wizard step 5) */
 export { THERMAL_MIN, THERMAL_MAX } from "@/constants/ui-config";
@@ -107,15 +92,15 @@ export function isValidForbiddenColors(value: unknown): value is string[] {
 /**
  * Validates a section value.
  */
-export function isValidSection(value: unknown): value is (typeof SECTIONS)[number] {
-  return isOneOf(value, SECTIONS);
+export function isValidSection(value: unknown): value is ShopSection {
+  return isOneOf(value, SHOP_SECTIONS);
 }
 
 /**
  * Validates a style tribe value.
  */
-export function isValidStyle(value: unknown): value is (typeof STYLES)[number] {
-  return isOneOf(value, STYLES);
+export function isValidStyle(value: unknown): value is StyleTribe {
+  return isOneOf(value, STYLE_TRIBES);
 }
 
 /**
