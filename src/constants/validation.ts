@@ -50,5 +50,14 @@ export const MAX_IMAGE_DATA_CHARS = 7_000_000;
 /** Cap expensive client-side image processing while preserving garment detail. */
 export const MAX_IMAGE_PROCESSING_DIMENSION_PX = 1024;
 
+/** Maximum upload payload accepted by the closet flow (10 MB). */
+export const MAX_UPLOAD_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+
+/** Storage width for uploaded garment photos (light files, sharp cards). */
+export const GARMENT_UPLOAD_WIDTH_PX = 300;
+
+/** Vision analysis request timeout (slow networks still get an answer). */
+export const ANALYZE_TIMEOUT_MS = 30_000;
+
 /** Required data-URL prefix for uploaded images. */
 export const IMAGE_DATA_URL_PREFIX = "data:image/";
