@@ -28,7 +28,7 @@
 }
 
 .photo-quality__title {
-  @media (max-width: 40rem) {
+  @container dialog-shell-overlay (max-width: 40rem) {
     font-size: var(--font-size-xl);
   }
 }

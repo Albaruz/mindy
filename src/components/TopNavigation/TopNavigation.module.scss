@@ -108,8 +108,10 @@
   color: var(--navigation-text-active);
 }
 
-/* Very small screens: icon-only */
-@media (max-width: 26rem) {
+/* Tight header space: icon-only pill. Queries the app-header container
+   (not the viewport) so the pill collapses whenever its layout slot is
+   narrow, e.g. beside the logo on wrapped headers or in embedded contexts. */
+@container app-header (max-width: 26rem) {
   .navigation__label {
     position: absolute;
     width: 1px;

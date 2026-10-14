@@ -38,6 +38,8 @@
   min-width: 0;
 }
 
+// Viewport padding for the full-bleed header bar itself; the wrap/reorder
+// of nav content below responds to the app-header container instead.
 @media (max-width: 48rem) {
   .app-header__content {
     gap: var(--space-2);

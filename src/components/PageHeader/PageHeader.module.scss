@@ -20,6 +20,8 @@
   gap: var(--space-4);
 }
 
+// Full-width page block: viewport tracks the component width, so a
+// viewport query stays correct here (no narrower container ancestor).
 @media (max-width: 48rem) {
   .page-header--with-avatar {
     flex-direction: column;
