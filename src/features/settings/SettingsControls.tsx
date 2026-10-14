@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { Monitor, Moon, Sun } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { SegmentedControl } from "@/components/SegmentedControl/SegmentedControl";
 import {
   THEME_MODES,
   useThemeStore,
@@ -23,13 +23,9 @@ const THEME_META: Record<ThemeMode, { labelKey: string; Icon: typeof Sun }> = {
   dark: { labelKey: "themeDark", Icon: Moon },
 };
 
-// Segmented controls for language and theme, breathing flat on the parent
-// card (no nested boxes, no shadows). The active segment is a plain CSS
-// background with a color transition: no shared layout animations, so each
-// control animates on its own and never couples with other pills on screen
-// (e.g. the top navigation indicator on the profile route).
-// Language switches via locale-prefixed navigation (NEXT_LOCALE persists
-// on device); theme flips CSS variables instantly (no reload).
+// Language and theme switches on the shared SegmentedControl, flat on the
+// parent card. Language switches via locale-prefixed navigation (NEXT_LOCALE
+// persists on device); theme flips CSS variables instantly (no reload).
 export function SettingsControls() {
   const t = useTranslations("Settings");
   const locale = useLocale() as AppLocale;
@@ -53,31 +49,15 @@ export function SettingsControls() {
             {t("languageDescription")}
           </span>
         </legend>
-        <div
-          role="group"
-          aria-label={t("language")}
-          className={styles["settings-controls__segmented"]}
-        >
-          {routing.locales.map((option) => {
-            const selected = locale === option;
-            return (
-              <button
-                key={option}
-                type="button"
-                aria-pressed={selected}
-                onClick={() => handleLocaleChange(option)}
-                className={cn(
-                  styles["settings-controls__segment"],
-                  selected && styles["settings-controls__segment--active"],
-                )}
-              >
-                <span className={styles["settings-controls__segment-content"]}>
-                  {LANGUAGE_LABELS[option]}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        <SegmentedControl
+          label={t("language")}
+          value={locale}
+          onChange={handleLocaleChange}
+          options={routing.locales.map((option) => ({
+            value: option,
+            label: LANGUAGE_LABELS[option],
+          }))}
+        />
       </fieldset>
 
       <fieldset className={styles["settings-controls__group"]}>
@@ -87,37 +67,19 @@ export function SettingsControls() {
             {t("themeDescription")}
           </span>
         </legend>
-        <div
-          role="group"
-          aria-label={t("theme")}
-          className={styles["settings-controls__segmented"]}
-        >
-          {THEME_MODES.map((option) => {
+        <SegmentedControl
+          label={t("theme")}
+          value={themeMode}
+          onChange={setThemeMode}
+          options={THEME_MODES.map((option) => {
             const { labelKey, Icon } = THEME_META[option];
-            const selected = themeMode === option;
-            return (
-              <button
-                key={option}
-                type="button"
-                aria-pressed={selected}
-                onClick={() => setThemeMode(option)}
-                className={cn(
-                  styles["settings-controls__segment"],
-                  selected && styles["settings-controls__segment--active"],
-                )}
-              >
-                <span className={styles["settings-controls__segment-content"]}>
-                  <Icon
-                    aria-hidden="true"
-                    size={18}
-                    strokeWidth={1.5}
-                  />
-                  {t(labelKey)}
-                </span>
-              </button>
-            );
+            return {
+              value: option,
+              label: t(labelKey),
+              icon: <Icon aria-hidden="true" size={18} strokeWidth={1.5} />,
+            };
           })}
-        </div>
+        />
       </fieldset>
     </div>
   );

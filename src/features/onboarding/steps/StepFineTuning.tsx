@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
+import { ColorSwatches } from "@/components/ColorSwatches/ColorSwatches";
 import { OnboardingArt } from "@/features/onboarding/OnboardingArt";
 import {
   FORBIDDEN_COLOR_OPTIONS,
@@ -10,6 +10,11 @@ import {
 } from "@/constants/ui-config";
 import { useOnboardingStore } from "@/features/onboarding/onboardingStore";
 import styles from "../OnboardingWizard.module.scss";
+
+// Each forbidden color is its own swatch (hex in, hex out).
+const FORBIDDEN_COLOR_SWATCHES: Record<string, string> = Object.fromEntries(
+  FORBIDDEN_COLOR_OPTIONS.map((hex) => [hex, hex]),
+);
 
 // Step 5: thermal slider (1 = chilly, 5 = always warm) + veto color circles.
 export function StepFineTuning() {
@@ -54,41 +59,23 @@ export function StepFineTuning() {
         </p>
       </div>
 
-      <fieldset className={styles.fieldset}>
-        <legend>{t("forbiddenLabel")}</legend>
-        <div className={styles["veto-row"]}>
-          {FORBIDDEN_COLOR_OPTIONS.map((hex) => {
-            const vetoed = forbiddenColors.includes(hex);
-            return (
-              <label
-                key={hex}
-                title={hex}
-                className={cn(styles.veto, vetoed && styles["veto--vetoed"])}
-              >
-                <input
-                  type="checkbox"
-                  name="forbiddenColors"
-                  value={hex}
-                  checked={vetoed}
-                  onChange={() => toggleForbiddenColor(hex)}
-                  className={cn("visually-hidden", styles.radio)}
-                  aria-label={ta("vetoColor", { color: hex })}
-                />
-                <span
-                  aria-hidden="true"
-                  className={styles["veto-dot"]}
-                  style={{ backgroundColor: hex }}
-                />
-              </label>
-            );
-          })}
-        </div>
-        <p className={styles.subcopy}>
-          {forbiddenColors.length === 0
-            ? t("forbiddenNone")
-            : t("forbiddenCount", { count: forbiddenColors.length })}
-        </p>
-      </fieldset>
+      <ColorSwatches
+        multiple
+        name="forbiddenColors"
+        label={t("forbiddenLabel")}
+        options={FORBIDDEN_COLOR_OPTIONS}
+        swatches={FORBIDDEN_COLOR_SWATCHES}
+        values={forbiddenColors}
+        onToggle={toggleForbiddenColor}
+        formatOption={(hex) => ta("vetoColor", { color: hex })}
+        tone="danger"
+        hideNames
+      />
+      <p className={styles.subcopy}>
+        {forbiddenColors.length === 0
+          ? t("forbiddenNone")
+          : t("forbiddenCount", { count: forbiddenColors.length })}
+      </p>
     </>
   );
 }

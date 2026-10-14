@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { RadioSegments } from "@/components/RadioSegments/RadioSegments";
 import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
 import { OnboardingArt } from "@/features/onboarding/OnboardingArt";
 import {
   FIT_CHOICES,
@@ -90,30 +90,14 @@ export function StepMorphology() {
         />
       </div>
 
-      <fieldset className={styles.fieldset}>
-        <legend>{t("fitLabel")}</legend>
-        <div className={styles.segmented} role="radiogroup" aria-label={t("fitLabel")}>
-          {FIT_CHOICES.map((option) => (
-            <label
-              key={option}
-              className={cn(
-                styles["segment-option"],
-                fit === option && styles["segment-option--selected"],
-              )}
-            >
-              <input
-                type="radio"
-                name="fit"
-                value={option}
-                checked={fit === option}
-                onChange={() => setFit(option)}
-                className={cn("visually-hidden", styles.radio)}
-              />
-              <span>{t(`fits.${option}`)}</span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      <RadioSegments
+        name="fit"
+        label={t("fitLabel")}
+        options={FIT_CHOICES}
+        value={fit}
+        onSelect={setFit}
+        formatOption={(option) => t(`fits.${option}`)}
+      />
     </>
   );
 }

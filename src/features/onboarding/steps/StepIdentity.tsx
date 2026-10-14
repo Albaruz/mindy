@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { RadioSegments } from "@/components/RadioSegments/RadioSegments";
 import { OnboardingArt } from "@/features/onboarding/OnboardingArt";
 import {
   SHOP_SECTIONS,
@@ -33,30 +34,14 @@ export function StepIdentity() {
           : t("identityTitle")}
       </p>
 
-      <fieldset className={styles.fieldset}>
-        <legend>{t("sectionLabel")}</legend>
-        <div className={styles.segmented} role="radiogroup" aria-label={t("sectionLabel")}>
-          {SHOP_SECTIONS.map((option) => (
-            <label
-              key={option}
-              className={cn(
-                styles["segment-option"],
-                section === option && styles["segment-option--selected"],
-              )}
-            >
-              <input
-                type="radio"
-                name="section"
-                value={option}
-                checked={section === option}
-                onChange={() => setSection(option)}
-                className={cn("visually-hidden", styles.radio)}
-              />
-              <span>{t(`sections.${option}`)}</span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      <RadioSegments
+        name="section"
+        label={t("sectionLabel")}
+        options={SHOP_SECTIONS}
+        value={section}
+        onSelect={setSection}
+        formatOption={(option) => t(`sections.${option}`)}
+      />
 
       <fieldset className={styles.fieldset}>
         <legend>{t("styleLabel")}</legend>

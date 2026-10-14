@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Infinity as InfinityIcon, Leaf, Snowflake, Sun } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useGarmentTranslator } from "@/lib/translateGarment";
 import type {
   GarmentColor,
@@ -32,6 +31,7 @@ import {
   GARMENT_CUTS,
   GARMENT_MATERIALS,
   GARMENT_STYLES,
+  GARMENT_SEASONS,
   GARMENT_TYPES,
 } from "./garmentOptions";
 import styles from "./GarmentFormModal.module.scss";
@@ -156,32 +156,18 @@ export function GarmentFormModal({
             formatOption={(option) => translate(option, "type") ?? option}
           />
 
-          <fieldset className={styles["garment-form-modal__group"]}>
-            <legend>{t("form.season")}</legend>
-            <div className={styles["garment-form-modal__options"]} role="radiogroup" aria-label={t("form.season")}>
-              {(Object.keys(SEASON_ICONS) as GarmentSeason[]).map((option) => {
-                const Icon = SEASON_ICONS[option];
-                const selected = season === option;
-                return (
-                  <label
-                    key={option}
-                    className={cn(styles["garment-form-modal__option"], selected && styles["garment-form-modal__option--selected"])}
-                  >
-                    <input
-                      type="radio"
-                      name="season"
-                      value={option}
-                      checked={selected}
-                      onChange={() => setSeason(option)}
-                      className={cn("visually-hidden", styles["garment-form-modal__radio"])}
-                    />
-                    <Icon aria-hidden="true" size={18} />
-                    <span>{t(`form.seasons.${option}`)}</span>
-                  </label>
-                );
-              })}
-            </div>
-          </fieldset>
+          <OptionPills
+            name="season"
+            label={t("form.season")}
+            options={GARMENT_SEASONS}
+            value={season}
+            onSelect={setSeason}
+            formatOption={(option) => t(`form.seasons.${option}`)}
+            renderIcon={(option) => {
+              const Icon = SEASON_ICONS[option];
+              return <Icon aria-hidden="true" size={18} />;
+            }}
+          />
 
           <ColorSwatches
             name="color"

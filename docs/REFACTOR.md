@@ -173,3 +173,31 @@ before review, docs updated every phase, `typecheck` + `eslint` + `vitest`
   (decision 2) stay open. `profileValidation` / `inferColorimetry` are still in
   `constants/`: moving them is a pure rename with a wide blast radius and no
   structural payoff now that features no longer import each other.
+
+### ChoiceGroup analysis (Phase 3 leftover)
+Six hand-written choice pickers were compared. Result:
+- **Merged into `OptionPills`:** the season picker of `GarmentFormModal` was a
+  copy of the pill markup + styles with an icon. `OptionPills` now accepts
+  `renderIcon`; the modal uses it and lost ~45 lines of TSX and SCSS. The
+  season legend now matches the other fields of the form.
+- **Merged into `SegmentedControl`:** the language and theme switches of
+  `SettingsControls` re-implemented it (button + `aria-pressed`, track, accent
+  active segment). `SegmentedControl` options accept an `icon`; ~70 lines of
+  settings SCSS are gone. Visual drift to review: track background is the
+  surface color (was canvas) and the label font is the small size.
+- **New `RadioSegments`:** the two large equal-width radio questions of the
+  onboarding (shop section, fit) were duplicated markup. One component now
+  owns them (radio semantics, filled selection, 3.5rem touch target).
+- **`ColorSwatches` gained a multiple mode:** the onboarding veto circles
+  (forbidden colors) were a copy with checkboxes. `ColorSwatches` is now a
+  discriminated union: single (radios, `value`/`onSelect`, default) or
+  `multiple` (checkboxes, `values`/`onToggle`), plus `tone="danger"` and
+  `hideNames`. The veto cross (non-color cue) moved into the danger tone. About
+  60 lines of onboarding SCSS and markup are gone. Visual drift to review:
+  the dot border is 1px (was 2px) and the selected veto no longer scales up.
+- **Deliberately not merged:** the editorial style cards are a unique layout
+  animated by Framer Motion.
+- Not a single generic `ChoiceGroup`: the remaining components differ in
+  semantics (radio vs `aria-pressed` buttons), layout (wrap vs stretch) and
+  selected style (outline vs fill), so one component would need several
+  variant props. Each stays small and documents when to use it.

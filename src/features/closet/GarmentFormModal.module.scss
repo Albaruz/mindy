@@ -72,52 +72,6 @@
   }
 }
 
-// Quick-pick button groups (type, season, material, cut).
-.garment-form-modal__group {
-  padding: 0;
-  margin: 0 0 var(--space-3);
-  border: none;
-
-  legend {
-    padding: 0;
-    margin-bottom: var(--space-1);
-    font-size: var(--font-size-base);
-  }
-}
-
-.garment-form-modal__options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.garment-form-modal__option {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  min-height: var(--touch-target-min);
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-
-  &--selected {
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 1px var(--color-accent);
-  }
-}
-
-.garment-form-modal__radio {
-  &:focus-visible + span {
-    outline: var(--focus-ring-width) solid var(--focus-ring-color);
-    outline-offset: 2px;
-    border-radius: var(--radius-sm);
-  }
-}
-
 .garment-form-modal__error {
   margin: 0 0 var(--space-3);
   font-size: var(--font-size-base);

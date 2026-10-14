@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import styles from "./OptionPills.module.scss";
 
@@ -10,6 +11,8 @@ interface OptionPillsProps<T extends string> {
   value: T | "";
   onSelect: (value: T) => void;
   formatOption?: (value: T) => string;
+  // Optional decorative icon shown before each label (aria-hidden by the caller).
+  renderIcon?: (value: T) => ReactNode;
   // Hide the legend when a visible heading already labels the group
   // (kept for screen readers).
   hideLabel?: boolean;
@@ -24,6 +27,7 @@ export function OptionPills<T extends string>({
   value,
   onSelect,
   formatOption = (option) => option,
+  renderIcon,
   hideLabel = false,
 }: OptionPillsProps<T>) {
   return (
@@ -47,7 +51,10 @@ export function OptionPills<T extends string>({
                 onChange={() => onSelect(option)}
                 className={cn("visually-hidden", styles["option-pills__radio"])}
               />
-              <span>{formatOption(option)}</span>
+              <span className={styles["option-pills__label"]}>
+                {renderIcon?.(option)}
+                {formatOption(option)}
+              </span>
             </label>
           );
         })}

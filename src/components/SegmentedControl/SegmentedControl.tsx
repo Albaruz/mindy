@@ -1,11 +1,14 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import styles from "./SegmentedControl.module.scss";
 
 interface SegmentedOption<T extends string> {
   value: T;
   label: string;
+  // Optional decorative icon before the label (aria-hidden by the caller).
+  icon?: ReactNode;
 }
 
 interface SegmentedControlProps<T extends string> {
@@ -35,6 +38,7 @@ export function SegmentedControl<T extends string>({
             onClick={() => onChange(option.value)}
             className={cn(styles.segment, active && styles.active)}
           >
+            {option.icon}
             {option.label}
           </button>
         );

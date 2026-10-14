@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ColorSwatches } from "./ColorSwatches";
 
@@ -101,5 +101,50 @@ describe("ColorSwatches", () => {
       />,
     );
     expect(screen.getByRole("radio", { name: "RED" })).toBeInTheDocument();
+  });
+});
+
+describe("ColorSwatches multiple mode", () => {
+  const options = ["#111111", "#eeeeee"] as const;
+  const swatches = { "#111111": "#111111", "#eeeeee": "#eeeeee" };
+
+  it("renders checkboxes in a group and toggles values", () => {
+    const onToggle = vi.fn();
+    render(
+      <ColorSwatches
+        multiple
+        name="veto"
+        label="Forbidden"
+        options={options}
+        swatches={swatches}
+        values={["#111111"]}
+        onToggle={onToggle}
+        formatOption={(hex) => `veto ${hex}`}
+        tone="danger"
+        hideNames
+      />,
+    );
+    expect(screen.getByRole("group", { name: "Forbidden" })).toBeInTheDocument(); // the fieldset
+    expect(screen.getByRole("checkbox", { name: "veto #111111" })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "veto #eeeeee" })).not.toBeChecked();
+    fireEvent.click(screen.getByRole("checkbox", { name: "veto #eeeeee" }));
+    expect(onToggle).toHaveBeenCalledWith("#eeeeee");
+  });
+
+  it("hides the captions without losing the accessible name", () => {
+    const { container } = render(
+      <ColorSwatches
+        multiple
+        name="veto"
+        label="Forbidden"
+        options={options}
+        swatches={swatches}
+        values={[]}
+        onToggle={() => {}}
+        hideNames
+      />,
+    );
+    expect(container.querySelectorAll("[class*='color-swatches__name']")).toHaveLength(0);
+    expect(screen.getByRole("checkbox", { name: "#111111" })).toBeInTheDocument();
   });
 });

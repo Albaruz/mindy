@@ -35,7 +35,13 @@
   border-radius: var(--radius-sm);
 }
 
+// Caption-less circles pack tighter.
+.color-swatches__swatch--compact {
+  min-width: 0;
+}
+
 .color-swatches__dot {
+  position: relative;
   width: 2.75rem;
   height: 2.75rem;
   border: 1px solid var(--color-border);
@@ -51,6 +57,25 @@
 .color-swatches__swatch--selected .color-swatches__dot {
   border-color: var(--color-accent);
   box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-accent);
+}
+
+// Danger tone: the selection marks something to avoid (forbidden colors).
+.color-swatches__swatch--danger.color-swatches__swatch--selected .color-swatches__dot {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-error);
+}
+
+// A cross on top keeps the veto readable without relying on color alone.
+.color-swatches__swatch--danger.color-swatches__swatch--selected .color-swatches__dot::after {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-error);
+  content: "\2715";
 }
 
 .color-swatches__name {

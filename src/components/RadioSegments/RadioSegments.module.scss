@@ -1,0 +1,51 @@
+.radio-segments {
+  padding: 0;
+  margin: 0 0 1.25rem;
+  border: none;
+}
+
+.radio-segments__legend {
+  padding: 0;
+  margin-bottom: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-tab-inactive);
+}
+
+.radio-segments__options {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.radio-segments__option {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.5rem;
+  padding: 0.75rem 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-tab-inactive);
+  text-align: center;
+  cursor: pointer;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  transition:
+    border-color 0.18s ease,
+    color 0.18s ease,
+    background-color 0.18s ease;
+}
+
+.radio-segments__option--selected {
+  color: var(--color-oat);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.radio-segments__radio:focus-visible + span {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
