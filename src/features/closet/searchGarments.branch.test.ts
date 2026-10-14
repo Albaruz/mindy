@@ -113,6 +113,9 @@ describe("filterGarmentsBySearch branches", () => {
 describe("matchesGarmentCategory branches", () => {
   it("maps every chip to its slot", () => {
     expect(
+      matchesGarmentCategory(buildGarment({ garmentType: "top" }), "all"),
+    ).toBe(true);
+    expect(
       matchesGarmentCategory(buildGarment({ garmentType: "top" }), "tops"),
     ).toBe(true);
     expect(

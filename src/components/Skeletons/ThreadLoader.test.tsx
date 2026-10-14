@@ -11,9 +11,4 @@ describe("ThreadLoader", () => {
     expect(path).not.toBeNull();
     expect(path).toHaveAttribute("d", PATH);
   });
-
-  it("renders an svg canvas", () => {
-    const { container } = render(<ThreadLoader path={PATH} />);
-    expect(container.querySelector("svg")).toBeInTheDocument();
-  });
 });

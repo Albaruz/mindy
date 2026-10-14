@@ -102,10 +102,4 @@ describe("supabase server createClient", () => {
     ]);
     expect(mockSet).toHaveBeenCalledWith("sb-session", "abc", {});
   });
-
-  it("skips cookie round-trip coverage needing real Next.js cookies", () => {
-    // Report: Server Component read-only cookie errors and real
-    // request-scoped cookie persistence are not exercised here.
-    expect(true).toBe(true);
-  });
 });

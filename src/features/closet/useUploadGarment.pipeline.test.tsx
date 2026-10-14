@@ -105,6 +105,40 @@ function mockAnalyzeSuccess() {
   );
 }
 
+describe("useUploadGarment validation", () => {
+  beforeEach(() => {
+    useNotificationStore.setState({ notifications: [] });
+  });
+
+  it("rejects non-image files", async () => {
+    const { result } = renderHook(() => useUploadGarment(), {
+      wrapper: createWrapper(),
+    });
+    const file = new File(["hello"], "notes.txt", { type: "text/plain" });
+    await result.current.processPhoto(file);
+    await waitFor(() =>
+      expect(
+        useNotificationStore.getState().notifications,
+      ).toHaveLength(1),
+    );
+    expect(result.current.phase).toBe("idle");
+  });
+
+  it("rejects oversized files", async () => {
+    const { result } = renderHook(() => useUploadGarment(), {
+      wrapper: createWrapper(),
+    });
+    const big = new File(["x"], "big.png", { type: "image/png" });
+    Object.defineProperty(big, "size", { value: 11 * 1024 * 1024 });
+    await result.current.processPhoto(big);
+    await waitFor(() =>
+      expect(
+        useNotificationStore.getState().notifications,
+      ).toHaveLength(1),
+    );
+  });
+});
+
 describe("useUploadGarment pipeline", () => {
   beforeEach(() => {
     vi.resetAllMocks();

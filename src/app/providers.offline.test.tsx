@@ -20,7 +20,7 @@ vi.mock("@/features/settings/themeStore", async (importOriginal) => {
   return { ...actual, applyThemeMode: mockApplyTheme };
 });
 
-import { Providers, PERSISTED_CACHE_KEY } from "./providers";
+import { Providers } from "./providers";
 import { useThemeStore } from "@/features/settings/themeStore";
 
 describe("Providers offline persistence", () => {
@@ -33,10 +33,5 @@ describe("Providers offline persistence", () => {
     );
     expect(screen.getByText("child content")).toBeInTheDocument();
     await waitFor(() => expect(mockApplyTheme).toHaveBeenCalled());
-  });
-
-  it("exposes the persisted cache key", () => {
-    expect(typeof PERSISTED_CACHE_KEY).toBe("string");
-    expect(PERSISTED_CACHE_KEY.length).toBeGreaterThan(0);
   });
 });

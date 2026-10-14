@@ -76,7 +76,7 @@ describe("onboardingStore", () => {
           section: "women",
           style: "minimalist",
           thermostat: 2,
-          forbiddenColors: ["#1a1a1a", "not-a-color"],
+          forbiddenColors: ["#1a1a1a", "not-a-color", 42],
         },
       }),
     );

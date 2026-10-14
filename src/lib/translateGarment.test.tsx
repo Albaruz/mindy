@@ -25,6 +25,7 @@ describe("useGarmentTranslator", () => {
     mockLocale.mockReturnValueOnce("en");
     const { result } = renderHook(() => useGarmentTranslator());
     expect(result.current.translate("Top", "type")).toBe("Top");
+    expect(result.current.translateDetail("Silk")).toBe("Silk");
   });
 
   it("resolves spanish keys through dictionaries", () => {

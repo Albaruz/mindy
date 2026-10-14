@@ -33,12 +33,6 @@ describe("useGarmentTranslator branch coverage", () => {
     expect(result.current.translate("top", "type")).toBe("t:specifics.top");
   });
 
-  it("returns raw detail values outside the spanish locale", () => {
-    mockLocale.mockReturnValueOnce("en");
-    const { result } = renderHook(() => useGarmentTranslator());
-    expect(result.current.translateDetail("Silk")).toBe("Silk");
-  });
-
   it("returns null for nullish detail values", () => {
     mockLocale.mockReturnValue("es");
     const { result } = renderHook(() => useGarmentTranslator());

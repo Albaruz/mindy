@@ -98,4 +98,30 @@ describe("HistoryCard", () => {
     await user.click(screen.getByRole("heading"));
     expect(screen.getByRole("heading")).toBeInTheDocument();
   });
+
+  it("falls back to the translation label when type and detail are missing", () => {
+    const { unmount } = render(
+      <HistoryCard
+        entry={buildEntry({
+          garments: [buildGarment({ garmentType: null })],
+        })}
+      />,
+    );
+    expect(screen.getByRole("img")).toHaveAttribute("alt", "garmentFallback");
+    unmount();
+    // Non-string details are ignored instead of leaking into the alt text.
+    render(
+      <HistoryCard
+        entry={buildEntry({
+          garments: [
+            buildGarment({
+              garmentType: null,
+              extraTags: { specificType: 42 as unknown as string },
+            }),
+          ],
+        })}
+      />,
+    );
+    expect(screen.getByRole("img")).toHaveAttribute("alt", "garmentFallback");
+  });
 });

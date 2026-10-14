@@ -80,11 +80,4 @@ describe("onboardingStore branch coverage", () => {
     );
     expect(useOnboardingStore.getState().displayName).toBe("");
   });
-
-  it("keeps only valid forbidden colors", () => {
-    useOnboardingStore.getState().prefillFromProfile(
-      buildProfile({ extraPreferences: { forbiddenColors: ["#1a1a1a", 42] } }),
-    );
-    expect(useOnboardingStore.getState().forbiddenColors).toEqual(["#1a1a1a"]);
-  });
 });

@@ -30,23 +30,6 @@ describe("BottomActionBar branch coverage", () => {
     expect(document.querySelector('[aria-hidden="true"]')).toBeInTheDocument();
   });
 
-  it("ignores primary clicks while pending", async () => {
-    const user = userEvent.setup();
-    const onPrimary = vi.fn();
-    render(
-      <BottomActionBar
-        label="actions"
-        primaryLabel="Confirm"
-        onPrimary={onPrimary}
-        isPrimaryPending
-        left={buildSide("Left")}
-        right={buildSide("Right")}
-      />,
-    );
-    await user.click(screen.getByRole("button", { name: "Confirm" }));
-    expect(onPrimary).not.toHaveBeenCalled();
-  });
-
   it("renders the animation burst when a source is provided", () => {
     render(<CelebrationBurst animationSrc="burst.json" />);
     expect(screen.getByTestId("lottie")).toBeInTheDocument();

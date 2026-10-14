@@ -267,4 +267,38 @@ describe("ZeroState branches", () => {
     advanceTimers();
     expect(screen.getByTestId("icon-cloud")).toBeInTheDocument();
   });
+
+  it("holds the neutral greeting until the minimum display elapses with weather ready", () => {
+    renderZeroState({
+      weather: { condition: "Rain", temperatureC: 18, dayLow: 15, dayHigh: 20 },
+      colorimetry: "summer",
+    });
+    // Forecast ready but the hello still owns the screen.
+    expect(screen.getByText("t.greetingNeutral")).toBeInTheDocument();
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+    advanceTimers();
+    expect(screen.queryByText("t.greetingNeutral")).not.toBeInTheDocument();
+    expect(screen.getByRole("img")).toBeInTheDocument();
+  });
+
+  it("swaps the neutral greeting for the weather copy when the forecast resolves", () => {
+    const { rerender } = render(
+      <ZeroState weather={null} colorimetry={null} onAuto={vi.fn()} onManual={vi.fn()} />,
+    );
+    expect(screen.getByText("t.greetingNeutral")).toBeInTheDocument();
+    rerender(
+      <ZeroState
+        weather={{ condition: "Rain", temperatureC: 18, dayLow: 15, dayHigh: 20 }}
+        colorimetry="summer"
+        onAuto={vi.fn()}
+        onManual={vi.fn()}
+      />,
+    );
+    // Fast fetch: still the neutral greeting until the window elapses.
+    expect(screen.getByText("t.greetingNeutral")).toBeInTheDocument();
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+    advanceTimers();
+    expect(screen.queryByText("t.greetingNeutral")).not.toBeInTheDocument();
+    expect(screen.getByRole("img")).toBeInTheDocument();
+  });
 });

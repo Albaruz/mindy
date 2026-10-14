@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   filterGarmentsByCategory,
   filterGarmentsBySearch,
-  matchesGarmentCategory,
   matchesGarmentSearch,
 } from "./searchGarments";
 import type { Garment } from "@/types/garment";
@@ -51,14 +50,6 @@ describe("filterGarmentsBySearch", () => {
   it("returns all garments on empty query", () => {
     const garments = [buildGarment()];
     expect(filterGarmentsBySearch(garments, "")).toBe(garments);
-  });
-});
-
-describe("matchesGarmentCategory", () => {
-  it("maps chips to generator slots", () => {
-    expect(matchesGarmentCategory(buildGarment(), "all")).toBe(true);
-    expect(matchesGarmentCategory(buildGarment(), "bottoms")).toBe(true);
-    expect(matchesGarmentCategory(buildGarment(), "tops")).toBe(false);
   });
 });
 

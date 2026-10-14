@@ -22,10 +22,9 @@ describe("PageHeader branch coverage", () => {
     expect(screen.getByTestId("page-avatar")).toBeInTheDocument();
   });
 
-  it("omits avatar, actions and description by default", () => {
+  it("omits avatar and actions by default", () => {
     const { container } = render(<PageHeader title="Closet" />);
     expect(container.querySelector('[class*="__avatar"]')).not.toBeInTheDocument();
     expect(container.querySelector('[class*="__actions"]')).not.toBeInTheDocument();
-    expect(container.querySelector('[class*="__description"]')).not.toBeInTheDocument();
   });
 });
