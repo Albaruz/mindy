@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/client";
 import type { Garment } from "@/types/garment";
 import { TABLES } from "@/constants/storage";
+import { getSessionUser } from "@/lib/supabase/session";
 import {
   useGeneratorStore,
   type Category,
@@ -32,9 +33,7 @@ export function useDismissGarment() {
         const { fallbackGarmentIds } = useGeneratorStore.getState();
         if (!fallbackGarmentIds.includes(current.garmentId)) {
           const supabase = createClient();
-          const {
-            data: { user },
-          } = await supabase.auth.getUser();
+          const user = await getSessionUser(supabase);
           if (user) {
             const { error } = await supabase.from(TABLES.garmentFeedback).insert({
               user_id: user.id,

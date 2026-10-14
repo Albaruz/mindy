@@ -5,6 +5,7 @@ import { GARMENTS_QUERY_KEY } from "./useClosetQuery";
 import { LAUNDRY_QUERY_KEY } from "@/features/profile/useLaundryBasketQuery";
 import type { GarmentFormInput } from "./useUploadGarment";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
+import { requireUser } from "@/lib/supabase/session";
 
 // Updates the editable tags of an existing garment. RLS guarantees the
 // row belongs to the signed-in user; the explicit user_id filter is a
@@ -22,12 +23,7 @@ export function useUpdateGarment() {
       input: GarmentFormInput;
     }): Promise<void> => {
       const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error("You must be signed in to edit garments.");
-      }
+      const user = await requireUser(supabase, "You must be signed in to edit garments.");
 
       const season: GarmentSeason | null =
         input.season === "" ? null : input.season;

@@ -5,7 +5,7 @@ import {
   RAIN_EXPECTED_THRESHOLD,
   isRainyConditionValue,
 } from "@/constants/weather";
-import { GEOLOCATION_MAX_AGE_MS, GEOLOCATION_TIMEOUT_MS } from "@/constants/geo";
+import { getCurrentPosition } from "@/lib/geolocation";
 import { buildWeatherUrl } from "@/constants/api";
 import type { WeatherInfo } from "@/types/weather";
 
@@ -28,19 +28,6 @@ export function isRainExpected(rainProbability: number | null | undefined): bool
     Number.isFinite(rainProbability) &&
     rainProbability >= RAIN_EXPECTED_THRESHOLD
   );
-}
-
-function getCurrentPosition(): Promise<GeolocationPosition> {
-  return new Promise((resolve, reject) => {
-    if (!("geolocation" in navigator)) {
-      reject(new Error("Geolocation is not available."));
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(resolve, reject, {
-      timeout: GEOLOCATION_TIMEOUT_MS,
-      maximumAge: GEOLOCATION_MAX_AGE_MS,
-    });
-  });
 }
 
 // Resolves once per page visit (cached 10 min). Null when location is

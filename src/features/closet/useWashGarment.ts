@@ -5,6 +5,7 @@ import { GARMENTS_QUERY_KEY } from "./useClosetQuery";
 import { LAUNDRY_QUERY_KEY } from "@/features/profile/useLaundryBasketQuery";
 import { useNotificationStore } from "@/features/ui/useNotificationStore";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
+import { requireUser } from "@/lib/supabase/session";
 
 // Washes a single garment (is_dirty = false). The basket card animates
 // away optimistically at the call site; queries revalidate afterwards.
@@ -15,12 +16,7 @@ export function useWashGarment() {
   return useMutation({
     mutationFn: async (garmentId: string): Promise<void> => {
       const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error("You must be signed in to wash garments.");
-      }
+      const user = await requireUser(supabase, "You must be signed in to wash garments.");
 
       const { error } = await supabase
         .from(TABLES.garments)

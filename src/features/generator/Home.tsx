@@ -19,7 +19,7 @@ import { shouldShowOuterwear, useWeatherQuery } from "./useWeatherQuery";
 import { useGenerateLooks } from "./useGenerateLooks";
 import { useWearToday } from "./useWearToday";
 import type { RecommenderProfile } from "./generatorTypes";
-import { categorizeGarments, isLaundryExemptGarment } from "./categorizeGarments";
+import { categorizeGarments, isWearableGarment } from "./categorizeGarments";
 import { ZeroState } from "./ZeroState";
 import { StyleStep } from "./StyleStep";
 import { LookShowcase, ShowcaseEmptyState } from "./LookShowcase";
@@ -111,9 +111,7 @@ export function Home() {
 
   const cleanGarments = useMemo(
     () =>
-      garments.filter(
-        (garment) => !garment.isDirty || isLaundryExemptGarment(garment),
-      ),
+      garments.filter(isWearableGarment),
     [garments],
   );
   const byCategory = useMemo(

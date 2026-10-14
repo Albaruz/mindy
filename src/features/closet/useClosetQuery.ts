@@ -4,6 +4,7 @@ import type { Garment } from "@/types/garment";
 import { toGarment, type GarmentRow } from "./garmentMappers";
 import { QUERY_KEYS } from "@/constants/query";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
+import { getSessionUser } from "@/lib/supabase/session";
 
 export const GARMENTS_QUERY_KEY = QUERY_KEYS.garments;
 
@@ -27,9 +28,7 @@ const GARMENT_COLUMNS = `
 
 async function fetchClosetGarments(): Promise<Garment[]> {
   const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser(supabase);
   if (!user) {
     return [];
   }

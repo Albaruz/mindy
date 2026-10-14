@@ -2,9 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import type { Garment } from "@/types/garment";
 import { toGarment, type GarmentRow } from "@/features/closet/garmentMappers";
-import { isLaundryExemptGarment } from "@/features/generator/categorizeGarments";
+import { isWashableGarment } from "@/features/generator/categorizeGarments";
 import { QUERY_KEYS } from "@/constants/query";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
+import { getSessionUser } from "@/lib/supabase/session";
 
 export const LAUNDRY_QUERY_KEY = QUERY_KEYS.laundryBasket;
 
@@ -28,9 +29,7 @@ const GARMENT_COLUMNS = `
 
 async function fetchDirtyGarments(): Promise<Garment[]> {
   const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser(supabase);
   if (!user) {
     return [];
   }
@@ -48,7 +47,7 @@ async function fetchDirtyGarments(): Promise<Garment[]> {
   // still carry is_dirty from before the exemption.
   return (data as unknown as GarmentRow[])
     .map(toGarment)
-    .filter((garment) => !isLaundryExemptGarment(garment));
+    .filter(isWashableGarment);
 }
 
 export function useLaundryBasketQuery() {

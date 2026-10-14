@@ -6,11 +6,12 @@ import { HISTORY_QUERY_KEY } from "@/features/history/useHistoryQuery";
 import { useNotificationStore } from "@/features/ui/useNotificationStore";
 import { useGeneratorStore } from "./useGeneratorStore";
 import {
-  isLaundryExemptGarment,
+  isWashableGarment,
   withoutHiddenBottom,
 } from "./categorizeGarments";
 import type { Garment } from "@/types/garment";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
+import { requireUser } from "@/lib/supabase/session";
 
 // Persists the current canvas as today's look: inserts an outfit_history row
 // with the full look (footwear and outerwear included) but only marks tops
@@ -25,12 +26,7 @@ export function useWearToday() {
       // hidden manual slot): sanitize before persisting or celebrating.
       const wornGarments = withoutHiddenBottom(garments);
       const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error("You must be signed in to save a look.");
-      }
+      const user = await requireUser(supabase, "You must be signed in to save a look.");
 
       const garmentIds = wornGarments.map((garment) => garment.garmentId);
       const now = new Date().toISOString();
@@ -48,7 +44,7 @@ export function useWearToday() {
 
       // Reusable garments (footwear, outerwear) never count as dirty.
       const dirtyIds = wornGarments
-        .filter((garment) => !isLaundryExemptGarment(garment))
+        .filter(isWashableGarment)
         .map((garment) => garment.garmentId);
       if (dirtyIds.length > 0) {
         const { error: garmentsError } = await supabase

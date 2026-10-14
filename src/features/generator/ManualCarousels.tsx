@@ -11,8 +11,8 @@ import { useProfileQuery } from "@/features/profile/useProfileQuery";
 import { useGeneratorStore, type Category } from "./useGeneratorStore";
 import {
   categorizeGarments,
-  isLaundryExemptGarment,
   isOnePieceGarment,
+  isWearableGarment,
 } from "./categorizeGarments";
 import { shouldShowOuterwear, useWeatherQuery } from "./useWeatherQuery";
 import { useDismissGarment } from "./useDismissGarment";
@@ -66,9 +66,7 @@ export function ManualCarousels({
 
   const cleanGarments = useMemo(
     () =>
-      garments.filter(
-        (garment) => !garment.isDirty || isLaundryExemptGarment(garment),
-      ),
+      garments.filter(isWearableGarment),
     [garments],
   );
   const byCategory = useMemo(

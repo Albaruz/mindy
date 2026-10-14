@@ -1,5 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
+import { getCurrentPosition } from "@/lib/geolocation";
+import { readFiniteNumber } from "@/lib/readers";
 import type { Garment } from "@/types/garment";
 import {
   useGeneratorStore,
@@ -14,7 +16,6 @@ import {
 import { useNotificationStore } from "@/features/ui/useNotificationStore";
 import { MAX_LOOK_OPTIONS } from "@/constants/generator";
 import { DEFAULT_TEMPERATURE_C } from "@/constants/weather";
-import { GEOLOCATION_MAX_AGE_MS, GEOLOCATION_TIMEOUT_MS } from "@/constants/geo";
 import { buildWeatherUrl } from "@/constants/api";
 import type { WeatherInfo } from "@/types/weather";
 import type { Mood, GenerateLooksInput, GenerateLooksResult } from "./generatorTypes";
@@ -57,26 +58,11 @@ const DEFAULT_CLIMATE: Climate = {
   rainProbability: null,
 };
 
-function readOptionalNumber(value: unknown): number | null {
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
-}
-
 // Shared with the manual "Combinar" flow (useCombineLocked): day-based
 // climate resolved once per inference, defaulting to 20C offline.
 export async function resolveClimate(): Promise<Climate> {
   try {
-    const position = await new Promise<GeolocationPosition>(
-      (resolve, reject) => {
-        if (!("geolocation" in navigator)) {
-          reject(new Error("No geolocation"));
-          return;
-        }
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          timeout: GEOLOCATION_TIMEOUT_MS,
-          maximumAge: GEOLOCATION_MAX_AGE_MS,
-        });
-      },
-    );
+    const position = await getCurrentPosition();
     const response = await fetch(
       buildWeatherUrl(position.coords.latitude, position.coords.longitude),
     );
@@ -92,15 +78,12 @@ export async function resolveClimate(): Promise<Climate> {
     };
     return {
       temperatureC:
-        typeof payload.temperatureC === "number" &&
-        Number.isFinite(payload.temperatureC)
-          ? payload.temperatureC
-          : DEFAULT_CLIMATE.temperatureC,
+        readFiniteNumber(payload.temperatureC) ?? DEFAULT_CLIMATE.temperatureC,
       condition:
         typeof payload.condition === "string" ? payload.condition : null,
-      dayLow: readOptionalNumber(payload.dayLow),
-      dayHigh: readOptionalNumber(payload.dayHigh),
-      rainProbability: readOptionalNumber(payload.rainProbability),
+      dayLow: readFiniteNumber(payload.dayLow),
+      dayHigh: readFiniteNumber(payload.dayHigh),
+      rainProbability: readFiniteNumber(payload.rainProbability),
     };
   } catch {
     return DEFAULT_CLIMATE;

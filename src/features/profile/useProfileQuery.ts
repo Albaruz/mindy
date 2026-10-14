@@ -4,6 +4,7 @@ import type { UserProfile } from "@/types/user";
 import { toProfile, type ProfileRow } from "./profileMappers";
 import { QUERY_KEYS } from "@/constants/query";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
+import { getSessionUser } from "@/lib/supabase/session";
 
 export const PROFILE_QUERY_KEY = QUERY_KEYS.profile;
 
@@ -26,9 +27,7 @@ const PROFILE_COLUMNS = `
 
 async function fetchProfile(): Promise<UserProfile | null> {
   const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser(supabase);
   if (!user) {
     return null;
   }

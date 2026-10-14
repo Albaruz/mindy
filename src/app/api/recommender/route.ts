@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { checkRateLimit } from "@/lib/rateLimit";
-import { RATE_LIMITS, RETRY_AFTER_HEADER } from "@/constants/api";
 import { logger, generateRequestId } from "@/lib/logger";
+import { readFiniteNumber, readString } from "@/lib/readers";
+import {
+  isGuardResponse,
+  rateLimitResponse,
+  readJsonBody,
+  requireRouteUser,
+} from "@/lib/api/routeGuards";
 import {
   COLD_THRESHOLD_C,
   DEFAULT_TEMPERATURE_C,
@@ -66,13 +70,6 @@ interface OutfitOption {
   reason: string;
 }
 
-function readOptionalString(value: unknown, maxLength = 200): string | null {
-  if (typeof value !== "string" || value === "") {
-    return null;
-  }
-  return value.slice(0, maxLength);
-}
-
 function readClosed<T extends string>(
   value: unknown,
   normalize: (raw: unknown) => { base: T | null },
@@ -113,7 +110,7 @@ function toCandidate(raw: unknown): CandidateGarment | null {
     return null;
   }
   const record = raw as Record<string, unknown>;
-  const id = readOptionalString(
+  const id = readString(
     record.garmentId ?? record.garment_id ?? record.id,
   );
   if (id === null) {
@@ -146,15 +143,15 @@ function readStylistProfile(value: unknown): StylistProfile | null {
   }
   const record = value as Record<string, unknown>;
   return {
-    colorimetry: readOptionalString(record.colorimetry),
-    morphology: readOptionalString(record.morphology),
-    preferredFit: readOptionalString(
+    colorimetry: readString(record.colorimetry),
+    morphology: readString(record.morphology),
+    preferredFit: readString(
       record.preferredFit ?? record.preferred_fit,
     ),
-    lifestyle: readOptionalString(record.lifestyle),
-    skinTone: readOptionalString(record.skinTone ?? record.skin_tone),
-    eyeColor: readOptionalString(record.eyeColor ?? record.eye_color),
-    hairColor: readOptionalString(record.hairColor ?? record.hair_color),
+    lifestyle: readString(record.lifestyle),
+    skinTone: readString(record.skinTone ?? record.skin_tone),
+    eyeColor: readString(record.eyeColor ?? record.eye_color),
+    hairColor: readString(record.hairColor ?? record.hair_color),
   };
 }
 
@@ -162,10 +159,6 @@ function readTemperatureCelsius(value: unknown): number {
   return typeof value === "number" && Number.isFinite(value)
     ? value
     : DEFAULT_TEMPERATURE_C;
-}
-
-function readOptionalTemperature(value: unknown): number | null {
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 function readOptionalProbability(value: unknown): number | null {
@@ -598,7 +591,7 @@ function parseOptions(content: string, knownIds: Set<string>): OutfitOption[] {
     valid.push({
       garmentIds,
       suitabilityRatio: clampRatio(record.suitabilityRatio),
-      reason: readOptionalString(record.reason) ?? "",
+      reason: readString(record.reason) ?? "",
     });
   }
 
@@ -698,30 +691,16 @@ export async function POST(request: Request) {
 
   // Paid upstream (Groq): require an authenticated session before any
   // parsing or billing-relevant work.
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    logger.requestComplete('recommender', requestId, 401, Date.now() - startTime);
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await requireRouteUser("recommender", requestId, startTime);
+  if (isGuardResponse(auth)) {
+    return auth.response;
   }
+  const { user } = auth;
 
-  logger.requestStart('recommender', requestId, user.id);
-
-  // Authenticated users still share one Groq quota: max 5 requests per
-  // minute per user (in-memory window, see lib/rateLimit.ts).
-  const { key, limit, windowMs } = RATE_LIMITS.recommender;
-  const quota = checkRateLimit(`${key}:${user.id}`, limit, windowMs);
-  if (quota.limited) {
-    logger.warn('Rate limit exceeded', { route: 'recommender', requestId, userId: user.id, retryAfterSec: quota.retryAfterSec });
-    return NextResponse.json(
-      { error: "Too many requests. Try again later." },
-      {
-        status: 429,
-        headers: { [RETRY_AFTER_HEADER]: String(quota.retryAfterSec) },
-      },
-    );
+  // Authenticated users still share one Groq quota (see RATE_LIMITS).
+  const limited = rateLimitResponse("recommender", user.id, requestId);
+  if (limited) {
+    return limited;
   }
 
   if (!process.env.GROQ_API_KEY) {
@@ -732,15 +711,11 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json(
-      { error: "Request body must be valid JSON." },
-      { status: 400 },
-    );
+  const parsed = await readJsonBody(request);
+  if (isGuardResponse(parsed)) {
+    return parsed.response;
   }
+  const { body } = parsed;
   if (typeof body !== "object" || body === null) {
     return NextResponse.json(
       { error: "Request body must be a JSON object." },
@@ -772,10 +747,10 @@ export async function POST(request: Request) {
   }
 
   const temperatureC = readTemperatureCelsius(input.temperatureC);
-  const dayLow = readOptionalTemperature(input.dayLow);
-  const dayHigh = readOptionalTemperature(input.dayHigh);
+  const dayLow = readFiniteNumber(input.dayLow);
+  const dayHigh = readFiniteNumber(input.dayHigh);
   const rainProbability = readOptionalProbability(input.rainProbability);
-  const condition = readOptionalString(input.condition);
+  const condition = readString(input.condition);
   const isRainy = isRainyWeather(condition, rainProbability);
   // Pinned IDs are read before weather filtering so the rain-material
   // rule can exempt explicit user pins (same hard-constraint contract
@@ -903,7 +878,7 @@ export async function POST(request: Request) {
       requireOuterwear: outerwearRequired,
       requireRainSafeMaterials,
       profile: input.profile,
-      mood: readOptionalString(input.mood),
+      mood: readString(input.mood),
       style: requestedStyle,
       lockedGarmentIds: [...lockedIds],
       candidates: cappedPool,

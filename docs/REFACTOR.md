@@ -32,7 +32,7 @@ before review, docs updated every phase, `typecheck` + `eslint` + `vitest`
 |---|---|---|
 | 0 | Bug fixes + leftovers of the earlier cleanup | Done, pending review |
 | 1 | Types: `src/types/*`, single source for unions, strict types | Done, pending review |
-| 2 | Helpers: route guards, session, readers, laundry predicates, geo, dates | Pending |
+| 2 | Helpers: route guards, session, readers, laundry predicates, geo | Done, pending review |
 | 3 | Components: `QueryState`, `GarmentImage`, `FormField`/`SubmitButton`, `AuthCard`, `Dialog` | Pending |
 | 4 | CSS: global semantic classes, dead mixin/keyframe removal, tokens, hard-coded values | Pending |
 | 5 | Layers: query keys, shared kernel, wizard move, split large files | Pending |
@@ -55,3 +55,26 @@ before review, docs updated every phase, `typecheck` + `eslint` + `vitest`
 - Generator types de-duplicated: `RecommenderOption` / `RecommenderResponse`
   are declared only in `generatorApi.ts`; `Category`, `LookStyle` and `AiLook`
   only in `useGeneratorStore.ts`; no inline `import()` types.
+
+### Phase 1
+- Closed vocabularies are s const arrays in constants/ (garment.ts,
+  profile.ts, ui-config.ts); 	ypes/ derives unions from them.
+- Merged duplicated interfaces (WizardPayload, RecommenderProfile,
+  Climate, ClimateInput); added 	ypes/weather.ts and 	ypes/ui.ts.
+- Deleted the unused constants/index.ts barrel.
+
+### Phase 2
+- `lib/api/routeGuards.ts`: equireRouteUser, ateLimitResponse,
+  eadJsonBody. nalyze, ecommender and weather use them instead of
+  three copies of the auth + quota + JSON boilerplate.
+- `lib/supabase/session.ts`: getSessionUser / equireUser replace the
+  uth.getUser() + "no session" block in 11 client hooks.
+- `lib/readers.ts`: isRecord, eadString, eadFiniteNumber replace
+  six local payload readers.
+- `lib/geolocation.ts`: one getCurrentPosition() wrapper (was in
+  useWeatherQuery and useGenerateLooks).
+- `categorizeGarments.ts`: isWearableGarment, isInLaundryGarment,
+  isWashableGarment replace eight inline isDirty / exemption filters.
+- Not done (left out on purpose): date formatting helpers (only two call
+  sites, not worth an abstraction) and the Server Actions auth pattern
+  (differs per action: redirect vs. error object).

@@ -5,6 +5,7 @@ import type { OutfitHistory } from "@/types/history";
 import { toGarment, type GarmentRow } from "@/features/closet/garmentMappers";
 import { QUERY_KEYS } from "@/constants/query";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
+import { getSessionUser } from "@/lib/supabase/session";
 
 export const HISTORY_QUERY_KEY = QUERY_KEYS.history;
 
@@ -61,9 +62,7 @@ function toHistory(row: OutfitHistoryRow): OutfitHistory {
 
 async function fetchHistory(): Promise<HistoryEntry[]> {
   const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser(supabase);
   if (!user) {
     return [];
   }

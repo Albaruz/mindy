@@ -193,6 +193,23 @@ export function isLaundryExemptGarment(
   return category === "footwear" || category === "outerwear";
 }
 
+// Laundry-state predicates. Every filter over is_dirty goes through these,
+// so the footwear/outerwear exemption cannot be forgotten.
+/** Garments that wash: everything except laundry-exempt categories. */
+export function isWashableGarment(garment: Garment): boolean {
+  return !isLaundryExemptGarment(garment);
+}
+
+/** Clean garments, plus exempt ones even if a legacy row flags them dirty. */
+export function isWearableGarment(garment: Garment): boolean {
+  return !garment.isDirty || isLaundryExemptGarment(garment);
+}
+
+/** Dirty garments that belong in the laundry basket. */
+export function isInLaundryGarment(garment: Garment): boolean {
+  return garment.isDirty && !isLaundryExemptGarment(garment);
+}
+
 // One-piece looks never include a bottom: when a dress (or jumpsuit)
 // is present, drop bottom-category garments so confirmations, history
 // and the laundry only ever see the selected garments.

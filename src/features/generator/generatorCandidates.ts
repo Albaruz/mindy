@@ -1,5 +1,5 @@
 import type { Garment } from "@/types/garment";
-import { isLaundryExemptGarment } from "./categorizeGarments";
+import { isWearableGarment } from "./categorizeGarments";
 
 /**
  * Filters garments to build the candidate set for the recommender.
@@ -17,7 +17,7 @@ export function buildCandidates(
   return garments.filter(
     (garment) =>
       (!dismissedIds.has(garment.garmentId) &&
-        (!garment.isDirty || isLaundryExemptGarment(garment))) ||
+        isWearableGarment(garment)) ||
       lockedIds.has(garment.garmentId),
   );
 }

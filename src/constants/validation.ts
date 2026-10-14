@@ -61,3 +61,6 @@ export const ANALYZE_TIMEOUT_MS = 30_000;
 
 /** Required data-URL prefix for uploaded images. */
 export const IMAGE_DATA_URL_PREFIX = "data:image/";
+
+/** Default max length for free-text fields read from untrusted payloads. */
+export const READ_STRING_MAX_LENGTH = 200;

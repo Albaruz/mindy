@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { checkRateLimit } from "@/lib/rateLimit";
-import { RATE_LIMITS } from "@/constants/api";
 import { DEFAULT_TEMPERATURE_C } from "@/constants/weather";
 import { logger, generateRequestId } from "@/lib/logger";
+import { isRecord, readFiniteNumber, readString } from "@/lib/readers";
+import { isGuardResponse, rateLimitResponse, requireRouteUser } from "@/lib/api/routeGuards";
 
 // Standard climate returned whenever coordinates are missing or the
 // OpenWeather request fails for any reason (no key, upstream error...).
@@ -59,14 +58,6 @@ function parseCoordinate(
   return parsed;
 }
 
-function readString(value: unknown): string | null {
-  return typeof value === "string" && value !== "" ? value : null;
-}
-
-function readTemperature(value: unknown): number | null {
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
-}
-
 // GET /api/weather?lat=40.41&lon=-3.70
 export async function GET(request: Request) {
   const requestId = generateRequestId();
@@ -74,21 +65,14 @@ export async function GET(request: Request) {
 
   // Proxied upstream (OpenWeather quota): require an authenticated
   // session before spending it. All callers live behind the page guard.
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    logger.requestComplete('weather', requestId, 401, Date.now() - startTime);
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await requireRouteUser("weather", requestId, startTime);
+  if (isGuardResponse(auth)) {
+    return auth.response;
   }
-
-  logger.requestStart('weather', requestId, user.id);
+  const { user } = auth;
 
   // Cheap call, but still third-party quota: cap per user.
-  const { key, limit, windowMs } = RATE_LIMITS.weather;
-  const quota = checkRateLimit(`${key}:${user.id}`, limit, windowMs);
-  if (quota.limited) {
+  if (rateLimitResponse("weather", user.id, requestId)) {
     return fallbackResponse("rate limited", requestId, user.id, startTime);
   }
 
@@ -139,7 +123,7 @@ export async function GET(request: Request) {
       typeof record.main === "object" && record.main !== null
         ? (record.main as Record<string, unknown>)
         : null;
-    const temperatureC = main ? readTemperature(main.temp) : null;
+    const temperatureC = main ? readFiniteNumber(main.temp) : null;
     if (temperatureC === null) {
       return fallbackResponse("OpenWeather payload has no temperature", requestId, user.id, startTime);
     }
@@ -147,8 +131,8 @@ export async function GET(request: Request) {
     const weather = Array.isArray(record.weather) ? record.weather : [];
     const first = weather[0];
     const condition =
-      typeof first === "object" && first !== null
-        ? readString((first as Record<string, unknown>).main)
+      isRecord(first)
+        ? readString(first.main)
         : null;
 
     const body: WeatherPayload = {
@@ -204,14 +188,14 @@ function readSlotTemperature(entry: Record<string, unknown>): number | null {
   if (typeof main !== "object" || main === null) {
     return null;
   }
-  return readTemperature((main as Record<string, unknown>).temp);
+  return readFiniteNumber((main as Record<string, unknown>).temp);
 }
 
 function readSlotCondition(entry: Record<string, unknown>): string | null {
   const weather = Array.isArray(entry.weather) ? entry.weather : [];
   const first = weather[0];
-  return typeof first === "object" && first !== null
-    ? readString((first as Record<string, unknown>).main)
+  return isRecord(first)
+    ? readString(first.main)
     : null;
 }
 
@@ -264,7 +248,7 @@ async function readDaySummary(
         : list
             .filter(
               (entry): entry is Record<string, unknown> =>
-                typeof entry === "object" && entry !== null,
+                isRecord(entry),
             )
             .slice(0, 4);
 

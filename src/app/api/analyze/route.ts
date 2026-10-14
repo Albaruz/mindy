@@ -1,8 +1,5 @@
 import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { checkRateLimit } from "@/lib/rateLimit";
-import { RATE_LIMITS, RETRY_AFTER_HEADER } from "@/constants/api";
 import { buildAnalysisPrompt } from "@/lib/ai/prompts";
 import {
   AI_VISION_MODEL,
@@ -26,6 +23,13 @@ import {
   CUTOUT_DIFFICULTY_VALUES,
 } from "@/constants/garment";
 import { logger, generateRequestId } from "@/lib/logger";
+import { isRecord } from "@/lib/readers";
+import {
+  isGuardResponse,
+  rateLimitResponse,
+  readJsonBody,
+  requireRouteUser,
+} from "@/lib/api/routeGuards";
 
 function readClosedText(
   value: unknown,
@@ -61,29 +65,16 @@ export async function POST(req: Request) {
 
   // Paid upstream (Groq vision): require an authenticated session before
   // any parsing or billing-relevant work.
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    logger.requestComplete('analyze', requestId, 401, Date.now() - startTime);
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await requireRouteUser("analyze", requestId, startTime);
+  if (isGuardResponse(auth)) {
+    return auth.response;
   }
-
-  logger.requestStart('analyze', requestId, user.id);
+  const { user } = auth;
 
   // Vision calls are billed per image: cap uploads per user.
-  const { key, limit, windowMs } = RATE_LIMITS.analyze;
-  const quota = checkRateLimit(`${key}:${user.id}`, limit, windowMs);
-  if (quota.limited) {
-    logger.warn('Rate limit exceeded', { route: 'analyze', requestId, userId: user.id, retryAfterSec: quota.retryAfterSec });
-    return NextResponse.json(
-      { error: "Too many requests. Try again later." },
-      {
-        status: 429,
-        headers: { [RETRY_AFTER_HEADER]: String(quota.retryAfterSec) },
-      },
-    );
+  const limited = rateLimitResponse("analyze", user.id, requestId);
+  if (limited) {
+    return limited;
   }
 
   const apiKey = process.env.GROQ_API_KEY;
@@ -95,19 +86,13 @@ export async function POST(req: Request) {
     );
   }
 
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json(
-      { error: "Request body must be valid JSON." },
-      { status: 400 },
-    );
+  const parsed = await readJsonBody(req);
+  if (isGuardResponse(parsed)) {
+    return parsed.response;
   }
+  const body = parsed.body;
   const requestBody =
-    typeof body === "object" && body !== null
-      ? (body as Record<string, unknown>)
-      : null;
+    isRecord(body) ? body : null;
   const imageBase64 = requestBody?.imageBase64;
   if (
     typeof imageBase64 !== "string" ||

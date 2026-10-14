@@ -5,6 +5,7 @@ import { GARMENTS_QUERY_KEY } from "@/features/closet/useClosetQuery";
 import { useNotificationStore } from "@/features/ui/useNotificationStore";
 import { LAUNDRY_QUERY_KEY } from "./useLaundryBasketQuery";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
+import { requireUser } from "@/lib/supabase/session";
 
 // Marks every dirty garment of the current user as clean, emptying the
 // laundry basket. Closet and basket queries revalidate afterwards.
@@ -15,12 +16,7 @@ export function useDoLaundry() {
   return useMutation({
     mutationFn: async (): Promise<void> => {
       const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error("You must be signed in to do the laundry.");
-      }
+      const user = await requireUser(supabase, "You must be signed in to do the laundry.");
 
       const { error } = await supabase
         .from(TABLES.garments)

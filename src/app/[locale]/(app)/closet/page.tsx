@@ -29,7 +29,11 @@ import { CELEBRATION_BURST_MS } from "@/constants/animations";
 import type { GarmentFormInput } from "@/features/closet/useUploadGarment";
 import { toEditableTags } from "@/features/closet/ExtraTagsEditor";
 import { useGarmentTranslator } from "@/lib/translateGarment";
-import { isLaundryExemptGarment } from "@/features/generator/categorizeGarments";
+import {
+  isInLaundryGarment,
+  isWashableGarment,
+  isWearableGarment,
+} from "@/features/generator/categorizeGarments";
 import { GarmentCard } from "@/features/closet/GarmentCard";
 import { GarmentFormModal } from "@/features/closet/GarmentFormModal";
 import { PhotoQualityDialog } from "@/features/closet/PhotoQualityDialog";
@@ -66,20 +70,16 @@ export default function ClosetPage() {
   // filters apply on top of the active view.
   const cleanGarments = useMemo(
     () =>
-      garments.filter(
-        (garment) => !garment.isDirty || isLaundryExemptGarment(garment),
-      ),
+      garments.filter(isWearableGarment),
     [garments],
   );
   const dirtyGarments = useMemo(
     () =>
-      garments.filter(
-        (garment) => garment.isDirty && !isLaundryExemptGarment(garment),
-      ),
+      garments.filter(isInLaundryGarment),
     [garments],
   );
   const washableGarments = useMemo(
-    () => garments.filter((garment) => !isLaundryExemptGarment(garment)),
+    () => garments.filter(isWashableGarment),
     [garments],
   );
   const allWashableGarmentsAreDirty =

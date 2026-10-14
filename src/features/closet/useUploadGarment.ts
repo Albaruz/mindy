@@ -21,6 +21,7 @@ import {
 } from "./garmentPersistence";
 import type { InferredTags } from "./garmentAnalysis";
 import { suggestTags } from "./garmentAnalysis";
+import { requireUser } from "@/lib/supabase/session";
 
 export { GARMENT_STORAGE_BUCKET };
 export type { InferredTags };
@@ -59,12 +60,7 @@ export function useUploadGarment() {
 
   async function saveGarment(source: Blob, tags: InferredTags): Promise<void> {
     const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      throw new Error("You must be signed in to add garments.");
-    }
+    const user = await requireUser(supabase, "You must be signed in to add garments.");
     await persistGarment(source, tags, {
       client: supabase,
       userId: user.id,

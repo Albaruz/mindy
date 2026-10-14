@@ -3,8 +3,10 @@ import type { Garment } from "@/types/garment";
 import type { Category } from "./useGeneratorStore";
 import {
   categorizeGarment,
-  isLaundryExemptGarment,
+  isInLaundryGarment,
   isOnePieceGarment,
+  isWashableGarment,
+  isWearableGarment,
 } from "./categorizeGarments";
 
 export type GeneratorReadiness =
@@ -34,21 +36,17 @@ export function getGeneratorReadiness(garments: Garment[]): GeneratorReadiness {
     return { status: "empty" };
   }
 
-  const cleanGarments = garments.filter(
-    (garment) => !garment.isDirty || isLaundryExemptGarment(garment),
-  );
+  const cleanGarments = garments.filter(isWearableGarment);
   const cleanMissing = missingCategories(cleanGarments);
   if (cleanMissing.length === 0) {
     return { status: "ready" };
   }
 
-  const hasDirtyWashableGarments = garments.some(
-    (garment) => garment.isDirty && !isLaundryExemptGarment(garment),
-  );
+  const hasDirtyWashableGarments = garments.some(isInLaundryGarment);
   const hasCleanRequiredGarment = garments.some(
     (garment) =>
       !garment.isDirty &&
-      !isLaundryExemptGarment(garment) &&
+      isWashableGarment(garment) &&
       REQUIRED_CATEGORIES.some((category) =>
         garmentCoversCategory(garment, category),
       ),
