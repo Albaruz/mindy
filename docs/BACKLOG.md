@@ -17,16 +17,16 @@ Tabla con los items del backlog del documento SDD, ordenados por prioridad y dif
 | #BKL-012 | 11 | Lighthouse CI (LHCI) | Gate en CI configurado y pasando (performance 92–94, a11y ≥95); falta histórico de métricas | Media | Medio | 3 pts | Parcial |
 | #BKL-013 | 12 | PurgeCSS Integration | Eliminada capa global muerta (17 parciales); CSS 143→104 KB; guardia en main.test.ts | Media | Fácil | 2 pts | Hecho |
 | #BKL-014 | 13 | Bundle Analysis en CI | Gate existe (budget script + job CI) y pasa: 140,2/180 KB | Media | Fácil | 2 pts | Hecho |
-| #BKL-015 | 14 | Tree-shaking de Mixins SCSS | Refactorizar mixins SCSS a CSS Vars cuando sea posible | Baja | Medio | 3 pts | Pendiente |
+| #BKL-015 | 14 | Tree-shaking de Mixins SCSS | Pruned dead mixins in _mixins.scss, kept responsive/a11y/form system in use | Baja | Medio | 3 pts | Hecho |
 
 ---
 
 ## Resumen
 
 - **Total items:** 14 (del SDD §11)
-- **Pendiente:** 5
+- **Pendiente:** 4
 - **Parcial:** 3
-- **Hecho:** 6 (#BKL-004, #BKL-008, #BKL-009, #BKL-011, #BKL-013, #BKL-014)
+- **Hecho:** 7 (#BKL-004, #BKL-008, #BKL-009, #BKL-011, #BKL-013, #BKL-014, #BKL-015)
 - **Total esfuerzo:** ~56 story points (~46 restantes estimados)
 - **Alta:** 1 | **Media:** 9 | **Baja:** 4
 
