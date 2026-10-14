@@ -6,6 +6,11 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const withPWA = require("next-pwa")({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
+  // The ONNX background-removal WASM (~24 MB) is fetched on demand at
+  // runtime, never precached: bundling it into the install payload would
+  // stall the PWA install for an optional feature. Excluding it here just
+  // silences workbox's oversize-asset warning; behavior is unchanged.
+  buildExcludes: [/ort-wasm-.*\.wasm$/],
   runtimeCaching: [
     {
       // Processed garment photos: usable offline once seen.
