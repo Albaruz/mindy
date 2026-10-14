@@ -19,7 +19,8 @@ import { buildWeatherUrl } from "@/constants/api";
 import type { Mood, GenerateLooksInput, GenerateLooksResult } from "./generatorTypes";
 import { buildCandidates } from "./generatorCandidates";
 import { callRecommender, buildRecommenderGarments, type RecommenderRequest } from "./generatorApi";
-import { readRecommenderError, formatRecommenderError, validateRecommenderResponse, type RecommenderResponse } from "./generatorResponse";
+import { readRecommenderError, formatRecommenderError, validateRecommenderResponse } from "./generatorResponse";
+import type { RecommenderResponse } from "./generatorApi";
 
 export const LOOK_STYLE_TO_MOOD: Record<LookStyle, Mood> = {
   casual: "relaxed",

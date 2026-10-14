@@ -1,7 +1,8 @@
 import type { Garment } from "@/types/garment";
 import { isLaundryExemptGarment } from "./categorizeGarments";
 import { API_ROUTES } from "@/constants/api";
-import type { RecommenderProfile, Mood, LookStyle } from "./generatorTypes";
+import type { RecommenderProfile, Mood } from "./generatorTypes";
+import type { LookStyle } from "./useGeneratorStore";
 
 export interface RecommenderGarment extends Garment {
   // For API: dirty exempt garments (footwear, outerwear) are sent as clean

@@ -49,6 +49,7 @@
 // Dialog shell is a focused exception: the same structural classes are used
 // directly by the three dialog components, while their skins remain modular.
 @use 'components/dialog-shell';
+@use 'components/auth-form';
 
 // =============================================================================
 // 8. UTILITIES (generated utility classes if needed)

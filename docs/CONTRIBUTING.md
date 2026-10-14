@@ -89,7 +89,9 @@ function Toast({ message }: any) {
 ### CSS & SCSS
 
 - **SCSS Modules** for component styles: `ComponentName.module.scss`
-- **BEM naming** when applicable: `block__element--modifier`
+- **BEM naming everywhere:** `block__element--modifier`, lowercase kebab-case blocks (`garment-card__title`), no camelCase
+- **Shared structure = global BEM class in the markup**, not a mixin or `@use` of a partial inside a module (that re-emits the CSS in every module). Example: `className={`dialog-shell__container ${styles["photo-quality__dialog"]}`}`. Global shells live in `src/styles/components/`
+- **Keyframes belong to the module that uses them.** CSS Modules hash `animation-name`, so a global `@keyframes` is never matched by a module's `animation:`. Declare `@keyframes` in the same `.module.scss`
 - **Custom Properties** from tokens: `var(--color-primary-terracota)`
 - **Mobile-first:** Media queries use `@media (min-width: ...)`
 

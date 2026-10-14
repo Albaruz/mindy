@@ -36,17 +36,17 @@ export default function ForgotPasswordPage() {
   }, [state.error]);
 
   return (
-    <section className={styles.page}>
-      <div className={styles.card}>
-        <h1 className={styles.title}>{t("resetTitle")}</h1>
-        <p className={styles.subtitle}>{t("resetSubtitle")}</p>
+    <section className="auth-form__page">
+      <div className="auth-form__card">
+        <h1 className="auth-form__title">{t("resetTitle")}</h1>
+        <p className="auth-form__subtitle">{t("resetSubtitle")}</p>
         {state.message !== null ? (
-          <p role="status" className={styles.message}>
+          <p role="status" className="auth-form__message">
             {state.message}
           </p>
         ) : (
           <form action={formAction} aria-label={t("resetTitle")}>
-            <div className={styles.field}>
+            <div className="auth-form__field auth-form__field--rounded">
               <label htmlFor="reset-email">{t("email")}</label>
               <input
                 id="reset-email"
@@ -62,7 +62,7 @@ export default function ForgotPasswordPage() {
               type="submit"
               disabled={isPending}
               aria-busy={isPending}
-              className={styles.submit}
+              className="auth-form__submit"
             >
               {isPending ? (
                 <span aria-hidden="true" className={styles.spinner} />

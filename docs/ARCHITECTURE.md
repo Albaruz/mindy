@@ -139,19 +139,25 @@ src/
     │   ├── touchTargets.json
     │   └── layout.json
     ├── core/
-    │   ├── _tokens.scss         # Auto-generated from JSON
+    │   ├── _tokens.scss         # Auto-generated from JSON (pnpm tokens:build)
+    │   ├── _variables.scss      # Semantic aliases + light/dark palettes
+    │   ├── _mixins.scss         # Legacy mixins (scheduled for removal, see REFACTOR.md)
+    │   └── _animations.scss     # Global keyframes + .animate-* classes
+    ├── base/
     │   ├── _reset.scss
-    │   ├── _mixins.scss
-    │   └── _variables.scss
-    ├── components/              # SCSS Modules by component
-    │   ├── TopNavigation.module.scss
-    │   ├── GarmentCard.module.scss
-    │   └── ...
-    └── mixins/
-        ├── _respond-to.scss     # Media queries
-        ├── _typography.scss
-        └── ...
+    │   ├── _typography.scss
+    │   └── _global.scss
+    ├── layout/
+    │   └── _skip-link.scss
+    └── components/              # GLOBAL shells used directly in markup (BEM)
+        ├── _dialog-shell.scss   # .dialog-shell__* (ConfirmDialog, GarmentFormModal, PhotoQualityDialog)
+        └── _auth-form.scss      # .auth-form__*   (login, forgot/reset password)
 ```
+
+Component styles live next to their component as `Component.module.scss`
+(CSS Modules). Structure shared by several components is **not** duplicated
+or injected with mixins: it is a global BEM class applied in the markup
+next to the component's own module class (see `docs/REFACTOR.md`).
 
 ---
 

@@ -91,15 +91,15 @@ function ResetPasswordForm() {
   }, [linkRejected]);
 
   return (
-    <section className={styles.page}>
-      <div className={styles.card}>
-        <h1 className={styles.title}>{t("updatePasswordTitle")}</h1>
-        <p className={styles.subtitle}>{t("updatePasswordSubtitle")}</p>
+    <section className="auth-form__page">
+      <div className="auth-form__card">
+        <h1 className="auth-form__title">{t("updatePasswordTitle")}</h1>
+        <p className="auth-form__subtitle">{t("updatePasswordSubtitle")}</p>
         {status === "checking" ? (
           <SmartSkeleton label={t("updatePasswordTitle")} />
         ) : status === "invalid" ? (
           <>
-            <p role="alert" className={styles.error}>
+            <p role="alert" className="auth-form__error">
               {t("resetInvalid")}
             </p>
             <Link href="/forgot-password" className={styles["back-link"]}>
@@ -107,12 +107,12 @@ function ResetPasswordForm() {
             </Link>
           </>
         ) : state.message !== null ? (
-          <p role="status" className={styles.message}>
+          <p role="status" className="auth-form__message">
             {state.message}
           </p>
         ) : (
           <form action={formAction} aria-label={t("updatePasswordTitle")}>
-            <div className={styles.field}>
+            <div className="auth-form__field auth-form__field--rounded">
               <label htmlFor="new-password">{t("newPassword")}</label>
               <PasswordInput
                 id="new-password"
@@ -126,7 +126,7 @@ function ResetPasswordForm() {
                 aria-invalid={state.error !== null}
               />
             </div>
-            <div className={styles.field}>
+            <div className="auth-form__field auth-form__field--rounded">
               <label htmlFor="confirm-password">{t("confirmPassword")}</label>
               <PasswordInput
                 id="confirm-password"
@@ -144,7 +144,7 @@ function ResetPasswordForm() {
               type="submit"
               disabled={isPending}
               aria-busy={isPending}
-              className={styles.submit}
+              className="auth-form__submit"
             >
               {isPending ? (
                 <span aria-hidden="true" className={styles.spinner} />

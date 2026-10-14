@@ -1,11 +1,14 @@
-// Shared auth form layout (page, card, title, subtitle, field, error, message, submit)
-@use "@/styles/components/_auth-form" as auth;
-
+// Login-specific details; the card shell lives in styles/components/_auth-form.
 .logo {
   display: block;
   width: auto;
   height: 4.5rem;
   margin: 0 auto;
+}
+
+// Sits under the logo, so it needs a little air the shared title lacks.
+.title {
+  margin-top: 0.5rem;
 }
 
 .tabs {

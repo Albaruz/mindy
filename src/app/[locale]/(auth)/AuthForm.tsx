@@ -104,7 +104,7 @@ export function AuthForm() {
         action={isLogin ? signInFormAction : signUpFormAction}
         aria-label={isLogin ? t("login") : t("signup")}
       >
-        <div className={styles.field}>
+        <div className="auth-form__field">
           <label htmlFor="auth-email">{t("email")}</label>
           <input
             id="auth-email"
@@ -119,7 +119,7 @@ export function AuthForm() {
             aria-describedby={state.error !== null ? "auth-form-error" : undefined}
           />
         </div>
-        <div className={styles.field}>
+        <div className="auth-form__field">
           <label htmlFor="auth-password">{t("password")}</label>
           <PasswordInput
             id="auth-password"
@@ -167,7 +167,7 @@ export function AuthForm() {
           ) : null}
         </div>
         {!isLogin ? (
-          <div className={styles.field}>
+          <div className="auth-form__field">
             <label htmlFor="auth-confirm">{t("confirmPassword")}</label>
             <PasswordInput
               id="auth-confirm"
@@ -187,12 +187,12 @@ export function AuthForm() {
         ) : null}
 
         {state.error !== null ? (
-          <p id="auth-form-error" role="alert" className={styles.error}>
+          <p id="auth-form-error" role="alert" className="auth-form__error">
             {state.error}
           </p>
         ) : null}
         {state.message !== null ? (
-          <p role="status" className={styles.message}>
+          <p role="status" className="auth-form__message">
             {state.message}
           </p>
         ) : null}
@@ -210,7 +210,7 @@ export function AuthForm() {
         <Button
           type="submit"
           disabled={isPending}
-          className={styles.submit}
+          className="auth-form__submit"
         >
           {isPending ? t("waiting") : isLogin ? t("login") : t("signup")}
         </Button>
@@ -222,7 +222,7 @@ export function AuthForm() {
       </div>
 
       {oauthError !== null ? (
-        <p role="alert" className={styles.error}>
+        <p role="alert" className="auth-form__error">
           {oauthError}
         </p>
       ) : null}

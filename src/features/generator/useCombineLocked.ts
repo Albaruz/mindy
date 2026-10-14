@@ -15,7 +15,8 @@ import type { CombineLockedInput, CombineLockedResult } from "./generatorTypes";
 import { resolveClimate } from "./useGenerateLooks";
 import { buildCandidates } from "./generatorCandidates";
 import { callRecommender, buildRecommenderGarments, type RecommenderRequest } from "./generatorApi";
-import { readRecommenderError, formatRecommenderError, validateRecommenderResponse, type RecommenderResponse } from "./generatorResponse";
+import { readRecommenderError, formatRecommenderError, validateRecommenderResponse } from "./generatorResponse";
+import type { RecommenderResponse } from "./generatorApi";
 
 // Manual "Bloquear y Generar" (wizard) inference. Unlike the auto flow,
 // it never leaves the manual view: locked carousels stay static while the

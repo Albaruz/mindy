@@ -163,6 +163,18 @@
   animation: spin 0.75s linear infinite;
 }
 
+/* Declared locally: CSS Modules hash animation names, so the global
+   `spin` keyframes would never match this reference. */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .button--full-width {
   width: 100%;
 }

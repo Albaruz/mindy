@@ -43,8 +43,8 @@ export default async function AuthPage({
   }
 
   return (
-    <section className={styles.page}>
-      <div className={styles.card}>
+    <section className="auth-form__page">
+      <div className="auth-form__card">
         <Image
           src="/images/logo-mindy.svg"
           alt="Mindy"
@@ -53,8 +53,8 @@ export default async function AuthPage({
           priority
           className={styles.logo}
         />
-        <h1 className={styles.title}>{t("title")}</h1>
-        <p className={styles.subtitle}>
+        <h1 className={`auth-form__title ${styles.title}`}>{t("title")}</h1>
+        <p className="auth-form__subtitle">
           {t("subtitle")}
         </p>
         <AuthForm />

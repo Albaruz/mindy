@@ -2,6 +2,7 @@
  * Shared recommender response handling.
  * Extracts server error messages so toasts show the real cause.
  */
+import type { RecommenderResponse } from "./generatorApi";
 
 export async function readRecommenderError(
   response: Response,
@@ -40,15 +41,4 @@ export function validateRecommenderResponse(
     Array.isArray((payload as RecommenderResponse).options) &&
     (payload as RecommenderResponse).options.length > 0
   );
-}
-
-export interface RecommenderResponse {
-  options: RecommenderOption[];
-  _isFallback?: boolean;
-}
-
-export interface RecommenderOption {
-  garmentIds: string[];
-  suitabilityRatio?: number;
-  reason?: string;
 }

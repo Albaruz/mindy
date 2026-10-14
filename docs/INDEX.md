@@ -11,6 +11,7 @@ mindy-smart-closet/
 │
 └── docs/
     ├── ARCHITECTURE.md                 ← System design & folder structure
+    ├── REFACTOR.md                     ← Ongoing refactor: decisions + phase log
     ├── API.md                          ← API reference (3 endpoints)
     ├── TESTING.md                      ← Testing strategy & execution
     ├── CONTRIBUTING.md                 ← How to contribute
