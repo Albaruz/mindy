@@ -1,5 +1,7 @@
 # Refactor Plan & Log
 
+**Status:** All Phases 0–5 + choice-group analysis merged to `main` (commit `248c327`). 27 commits ahead of origin/main. Ready for Phase 6.
+
 Living document for the structural refactor started after the SDD audit
 (2026-10). It records the **decisions taken**, the **target conventions**
 and a **log per phase**. Update it in the same change as the code of each
@@ -30,12 +32,12 @@ before review, docs updated every phase, `typecheck` + `eslint` + `vitest`
 
 | Phase | Scope | Status |
 |---|---|---|
-| 0 | Bug fixes + leftovers of the earlier cleanup | Done, pending review |
-| 1 | Types: `src/types/*`, single source for unions, strict types | Done, pending review |
-| 2 | Helpers: route guards, session, readers, laundry predicates, geo | Done, pending review |
-| 3 | Components: `QueryState`, `GarmentImage`, `FormField`/`SubmitButton`, `AuthCard`, `Dialog` | Done, pending review |
-| 4 | CSS: global semantic classes, dead mixin/keyframe removal, tokens, hard-coded values | Done, pending review |
-| 5 | Layers: query keys, shared kernel, wizard move, split large files | Done, pending review |
+| 0 | Bug fixes + leftovers of the earlier cleanup | ✓ Merged to main |
+| 1 | Types: `src/types/*`, single source for unions, strict types | ✓ Merged to main |
+| 2 | Helpers: route guards, session, readers, laundry predicates, geo | ✓ Merged to main |
+| 3 | Components: `QueryState`, `GarmentImage`, `FormField`/`SubmitButton`, `AuthCard`, `Dialog` | ✓ Merged to main |
+| 4 | CSS: global semantic classes, dead mixin/keyframe removal, tokens, hard-coded values | ✓ Merged to main |
+| 5 | Layers: query keys, shared kernel, wizard move, split large files | ✓ Merged to main |
 | 6 | Docs sync (SDD + ARCHITECTURE), i18n error codes, test naming | Pending |
 
 ## Log
