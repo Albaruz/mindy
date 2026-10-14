@@ -47,11 +47,11 @@ export function SmartSkeleton({
       role="status"
       aria-busy="true"
       aria-label={ta("loading", { label })}
-      className={cn(styles.skeleton, className)}
+      className={cn(styles["smart-skeleton"], className)}
     >
       <ThreadLoader
         path={THREAD_PATHS[variant]}
-        className={styles.skeleton__thread}
+        className={styles["smart-skeleton__thread"]}
       />
     </div>
   );

@@ -63,7 +63,7 @@ export function StepFineTuning() {
               <label
                 key={hex}
                 title={hex}
-                className={cn(styles.veto, vetoed && styles.vetoed)}
+                className={cn(styles.veto, vetoed && styles["veto--vetoed"])}
               >
                 <input
                   type="checkbox"

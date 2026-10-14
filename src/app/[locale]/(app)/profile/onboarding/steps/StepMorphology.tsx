@@ -98,7 +98,7 @@ export function StepMorphology() {
               key={option}
               className={cn(
                 styles["segment-option"],
-                fit === option && styles.selected,
+                fit === option && styles["segment-option--selected"],
               )}
             >
               <input

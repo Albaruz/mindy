@@ -11,7 +11,7 @@ Tabla con los items del backlog del documento SDD, ordenados por prioridad y dif
 | #BKL-006 | 5 | Outfit para Mañana | Selector "Hoy/Mañana" en ZeroState; usar forecast[day] en vez de current | Media | Fácil | 3 pts | Pendiente |
 | #BKL-007 | 6 | Container Queries | Migración iniciada en AppHeader, ConfirmDialog, PhotoQualityDialog y ShowcaseCard; conservar @media para tema, movimiento y viewport | Baja | Medio | 5 pts | Parcial |
 | #BKL-008 | 7 | Visual Regression | 8 snapshots Playwright (generador, armario, perfil y diálogo; claro/oscuro) con gate CI | Baja | Medio | 8 pts | Hecho |
-| #BKL-009 | 8 | BEM Completo | Completar BEM en: WeatherThreadIcon, MorphoIcon, OptionPills, ColorSwatches, LazyImage, SmartSkeleton, pasos wizard | Baja | Fácil | 3 pts | Parcial |
+| #BKL-009 | 8 | BEM Completo | BEM en WeatherThreadIcon, MorphoIcon, OptionPills, ColorSwatches, LazyImage, SmartSkeleton y pasos wizard (modificadores --selected/--vetoed) | Baja | Fácil | 3 pts | Hecho |
 | #BKL-010 | 9 | Accessibility Audit Final (WCAG 2.2 AA) | Axe 7 rutas × 2 temas + diálogos + targets 24px + reduced-motion; falta teclado completo y lector de pantalla | Alta | Medio | 5 pts | Parcial |
 | #BKL-011 | 10 | Performance Budgets | Purga hecha (#BKL-013) + gate 180KB en CI pasando (140KB); tree-shaking mixins sigue en #BKL-015 | Media | Fácil | 3 pts | Hecho |
 | #BKL-012 | 11 | Lighthouse CI (LHCI) | Gate en CI configurado y pasando (performance 92–94, a11y ≥95); falta histórico de métricas | Media | Medio | 3 pts | Parcial |
@@ -25,8 +25,8 @@ Tabla con los items del backlog del documento SDD, ordenados por prioridad y dif
 
 - **Total items:** 14 (del SDD §11)
 - **Pendiente:** 5
-- **Parcial:** 4
-- **Hecho:** 5 (#BKL-004, #BKL-008, #BKL-011, #BKL-013, #BKL-014)
+- **Parcial:** 3
+- **Hecho:** 6 (#BKL-004, #BKL-008, #BKL-009, #BKL-011, #BKL-013, #BKL-014)
 - **Total esfuerzo:** ~56 story points (~46 restantes estimados)
 - **Alta:** 1 | **Media:** 9 | **Baja:** 4
 

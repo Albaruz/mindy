@@ -71,7 +71,7 @@ export function LazyImage({
   }, [inView, isEager, rootMargin]);
 
   return (
-    <div ref={wrapperRef} className={cn(styles.wrapper, wrapperClassName)}>
+    <div ref={wrapperRef} className={cn(styles["lazy-image"], wrapperClassName)}>
       {shouldLoad && !hasError ? (
         // Supabase remote URLs have no next/image loader configured;
         // native img keeps PWA runtime caching (see next.config.js) intact.
@@ -90,12 +90,12 @@ export function LazyImage({
             setFailedSrc(src);
             onError?.(event);
           }}
-          className={cn(styles.image, isLoaded && styles.loaded, className)}
+          className={cn(styles["lazy-image__image"], isLoaded && styles["lazy-image__image--loaded"], className)}
           {...imgProps}
         />
       ) : null}
       {!isLoaded || hasError ? (
-        <div className={styles.placeholder} aria-hidden="true" />
+        <div className={styles["lazy-image__placeholder"]} aria-hidden="true" />
       ) : null}
     </div>
   );

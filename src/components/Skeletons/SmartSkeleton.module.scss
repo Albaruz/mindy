@@ -1,11 +1,11 @@
-.skeleton {
+.smart-skeleton {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 // Fixed thread canvas; the loader itself owns draw + pulse motion.
-.skeleton__thread {
+.smart-skeleton__thread {
   width: 4rem;
   height: 4rem;
 }

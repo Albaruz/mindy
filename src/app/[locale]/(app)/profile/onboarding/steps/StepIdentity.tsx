@@ -41,7 +41,7 @@ export function StepIdentity() {
               key={option}
               className={cn(
                 styles["segment-option"],
-                section === option && styles.selected,
+                section === option && styles["segment-option--selected"],
               )}
             >
               <input
@@ -72,7 +72,7 @@ export function StepIdentity() {
                 transition={{ type: "spring", stiffness: 300, damping: 22 }}
                 className={cn(
                   styles["editorial-card"],
-                  selected && styles.selected,
+                  selected && styles["editorial-card--selected"],
                 )}
               >
                 <input

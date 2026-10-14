@@ -141,12 +141,12 @@
     border-color 0.18s ease,
     color 0.18s ease,
     background-color 0.18s ease;
+}
 
-  &.selected {
-    color: var(--color-oat, #f9f6f0);
-    background: var(--color-accent, #c87966);
-    border-color: var(--color-accent, #c87966);
-  }
+.segment-option--selected {
+  color: var(--color-oat, #f9f6f0);
+  background: var(--color-accent, #c87966);
+  border-color: var(--color-accent, #c87966);
 }
 
 // Vertical editorial cards: Playfair Display, left aligned, thin
@@ -169,11 +169,11 @@
   border: 1px solid var(--color-tab-inactive, #4a3f39);
   border-radius: var(--radius-md);
   transform-origin: center;
+}
 
-  &.selected {
-    border-color: var(--color-accent, #c87966);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent, #c87966) 45%, transparent);
-  }
+.editorial-card--selected {
+  border-color: var(--color-accent, #c87966);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent, #c87966) 45%, transparent);
 }
 
 .editorial-name {
@@ -364,7 +364,8 @@
     box-shadow 0.18s ease;
 }
 
-.vetoed .veto-dot {
+.vetoed .veto-dot,
+.veto--vetoed .veto-dot {
   border-color: var(--color-error);
   box-shadow:
     0 0 0 2px var(--color-surface),
@@ -372,7 +373,8 @@
   transform: scale(1.06);
 }
 
-.vetoed .veto-dot::after {
+.vetoed .veto-dot::after,
+.veto--vetoed .veto-dot::after {
   position: absolute;
   inset: 0;
   display: flex;

@@ -27,17 +27,17 @@ export function OptionPills<T extends string>({
   hideLabel = false,
 }: OptionPillsProps<T>) {
   return (
-    <fieldset className={styles.group}>
-      <legend className={hideLabel ? styles["visually-hidden"] : undefined}>
+    <fieldset className={styles["option-pills"]}>
+      <legend className={hideLabel ? styles["option-pills__visually-hidden"] : styles["option-pills__legend"]}>
         {label}
       </legend>
-      <div className={styles.options} role="radiogroup" aria-label={label}>
+      <div className={styles["option-pills__options"]} role="radiogroup" aria-label={label}>
         {options.map((option) => {
           const selected = value === option;
           return (
             <label
               key={option}
-              className={cn(styles.option, selected && styles.selected)}
+              className={cn(styles["option-pills__option"], selected && styles["option-pills__option--selected"])}
             >
               <input
                 type="radio"
@@ -45,7 +45,7 @@ export function OptionPills<T extends string>({
                 value={option}
                 checked={selected}
                 onChange={() => onSelect(option)}
-                className={styles.radio}
+                className={styles["option-pills__radio"]}
               />
               <span>{formatOption(option)}</span>
             </label>

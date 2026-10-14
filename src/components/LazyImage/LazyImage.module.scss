@@ -1,4 +1,4 @@
-.wrapper {
+.lazy-image {
   position: relative;
   width: 100%;
   height: 100%;
@@ -6,7 +6,7 @@
   overflow: hidden;
 }
 
-.image {
+.lazy-image__image {
   display: block;
   width: 100%;
   max-width: 100%;
@@ -16,11 +16,11 @@
   transition: opacity 0.2s ease;
 }
 
-.loaded {
+.lazy-image__image--loaded {
   opacity: 1;
 }
 
-.placeholder {
+.lazy-image__placeholder {
   position: absolute;
   inset: 0;
   background: var(--color-border);
@@ -28,11 +28,11 @@
   animation: lazy-shimmer 1.4s ease-in-out infinite;
 }
 
-.image + .placeholder {
+.lazy-image__image + .lazy-image__placeholder {
   pointer-events: none;
 }
 
-.loaded + .placeholder {
+.lazy-image__image--loaded + .lazy-image__placeholder {
   display: none;
 }
 
@@ -51,11 +51,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .placeholder {
+  .lazy-image__placeholder {
     animation: none;
   }
 
-  .image {
+  .lazy-image__image {
     transition: none;
   }
 }

@@ -30,14 +30,14 @@ export function ColorSwatches<T extends string>({
   formatOption = (option) => option,
 }: ColorSwatchesProps<T>) {
   return (
-    <fieldset className={styles.swatches}>
-      <legend>
+    <fieldset className={styles["color-swatches"]}>
+      <legend className={styles["color-swatches__legend"]}>
         {label}
         {value !== "" ? (
-          <span className={styles["swatch-value"]}>{formatOption(value)}</span>
+          <span className={styles["color-swatches__value"]}>{formatOption(value)}</span>
         ) : null}
       </legend>
-      <div className={styles["swatch-row"]} role="radiogroup" aria-label={label}>
+      <div className={styles["color-swatches__row"]} role="radiogroup" aria-label={label}>
         {options.map((option) => {
           const selected = value === option;
           const optionLabel = formatOption(option);
@@ -45,7 +45,7 @@ export function ColorSwatches<T extends string>({
             <label
               key={option}
               title={optionLabel}
-              className={cn(styles.swatch, selected && styles.selected)}
+              className={cn(styles["color-swatches__swatch"], selected && styles["color-swatches__swatch--selected"])}
             >
               <input
                 type="radio"
@@ -58,15 +58,15 @@ export function ColorSwatches<T extends string>({
                     onSelect("");
                   }
                 }}
-                className={styles.radio}
+                className={styles["color-swatches__radio"]}
                 aria-label={optionLabel}
               />
               <span
                 aria-hidden="true"
-                className={styles["swatch-dot"]}
+                className={styles["color-swatches__dot"]}
                 style={{ background: swatches[option] ?? "#ccc" }}
               />
-              <span className={styles["swatch-name"]}>{optionLabel}</span>
+              <span className={styles["color-swatches__name"]}>{optionLabel}</span>
             </label>
           );
         })}
