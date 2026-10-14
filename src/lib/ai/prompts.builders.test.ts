@@ -67,6 +67,21 @@ describe("buildOutfitSystemPrompt", () => {
     expect(optional).not.toContain("Outerwear (mandatory)");
   });
 
+  it("adds the rain-safe material mandate only on wet days", () => {
+    const rainy = buildOutfitSystemPrompt(
+      null,
+      climate,
+      [],
+      null,
+      false,
+      "en",
+      true,
+    );
+    expect(rainy).toContain("Rain-safe materials");
+    const dry = buildOutfitSystemPrompt(null, climate, [], null, false);
+    expect(dry).not.toContain("Rain-safe materials");
+  });
+
   it("embeds climate details conditionally", () => {
     const prompt = buildOutfitSystemPrompt(null, climate, [], null, false);
     expect(prompt).toContain("18°C");

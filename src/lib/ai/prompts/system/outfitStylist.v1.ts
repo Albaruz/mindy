@@ -37,6 +37,7 @@ export function buildOutfitSystemPrompt(
   styleFilter: string | null = null,
   requireOuterwear = false,
   locale: string = "en",
+  requireRainSafeMaterials = false,
 ): string {
   const lockedSection =
     lockedGarments.length > 0
@@ -71,7 +72,7 @@ Shape:
 Rules:
 - Return 2 or 3 outfit options, ordered by suitability (best first).
 - Use ONLY garment IDs from the candidate list. Never invent IDs.
-- Every option needs at least a top and a bottom (plus footwear when available).${styleFilter !== null ? `\n- Style filter (strict): every outfit must be wearable for ${styleFilter}. Never mix in another style to fill a gap.` : ""}${requireOuterwear ? "\n- Outerwear (mandatory): it is raining or cold and the candidate list contains outerwear. Every outfit MUST include exactly one outerwear garment." : ""}
+- Every option needs at least a top and a bottom (plus footwear when available).${styleFilter !== null ? `\n- Style filter (strict): every outfit must be wearable for ${styleFilter}. Never mix in another style to fill a gap.` : ""}${requireOuterwear ? "\n- Outerwear (mandatory): it is raining or cold and the candidate list contains outerwear. Every outfit MUST include exactly one outerwear garment." : ""}${requireRainSafeMaterials ? "\n- Rain-safe materials: it is raining. Avoid silk, suede, and other water-sensitive materials unless the user locked them." : ""}
 - Keep "reason" to one short sentence per option.
 - Write every "reason" in ${languageName}. Keep JSON keys in English.`;
 }

@@ -31,6 +31,7 @@ export function buildOutfitPrompt(input: BuildOutfitPromptInput): BuiltOutfitPro
       input.styleFilter,
       input.requireOuterwear,
       input.locale ?? "en",
+      input.requireRainSafeMaterials ?? false,
     ),
     userPayload: buildOutfitUserPayload(input.payload),
   };

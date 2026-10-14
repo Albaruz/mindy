@@ -4,7 +4,7 @@ Tabla con los items del backlog del documento SDD, ordenados por prioridad y dif
 
 | ID | # | Funcionalidad | Descripción | Prioridad | Dificultad | Esfuerzo | Status |
 |---|---|---|---|---|---|---|---|
-| #BKL-001 | 1 | Filtrado por Material en Lluvia | Lluvia → fuerza abrigo, pero también filtra materiales (suede, silk) | Media | Fácil | 2 pts | Pendiente |
+| #BKL-001 | 1 | Filtrado por Material en Lluvia | Rain filters silk/suede candidates (locked pins survive) + rain-safe prompt mandate + x-excluded-rain observability | Media | Fácil | 2 pts | Hecho |
 | #BKL-003 | 2 | Similitud en Descartes | garment_feedback escrito pero no leído; evitar combinaciones similares con embeddings | Media | Muy Difícil | 8 pts | Pendiente |
 | #BKL-004 | 3 | Etiquetado de color_base | Pipeline de visión escribe `color_base` en extra_tags (derivado del color cerrado) | Media | Fácil | 3 pts | Hecho |
 | #BKL-005 | 4 | Starter Wardrobe | Set de 8-12 prendas básicas en onboarding; is_external_garment=true; opt-in/out | Media | Medio | 5 pts | Pendiente |
@@ -24,9 +24,9 @@ Tabla con los items del backlog del documento SDD, ordenados por prioridad y dif
 ## Resumen
 
 - **Total items:** 14 (del SDD §11)
-- **Pendiente:** 4
+- **Pendiente:** 3
 - **Parcial:** 2
-- **Hecho:** 8 (#BKL-004, #BKL-007, #BKL-008, #BKL-009, #BKL-011, #BKL-013, #BKL-014, #BKL-015)
+- **Hecho:** 9 (#BKL-001, #BKL-004, #BKL-007, #BKL-008, #BKL-009, #BKL-011, #BKL-013, #BKL-014, #BKL-015)
 - **Total esfuerzo:** ~56 story points (~46 restantes estimados)
 - **Alta:** 1 | **Media:** 9 | **Baja:** 4
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  isRainVulnerableMaterial,
   isRainyConditionValue,
   RAIN_EXPECTED_THRESHOLD,
 } from "./weather";
@@ -14,6 +15,22 @@ describe("isRainyConditionValue", () => {
 
   it("exposes rain threshold", () => {
     expect(RAIN_EXPECTED_THRESHOLD).toBe(50);
+  });
+});
+
+describe("isRainVulnerableMaterial", () => {
+  it("flags closed silk case-insensitively", () => {
+    expect(isRainVulnerableMaterial("silk", null)).toBe(true);
+    expect(isRainVulnerableMaterial("Silk", null)).toBe(true);
+    expect(isRainVulnerableMaterial("cotton", null)).toBe(false);
+    expect(isRainVulnerableMaterial(null, null)).toBe(false);
+  });
+
+  it("detects suede in free-text detail (EN/ES)", () => {
+    expect(isRainVulnerableMaterial("leather", "suede jacket")).toBe(true);
+    expect(isRainVulnerableMaterial(null, "gamuza")).toBe(true);
+    expect(isRainVulnerableMaterial(null, "ante")).toBe(true);
+    expect(isRainVulnerableMaterial("cotton", "plain weave")).toBe(false);
   });
 });
 

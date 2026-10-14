@@ -9,6 +9,7 @@ import {
   HEAT_THRESHOLD_C,
   RAIN_EXPECTED_THRESHOLD,
   RAINY_CONDITIONS,
+  isRainVulnerableMaterial,
 } from "@/constants/weather";
 import {
   buildOutfitPrompt,
@@ -51,6 +52,9 @@ interface CandidateGarment {
   // rule. Read from extra_tags; null when the closet never set it.
   colorBase: string | null;
   material: GarmentMaterial | null;
+  // Free-text material detail (suede/gamuza/ante) for the rain rule: suede
+  // has no closed value, so the closed material column cannot catch it.
+  materialDetail: string | null;
   season: GarmentSeason | null;
   style: GarmentStyle | null;
   isDirty: boolean;
@@ -91,6 +95,19 @@ function readBaseColor(value: unknown): string | null {
   return raw.trim().toLowerCase();
 }
 
+function readMaterialDetail(value: unknown): string | null {
+  if (typeof value !== "object" || value === null) {
+    return null;
+  }
+  const tags = value as Record<string, unknown>;
+  const raw =
+    tags.materialDetail ?? tags.material_detail ?? tags.specificType ?? tags.specific_type;
+  if (typeof raw !== "string" || raw.trim() === "") {
+    return null;
+  }
+  return raw.trim();
+}
+
 function toCandidate(raw: unknown): CandidateGarment | null {
   if (typeof raw !== "object" || raw === null) {
     return null;
@@ -113,6 +130,9 @@ function toCandidate(raw: unknown): CandidateGarment | null {
       record.extraTags ?? record.extra_tags,
     ),
     material: readClosed(record.material, normalizeGarmentMaterial),
+    materialDetail: readMaterialDetail(
+      record.extraTags ?? record.extra_tags,
+    ),
     season: readClosed(record.season, normalizeGarmentSeason),
     style: readClosed(record.style, normalizeGarmentStyle),
     isDirty:
@@ -333,6 +353,25 @@ function applyHeatRule(
     (candidate) => (candidate.season ?? "").toLowerCase() !== "winter",
   );
   return { kept, excludedWinterCount: candidates.length - kept.length };
+}
+
+// Rain-material rule (#BKL-001): silk spots and suede ruins in rain, so
+// vulnerable candidates never reach the LLM on wet days. Explicit user
+// pins (locked IDs) always survive: the user overrules the weather.
+function applyRainMaterialRule(
+  candidates: CandidateGarment[],
+  isRainy: boolean,
+  lockedIds: Set<string>,
+): { kept: CandidateGarment[]; excludedRainCount: number } {
+  if (!isRainy) {
+    return { kept: candidates, excludedRainCount: 0 };
+  }
+  const kept = candidates.filter(
+    (candidate) =>
+      lockedIds.has(candidate.id) ||
+      !isRainVulnerableMaterial(candidate.material, candidate.materialDetail),
+  );
+  return { kept, excludedRainCount: candidates.length - kept.length };
 }
 
 // Outerwear demand: rain (condition or >=50% probability) or cold days
@@ -736,11 +775,28 @@ export async function POST(request: Request) {
   const dayLow = readOptionalTemperature(input.dayLow);
   const dayHigh = readOptionalTemperature(input.dayHigh);
   const rainProbability = readOptionalProbability(input.rainProbability);
+  const condition = readOptionalString(input.condition);
+  const isRainy = isRainyWeather(condition, rainProbability);
+  // Pinned IDs are read before weather filtering so the rain-material
+  // rule can exempt explicit user pins (same hard-constraint contract
+  // as the style filter and the eligible gate below).
+  const requestedLockedIds = new Set(
+    readIdList(
+      input.lockedGarmentIds ?? input.fixed_garments ?? input.fixedGarments,
+    ),
+  );
   // Day-based heat rule: if it will be hot at any point today, winter
   // garments never reach the LLM, even on a mild morning.
-  const { kept, excludedWinterCount } = applyHeatRule(
+  const { kept: heatKept, excludedWinterCount } = applyHeatRule(
     candidates,
     dayHigh ?? temperatureC,
+  );
+  // Rain-material rule: silk/suede never reach the LLM on wet days
+  // unless the user explicitly pinned them.
+  const { kept, excludedRainCount } = applyRainMaterialRule(
+    heatKept,
+    isRainy,
+    requestedLockedIds,
   );
   if (kept.length === 0) {
     return NextResponse.json(
@@ -811,11 +867,12 @@ export async function POST(request: Request) {
 
   // Hard outerwear rule: with rain or cold the model must dress an
   // available coat in every option (mirrors the client carousel logic).
-  const condition = readOptionalString(input.condition);
   const outerwearRequired =
     poolHasOuterwear(cappedPool) &&
-    (isRainyWeather(condition, rainProbability) ||
-      (dayLow ?? temperatureC) < COLD_THRESHOLD_C);
+    (isRainy || (dayLow ?? temperatureC) < COLD_THRESHOLD_C);
+  // Rain-safe prompt rule: the pool is already filtered, but the mandate
+  // stops the model from favoring vulnerable leftovers (locked pins).
+  const requireRainSafeMaterials = isRainy;
 
   const locale = readLocale(input.locale ?? input.language, request);
 
@@ -836,6 +893,7 @@ export async function POST(request: Request) {
     styleFilter:
       requestedStyle !== null ? STYLE_PROMPT_LABELS[requestedStyle] : null,
     requireOuterwear: outerwearRequired,
+    requireRainSafeMaterials,
     locale,
     payload: {
       temperatureC,
@@ -843,6 +901,7 @@ export async function POST(request: Request) {
       dayHigh,
       rainProbability,
       requireOuterwear: outerwearRequired,
+      requireRainSafeMaterials,
       profile: input.profile,
       mood: readOptionalString(input.mood),
       style: requestedStyle,
@@ -904,6 +963,7 @@ export async function POST(request: Request) {
     optionsCount: options.length,
     model: isFallback ? "local-fallback" : getEngineModel(),
     excludedWinterGarments: excludedWinterCount,
+    excludedRainMaterials: excludedRainCount,
     excludedDismissedGarments: kept.length - eligible.length,
   });
   // Debug headers for observability (safe to expose, no secrets)
@@ -912,6 +972,7 @@ export async function POST(request: Request) {
     "x-fallback": String(isFallback),
     "x-options-count": String(options.length),
     "x-excluded-winter": String(excludedWinterCount),
+    "x-excluded-rain": String(excludedRainCount),
     "x-excluded-dismissed": String(kept.length - eligible.length),
     "x-request-id": requestId,
   };
@@ -922,6 +983,7 @@ export async function POST(request: Request) {
       requiredOuterwear: outerwearRequired,
       _isFallback: isFallback,
       excludedWinterGarments: excludedWinterCount,
+      excludedRainMaterials: excludedRainCount,
       excludedDismissedGarments: kept.length - eligible.length,
       model: isFallback ? "local-fallback" : getEngineModel(),
     },

@@ -24,16 +24,22 @@ vi.mock("@/lib/ai/engine", () => ({
 
 import { POST } from "./route";
 
-function buildGarment(id: string, type: string, style = "casual") {
+function buildGarment(
+  id: string,
+  type: string,
+  style = "casual",
+  material = "cotton",
+  extraTags: Record<string, unknown> = {},
+) {
   return {
     garmentId: id,
     garmentType: type,
     color: "black",
-    material: "cotton",
+    material,
     season: "all",
     style,
     isDirty: false,
-    extraTags: {},
+    extraTags,
   };
 }
 
@@ -287,6 +293,68 @@ describe("POST /api/recommender extended coverage", () => {
     const body = await response.json();
     expect(response.status).toBe(200);
     expect(body.requiredOuterwear).toBe(false);
+  });
+
+  it("filters rain-vulnerable silk on rainy conditions", async () => {
+    const garments = [
+      buildGarment("a", "top", "casual", "silk"),
+      buildGarment("b", "top"),
+      buildGarment("c", "bottom"),
+    ];
+    mockGenerate.mockResolvedValue(okOptions(["b", "c"]));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20, condition: "Rain" }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.excludedRainMaterials).toBe(1);
+    expect(response.headers.get("x-excluded-rain")).toBe("1");
+  });
+
+  it("filters suede detail on high rain probability", async () => {
+    const garments = [
+      buildGarment("a", "top", "casual", "leather", {
+        materialDetail: "suede",
+      }),
+      buildGarment("b", "top"),
+      buildGarment("c", "bottom"),
+    ];
+    mockGenerate.mockResolvedValue(okOptions(["b", "c"]));
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20, rainProbability: 80 }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.excludedRainMaterials).toBe(1);
+  });
+
+  it("keeps silk on dry days and lets locked silk survive rain", async () => {
+    const dryGarments = [
+      buildGarment("a", "top", "casual", "silk"),
+      buildGarment("b", "bottom"),
+    ];
+    mockGenerate.mockResolvedValue(okOptions(["a", "b"]));
+    const dry = await POST(
+      buildRequest({ garments: dryGarments, temperatureC: 20 }),
+    );
+    expect((await dry.json()).excludedRainMaterials).toBe(0);
+
+    const lockedGarments = [
+      buildGarment("a", "top", "casual", "silk"),
+      buildGarment("b", "bottom"),
+    ];
+    mockGenerate.mockResolvedValue(okOptions(["a", "b"]));
+    const rainy = await POST(
+      buildRequest({
+        garments: lockedGarments,
+        temperatureC: 20,
+        condition: "Rain",
+        lockedGarmentIds: ["a"],
+      }),
+    );
+    const body = await rainy.json();
+    expect(rainy.status).toBe(200);
+    expect(body.excludedRainMaterials).toBe(0);
   });
 
   it("caps an oversized pool with round-robin balance and overflow fill", async () => {

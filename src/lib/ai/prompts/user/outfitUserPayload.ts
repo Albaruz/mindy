@@ -13,6 +13,9 @@ export interface OutfitUserPayloadInput {
   dayHigh: number | null;
   rainProbability: number | null;
   requireOuterwear: boolean;
+  // Rain-safe material mandate echoed for the model (#BKL-001).
+  // Optional so older callers keep compiling; defaults to false.
+  requireRainSafeMaterials?: boolean;
   // Raw profile object echoed for the model (may be null on anonymous
   // or corrupt input); the structured summary lives in the system prompt.
   profile: unknown;
@@ -35,6 +38,7 @@ export function buildOutfitUserPayload(
     dayHigh: input.dayHigh,
     rainProbability: input.rainProbability,
     requireOuterwear: input.requireOuterwear,
+    requireRainSafeMaterials: input.requireRainSafeMaterials ?? false,
     profile: typeof input.profile === "object" ? input.profile : null,
     mood: input.mood,
     style: input.style,
@@ -50,6 +54,9 @@ export interface BuildOutfitPromptInput {
   lockedGarments: LockedGarmentSummary[];
   styleFilter: string | null;
   requireOuterwear: boolean;
+  // Rain-safe material mandate (#BKL-001): set on wet days so the model
+  // avoids silk/suede leftovers (user-locked pins). Defaults to false.
+  requireRainSafeMaterials?: boolean;
   // Active app locale ("en" | "es"): only localizes the "reason" text,
   // JSON keys stay in English. Defaults to "en" when omitted.
   locale?: string;
