@@ -16,7 +16,7 @@ import { useGarmentTranslator } from "@/lib/translateGarment";
 import { CAROUSEL_LOOP_MIN_SLIDES } from "@/constants/generator";
 import { LazyImage } from "@/components/LazyImage/LazyImage";
 import { SmartSkeleton } from "@/components/Skeletons/SmartSkeleton";
-import type { Category } from "./useGeneratorStore";
+import type { Category } from "@/types/garment";
 import styles from "./CategoryCarousel.module.scss";
 
 interface CategoryCarouselProps {

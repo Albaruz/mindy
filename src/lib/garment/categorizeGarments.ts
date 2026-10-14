@@ -1,6 +1,6 @@
 import type { Garment } from "@/types/garment";
-import type { Category } from "./useGeneratorStore";
-import { normalizeGarmentType } from "@/features/closet/garmentOptions";
+import type { Category } from "@/types/garment";
+import { normalizeGarmentType } from "./normalizers";
 
 // Closed-vocabulary mapping: garment_type IS the macro category, except
 // "dress" which covers top + bottom in a single item (one-piece).

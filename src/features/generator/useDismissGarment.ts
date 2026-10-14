@@ -1,11 +1,8 @@
 import { createClient } from "@/lib/supabase/client";
-import type { Garment } from "@/types/garment";
+import type { Category, Garment } from "@/types/garment";
 import { TABLES } from "@/constants/storage";
 import { getSessionUser } from "@/lib/supabase/session";
-import {
-  useGeneratorStore,
-  type Category,
-} from "./useGeneratorStore";
+import { useGeneratorStore } from "./useGeneratorStore";
 
 // Negative feedback ("change garment"): swaps the slot for another garment
 // of the same category and records the dismissal. The swap applies

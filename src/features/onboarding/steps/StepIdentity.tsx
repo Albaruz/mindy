@@ -9,7 +9,7 @@ import {
   STYLE_TRIBES,
 } from "@/constants/ui-config";
 import { useOnboardingStore } from "@/features/onboarding/onboardingStore";
-import styles from "../page.module.scss";
+import styles from "../OnboardingWizard.module.scss";
 
 // Step 2: shopping section (giant segmented) + style tribe as vertical
 // editorial cards (Playfair, thin Brown Ash border, scale on select).

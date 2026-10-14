@@ -10,7 +10,7 @@ import {
   MEASURE_MIN_CM,
 } from "@/constants/ui-config";
 import { useOnboardingStore } from "@/features/onboarding/onboardingStore";
-import styles from "../page.module.scss";
+import styles from "../OnboardingWizard.module.scss";
 
 interface MeasureSliderProps {
   field: "chestCm" | "waistCm" | "hipCm";
@@ -34,7 +34,7 @@ function MeasureSlider({ field, label, guideSrc }: MeasureSliderProps) {
         height={96}
         className={styles["measure-guide"]}
       />
-      <output htmlFor={field} className={styles["measure-value"]}>
+      <output htmlFor={field} className={styles["measureValue"]}>
         {value}
         <span className={styles["measure-unit"]}>cm</span>
       </output>
@@ -50,7 +50,7 @@ function MeasureSlider({ field, label, guideSrc }: MeasureSliderProps) {
           setMeasurement(field, Number(event.target.value))
         }
         aria-label={ta("measureCentimeters", { label })}
-        aria-valuetext={ta("measure-value", { value })}
+        aria-valuetext={ta("measureValue", { value })}
         className={styles["vertical-range"]}
       />
       <span className={styles["measure-name"]}>{label}</span>

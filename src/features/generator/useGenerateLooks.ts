@@ -2,18 +2,17 @@ import { useMutation } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { getCurrentPosition } from "@/lib/geolocation";
 import { readFiniteNumber } from "@/lib/readers";
-import type { Garment } from "@/types/garment";
+import type { Category, Garment } from "@/types/garment";
 import {
   useGeneratorStore,
   type AiLook,
-  type Category,
   type LookStyle,
 } from "./useGeneratorStore";
 import {
   categorizeGarment,
   withoutHiddenBottom,
-} from "./categorizeGarments";
-import { useNotificationStore } from "@/features/ui/useNotificationStore";
+} from "@/lib/garment/categorizeGarments";
+import { useNotificationStore } from "@/stores/useNotificationStore";
 import { MAX_LOOK_OPTIONS } from "@/constants/generator";
 import { DEFAULT_TEMPERATURE_C } from "@/constants/weather";
 import { buildWeatherUrl } from "@/constants/api";

@@ -17,8 +17,9 @@ You are an AI assistant helping to build a Progressive Web App (PWA) for digital
 ## 📁 Architecture Rules
 Follow the existing **Feature-Driven** structure:
 - `/src/app`: Routing, Layouts, and main views.
-- `/src/features`: Encapsulated business domains (e.g., `closet`, `generator`, `profile`).
-- `/src/components`: Dumb, global UI Kit components (agnostic).
+- `/src/features`: Encapsulated business domains (e.g., `closet`, `generator`, `profile`, `onboarding`). A feature never imports another feature (ESLint-enforced; allowlist of three data hooks in `eslint.config.mjs`). Code several features share goes to `lib/` (e.g. `lib/garment`), `stores/`, `constants/` or `types/`. Query keys live in `constants/query.ts`.
+- `/src/components`: Dumb, global UI Kit components (agnostic). `components/`, `lib/` and `stores/` never import `features/`.
+- `/src/lib`, `/src/stores`: Shared logic and cross-cutting Zustand stores.
 - `/src/app/api`: Server Route Handlers (used as a secure layer for Groq/OpenWeather).
 - `/src/types`: Strict TS interfaces and types.
 - `/src/constants`: **Centralized constants (Single Source of Truth)**. Never inline magic strings/numbers in features. Import from `@/constants/*`. Each module documents its domain and usage.

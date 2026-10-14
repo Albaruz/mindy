@@ -1,15 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
-import type { Garment } from "@/types/garment";
-import {
-  useGeneratorStore,
-  type Category,
-} from "./useGeneratorStore";
+import type { Category, Garment } from "@/types/garment";
+import { useGeneratorStore } from "./useGeneratorStore";
 import {
   categorizeGarment,
   isOnePieceGarment,
-} from "./categorizeGarments";
-import { useNotificationStore } from "@/features/ui/useNotificationStore";
+} from "@/lib/garment/categorizeGarments";
+import { useNotificationStore } from "@/stores/useNotificationStore";
 import { MAX_LOOK_OPTIONS } from "@/constants/generator";
 import type { CombineLockedInput, CombineLockedResult } from "./generatorTypes";
 import { resolveClimate } from "./useGenerateLooks";

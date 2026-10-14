@@ -6,7 +6,7 @@ import {
   normalizeGarmentSeason,
   normalizeGarmentStyle,
   normalizeGarmentType,
-} from "./garmentOptions";
+} from "./normalizers";
 
 describe("normalizeGarmentType", () => {
   it("returns base for closed values", () => {

@@ -8,7 +8,7 @@ import { PasswordInput } from "@/components/PasswordInput/PasswordInput";
 import { SmartSkeleton } from "@/components/Skeletons/SmartSkeleton";
 import { Link, useRouter } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { useNotificationStore } from "@/features/ui/useNotificationStore";
+import { useNotificationStore } from "@/stores/useNotificationStore";
 import { PASSWORD_MIN_LENGTH } from "@/constants/validation";
 import {
   REDIRECT_DELAY_MS,

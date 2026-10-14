@@ -22,7 +22,7 @@ vi.mock("next-intl", () => ({
 }));
 
 import { useDoLaundry } from "./useDoLaundry";
-import { useNotificationStore } from "@/features/ui/useNotificationStore";
+import { useNotificationStore } from "@/stores/useNotificationStore";
 
 function createWrapper() {
   const client = new QueryClient({

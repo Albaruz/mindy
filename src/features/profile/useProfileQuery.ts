@@ -2,11 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import type { UserProfile } from "@/types/user";
 import { toProfile, type ProfileRow } from "./profileMappers";
-import { QUERY_KEYS } from "@/constants/query";
+import { ENTITY_GC_TIME_MS, ENTITY_STALE_TIME_MS, QUERY_KEYS } from "@/constants/query";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { getSessionUser } from "@/lib/supabase/session";
-
-export const PROFILE_QUERY_KEY = QUERY_KEYS.profile;
 
 // Columns used by the app (mirrors ProfileRow). Avoid select("*") to reduce payload.
 const PROFILE_COLUMNS = `
@@ -48,10 +46,10 @@ async function fetchProfile(): Promise<UserProfile | null> {
 
 export function useProfileQuery() {
   return useQuery({
-    queryKey: PROFILE_QUERY_KEY,
+    queryKey: QUERY_KEYS.profile,
     queryFn: fetchProfile,
-    staleTime: 5 * 60 * 1000,   // 5 min: profile rarely changes
-    gcTime: 10 * 60 * 1000,     // 10 min: keep cache
+    staleTime: ENTITY_STALE_TIME_MS,
+    gcTime: ENTITY_GC_TIME_MS,
     refetchOnWindowFocus: false,
   });
 }

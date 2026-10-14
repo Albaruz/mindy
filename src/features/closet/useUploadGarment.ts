@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { QUERY_KEYS } from "@/constants/query";
 import { useLocale, useTranslations } from "next-intl";
 import { useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
@@ -10,9 +11,8 @@ import type {
   GarmentStyle,
   GarmentType,
 } from "@/types/garment";
-import { useNotificationStore } from "@/features/ui/useNotificationStore";
+import { useNotificationStore } from "@/stores/useNotificationStore";
 import { MAX_UPLOAD_FILE_SIZE_BYTES } from "@/constants/validation";
-import { GARMENTS_QUERY_KEY } from "./useClosetQuery";
 import { toDownscaledDataUrl } from "./garmentImage";
 import { removeBackgroundWithFallback } from "./backgroundRemoval";
 import {
@@ -65,7 +65,7 @@ export function useUploadGarment() {
       client: supabase,
       userId: user.id,
       invalidateGarments: () =>
-        queryClient.invalidateQueries({ queryKey: GARMENTS_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments }),
       onProgress: setProgressNote,
       progressResizing: t("uploadResizing"),
       progressUploading: t("uploadUploading"),

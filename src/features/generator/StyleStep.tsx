@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/Button/Button";
 import { OptionPills } from "@/components/OptionPills/OptionPills";
-import { GARMENT_STYLES } from "@/features/closet/garmentOptions";
+import { GARMENT_STYLE_VALUES } from "@/constants/garment";
 import type { LookStyle } from "./useGeneratorStore";
 import styles from "./StyleStep.module.scss";
 
@@ -13,7 +13,7 @@ interface StyleStepProps {
   onBack: () => void;
 }
 
-const OPTIONS: readonly LookStyle[] = GARMENT_STYLES;
+const OPTIONS: readonly LookStyle[] = GARMENT_STYLE_VALUES;
 
 export function StyleStep({ value, isPending, onChange, onConfirm, onBack }: StyleStepProps) {
   const t = useTranslations("Generator");

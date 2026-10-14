@@ -1,12 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import type { Garment } from "@/types/garment";
-import { toGarment, type GarmentRow } from "./garmentMappers";
-import { QUERY_KEYS } from "@/constants/query";
+import { toGarment, type GarmentRow } from "@/lib/garment/garmentMappers";
+import { ENTITY_GC_TIME_MS, ENTITY_STALE_TIME_MS, QUERY_KEYS } from "@/constants/query";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { getSessionUser } from "@/lib/supabase/session";
-
-export const GARMENTS_QUERY_KEY = QUERY_KEYS.garments;
 
 // Columns used by the app (mirrors GarmentRow). Avoid select("*") to reduce payload.
 const GARMENT_COLUMNS = `
@@ -47,10 +45,10 @@ async function fetchClosetGarments(): Promise<Garment[]> {
 
 export function useClosetQuery() {
   return useQuery({
-    queryKey: GARMENTS_QUERY_KEY,
+    queryKey: QUERY_KEYS.garments,
     queryFn: fetchClosetGarments,
-    staleTime: 5 * 60 * 1000,   // 5 min: closet rarely changes during session
-    gcTime: 10 * 60 * 1000,     // 10 min: keep cache for quick navigation back
+    staleTime: ENTITY_STALE_TIME_MS,
+    gcTime: ENTITY_GC_TIME_MS,
     refetchOnWindowFocus: false,
   });
 }

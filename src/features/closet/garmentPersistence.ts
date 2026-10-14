@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { GARMENT_UPLOAD_WIDTH_PX } from "@/constants/validation";
 import { STORAGE_BUCKETS, TABLES } from "@/constants/storage";
 import { resizeToWidth } from "./garmentImage";
-import { buildVisionExtraTags } from "./garmentMappers";
+import { buildVisionExtraTags } from "@/lib/garment/garmentMappers";
 import type { InferredTags } from "./garmentAnalysis";
 
 // Storage bucket for garment photos. Re-exported from centralized

@@ -9,7 +9,7 @@ import {
   THERMAL_MIN,
 } from "@/constants/ui-config";
 import { useOnboardingStore } from "@/features/onboarding/onboardingStore";
-import styles from "../page.module.scss";
+import styles from "../OnboardingWizard.module.scss";
 
 // Step 5: thermal slider (1 = chilly, 5 = always warm) + veto color circles.
 export function StepFineTuning() {
@@ -29,8 +29,8 @@ export function StepFineTuning() {
       <p className={styles.lead}>{t("quirksTitle")}</p>
 
       <div className={styles.fieldset}>
-        <label htmlFor="thermal" className={styles["thermal-label"]}>
-          {t("thermal-label")}
+        <label htmlFor="thermal" className={styles["thermalLabel"]}>
+          {t("thermalLabel")}
         </label>
         <div className={styles["thermal-scale"]} aria-hidden="true">
           <span>{t("thermalCold")}</span>
@@ -45,12 +45,12 @@ export function StepFineTuning() {
           step={1}
           value={thermal}
           onChange={(event) => setThermal(Number(event.target.value))}
-          aria-label={t("thermal-label")}
-          aria-valuetext={t("thermal-value", { value: thermal })}
+          aria-label={t("thermalLabel")}
+          aria-valuetext={t("thermalValue", { value: thermal })}
           className={styles["thick-range"]}
         />
-        <p className={styles["thermal-value"]} aria-hidden="true">
-          {t("thermal-value", { value: thermal })}
+        <p className={styles["thermalValue"]} aria-hidden="true">
+          {t("thermalValue", { value: thermal })}
         </p>
       </div>
 

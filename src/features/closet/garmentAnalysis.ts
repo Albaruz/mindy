@@ -16,7 +16,7 @@ import {
   normalizeGarmentSeason,
   normalizeGarmentStyle,
   normalizeGarmentType,
-} from "./garmentOptions";
+} from "@/lib/garment/normalizers";
 import { API_ROUTES } from "@/constants/api";
 
 export interface InferredTags {

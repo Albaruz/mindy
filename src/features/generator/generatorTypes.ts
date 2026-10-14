@@ -1,6 +1,7 @@
 import type { Garment } from "@/types/garment";
 import type { UserProfile } from "@/types/user";
-import type { AiLook, Category, LookStyle } from "./useGeneratorStore";
+import type { Category } from "@/types/garment";
+import type { AiLook, LookStyle } from "./useGeneratorStore";
 
 // Generator domain types shared by the recommender hooks and views.
 // Category, LookStyle and AiLook keep a single definition in

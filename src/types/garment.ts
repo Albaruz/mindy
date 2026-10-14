@@ -55,3 +55,7 @@ export interface Garment {
   extraTags: GarmentExtraTags;
   createdAt: string;
 }
+
+// Generator slot / carousel category: the macro group a garment belongs to
+// (a dress covers top + bottom, see lib/garment/categorizeGarments).
+export type Category = "top" | "bottom" | "footwear" | "outerwear";

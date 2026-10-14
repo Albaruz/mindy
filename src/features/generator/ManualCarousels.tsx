@@ -8,12 +8,13 @@ import "swiper/css/effect-coverflow";
 import { BottomActionBar } from "@/components/BottomActionBar/BottomActionBar";
 import { useClosetQuery } from "@/features/closet/useClosetQuery";
 import { useProfileQuery } from "@/features/profile/useProfileQuery";
-import { useGeneratorStore, type Category } from "./useGeneratorStore";
+import type { Category } from "@/types/garment";
+import { useGeneratorStore } from "./useGeneratorStore";
 import {
   categorizeGarments,
   isOnePieceGarment,
   isWearableGarment,
-} from "./categorizeGarments";
+} from "@/lib/garment/categorizeGarments";
 import { shouldShowOuterwear, useWeatherQuery } from "./useWeatherQuery";
 import { useDismissGarment } from "./useDismissGarment";
 import { useCombineLocked } from "./useCombineLocked";

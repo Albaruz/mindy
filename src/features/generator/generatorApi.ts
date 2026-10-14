@@ -1,5 +1,5 @@
 import type { Garment } from "@/types/garment";
-import { isLaundryExemptGarment } from "./categorizeGarments";
+import { isLaundryExemptGarment } from "@/lib/garment/categorizeGarments";
 import { API_ROUTES } from "@/constants/api";
 import type { RecommenderProfile, Mood } from "./generatorTypes";
 import type { LookStyle } from "./useGeneratorStore";

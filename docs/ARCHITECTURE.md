@@ -41,69 +41,37 @@ src/
 │   ├── layout.tsx               # Root layout
 │   └── globals.scss             # Global styles
 │
-├── features/                    # Business domain modules
-│   ├── generator/
-│   │   ├── hooks/
-│   │   │   ├── useGeneratorStore.ts
-│   │   │   ├── useRecommender.ts
-│   │   │   └── useWearToday.ts
-│   │   ├── components/
-│   │   │   ├── ZeroState.tsx
-│   │   │   ├── StyleStep.tsx
-│   │   │   ├── LoadingLooks.tsx
-│   │   │   ├── LookShowcase.tsx
-│   │   │   └── ManualCarousels.tsx
-│   │   └── types.ts
-│   ├── closet/
-│   │   ├── hooks/
-│   │   │   ├── useGarments.ts
-│   │   │   ├── useSearchGarments.ts
-│   │   │   └── useUploadGarment.ts
-│   │   ├── components/
-│   │   │   ├── GarmentGrid.tsx
-│   │   │   ├── SearchBar.tsx
-│   │   │   ├── GarmentCard.tsx
-│   │   │   └── GarmentFormModal.tsx
-│   │   └── types.ts
-│   ├── profile/
-│   ├── onboarding/
-│   └── index.ts
+├── features/                    # Business domains (isolated: see "Layering rules" below)
+│   ├── generator/               # Outfit generation: store, hooks, carousels, showcase, celebration
+│   ├── closet/                  # Wardrobe: queries/mutations, upload pipeline, inventory + laundry hooks
+│   │   ├── useClosetInventory.ts     # Search / category / clean-vs-laundry view state
+│   │   ├── useLaundryActions.ts      # Optimistic wash + wash-all celebration
+│   │   ├── useGarmentDeletion.ts     # Confirm-then-delete flow
+│   │   ├── GarmentSourcePicker.tsx   # Add button + camera/gallery sheet
+│   │   └── garmentOptions.ts         # Closet UI data (swatches, form option lists)
+│   ├── profile/                 # Profile, laundry basket, colorimetry UI
+│   ├── history/                 # Outfit history (calendar)
+│   ├── onboarding/              # 5-step wizard (OnboardingWizard + steps/), store, inference
+│   └── settings/                # Theme store + settings controls
 │
-├── components/                  # Global reusable UI kit (dumb)
-│   ├── TopNavigation.tsx
-│   ├── BottomActionBar.tsx
-│   ├── AppHeader.tsx
-│   ├── NotificationContainer.tsx
-│   ├── SmartSkeleton.tsx
-│   ├── LazyImage.tsx
-│   └── ...
+├── stores/                      # Cross-cutting Zustand stores (notifications)
 │
-├── lib/
-│   ├── ai/
-│   │   ├── prompts/system/
-│   │   │   ├── garmentAnalysis.v1.ts      # Pure vision prompt
-│   │   │   ├── lookRecommender.v1.ts      # Pure recommendation prompt
-│   │   │   └── ...
-│   │   ├── engine.ts                      # Groq SDK + retry + parsing
-│   │   └── index.ts
-│   ├── db/                               # Supabase query helpers
-│   │   ├── garments.ts
-│   │   ├── profiles.ts
-│   │   ├── outfitHistory.ts
-│   │   └── ...
-│   ├── hooks/                            # Custom React hooks
-│   │   ├── useAuth.ts
-│   │   ├── useLocalStorage.ts
-│   │   ├── useDialogFocus.ts
-│   │   └── ...
-│   ├── logger.ts                         # Centralized observability
-│   ├── utils/
-│   │   ├── normalizeGarment.ts
-│   │   ├── categorizeGarment.ts
-│   │   ├── inferColorimetry.ts
-│   │   └── ...
-│   └── index.ts
+├── components/                  # Feature-agnostic UI kit (never imports features/)
+│   ├── Dialog/                  # Compound modal (focus trap, ARIA); ConfirmDialog builds on it
+│   ├── GarmentImage/  QueryState/  AuthCard/  FormField/  SubmitButton/
+│   └── Button/  EmptyState/  OptionPills/  ColorSwatches/  SegmentedControl/  ...
 │
+├── lib/                         # Shared logic (never imports features/)
+│   ├── ai/                      # Groq engine + versioned prompts (prompts/system/*.v1.ts)
+│   ├── api/routeGuards.ts       # Auth + rate limit + JSON body guards for Route Handlers
+│   ├── garment/                 # Shared garment kernel
+│   │   ├── normalizers.ts       #   free/AI text -> closed vocabularies
+│   │   ├── categorizeGarments.ts#   category rules + laundry predicates
+│   │   └── garmentMappers.ts    #   DB row <-> Garment
+│   ├── recommender/             # Server-side recommender rules used by api/recommender/route.ts
+│   │   └── request | styleFilter | weatherRules | pool | fallback | llmOptions | types
+│   ├── supabase/                # Clients, cookies, middleware, session helpers
+│   ├── readers.ts  geolocation.ts  taxonomy.ts  logger.ts  rateLimit.ts  useDialogFocus.ts  ...
 ├── constants/                   # SSOT: values only (closed vocabularies as `as const` arrays)
 │   ├── ai.ts                   # AI-related (prompts config, timeouts)
 │   ├── api.ts                  # API rate limits, timeouts
@@ -396,3 +364,4 @@ Client: TanStack Query caches result
 - **a11y:** axe-core + @axe-core/playwright
 
 [Testing details →](./TESTING.md)
+

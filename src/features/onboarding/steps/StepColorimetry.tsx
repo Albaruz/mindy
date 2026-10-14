@@ -10,7 +10,7 @@ import {
   SKIN_TONES,
 } from "@/constants/profile";
 import { useOnboardingStore } from "@/features/onboarding/onboardingStore";
-import styles from "../page.module.scss";
+import styles from "../OnboardingWizard.module.scss";
 
 // Flat metallic gradients: no heavy shadows, no 3D, just a subtle sheen.
 const JEWELRY_SWATCHES: Record<string, string> = {

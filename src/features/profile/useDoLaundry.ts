@@ -1,9 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/query";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
-import { GARMENTS_QUERY_KEY } from "@/features/closet/useClosetQuery";
-import { useNotificationStore } from "@/features/ui/useNotificationStore";
-import { LAUNDRY_QUERY_KEY } from "./useLaundryBasketQuery";
+import { useNotificationStore } from "@/stores/useNotificationStore";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { requireUser } from "@/lib/supabase/session";
 
@@ -28,8 +27,8 @@ export function useDoLaundry() {
       }
     },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: LAUNDRY_QUERY_KEY });
-      void queryClient.invalidateQueries({ queryKey: GARMENTS_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.laundryBasket });
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments });
     },
     onError: () => {
       useNotificationStore

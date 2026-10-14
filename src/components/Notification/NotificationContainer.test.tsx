@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { NotificationContainer } from "./NotificationContainer";
-import { useNotificationStore } from "@/features/ui/useNotificationStore";
+import { useNotificationStore } from "@/stores/useNotificationStore";
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,

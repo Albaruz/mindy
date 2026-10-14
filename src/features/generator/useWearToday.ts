@@ -1,14 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/constants/query";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
-import { GARMENTS_QUERY_KEY } from "@/features/closet/useClosetQuery";
-import { HISTORY_QUERY_KEY } from "@/features/history/useHistoryQuery";
-import { useNotificationStore } from "@/features/ui/useNotificationStore";
+import { useNotificationStore } from "@/stores/useNotificationStore";
 import { useGeneratorStore } from "./useGeneratorStore";
 import {
   isWashableGarment,
   withoutHiddenBottom,
-} from "./categorizeGarments";
+} from "@/lib/garment/categorizeGarments";
 import type { Garment } from "@/types/garment";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { requireUser } from "@/lib/supabase/session";
@@ -59,10 +58,10 @@ export function useWearToday() {
       return wornGarments;
     },
     onSuccess: (garments) => {
-      // The calendar reads outfit_history through HISTORY_QUERY_KEY: without
+      // The calendar reads outfit_history through QUERY_KEYS.history: without
       // invalidating it the new look only appears after a manual reload.
-      void queryClient.invalidateQueries({ queryKey: GARMENTS_QUERY_KEY });
-      void queryClient.invalidateQueries({ queryKey: HISTORY_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments });
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.history });
       // The full-screen celebration replaces the success toast.
       useGeneratorStore.getState().showCelebration(garments);
     },

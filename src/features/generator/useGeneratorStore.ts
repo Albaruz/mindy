@@ -1,9 +1,7 @@
 import { create } from "zustand";
-import type { Garment, GarmentStyle } from "@/types/garment";
+import type { Category, Garment, GarmentStyle } from "@/types/garment";
 import { MAX_DISCARD_COUNT } from "@/constants/generator";
-import { categorizeGarment } from "./categorizeGarments";
-
-export type Category = "top" | "bottom" | "footwear" | "outerwear";
+import { categorizeGarment } from "@/lib/garment/categorizeGarments";
 
 export interface Slot {
   garment: Garment | null;

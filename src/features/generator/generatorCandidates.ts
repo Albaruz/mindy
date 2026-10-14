@@ -1,5 +1,5 @@
 import type { Garment } from "@/types/garment";
-import { isWearableGarment } from "./categorizeGarments";
+import { isWearableGarment } from "@/lib/garment/categorizeGarments";
 
 /**
  * Filters garments to build the candidate set for the recommender.

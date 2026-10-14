@@ -1,7 +1,7 @@
 import type { Garment } from "@/types/garment";
 import type { CategoryFilter } from "@/types/ui";
-import type { Category } from "@/features/generator/useGeneratorStore";
-import { categorizeGarment } from "@/features/generator/categorizeGarments";
+import type { Category } from "@/types/garment";
+import { categorizeGarment } from "@/lib/garment/categorizeGarments";
 import { expandSearchQuery, normalizeSearchText } from "@/lib/taxonomy";
 
 // Generic base color stored inside the extra_tags JSONB (e.g. "rojo" for a

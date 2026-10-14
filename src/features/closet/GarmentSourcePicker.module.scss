@@ -1,0 +1,62 @@
+.file-input {
+  display: none;
+}
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+}
+
+.sheet {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(var(--tabbar-height) + 5rem);
+  z-index: 31;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(16rem, calc(100% - 2rem));
+  padding: 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0.5rem 1.5rem rgba(74, 63, 57, 0.18);
+}
+
+.sheet-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-oat);
+  }
+}
+
+.fab {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(var(--tabbar-height) + 1rem);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  color: #ffffff;
+  background: var(--color-accent);
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}

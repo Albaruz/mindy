@@ -39,7 +39,7 @@ vi.mock("@/lib/supabase/client", () => ({
 }));
 
 import { useUploadGarment } from "./useUploadGarment";
-import { useNotificationStore } from "@/features/ui/useNotificationStore";
+import { useNotificationStore } from "@/stores/useNotificationStore";
 
 function createWrapper() {
   const client = new QueryClient({

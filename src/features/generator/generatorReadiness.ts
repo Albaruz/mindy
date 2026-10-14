@@ -1,13 +1,13 @@
 import { REQUIRED_GENERATOR_CATEGORIES } from "@/constants/generator";
 import type { Garment } from "@/types/garment";
-import type { Category } from "./useGeneratorStore";
+import type { Category } from "@/types/garment";
 import {
   categorizeGarment,
   isInLaundryGarment,
   isOnePieceGarment,
   isWashableGarment,
   isWearableGarment,
-} from "./categorizeGarments";
+} from "@/lib/garment/categorizeGarments";
 
 export type GeneratorReadiness =
   | { status: "ready" }

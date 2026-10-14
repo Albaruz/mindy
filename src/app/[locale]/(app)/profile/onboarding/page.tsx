@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { hasCompletedOnboarding, localizePath } from "@/lib/onboarding";
 import { toProfile, type ProfileRow } from "@/features/profile/profileMappers";
-import { OnboardingWizard } from "./OnboardingWizard";
+import { OnboardingWizard } from "@/features/onboarding/OnboardingWizard";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 
 // Completed profiles skip the wizard and go straight to the generator,

@@ -9,8 +9,6 @@ import { getCurrentPosition } from "@/lib/geolocation";
 import { buildWeatherUrl } from "@/constants/api";
 import type { WeatherInfo } from "@/types/weather";
 
-export const WEATHER_QUERY_KEY = QUERY_KEYS.weather;
-
 // Outdoor conditions that call for an outerwear layer.
 export function isRainyCondition(condition: string | null | undefined): boolean {
   return (
@@ -78,7 +76,7 @@ async function fetchWeather(): Promise<WeatherInfo | null> {
 
 export function useWeatherQuery() {
   return useQuery({
-    queryKey: WEATHER_QUERY_KEY,
+    queryKey: QUERY_KEYS.weather,
     queryFn: fetchWeather,
     staleTime: WEATHER_STALE_TIME_MS,
     retry: false,

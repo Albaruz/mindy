@@ -35,7 +35,7 @@ before review, docs updated every phase, `typecheck` + `eslint` + `vitest`
 | 2 | Helpers: route guards, session, readers, laundry predicates, geo | Done, pending review |
 | 3 | Components: `QueryState`, `GarmentImage`, `FormField`/`SubmitButton`, `AuthCard`, `Dialog` | Done, pending review |
 | 4 | CSS: global semantic classes, dead mixin/keyframe removal, tokens, hard-coded values | Done, pending review |
-| 5 | Layers: query keys, shared kernel, wizard move, split large files | Pending |
+| 5 | Layers: query keys, shared kernel, wizard move, split large files | Done, pending review |
 | 6 | Docs sync (SDD + ARCHITECTURE), i18n error codes, test naming | Pending |
 
 ## Log
@@ -141,3 +141,35 @@ before review, docs updated every phase, `typecheck` + `eslint` + `vitest`
   which deliberately stays light in dark mode). Moving the 188 loose `rem`
   values in the app pages to `--space-*` is a visual-regression risk without
   snapshots; it needs the Playwright baselines first.
+
+### Phase 5
+- Query keys: the hooks no longer export `*_QUERY_KEY`; everybody uses
+  `QUERY_KEYS` from `constants/query.ts`. The `5 * 60 * 1000` / `10 * 60 * 1000`
+  literals of four hooks are now `ENTITY_STALE_TIME_MS` / `ENTITY_GC_TIME_MS`.
+- Shared kernel: `lib/garment/` (`normalizers`, `categorizeGarments`,
+  `garmentMappers`) replaces files that lived in `closet` and `generator` and
+  were imported by `profile`, `history` and the recommender route.
+  `garmentOptions` keeps only closet UI data. `Category` moved to
+  `types/garment.ts`. The notification store moved from `features/ui` to
+  `stores/`; `components/Notification` no longer imports a feature.
+- Cross-feature imports went from 17 to 3, all data hooks.
+- ESLint now enforces the layering (`no-restricted-imports`): no feature-to-
+  feature imports except `useClosetQuery`, `useProfileQuery`, `useDoLaundry`;
+  `components/`, `lib/` and `stores/` cannot import features. Verified with
+  throwaway violating files.
+- The onboarding wizard moved from `app/.../profile/onboarding/` to
+  `features/onboarding/` (the route keeps a thin `page.tsx`).
+- `api/recommender/route.ts` went from 938 to 320 lines: request readers,
+  style filter, weather rules, pool balancing, local fallback and LLM-option
+  parsing now live in `lib/recommender/` (code moved verbatim, magic numbers
+  to `constants/generator.ts`). The existing route tests pass unchanged.
+- `closet/page.tsx` went from 525 to 274 lines: `useClosetInventory`,
+  `useLaundryActions`, `useGarmentDeletion` and `GarmentSourcePicker` (add
+  button + source sheet). They have their own unit tests (the page had none;
+  pages are covered by Playwright). The source sheet now uses the shared
+  `useDialogFocus` instead of its own focus trap, so it also locks page scroll.
+- Not done: `useGeneratorStore` (314 lines) and `Home.tsx` were not split;
+  the Server Actions location (decision 5) and the Supabase generated types
+  (decision 2) stay open. `profileValidation` / `inferColorimetry` are still in
+  `constants/`: moving them is a pure rename with a wide blast radius and no
+  structural payoff now that features no longer import each other.

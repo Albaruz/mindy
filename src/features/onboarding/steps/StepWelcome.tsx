@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { OnboardingArt } from "@/features/onboarding/OnboardingArt";
 import { DISPLAY_NAME_MAX_LENGTH } from "@/constants/validation";
 import { useOnboardingStore } from "@/features/onboarding/onboardingStore";
-import styles from "../page.module.scss";
+import styles from "../OnboardingWizard.module.scss";
 
 // Step 1: presentation. The only free-text input in the whole wizard.
 export function StepWelcome() {

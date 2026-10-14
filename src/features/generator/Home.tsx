@@ -19,7 +19,7 @@ import { shouldShowOuterwear, useWeatherQuery } from "./useWeatherQuery";
 import { useGenerateLooks } from "./useGenerateLooks";
 import { useWearToday } from "./useWearToday";
 import type { RecommenderProfile } from "./generatorTypes";
-import { categorizeGarments, isWearableGarment } from "./categorizeGarments";
+import { categorizeGarments, isWearableGarment } from "@/lib/garment/categorizeGarments";
 import { ZeroState } from "./ZeroState";
 import { StyleStep } from "./StyleStep";
 import { LookShowcase, ShowcaseEmptyState } from "./LookShowcase";

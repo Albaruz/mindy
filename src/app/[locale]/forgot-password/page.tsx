@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useNotificationStore } from "@/features/ui/useNotificationStore";
+import { useNotificationStore } from "@/stores/useNotificationStore";
 import {
   requestPasswordResetAction,
   type PasswordActionState,

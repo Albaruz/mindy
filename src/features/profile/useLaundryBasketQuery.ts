@@ -1,13 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import type { Garment } from "@/types/garment";
-import { toGarment, type GarmentRow } from "@/features/closet/garmentMappers";
-import { isWashableGarment } from "@/features/generator/categorizeGarments";
-import { QUERY_KEYS } from "@/constants/query";
+import { toGarment, type GarmentRow } from "@/lib/garment/garmentMappers";
+import { isWashableGarment } from "@/lib/garment/categorizeGarments";
+import { ENTITY_GC_TIME_MS, ENTITY_STALE_TIME_MS, QUERY_KEYS } from "@/constants/query";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { getSessionUser } from "@/lib/supabase/session";
-
-export const LAUNDRY_QUERY_KEY = QUERY_KEYS.laundryBasket;
 
 // Columns used by the app (mirrors GarmentRow). Avoid select("*") to reduce payload.
 const GARMENT_COLUMNS = `
@@ -52,10 +50,10 @@ async function fetchDirtyGarments(): Promise<Garment[]> {
 
 export function useLaundryBasketQuery() {
   return useQuery({
-    queryKey: LAUNDRY_QUERY_KEY,
+    queryKey: QUERY_KEYS.laundryBasket,
     queryFn: fetchDirtyGarments,
-    staleTime: 5 * 60 * 1000,   // 5 min: laundry basket changes only on explicit actions
-    gcTime: 10 * 60 * 1000,     // 10 min: keep cache
+    staleTime: ENTITY_STALE_TIME_MS,
+    gcTime: ENTITY_GC_TIME_MS,
     refetchOnWindowFocus: false,
   });
 }

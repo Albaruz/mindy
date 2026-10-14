@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useNotificationStore } from "@/features/ui/useNotificationStore";
+import { useNotificationStore } from "@/stores/useNotificationStore";
 import { NotificationBubble } from "./NotificationBubble";
 import styles from "./NotificationContainer.module.scss";
 

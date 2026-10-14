@@ -20,7 +20,7 @@ import { StepMorphology } from "./steps/StepMorphology";
 import { StepColorimetry } from "./steps/StepColorimetry";
 import { StepFineTuning } from "./steps/StepFineTuning";
 import { OnboardingSuccess } from "./steps/OnboardingSuccess";
-import styles from "./page.module.scss";
+import styles from "./OnboardingWizard.module.scss";
 
 function isStepComplete(
   step: number,

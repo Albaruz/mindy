@@ -2,12 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import type { Garment } from "@/types/garment";
 import type { OutfitHistory } from "@/types/history";
-import { toGarment, type GarmentRow } from "@/features/closet/garmentMappers";
-import { QUERY_KEYS } from "@/constants/query";
+import { toGarment, type GarmentRow } from "@/lib/garment/garmentMappers";
+import { ENTITY_GC_TIME_MS, ENTITY_STALE_TIME_MS, QUERY_KEYS } from "@/constants/query";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { getSessionUser } from "@/lib/supabase/session";
-
-export const HISTORY_QUERY_KEY = QUERY_KEYS.history;
 
 // Row shape of public.outfit_history (snake_case, as returned by Supabase).
 interface OutfitHistoryRow {
@@ -108,10 +106,10 @@ async function fetchHistory(): Promise<HistoryEntry[]> {
 
 export function useHistoryQuery() {
   return useQuery({
-    queryKey: HISTORY_QUERY_KEY,
+    queryKey: QUERY_KEYS.history,
     queryFn: fetchHistory,
-    staleTime: 5 * 60 * 1000,   // 5 min: history is append-only, rarely changes
-    gcTime: 10 * 60 * 1000,     // 10 min: keep cache
+    staleTime: ENTITY_STALE_TIME_MS,
+    gcTime: ENTITY_GC_TIME_MS,
     refetchOnWindowFocus: false,
   });
 }

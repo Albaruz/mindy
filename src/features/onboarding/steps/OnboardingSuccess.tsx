@@ -5,7 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/Button/Button";
 import { SUCCESS_AUTO_ADVANCE_MS } from "@/constants/animations";
-import styles from "../page.module.scss";
+import styles from "../OnboardingWizard.module.scss";
 
 // Full-screen success moment: no garment cards, just a drawn celebration
 // mark with softly floating sparkles, the Playfair headline and one
@@ -84,7 +84,7 @@ export function OnboardingSuccess({ onDone }: { onDone: () => void }) {
       <svg
         viewBox="0 0 120 120"
         role="img"
-        aria-label={t("success-title")}
+        aria-label={t("successTitle")}
         className={styles["success-mark"]}
       >
         <motion.circle
@@ -111,7 +111,7 @@ export function OnboardingSuccess({ onDone }: { onDone: () => void }) {
           transition={{ duration: 0.7, delay: reduce ? 0 : 0.7, ease: "easeOut" }}
         />
       </svg>
-      <h1 className={styles["success-title"]}>{t("success-title")}</h1>
+      <h1 className={styles["successTitle"]}>{t("successTitle")}</h1>
       <Button type="button" variant="primary" onClick={onDone}>
         {t("successCta")}
       </Button>
