@@ -68,6 +68,8 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
   # Lighthouse CI gate (perf >=90, a11y >=95, best-practices >=90, SEO >=90).
+  # Reports persist as run artifacts (.lighthouseci) so scores can be
+  # tracked commit over commit (#BKL-012 history).
   lighthouse:
     runs-on: ubuntu-latest
     needs: build
@@ -84,6 +86,32 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build --webpack
       - run: pnpm exec lhci autorun
+      - name: Summarize Lighthouse scores
+        if: always()
+        run: |
+          node -e "
+            const fs = require('node:fs');
+            const path = require('node:path');
+            const dir = '.lighthouseci';
+            const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f.startsWith('lhr-') && f.endsWith('.json')) : [];
+            if (files.length === 0) { console.log('No LHCI reports found.'); process.exit(0); }
+            const seen = new Map();
+            for (const file of files) {
+              const lhr = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
+              const score = (id) => Math.round((lhr.categories[id]?.score ?? 0) * 100);
+              seen.set(lhr.finalUrl, [score('performance'), score('accessibility'), score('best-practices'), score('seo')]);
+            }
+            const lines = ['### Lighthouse CI', '', '| URL | Perf | A11y | BP | SEO |', '|---|---:|---:|---:|---:|'];
+            for (const [url, s] of seen) lines.push(\`| \${url} | \${s[0]} | \${s[1]} | \${s[2]} | \${s[3]} |\`);
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\n') + '\n');
+          "
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci/
+          retention-days: 90
 
   # RLS isolation via pgTAP against a Supabase branch (supabase/tests/).
   # Requires SUPABASE_DB_URL secret; skipped otherwise.
