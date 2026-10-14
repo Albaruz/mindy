@@ -95,6 +95,15 @@
   color: var(--navigation-text-active);
 }
 
+// The global accent outline sits outside the link (offset), i.e. on the
+// nav surface — but its inner edge touches the active accent pill, leaving
+// only a faint sliver visible. The selected tab therefore pairs it with an
+// inner band in the pill's contrasting text tone: oat on accent inside,
+// accent on surface outside.
+.navigation__item--active .navigation__link:focus-visible {
+  box-shadow: 0 0 0 var(--focus-ring-offset) var(--navigation-text-active);
+}
+
 .navigation__indicator {
   position: absolute;
   inset: 0;

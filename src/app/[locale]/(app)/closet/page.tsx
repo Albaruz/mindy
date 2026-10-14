@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useDeferredValue, type ChangeEvent } from "react";
+import { QueryState } from "@/components/QueryState/QueryState";
 import { useTranslations } from "next-intl";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import { Camera, ImagePlus, Plus } from "lucide-react";
@@ -283,18 +284,22 @@ export default function ClosetPage() {
     <section className={styles.page}>
       <PageHeader title={t("title")} />
 
-      {isPending ? (
-        <div className={styles.grid}>
+      <QueryState
+        isPending={isPending}
+        isError={isError}
+        pending={
+          <div className={styles.grid}>
           <SmartSkeleton label={t("title")} />
           <SmartSkeleton label={t("title")} />
           <SmartSkeleton label={t("title")} />
           <SmartSkeleton label={t("title")} />
         </div>
-      ) : isError ? (
-        <EmptyState message={t("loadError")}>
-          <Button onClick={() => void refetch()}>{tc("retry")}</Button>
-        </EmptyState>
-      ) : isActuallyEmpty ? (
+        }
+        errorMessage={t("loadError")}
+        retryLabel={tc("retry")}
+        onRetry={() => void refetch()}
+      >
+      {isActuallyEmpty ? (
         <EmptyState message={t("closetEmpty")} description={t("closetEmptyDescription")}>
           <Button type="button" onClick={() => setIsSourceMenuOpen(true)}>
             {t("addFirstGarment")}
@@ -398,6 +403,7 @@ export default function ClosetPage() {
           )}
         </>
       )}
+      </QueryState>
 
       {upload.phase === "processing" && upload.qualityGate === null ? (
         <ProcessingOverlay message={upload.progressNote} />

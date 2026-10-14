@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
+import { GarmentImage } from "@/components/GarmentImage/GarmentImage";
 import type { PanInfo } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Check, X } from "lucide-react";
@@ -110,16 +111,12 @@ export function ShowcaseCard({
       <div className={styles["showcase-card__grid"]}>
         {look.garments.map((garment) => (
           <figure key={garment.garmentId} className={styles["showcase-card__item"]}>
-            {garment.imageUrl !== null ? (
-              <img
-                src={garment.imageUrl}
-                alt={describeGarment(garment)}
-                loading="lazy"
-                className={styles["showcase-card__image"]}
-              />
-            ) : (
-              <div className={styles["showcase-card__placeholder"]} aria-hidden="true" />
-            )}
+            <GarmentImage
+              src={garment.imageUrl}
+              alt={describeGarment(garment)}
+              className={styles["showcase-card__image"]}
+              placeholderClassName={styles["showcase-card__placeholder"]}
+            />
             <figcaption className={styles["showcase-card__caption"]}>
               {describeGarment(garment)}
             </figcaption>

@@ -33,7 +33,7 @@ before review, docs updated every phase, `typecheck` + `eslint` + `vitest`
 | 0 | Bug fixes + leftovers of the earlier cleanup | Done, pending review |
 | 1 | Types: `src/types/*`, single source for unions, strict types | Done, pending review |
 | 2 | Helpers: route guards, session, readers, laundry predicates, geo | Done, pending review |
-| 3 | Components: `QueryState`, `GarmentImage`, `FormField`/`SubmitButton`, `AuthCard`, `Dialog` | Pending |
+| 3 | Components: `QueryState`, `GarmentImage`, `FormField`/`SubmitButton`, `AuthCard`, `Dialog` | Done, pending review |
 | 4 | CSS: global semantic classes, dead mixin/keyframe removal, tokens, hard-coded values | Pending |
 | 5 | Layers: query keys, shared kernel, wizard move, split large files | Pending |
 | 6 | Docs sync (SDD + ARCHITECTURE), i18n error codes, test naming | Pending |
@@ -78,3 +78,30 @@ before review, docs updated every phase, `typecheck` + `eslint` + `vitest`
 - Not done (left out on purpose): date formatting helpers (only two call
   sites, not worth an abstraction) and the Server Actions auth pattern
   (differs per action: redirect vs. error object).
+
+### Phase 3
+- `components/Dialog`: compound `Dialog` (+ `DialogHeader`, `DialogTitle`,
+  `DialogClose`, `DialogBody`, `DialogMessage`, `DialogFooter`,
+  `DialogActions`). The root owns overlay, ARIA and focus handling
+  (`useDialogFocus`); parts apply the global `dialog-shell__*` classes.
+  `ConfirmDialog`, `PhotoQualityDialog` and `GarmentFormModal` use it.
+  The close button label of `GarmentFormModal` was a hardcoded Spanish
+  "Cerrar"; it is now `Closet.form.close` (en/es).
+  Left as is: `OutfitCelebrationScreen` (full-screen animated layout, not
+  the dialog shell) and the closet add-garment bottom sheet.
+- `components/GarmentImage`: photo-or-placeholder for garments; replaces
+  four raw `<img>` in `GarmentCard`, `ShowcaseCard`, `HistoryCard` and
+  `OutfitCelebrationScreen`. The only lint exception for garment photos
+  lives there (Supabase URLs have no `next/image` loader; a native `img`
+  keeps PWA runtime caching intact). The blob-URL preview in
+  `GarmentFormModal` has its own documented exception. ESLint is now at
+  0 warnings.
+- `components/QueryState`: pending -> error with retry -> content, used by
+  the closet and calendar pages.
+- `components/AuthCard`, `FormField`, `SubmitButton`: shared shell,
+  labelled field and pending submit of the login and password-recovery pages.
+  Behavior change: the login submit now also shows the spinner while pending
+  (before only the recovery pages did). The spinner CSS moved to
+  `SubmitButton.module.scss` with its own keyframes.
+- Not done: `ChoiceGroup` (pills/swatches/segmented). It was not read in
+  depth during the audit, so it needs its own look before deciding.

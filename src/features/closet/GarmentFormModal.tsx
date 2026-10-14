@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Infinity as InfinityIcon, Leaf, Snowflake, Sun, X } from "lucide-react";
+import { Infinity as InfinityIcon, Leaf, Snowflake, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGarmentTranslator } from "@/lib/translateGarment";
 import type {
@@ -16,7 +16,14 @@ import type {
 import { Button } from "@/components/Button/Button";
 import { ColorSwatches } from "@/components/ColorSwatches/ColorSwatches";
 import { OptionPills } from "@/components/OptionPills/OptionPills";
-import { useDialogFocus } from "@/lib/useDialogFocus";
+import {
+  Dialog,
+  DialogActions,
+  DialogBody,
+  DialogClose,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/Dialog/Dialog";
 import type { GarmentFormInput } from "./useUploadGarment";
 import { ExtraTagsEditor } from "./ExtraTagsEditor";
 import {
@@ -66,7 +73,6 @@ export function GarmentFormModal({
   onClose,
   onSubmit,
 }: GarmentFormModalProps) {
-  const dialogRef = useDialogFocus<HTMLDivElement>(onClose);
   const errorRef = useRef<HTMLParagraphElement | null>(null);
 
   const [garmentType, setGarmentType] = useState<GarmentType | "">(
@@ -109,41 +115,35 @@ export function GarmentFormModal({
   };
 
   return (
-    <div
-      className={`dialog-shell__overlay ${styles["garment-form-modal__overlay"]}`}
-      onClick={onClose}
+    <Dialog
+      labelledBy="garment-modal-title"
+      describedBy={
+        validationError !== null
+          ? "garment-modal-error"
+          : submitError !== null
+            ? "garment-modal-submit-error"
+            : undefined
+      }
+      onClose={onClose}
+      overlayClassName={styles["garment-form-modal__overlay"]}
+      className={styles["garment-form-modal__dialog"]}
     >
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="garment-modal-title"
-        aria-describedby={
-          validationError !== null
-            ? "garment-modal-error"
-            : submitError !== null
-              ? "garment-modal-submit-error"
-              : undefined
-        }
-        tabIndex={-1}
-        className={`dialog-shell__container ${styles["garment-form-modal__dialog"]}`}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <header className={`dialog-shell__header ${styles["garment-form-modal__header"]}`}>
-          <h2 id="garment-modal-title" className={`dialog-shell__title ${styles["garment-form-modal__title"]}`}>
-            {title}
-          </h2>
-          <button
-            type="button"
-            className={`dialog-shell__close ${styles["garment-form-modal__close"]}`}
-            onClick={onClose}
-            aria-label="Cerrar"
-          >
-            <X aria-hidden="true" size={20} />
-          </button>
-        </header>
-        <div className={`dialog-shell__body ${styles["garment-form-modal__content"]}`}>
-          {previewUrl !== null ? (
+      <DialogHeader className={styles["garment-form-modal__header"]}>
+        <DialogTitle
+          id="garment-modal-title"
+          className={styles["garment-form-modal__title"]}
+        >
+          {title}
+        </DialogTitle>
+        <DialogClose
+          onClick={onClose}
+          label={t("form.close")}
+          className={styles["garment-form-modal__close"]}
+        />
+      </DialogHeader>
+      <DialogBody className={styles["garment-form-modal__content"]}>          {previewUrl !== null ? (
+            // Blob/object URL of the pending photo: next/image cannot optimize it.
+            // eslint-disable-next-line @next/next/no-img-element
             <img src={previewUrl} alt={previewAlt} className={styles["garment-form-modal__preview"]} />
           ) : null}
           <form onSubmit={handleSubmit}>
@@ -238,7 +238,7 @@ export function GarmentFormModal({
               {submitError}
             </p>
           ) : null}
-          <div className={`dialog-shell__actions ${styles["garment-form-modal__actions"]}`}>
+          <DialogActions className={styles["garment-form-modal__actions"]}>
             <Button
               type="button"
               variant="ghost"
@@ -250,10 +250,9 @@ export function GarmentFormModal({
             <Button type="submit" variant="primary" disabled={isSaving}>
               {isSaving ? savingLabel : submitLabel}
             </Button>
-          </div>
+          </DialogActions>
           </form>
-        </div>
-      </div>
-    </div>
+      </DialogBody>
+    </Dialog>
   );
 }

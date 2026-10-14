@@ -150,6 +150,7 @@
     "qualityUseOriginal": "Use the photo as-is",
     "qualityCutoutFailed": "That cutout didn't work. Try again or choose what to do next.",
     "form": {
+      "close": "Close",
       "type": "What is it?",
       "season": "Season",
       "seasons": {

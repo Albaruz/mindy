@@ -150,6 +150,7 @@
     "qualityUseOriginal": "Usar la foto tal cual",
     "qualityCutoutFailed": "El recorte no ha salido bien. Prueba otra vez o elige cómo seguir.",
     "form": {
+      "close": "Cerrar",
       "type": "¿Qué es?",
       "season": "Temporada",
       "seasons": {

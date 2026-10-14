@@ -7,8 +7,8 @@ interface ProcessingOverlayProps {
 }
 
 // Full-screen blocking overlay for multi-step background work (e.g. the
-// garment upload pipeline). The backdrop sits above page content and the
-// action sheet, but below toasts, so success/error bubbles stay visible.
+// garment upload pipeline). The backdrop sits above page content, the header
+// menu and the action sheet, but below dialogs and toasts.
 export function ProcessingOverlay({ message }: ProcessingOverlayProps) {
   const tc = useTranslations("Common");
   const label = message ?? tc("processing");

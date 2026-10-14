@@ -1,5 +1,6 @@
 import type { HistoryEntry } from "./useHistoryQuery";
 import { useLocale, useTranslations } from "next-intl";
+import { GarmentImage } from "@/components/GarmentImage/GarmentImage";
 import { useGarmentTranslator } from "@/lib/translateGarment";
 import styles from "./HistoryCard.module.scss";
 
@@ -30,10 +31,9 @@ export function HistoryCard({ entry }: { entry: HistoryEntry }) {
         <ul className={styles["history-card__strip"]}>
           {entry.garments.map((garment) => (
             <li key={garment.garmentId} className={styles["history-card__thumb"]}>
-              {garment.imageUrl !== null ? (
-                <img
-                  src={garment.imageUrl}
-                  alt={
+              <GarmentImage
+                src={garment.imageUrl}
+                alt={
                     translate(garment.garmentType, "type") ??
                     translateDetail(
                       typeof garment.extraTags.specificType === "string"
@@ -42,9 +42,7 @@ export function HistoryCard({ entry }: { entry: HistoryEntry }) {
                     ) ??
                     t("garmentFallback")
                   }
-                  loading="lazy"
-                />
-              ) : null}
+              />
             </li>
           ))}
         </ul>

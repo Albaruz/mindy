@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
+import { QueryState } from "@/components/QueryState/QueryState";
 import { useLocale, useTranslations } from "next-intl";
 import { SmartSkeleton } from "@/components/Skeletons/SmartSkeleton";
-import { Button } from "@/components/Button/Button";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { PageHeader } from "@/components/PageHeader/PageHeader";
 import {
@@ -58,17 +58,21 @@ export default function CalendarPage() {
     <section className={styles.page}>
       <PageHeader title={t("title")} />
 
-      {isPending ? (
-        <div className={styles.feed}>
+      <QueryState
+        isPending={isPending}
+        isError={isError}
+        pending={
+          <div className={styles.feed}>
           <SmartSkeleton label={t("title")} />
           <SmartSkeleton label={t("title")} />
           <SmartSkeleton label={t("title")} />
         </div>
-      ) : isError ? (
-        <EmptyState message={t("loadError")}>
-          <Button onClick={() => void refetch()}>{tc("retry")}</Button>
-        </EmptyState>
-      ) : groups.length === 0 ? (
+        }
+        errorMessage={t("loadError")}
+        retryLabel={tc("retry")}
+        onRetry={() => void refetch()}
+      >
+      {groups.length === 0 ? (
         <EmptyState message={t("empty")} />
       ) : (
         <div className={styles.feed}>
@@ -87,6 +91,7 @@ export default function CalendarPage() {
           ))}
         </div>
       )}
+      </QueryState>
     </section>
   );
 }

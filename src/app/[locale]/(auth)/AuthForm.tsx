@@ -5,7 +5,8 @@ import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/Button/Button";
+import { FormField } from "@/components/FormField/FormField";
+import { SubmitButton } from "@/components/SubmitButton/SubmitButton";
 import { PasswordInput } from "@/components/PasswordInput/PasswordInput";
 import { Link } from "@/i18n/navigation";
 import {
@@ -104,8 +105,7 @@ export function AuthForm() {
         action={isLogin ? signInFormAction : signUpFormAction}
         aria-label={isLogin ? t("login") : t("signup")}
       >
-        <div className="auth-form__field">
-          <label htmlFor="auth-email">{t("email")}</label>
+        <FormField htmlFor="auth-email" label={t("email")}>
           <input
             id="auth-email"
             name="email"
@@ -118,9 +118,8 @@ export function AuthForm() {
             aria-invalid={state.error !== null}
             aria-describedby={state.error !== null ? "auth-form-error" : undefined}
           />
-        </div>
-        <div className="auth-form__field">
-          <label htmlFor="auth-password">{t("password")}</label>
+        </FormField>
+        <FormField htmlFor="auth-password" label={t("password")}>
           <PasswordInput
             id="auth-password"
             name="password"
@@ -165,10 +164,9 @@ export function AuthForm() {
               </ul>
             </div>
           ) : null}
-        </div>
+        </FormField>
         {!isLogin ? (
-          <div className="auth-form__field">
-            <label htmlFor="auth-confirm">{t("confirmPassword")}</label>
+          <FormField htmlFor="auth-confirm" label={t("confirmPassword")}>
             <PasswordInput
               id="auth-confirm"
               name="confirm"
@@ -183,7 +181,7 @@ export function AuthForm() {
               aria-invalid={state.error !== null}
               aria-describedby={state.error !== null ? "auth-form-error" : undefined}
             />
-          </div>
+          </FormField>
         ) : null}
 
         {state.error !== null ? (
@@ -207,13 +205,9 @@ export function AuthForm() {
           </Link>
         </div>
 
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="auth-form__submit"
-        >
-          {isPending ? t("waiting") : isLogin ? t("login") : t("signup")}
-        </Button>
+        <SubmitButton isPending={isPending} pendingLabel={t("waiting")}>
+          {isLogin ? t("login") : t("signup")}
+        </SubmitButton>
       </form>
 
       {/* TODO(v2.0): Google OAuth parked.

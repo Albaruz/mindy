@@ -1,7 +1,15 @@
 "use client";
 
 import { Button } from "@/components/Button/Button";
-import { useDialogFocus } from "@/lib/useDialogFocus";
+import {
+  Dialog,
+  DialogActions,
+  DialogBody,
+  DialogFooter,
+  DialogHeader,
+  DialogMessage,
+  DialogTitle,
+} from "@/components/Dialog/Dialog";
 import styles from "./ConfirmDialog.module.scss";
 
 interface ConfirmDialogProps {
@@ -24,7 +32,7 @@ interface ConfirmDialogProps {
 /**
  * Accessible confirmation dialog (WCAG 3.3.1, 4.1.2).
  * Role=alertdialog, labelled by title and described by message.
- * Focus trapped with return-focus handled by shared hook.
+ * Focus handling comes from the shared Dialog.
  */
 export function ConfirmDialog({
   title,
@@ -35,54 +43,41 @@ export function ConfirmDialog({
   onConfirm,
   onClose,
 }: ConfirmDialogProps) {
-  const dialogRef = useDialogFocus<HTMLDivElement>(onClose);
-
   return (
-    <div
-      className={`dialog-shell__overlay ${styles["confirm-dialog__overlay"]}`}
-      onClick={onClose}
+    <Dialog
+      role="alertdialog"
+      labelledBy="confirm-dialog-title"
+      describedBy="confirm-dialog-message"
+      onClose={onClose}
+      overlayClassName={styles["confirm-dialog__overlay"]}
+      className={styles["confirm-dialog__container"]}
     >
-      <div
-        ref={dialogRef}
-        role="alertdialog"
-        aria-modal="true"
-        aria-labelledby="confirm-dialog-title"
-        aria-describedby="confirm-dialog-message"
-        tabIndex={-1}
-        className={`dialog-shell__container ${styles["confirm-dialog__container"]}`}
-        onClick={(event) => event.stopPropagation()}
-      >
-        <header className="dialog-shell__header">
-          <h2 id="confirm-dialog-title" className="dialog-shell__title">
-            {title}
-          </h2>
-        </header>
-        <div className="dialog-shell__body">
-          <p id="confirm-dialog-message" className="dialog-shell__message">
-            {message}
-          </p>
-        </div>
-        <footer className="dialog-shell__footer">
-          <div className="dialog-shell__actions">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onClose}
-              disabled={isPending}
-            >
-              {cancelLabel}
-            </Button>
-            <Button
-              type="button"
-              variant="primary"
-              onClick={onConfirm}
-              disabled={isPending}
-            >
-              {confirmLabel}
-            </Button>
-          </div>
-        </footer>
-      </div>
-    </div>
+      <DialogHeader>
+        <DialogTitle id="confirm-dialog-title">{title}</DialogTitle>
+      </DialogHeader>
+      <DialogBody>
+        <DialogMessage id="confirm-dialog-message">{message}</DialogMessage>
+      </DialogBody>
+      <DialogFooter>
+        <DialogActions>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={onClose}
+            disabled={isPending}
+          >
+            {cancelLabel}
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            onClick={onConfirm}
+            disabled={isPending}
+          >
+            {confirmLabel}
+          </Button>
+        </DialogActions>
+      </DialogFooter>
+    </Dialog>
   );
 }

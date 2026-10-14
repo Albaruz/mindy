@@ -4,7 +4,6 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { Button } from "@/components/Button/Button";
 import { PasswordInput } from "@/components/PasswordInput/PasswordInput";
 import { SmartSkeleton } from "@/components/Skeletons/SmartSkeleton";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -20,6 +19,9 @@ import {
   type PasswordActionState,
 } from "../(auth)/passwordActions";
 import styles from "../password.module.scss";
+import { AuthCard } from "@/components/AuthCard/AuthCard";
+import { FormField } from "@/components/FormField/FormField";
+import { SubmitButton } from "@/components/SubmitButton/SubmitButton";
 
 const INITIAL_STATE: PasswordActionState = { error: null, message: null };
 
@@ -91,10 +93,10 @@ function ResetPasswordForm() {
   }, [linkRejected]);
 
   return (
-    <section className="auth-form__page">
-      <div className="auth-form__card">
-        <h1 className="auth-form__title">{t("updatePasswordTitle")}</h1>
-        <p className="auth-form__subtitle">{t("updatePasswordSubtitle")}</p>
+    <AuthCard
+      title={t("updatePasswordTitle")}
+      subtitle={t("updatePasswordSubtitle")}
+    >
         {status === "checking" ? (
           <SmartSkeleton label={t("updatePasswordTitle")} />
         ) : status === "invalid" ? (
@@ -112,8 +114,7 @@ function ResetPasswordForm() {
           </p>
         ) : (
           <form action={formAction} aria-label={t("updatePasswordTitle")}>
-            <div className="auth-form__field auth-form__field--rounded">
-              <label htmlFor="new-password">{t("newPassword")}</label>
+            <FormField htmlFor="new-password" label={t("newPassword")} shape="rounded">
               <PasswordInput
                 id="new-password"
                 name="password"
@@ -125,9 +126,8 @@ function ResetPasswordForm() {
                 hidePasswordLabel={t("hidePassword")}
                 aria-invalid={state.error !== null}
               />
-            </div>
-            <div className="auth-form__field auth-form__field--rounded">
-              <label htmlFor="confirm-password">{t("confirmPassword")}</label>
+            </FormField>
+            <FormField htmlFor="confirm-password" label={t("confirmPassword")} shape="rounded">
               <PasswordInput
                 id="confirm-password"
                 name="confirm"
@@ -139,22 +139,13 @@ function ResetPasswordForm() {
                 hidePasswordLabel={t("hidePassword")}
                 aria-invalid={state.error !== null}
               />
-            </div>
-            <Button
-              type="submit"
-              disabled={isPending}
-              aria-busy={isPending}
-              className="auth-form__submit"
-            >
-              {isPending ? (
-                <span aria-hidden="true" className={styles.spinner} />
-              ) : null}
-              {isPending ? t("waiting") : t("updatePassword")}
-            </Button>
+            </FormField>
+            <SubmitButton isPending={isPending} pendingLabel={t("waiting")}>
+              {t("updatePassword")}
+            </SubmitButton>
           </form>
         )}
-      </div>
-    </section>
+    </AuthCard>
   );
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { GarmentImage } from "@/components/GarmentImage/GarmentImage";
 import { motion, useReducedMotion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import type { Garment } from "@/types/garment";
@@ -117,18 +118,13 @@ export function OutfitCelebrationScreen({
               },
             }}
           >
-            {garment.imageUrl !== null ? (
-              <img
-                src={garment.imageUrl}
-                alt={describeGarment(garment)}
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-                className={styles["outfit-celebration__image"]}
-              />
-            ) : (
-              <div className={styles["outfit-celebration__placeholder"]} aria-hidden="true" />
-            )}
+            <GarmentImage
+              src={garment.imageUrl}
+              alt={describeGarment(garment)}
+              loading="eager"
+              className={styles["outfit-celebration__image"]}
+              placeholderClassName={styles["outfit-celebration__placeholder"]}
+            />
             <figcaption className={styles["outfit-celebration__caption"]}>
               {describeGarment(garment)}
             </figcaption>

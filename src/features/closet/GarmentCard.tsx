@@ -1,6 +1,7 @@
 "use client";
 
 import { Pencil, Sparkles, Trash2 } from "lucide-react";
+import { GarmentImage } from "@/components/GarmentImage/GarmentImage";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { Garment } from "@/types/garment";
@@ -46,16 +47,12 @@ export function GarmentCard({
 
   return (
     <article className={styles["garment-card"]}>
-      {garment.imageUrl !== null ? (
-        <img
-          src={garment.imageUrl}
-          alt={imageAlt}
-          loading="lazy"
-          className={styles["garment-card__image"]}
-        />
-      ) : (
-        <div className={styles["garment-card__placeholder"]} aria-hidden="true" />
-      )}
+      <GarmentImage
+        src={garment.imageUrl}
+        alt={imageAlt}
+        className={styles["garment-card__image"]}
+        placeholderClassName={styles["garment-card__placeholder"]}
+      />
       {onDelete && (
         <button
           type="button"

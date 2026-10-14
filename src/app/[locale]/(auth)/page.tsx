@@ -9,6 +9,7 @@ import {
 } from "@/lib/onboarding";
 import { AuthForm } from "./AuthForm";
 import styles from "./page.module.scss";
+import { AuthCard } from "@/components/AuthCard/AuthCard";
 
 // Auth gate at `/`: signed-in users go to the generator (or to onboarding
 // when their profile is incomplete); everyone else signs in or registers.
@@ -43,8 +44,11 @@ export default async function AuthPage({
   }
 
   return (
-    <section className="auth-form__page">
-      <div className="auth-form__card">
+    <AuthCard
+      title={t("title")}
+      subtitle={t("subtitle")}
+      titleClassName={styles.title}
+      header={
         <Image
           src="/images/logo-mindy.svg"
           alt="Mindy"
@@ -53,12 +57,9 @@ export default async function AuthPage({
           priority
           className={styles.logo}
         />
-        <h1 className={`auth-form__title ${styles.title}`}>{t("title")}</h1>
-        <p className="auth-form__subtitle">
-          {t("subtitle")}
-        </p>
-        <AuthForm />
-      </div>
-    </section>
+      }
+    >
+      <AuthForm />
+    </AuthCard>
   );
 }

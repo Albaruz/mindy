@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/Button/Button";
 import { Link } from "@/i18n/navigation";
 import { useNotificationStore } from "@/features/ui/useNotificationStore";
 import {
@@ -11,6 +10,9 @@ import {
   type PasswordActionState,
 } from "../(auth)/passwordActions";
 import styles from "../password.module.scss";
+import { AuthCard } from "@/components/AuthCard/AuthCard";
+import { FormField } from "@/components/FormField/FormField";
+import { SubmitButton } from "@/components/SubmitButton/SubmitButton";
 
 const INITIAL_STATE: PasswordActionState = { error: null, message: null };
 
@@ -36,18 +38,14 @@ export default function ForgotPasswordPage() {
   }, [state.error]);
 
   return (
-    <section className="auth-form__page">
-      <div className="auth-form__card">
-        <h1 className="auth-form__title">{t("resetTitle")}</h1>
-        <p className="auth-form__subtitle">{t("resetSubtitle")}</p>
+    <AuthCard title={t("resetTitle")} subtitle={t("resetSubtitle")}>
         {state.message !== null ? (
           <p role="status" className="auth-form__message">
             {state.message}
           </p>
         ) : (
           <form action={formAction} aria-label={t("resetTitle")}>
-            <div className="auth-form__field auth-form__field--rounded">
-              <label htmlFor="reset-email">{t("email")}</label>
+            <FormField htmlFor="reset-email" label={t("email")} shape="rounded">
               <input
                 id="reset-email"
                 name="email"
@@ -57,24 +55,15 @@ export default function ForgotPasswordPage() {
                 placeholder="you@example.com"
                 aria-invalid={state.error !== null}
               />
-            </div>
-            <Button
-              type="submit"
-              disabled={isPending}
-              aria-busy={isPending}
-              className="auth-form__submit"
-            >
-              {isPending ? (
-                <span aria-hidden="true" className={styles.spinner} />
-              ) : null}
-              {isPending ? t("waiting") : t("sendResetLink")}
-            </Button>
+            </FormField>
+            <SubmitButton isPending={isPending} pendingLabel={t("waiting")}>
+              {t("sendResetLink")}
+            </SubmitButton>
           </form>
         )}
         <Link href="/" className={styles["back-link"]}>
           {t("backToLogin")}
         </Link>
-      </div>
-    </section>
+    </AuthCard>
   );
 }
