@@ -29,7 +29,7 @@
   color: var(--color-tab-inactive);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
 
   &.mood-active {
@@ -155,14 +155,4 @@
   border: 1px solid var(--color-border);
   border-radius: 50%;
   cursor: pointer;
-}
-
-.spinning {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }

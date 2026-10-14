@@ -58,7 +58,7 @@ export function ColorSwatches<T extends string>({
                     onSelect("");
                   }
                 }}
-                className={styles["color-swatches__radio"]}
+                className={cn("visually-hidden", styles["color-swatches__radio"])}
                 aria-label={optionLabel}
               />
               <span

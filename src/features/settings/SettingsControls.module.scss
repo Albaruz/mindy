@@ -89,9 +89,3 @@
   align-items: center;
   justify-content: center;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .settings-controls__segment {
-    transition: none;
-  }
-}

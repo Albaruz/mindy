@@ -92,6 +92,8 @@ function Toast({ message }: any) {
 - **BEM naming everywhere:** `block__element--modifier`, lowercase kebab-case blocks (`garment-card__title`), no camelCase
 - **Shared structure = global BEM class in the markup**, not a mixin or `@use` of a partial inside a module (that re-emits the CSS in every module). Example: `className={`dialog-shell__container ${styles["photo-quality__dialog"]}`}`. Global shells live in `src/styles/components/`
 - **Keyframes belong to the module that uses them.** CSS Modules hash `animation-name`, so a global `@keyframes` is never matched by a module's `animation:`. Declare `@keyframes` in the same `.module.scss`
+- **Reusable utilities are global classes:** `.visually-hidden` for custom radio/checkbox inputs and screen-reader-only text, `.spin` for continuous rotation. Never copy those declarations into a module
+- **No `var(--token, #hex)` fallbacks** (tokens are always defined) and no per-component reduced-motion blocks that only set `animation: none` (`base/_reset.scss` handles it)
 - **Custom Properties** from tokens: `var(--color-primary-terracota)`
 - **Mobile-first:** Media queries use `@media (min-width: ...)`
 

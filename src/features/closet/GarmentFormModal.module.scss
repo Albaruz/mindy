@@ -111,12 +111,6 @@
 }
 
 .garment-form-modal__radio {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  opacity: 0;
-
   &:focus-visible + span {
     outline: var(--focus-ring-width) solid var(--focus-ring-color);
     outline-offset: 2px;

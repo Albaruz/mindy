@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { LoaderCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 import styles from "./ProcessingOverlay.module.scss";
 
 interface ProcessingOverlayProps {
@@ -23,7 +24,7 @@ export function ProcessingOverlay({ message }: ProcessingOverlayProps) {
         <LoaderCircle
           aria-hidden="true"
           size={28}
-          className={styles.spinner}
+          className={cn("spin", styles.spinner)}
         />
         <p className={styles.message}>{message ?? tc("processingEllipsis")}</p>
       </div>

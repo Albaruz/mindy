@@ -136,8 +136,3 @@
 }
 
 /* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .navigation__item {
-    transition: none;
-  }
-}

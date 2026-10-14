@@ -71,7 +71,7 @@ export function StepFineTuning() {
                   value={hex}
                   checked={vetoed}
                   onChange={() => toggleForbiddenColor(hex)}
-                  className={styles.radio}
+                  className={cn("visually-hidden", styles.radio)}
                   aria-label={ta("vetoColor", { color: hex })}
                 />
                 <span

@@ -50,6 +50,7 @@
 // directly by the three dialog components, while their skins remain modular.
 @use 'components/dialog-shell';
 @use 'components/auth-form';
+@use 'components/visually-hidden';
 
 // =============================================================================
 // 8. UTILITIES (generated utility classes if needed)

@@ -233,25 +233,3 @@
 :root[data-theme="dark"] {
   @include dark-palette;
 }
-
-// Explicit light pin from Settings
-:root[data-theme="light"] {
-  // Light mode is default, but ensure no dark bleed
-  --color-background: #fafafa;
-  --color-surface: #ffffff;
-  --color-foreground: #171717;
-  --color-muted: #686868;
-  --color-border: #e5e7eb;
-  --color-primary: #111111;
-  --color-primary-contrast: #ffffff;
-  --color-accent: #a2543f;
-  --color-accent-hover: #8b4736;
-  --color-oat: #f9f6f0;
-  --color-clay: #4a3f39;
-  --color-tab-inactive: #4a3f39;
-  --color-auth-background: #f9f6f0;
-  --color-auth-text: #4a3f39;
-  --color-error: #b3261e;
-  --color-canvas: #f9f6f0;
-  --thread-color: #4a3f39;
-}

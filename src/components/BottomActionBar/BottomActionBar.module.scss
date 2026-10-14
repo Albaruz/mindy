@@ -78,15 +78,6 @@
   animation: heartbeat 0.45s ease;
 }
 
-.action-bar__primary-label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-}
-
 /* Success burst overlay */
 .action-bar__burst {
   position: fixed;

@@ -80,7 +80,7 @@ export function BottomActionBar({
             className={styles["action-bar__primary"]}
           >
             <Check aria-hidden="true" size={30} />
-            <span className={styles["action-bar__primary-label"]}>{primaryLabel}</span>
+            <span className="visually-hidden">{primaryLabel}</span>
           </button>
           <SideButton
             {...right}

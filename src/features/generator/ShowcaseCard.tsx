@@ -83,7 +83,7 @@ export function ShowcaseCard({
       onDragEnd={handleDragEnd}
       style={draggable ? { x, rotate } : undefined}
     >
-      <span aria-hidden="true" className={styles["showcase-card__sr-hint"]}>
+      <span aria-hidden="true" className="visually-hidden">
         {ta("swipeHint")}
       </span>
       <motion.span

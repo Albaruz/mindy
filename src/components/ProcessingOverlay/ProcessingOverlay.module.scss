@@ -30,19 +30,12 @@
 
 .spinner {
   flex-shrink: 0;
-  animation: spin 1s linear infinite;
 }
 
 .message {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 @keyframes rise {

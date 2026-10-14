@@ -4,7 +4,7 @@
   padding: 0.25rem;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 }
 
 .segment {
@@ -13,28 +13,22 @@
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-tab-inactive, #4a3f39);
+  color: var(--color-tab-inactive);
   cursor: pointer;
   background: transparent;
   border: none;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   transition:
     background-color 0.18s ease,
     color 0.18s ease;
 
   &:focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
     outline-offset: 2px;
   }
 }
 
 .active {
-  color: var(--color-oat, #f9f6f0);
-  background: var(--color-accent, #a2543f);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .segment {
-    transition: none;
-  }
+  color: var(--color-oat);
+  background: var(--color-accent);
 }

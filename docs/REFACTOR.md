@@ -34,7 +34,7 @@ before review, docs updated every phase, `typecheck` + `eslint` + `vitest`
 | 1 | Types: `src/types/*`, single source for unions, strict types | Done, pending review |
 | 2 | Helpers: route guards, session, readers, laundry predicates, geo | Done, pending review |
 | 3 | Components: `QueryState`, `GarmentImage`, `FormField`/`SubmitButton`, `AuthCard`, `Dialog` | Done, pending review |
-| 4 | CSS: global semantic classes, dead mixin/keyframe removal, tokens, hard-coded values | Pending |
+| 4 | CSS: global semantic classes, dead mixin/keyframe removal, tokens, hard-coded values | Done, pending review |
 | 5 | Layers: query keys, shared kernel, wizard move, split large files | Pending |
 | 6 | Docs sync (SDD + ARCHITECTURE), i18n error codes, test naming | Pending |
 
@@ -105,3 +105,39 @@ before review, docs updated every phase, `typecheck` + `eslint` + `vitest`
   `SubmitButton.module.scss` with its own keyframes.
 - Not done: `ChoiceGroup` (pills/swatches/segmented). It was not read in
   depth during the audit, so it needs its own look before deciding.
+
+### Phase 4
+- Global classes used in markup: `.visually-hidden` (`styles/components/_visually-hidden.scss`)
+  replaces the hand-written hidden radio inputs (OptionPills, ColorSwatches,
+  GarmentFormModal, onboarding steps), the hidden legend and two
+  screen-reader-only spans. Each module keeps only its own `:focus-visible`
+  ring. `.spin` (in `core/_animations.scss`) replaces the duplicated spinner
+  rotation in ProcessingOverlay and SubmitButton. The TopNavigation label
+  stays local: it is hidden by a container query, not always.
+- `core/_animations.scss` shrank from 234 to ~30 lines: only `fade-in`,
+  `scale-in` and `spin` remain, because only global CSS references them.
+  Thirteen unused keyframes, the animation/transition mixins and the dead
+  `.animate-*` classes are gone. `core/_mixins.scss` keeps only the mixins
+  the global base styles still include (respond-*, container, touch-target,
+  visually-hidden and friends were unused). `core/_typography.scss` was
+  imported by nobody and is deleted.
+- Removed per-component `@media (prefers-reduced-motion)` blocks that only
+  set `animation: none` / `transition: none`: `base/_reset.scss` already
+  clamps every animation and transition globally. Blocks that do more
+  (hide confetti, reset hover transforms) stay.
+- Removed the `:root[data-theme="light"]` block in `_variables.scss`: a
+  hand-copied duplicate of the tokens. The dark rule already excludes
+  `[data-theme="light"]`, so `:root` supplies the light values.
+- Dropped 47 dead `var(--color-x, #hex)` fallbacks (the tokens are always
+  defined; the fallbacks also disagreed with each other), used the
+  `--radius-pill` token for `999px` and the focus-ring tokens for the
+  repeated `outline: 2px solid var(--color-accent)`.
+- Dead code: unused `.radio` in settings, `.spinning` in the generator page.
+- Behavior notes: the SubmitButton spinner now turns at 1s (was 0.8s).
+- Not done, with reason: a shared error-message box (only 4 uses, each with
+  its own spacing), a `.surface-card` class (the card variants differ in
+  radius, shadow and padding), and replacing the remaining raw hex values
+  (confetti colors, the onboarding gradient and the ProcessingOverlay text,
+  which deliberately stays light in dark mode). Moving the 188 loose `rem`
+  values in the app pages to `--space-*` is a visual-regression risk without
+  snapshots; it needs the Playwright baselines first.

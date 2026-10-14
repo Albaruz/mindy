@@ -107,7 +107,7 @@ export function StepMorphology() {
                 value={option}
                 checked={fit === option}
                 onChange={() => setFit(option)}
-                className={styles.radio}
+                className={cn("visually-hidden", styles.radio)}
               />
               <span>{t(`fits.${option}`)}</span>
             </label>

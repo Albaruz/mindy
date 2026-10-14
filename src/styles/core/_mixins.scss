@@ -1,94 +1,11 @@
-// Shared Mixins — responsive, accessibility, and form helpers in use.
-// All values reference tokens from _tokens.scss via CSS custom properties.
-// Dead helpers were pruned for #BKL-015: BEM, layout, typography, visual,
-// interaction, scrollbar, and print mixins had zero @include usages.
-
-@use 'tokens' as *;
-@use 'sass:map';
-
-// =============================================================================
-// RESPONSIVE BREAKPOINTS (mobile-first)
-// Uses actual rem values for media queries (CSS custom properties don't work in @media)
-// =============================================================================
-
-$breakpoints: (
-  'sm': 40rem,
-  'md': 48rem,
-  'lg': 64rem,
-  'xl': 80rem,
-  '2xl': 96rem,
-);
-
-@mixin respond-to($breakpoint) {
-  $value: map.get($breakpoints, $breakpoint);
-  @if $value == null {
-    @warn "Unknown breakpoint: #{$breakpoint}. Available: #{map.keys($breakpoints)}";
-  } @else {
-    @media (min-width: #{$value}) {
-      @content;
-    }
-  }
-}
-
-// Max-width queries (less common, but useful)
-@mixin respond-until($breakpoint) {
-  $value: map.get($breakpoints, $breakpoint);
-  @if $value == null {
-    @warn "Unknown breakpoint: #{$breakpoint}";
-  } @else {
-    @media (max-width: #{$value - 0.01rem}) {
-      @content;
-    }
-  }
-}
-
-// Between two breakpoints
-@mixin respond-between($min, $max) {
-  $min-val: map.get($breakpoints, $min);
-  $max-val: map.get($breakpoints, $max);
-  @if $min-val == null or $max-val == null {
-    @warn "Unknown breakpoint in respond-between";
-  } @else {
-    @media (min-width: #{$min-val}) and (max-width: #{$max-val - 0.01rem}) {
-      @content;
-    }
-  }
-}
-
-// Container queries (modern, prefer when component owns its layout)
-@mixin container($name: 'main') {
-  @container #{$name} (min-width: 0) {
-    @content;
-  }
-}
-
-// =============================================================================
-// ACCESSIBILITY
-// =============================================================================
-
-@mixin visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
+// Mixins shared by the global base styles (base/_global, base/_typography,
+// layout/_skip-link). Component styling does not use mixins: shared structure
+// is a global class applied in markup (see docs/CONTRIBUTING.md).
 
 @mixin focus-ring($color: var(--focus-ring-color), $width: var(--focus-ring-width), $offset: var(--focus-ring-offset)) {
   &:focus-visible {
     outline: #{$width} solid #{$color};
     outline-offset: #{$offset};
-  }
-}
-
-@mixin focus-ring-inset($color: var(--focus-ring-color), $width: var(--focus-ring-width)) {
-  &:focus-visible {
-    outline: #{$width} solid #{$color};
-    outline-offset: calc(#{$width} * -1);
   }
 }
 
@@ -111,20 +28,7 @@ $breakpoints: (
   }
 }
 
-// Touch target enforcement
-@mixin touch-target($min-size: var(--touch-target-min)) {
-  min-width: #{$min-size};
-  min-height: #{$min-size};
-}
-
-@mixin touch-target-comfortable {
-  @include touch-target(var(--touch-target-comfortable));
-}
-
-// =============================================================================
-// TYPOGRAPHY HELPERS (in use via form mixins)
-// =============================================================================
-
+// Typography helpers
 @mixin text-label($size: var(--font-size-sm), $weight: var(--font-weight-semibold)) {
   font-family: var(--font-family-base);
   font-size: #{$size};

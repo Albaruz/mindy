@@ -49,13 +49,3 @@
     opacity: 0.45;
   }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .lazy-image__placeholder {
-    animation: none;
-  }
-
-  .lazy-image__image {
-    transition: none;
-  }
-}

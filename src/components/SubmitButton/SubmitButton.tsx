@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/Button/Button";
 import styles from "./SubmitButton.module.scss";
 
@@ -22,7 +23,7 @@ export function SubmitButton({
       aria-busy={isPending}
       className="auth-form__submit"
     >
-      {isPending ? <span aria-hidden="true" className={styles.spinner} /> : null}
+      {isPending ? <span aria-hidden="true" className={cn("spin", styles.spinner)} /> : null}
       {isPending ? pendingLabel : children}
     </Button>
   );

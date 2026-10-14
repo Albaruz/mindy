@@ -28,7 +28,7 @@ export function OptionPills<T extends string>({
 }: OptionPillsProps<T>) {
   return (
     <fieldset className={styles["option-pills"]}>
-      <legend className={hideLabel ? styles["option-pills__visually-hidden"] : styles["option-pills__legend"]}>
+      <legend className={hideLabel ? "visually-hidden" : styles["option-pills__legend"]}>
         {label}
       </legend>
       <div className={styles["option-pills__options"]} role="radiogroup" aria-label={label}>
@@ -45,7 +45,7 @@ export function OptionPills<T extends string>({
                 value={option}
                 checked={selected}
                 onChange={() => onSelect(option)}
-                className={styles["option-pills__radio"]}
+                className={cn("visually-hidden", styles["option-pills__radio"])}
               />
               <span>{formatOption(option)}</span>
             </label>

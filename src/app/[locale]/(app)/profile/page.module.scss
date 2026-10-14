@@ -25,12 +25,12 @@
   justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
-  color: var(--color-tab-inactive, #4a3f39);
+  color: var(--color-tab-inactive);
   border: 1px solid var(--color-border);
   border-radius: 50%;
 
   &:focus-visible {
-    outline: 2px solid var(--color-accent, #c87966);
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
     outline-offset: 2px;
   }
 }
@@ -68,12 +68,12 @@
 
 .life-card {
   grid-column: 2;
-  background: var(--color-tab-inactive, #4a3f39);
-  border-color: var(--color-tab-inactive, #4a3f39);
+  background: var(--color-tab-inactive);
+  border-color: var(--color-tab-inactive);
 
   .card-caption,
   .card-value {
-    color: var(--color-oat, #f9f6f0);
+    color: var(--color-oat);
   }
 }
 
@@ -95,7 +95,7 @@
   font-size: 1.75rem;
   font-weight: 800;
   line-height: 1.1;
-  color: var(--color-tab-inactive, #4a3f39);
+  color: var(--color-tab-inactive);
 }
 
 // Personality captions in italic Playfair, values in Inter.
@@ -109,7 +109,7 @@
   font-style: italic;
   font-weight: 700;
   line-height: 1.25;
-  color: var(--color-tab-inactive, #4a3f39);
+  color: var(--color-tab-inactive);
 }
 
 .card-value {
@@ -143,7 +143,7 @@
   bottom: -0.5rem;
   width: 7rem;
   height: auto;
-  color: var(--color-accent, #c87966);
+  color: var(--color-accent);
   opacity: 0.35;
   stroke: currentcolor;
 }
@@ -154,7 +154,7 @@
 
 .onboarding-link {
   font-weight: 600;
-  color: var(--color-accent, #c87966);
+  color: var(--color-accent);
 }
 
 // Inline preferences (language + theme) below the bento.
@@ -178,7 +178,7 @@
   margin-top: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-tab-inactive, #4a3f39);
+  color: var(--color-tab-inactive);
   cursor: pointer;
   background: transparent;
   border: none;
@@ -191,7 +191,7 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-accent, #c87966);
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
     outline-offset: 2px;
   }
 

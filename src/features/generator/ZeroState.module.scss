@@ -91,14 +91,3 @@
     transform: scale(1);
   }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .zero-state {
-    animation: none;
-  }
-
-  .zero-state__weather-icon-art,
-  .zero-state__greeting-text {
-    animation: none;
-  }
-}

@@ -141,8 +141,8 @@ src/
     ├── core/
     │   ├── _tokens.scss         # Auto-generated from JSON (pnpm tokens:build)
     │   ├── _variables.scss      # Semantic aliases + light/dark palettes
-    │   ├── _mixins.scss         # Legacy mixins (scheduled for removal, see REFACTOR.md)
-    │   └── _animations.scss     # Global keyframes + .animate-* classes
+    │   ├── _mixins.scss         # Few mixins, used only by base/ and layout/
+    │   └── _animations.scss     # Global keyframes (fade-in, scale-in, spin) + .spin
     ├── base/
     │   ├── _reset.scss
     │   ├── _typography.scss
@@ -151,7 +151,8 @@ src/
     │   └── _skip-link.scss
     └── components/              # GLOBAL shells used directly in markup (BEM)
         ├── _dialog-shell.scss   # .dialog-shell__* (ConfirmDialog, GarmentFormModal, PhotoQualityDialog)
-        └── _auth-form.scss      # .auth-form__*   (login, forgot/reset password)
+        ├── _auth-form.scss      # .auth-form__*   (login, forgot/reset password)
+        └── _visually-hidden.scss # .visually-hidden (custom inputs, hidden legends)
 ```
 
 Component styles live next to their component as `Component.module.scss`

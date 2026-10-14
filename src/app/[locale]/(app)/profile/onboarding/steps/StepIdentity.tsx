@@ -50,7 +50,7 @@ export function StepIdentity() {
                 value={option}
                 checked={section === option}
                 onChange={() => setSection(option)}
-                className={styles.radio}
+                className={cn("visually-hidden", styles.radio)}
               />
               <span>{t(`sections.${option}`)}</span>
             </label>
@@ -81,7 +81,7 @@ export function StepIdentity() {
                   value={option}
                   checked={selected}
                   onChange={() => setStyle(option)}
-                  className={styles.radio}
+                  className={cn("visually-hidden", styles.radio)}
                 />
                 <span className={styles["editorial-name"]}>
                   {t(`styles.${option}`)}

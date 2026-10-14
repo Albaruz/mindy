@@ -173,7 +173,7 @@ export function GarmentFormModal({
                       value={option}
                       checked={selected}
                       onChange={() => setSeason(option)}
-                      className={styles["garment-form-modal__radio"]}
+                      className={cn("visually-hidden", styles["garment-form-modal__radio"])}
                     />
                     <Icon aria-hidden="true" size={18} />
                     <span>{t(`form.seasons.${option}`)}</span>
