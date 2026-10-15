@@ -1,6 +1,6 @@
 # Backlog - Mindy Smart Closet
 
-Tabla con los items pendientes del documento SDD, ordenados por prioridad y dificultad. Los 9 items completados se archivaron del historial de commits.
+Tabla con los items pendientes del documento SDD, ordenados por prioridad y dificultad. Los 10 items completados se archivaron del historial de commits.
 
 | ID | # | Funcionalidad | Descripción | Prioridad | Dificultad | Esfuerzo | Status |
 |---|---|---|---|---|---|---|---|
