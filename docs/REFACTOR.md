@@ -1,6 +1,6 @@
 # Refactor Plan & Log
 
-**Status:** All Phases 0–5 + choice-group analysis merged to `main` (commit `248c327`). 27 commits ahead of origin/main. Ready for Phase 6.
+**Status:** All Phases 0–5 + choice-group analysis merged to `main` (commit `248c327`). Phase 6 is complete in the current working tree.
 
 Living document for the structural refactor started after the SDD audit
 (2026-10). It records the **decisions taken**, the **target conventions**
@@ -24,9 +24,9 @@ before review, docs updated every phase, `typecheck` + `eslint` + `vitest`
 | 7 | CSS naming | BEM everywhere (`block__element--modifier`, kebab-case blocks). |
 | 8 | Shared CSS | Semantic global classes (`.pill`, `.surface-card`, `.dialog-shell__*`, ...), used in the markup. No atomic utilities (`.flex`, `.gap-*`) and no mixins. |
 | 9 | Dialogs | A compound `Dialog` component (focus trap, Escape, `aria-modal`) replaces the three hand-wired dialogs. |
-| 10 | User-facing errors | Hooks throw stable error codes; the UI translates them with next-intl (planned, Phase 6). |
+| 10 | User-facing errors | Hooks throw stable error codes; the UI translates them with next-intl. |
 | 11 | `constants/index.ts` | Deleted (no consumers, contradicts the no-barrel rule) and removed from AGENTS.md. |
-| 12 | `*.branch.test.*` | Merged into one `X.test.*` per module, grouped by behavior; done when a file is touched or in Phase 6, never at the cost of coverage. |
+| 12 | Coverage tests | Additional branch-path suites use the explicit `*.coverage.test.*` suffix; no coverage-only tests are silently removed. |
 
 ## Phases
 
@@ -38,7 +38,7 @@ before review, docs updated every phase, `typecheck` + `eslint` + `vitest`
 | 3 | Components: `QueryState`, `GarmentImage`, `FormField`/`SubmitButton`, `AuthCard`, `Dialog` | ✓ Merged to main |
 | 4 | CSS: global semantic classes, dead mixin/keyframe removal, tokens, hard-coded values | ✓ Merged to main |
 | 5 | Layers: query keys, shared kernel, wizard move, split large files | ✓ Merged to main |
-| 6 | Docs sync (SDD + ARCHITECTURE), i18n error codes, test naming | Pending |
+| 6 | Docs sync (SDD + ARCHITECTURE), i18n error codes, test naming | ✓ Done |
 
 ## Log
 

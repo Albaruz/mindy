@@ -356,6 +356,12 @@
     "lookSaved": "¡Este es el bueno! Look fichado. A por todas.",
     "wearFailed": "No he podido ficharlo. Prueba otra vez, anda.",
     "stylistUnavailable": "Ups, mi cerebro fashionista ha cortocircuitado. Dame un segundo que me recompongo.",
+    "errors": {
+      "NO_GARMENTS": "Añade prendas a tu armario primero.",
+      "STYLIST_UNAVAILABLE": "El estilista no está disponible ahora. Inténtalo de nuevo.",
+      "NO_OPTIONS": "El estilista no ha podido crear un look. Prueba otra combinación.",
+      "NO_USABLE_GARMENTS": "El estilista no ha podido usar esas prendas. Inténtalo de nuevo."
+    },
     "laundryFailed": "La colada se ha resistido. Otra vez.",
     "uploadRemoving": "Eliminando fondo…",
     "uploadRemovingFallback": "Eliminando fondo (modo seguro)…",

@@ -22,6 +22,8 @@ import { buildCandidates } from "./generatorCandidates";
 import { callRecommender, buildRecommenderGarments, type RecommenderRequest } from "./generatorApi";
 import { readRecommenderError, formatRecommenderError, validateRecommenderResponse } from "./generatorResponse";
 import type { RecommenderResponse } from "./generatorApi";
+import { ERROR_CODES } from "@/constants/errors";
+import { AppError, isAppError } from "@/lib/errors";
 
 export const LOOK_STYLE_TO_MOOD: Record<LookStyle, Mood> = {
   casual: "relaxed",
@@ -140,7 +142,7 @@ export function useGenerateLooks() {
 
       const candidates = buildCandidates(input.garments, lockedIds, dismissed);
       if (candidates.length === 0) {
-        throw new Error("Add garments to your closet first.");
+        throw new AppError(ERROR_CODES.NO_GARMENTS);
       }
 
       const climate = await resolveClimate();
@@ -172,7 +174,7 @@ export function useGenerateLooks() {
       }
       const payload = (await response.json()) as RecommenderResponse;
       if (!validateRecommenderResponse(payload)) {
-        throw new Error("The stylist returned no options.");
+        throw new AppError(ERROR_CODES.NO_OPTIONS);
       }
 
       const byId = new Map(
@@ -194,7 +196,7 @@ export function useGenerateLooks() {
         }
       });
       if (looks.length === 0) {
-        throw new Error("The stylist returned no usable garments.");
+        throw new AppError(ERROR_CODES.NO_USABLE_GARMENTS);
       }
       return { looks, isFallback: payload._isFallback === true };
     },
@@ -241,7 +243,7 @@ export function useGenerateLooks() {
       }
       useNotificationStore.getState().addNotification(
         "error",
-        error instanceof Error ? error.message : t("stylistUnavailable"),
+        isAppError(error) ? t(`errors.${error.code}`) : t("errors.STYLIST_UNAVAILABLE"),
       );
       useGeneratorStore.getState().setView("auto-select");
     },

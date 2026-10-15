@@ -14,6 +14,8 @@ import { buildCandidates } from "./generatorCandidates";
 import { callRecommender, buildRecommenderGarments, type RecommenderRequest } from "./generatorApi";
 import { readRecommenderError, formatRecommenderError, validateRecommenderResponse } from "./generatorResponse";
 import type { RecommenderResponse } from "./generatorApi";
+import { ERROR_CODES } from "@/constants/errors";
+import { AppError, isAppError } from "@/lib/errors";
 
 // Manual "Bloquear y Generar" (wizard) inference. Unlike the auto flow,
 // it never leaves the manual view: locked carousels stay static while the
@@ -38,7 +40,7 @@ export function useCombineLocked() {
 
       const candidates = buildCandidates(input.garments, lockedIds, dismissed);
       if (candidates.length === 0) {
-        throw new Error("Add garments to your closet first.");
+        throw new AppError(ERROR_CODES.NO_GARMENTS);
       }
 
       const climate = await resolveClimate();
@@ -68,7 +70,7 @@ export function useCombineLocked() {
       }
       const payload = (await response.json()) as RecommenderResponse;
       if (!validateRecommenderResponse(payload)) {
-        throw new Error(t("stylistUnavailable"));
+        throw new AppError(ERROR_CODES.NO_OPTIONS);
       }
 
       const byId = new Map(
@@ -144,7 +146,7 @@ export function useCombineLocked() {
     onError: (error) => {
       useNotificationStore.getState().addNotification(
         "error",
-        error instanceof Error ? error.message : t("stylistUnavailable"),
+        isAppError(error) ? t(`errors.${error.code}`) : t("errors.STYLIST_UNAVAILABLE"),
       );
     },
   });

@@ -14,6 +14,8 @@ import {
   useGenerateLooks,
 } from "./useGenerateLooks";
 import { useGeneratorStore } from "./useGeneratorStore";
+import { ERROR_CODES } from "@/constants/errors";
+import { AppError } from "@/lib/errors";
 
 function buildGarment(id: string, type: Garment["garmentType"]): Garment {
   return {
@@ -74,10 +76,8 @@ describe("useGenerateLooks mutation", () => {
     });
     result.current.mutate({ garments: [], profile: null, style: "casual" });
     await waitFor(() => expect(result.current.isError).toBe(true));
-    expect(result.current.error).toBeInstanceOf(Error);
-    expect((result.current.error as Error).message).toBe(
-      "Add garments to your closet first.",
-    );
+    expect(result.current.error).toBeInstanceOf(AppError);
+    expect((result.current.error as AppError).code).toBe(ERROR_CODES.NO_GARMENTS);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -102,7 +102,7 @@ describe("useGenerateLooks mutation", () => {
     expect(useGeneratorStore.getState().view).toBe("showcase");
   });
 
-  it("forwards server error codes on failure", async () => {
+  it("normalizes server error codes on failure", async () => {
     vi.mocked(fetch).mockResolvedValue(
       jsonResponse({ error: "STYLIST_DOWN" }, 500) as Response,
     );
@@ -115,8 +115,8 @@ describe("useGenerateLooks mutation", () => {
       style: "casual",
     });
     await waitFor(() => expect(result.current.isError).toBe(true));
-    expect((result.current.error as Error).message).toBe(
-      "STYLIST_DOWN (status 500)",
+    expect((result.current.error as AppError).code).toBe(
+      ERROR_CODES.STYLIST_UNAVAILABLE,
     );
     expect(useGeneratorStore.getState().view).toBe("auto-select");
   });
@@ -184,8 +184,8 @@ describe("useGenerateLooks mutation", () => {
       style: "casual",
     });
     await waitFor(() => expect(result.current.isError).toBe(true));
-    expect((result.current.error as Error).message).toBe(
-      "The stylist returned no usable garments.",
+    expect((result.current.error as AppError).code).toBe(
+      ERROR_CODES.NO_USABLE_GARMENTS,
     );
   });
 
@@ -200,8 +200,6 @@ describe("useGenerateLooks mutation", () => {
       style: "casual",
     });
     await waitFor(() => expect(result.current.isError).toBe(true));
-    expect((result.current.error as Error).message).toBe(
-      "The stylist returned no options.",
-    );
+    expect((result.current.error as AppError).code).toBe(ERROR_CODES.NO_OPTIONS);
   });
 });

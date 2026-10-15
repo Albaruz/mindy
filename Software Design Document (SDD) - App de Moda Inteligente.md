@@ -699,7 +699,7 @@ src/
 ├── app/
 │   ├── [locale]/
 │   │   ├── (auth)/
-│   │   ├── onboarding/
+│   │   ├── onboarding/       (thin route entry point; wizard in features/)
 │   │   ├── generator/
 │   │   ├── closet/
 │   │   ├── calendar/
@@ -715,20 +715,21 @@ src/
 │   ├── closet/
 │   ├── profile/
 │   └── onboarding/
-├── components/             (UI Kit — Tonto)
+├── components/             (UI Kit — feature-agnostic)
 │   ├── TopNavigation/
 │   ├── BottomActionBar/
 │   ├── GarmentCard/
 │   └── ...
-├── lib/
+├── lib/                    (shared kernel; never imports features)
 │   ├── ai/
 │   │   ├── prompts/system/ (puras, versionadas *.v1.ts)
 │   │   ├── engine.ts       (Groq SDK + retry + parsing)
 │   │   └── ...
-│   ├── db/                 (Supabase queries)
-│   ├── hooks/              (Custom hooks)
-│   ├── logger.ts           (Observabilidad)
-│   └── utils/
+│   ├── api/                (route guards and request helpers)
+│   ├── garment/            (shared garment taxonomy and mapping)
+│   ├── recommender/        (server-side recommendation rules)
+│   └── ...
+├── stores/                 (cross-cutting Zustand stores)
 ├── types/                  (TypeScript interfaces)
 ├── constants/              (SSOT — 11 módulos)
 │   ├── ai.ts

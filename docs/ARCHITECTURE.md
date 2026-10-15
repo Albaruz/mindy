@@ -20,12 +20,7 @@ src/
 │   │   ├── login/page.tsx
 │   │   ├── register/page.tsx
 │   │   └── auth/callback/route.ts
-│   ├── onboarding/              # 5-step wizard
-│   │   ├── step-1/page.tsx      # Welcome
-│   │   ├── step-2/page.tsx      # Identity
-│   │   ├── step-3/page.tsx      # Morphology
-│   │   ├── step-4/page.tsx      # Colorimetry
-│   │   └── step-5/page.tsx      # Fine tuning
+│   ├── onboarding/              # Route entry point (wizard lives in features/)
 │   ├── generator/               # AI outfit generation (home)
 │   │   └── page.tsx             # Machine: zero → auto → loading → showcase → manual
 │   ├── closet/                  # Digital wardrobe
@@ -127,6 +122,15 @@ Component styles live next to their component as `Component.module.scss`
 (CSS Modules). Structure shared by several components is **not** duplicated
 or injected with mixins: it is a global BEM class applied in the markup
 next to the component's own module class (see `docs/REFACTOR.md`).
+
+### Layering rules
+
+- A feature may not import another feature. Shared domain logic belongs in
+  `lib/`, shared state in `stores/`, and shared values in `constants/`.
+- The only intentional feature-to-feature exceptions are the data hooks
+  `useClosetQuery`, `useProfileQuery`, and `useDoLaundry`.
+- `components/`, `lib/`, and `stores/` never import from `features/`.
+- ESLint enforces these boundaries with `no-restricted-imports`.
 
 ---
 

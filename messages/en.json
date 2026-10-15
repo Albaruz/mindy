@@ -356,6 +356,12 @@
     "lookSaved": "That's the one! Look locked in. Go get them.",
     "wearFailed": "Couldn't save it. Try again, come on.",
     "stylistUnavailable": "Oops, my fashion brain just short-circuited. Give me a second to recover.",
+    "errors": {
+      "NO_GARMENTS": "Add garments to your closet first.",
+      "STYLIST_UNAVAILABLE": "The stylist is unavailable right now. Try again.",
+      "NO_OPTIONS": "The stylist could not create a look. Try another combination.",
+      "NO_USABLE_GARMENTS": "The stylist could not use the selected garments. Try again."
+    },
     "laundryFailed": "Laundry day failed. One more try.",
     "uploadRemoving": "Removing background…",
     "uploadRemovingFallback": "Removing background (safe mode)…",

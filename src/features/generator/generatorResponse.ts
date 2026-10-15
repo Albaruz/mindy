@@ -3,6 +3,8 @@
  * Extracts server error messages so toasts show the real cause.
  */
 import type { RecommenderResponse } from "./generatorApi";
+import { ERROR_CODES } from "@/constants/errors";
+import { AppError } from "@/lib/errors";
 
 export async function readRecommenderError(
   response: Response,
@@ -25,10 +27,11 @@ export function formatRecommenderError(
   response: Response,
   errorCode: string | null,
 ): Error {
-  return new Error(
-    errorCode !== null
-      ? `${errorCode} (status ${response.status})`
-      : `The stylist is unavailable right now. (status ${response.status})`,
+  // Never expose an upstream message or code directly to the user.
+  return new AppError(
+    errorCode === "INSUFFICIENT_STYLE_GARMENTS"
+      ? ERROR_CODES.NO_OPTIONS
+      : ERROR_CODES.STYLIST_UNAVAILABLE,
   );
 }
 

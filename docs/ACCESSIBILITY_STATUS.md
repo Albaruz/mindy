@@ -27,7 +27,7 @@
 
 **Tests Unitarios de a11y:**
 - ✅ `FilterChips.test.tsx` - Verifica `aria-pressed`
-- ✅ `ColorSwatches.branch.test.tsx` - Verifica `aria-hidden`
+- ✅ `ColorSwatches.coverage.test.tsx` - Verifica `aria-hidden`
 - ✅ `Button.test.tsx` - Verifica `aria-busy`
 - ✅ `useDialogFocus.test.tsx` - Verifica focus trap en dialogs
 
