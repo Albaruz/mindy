@@ -57,6 +57,7 @@ export interface GeneratorState {
   view: GeneratorView;
   lookStyle: LookStyle;
   aiLooks: AiLook[];
+  streamedLooks: AiLook[];
   activeLookIndex: number;
   // Style rejected by strict server filtering (422). Drives the dedicated
   // empty state on the showcase screen instead of a generic error.
@@ -68,6 +69,7 @@ export interface GeneratorState {
   startManual: () => void;
   startAutoSelect: () => void;
   startLoading: () => void;
+  setStreamedLooks: (looks: AiLook[]) => void;
   setAiLooks: (looks: AiLook[]) => void;
   failStrictStyleFilter: (style: LookStyle) => void;
   discardActiveLook: () => void;
@@ -134,6 +136,7 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
   view: "zero",
   lookStyle: "casual",
   aiLooks: [],
+  streamedLooks: [],
   activeLookIndex: 0,
   insufficientStyle: null,
 
@@ -162,12 +165,17 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
   },
 
   startLoading: () => {
-    set({ view: "loading", insufficientStyle: null });
+    set({ view: "loading", insufficientStyle: null, streamedLooks: [] });
+  },
+
+  setStreamedLooks: (looks) => {
+    set({ streamedLooks: looks });
   },
 
   setAiLooks: (looks) => {
     set({
       aiLooks: looks,
+      streamedLooks: [],
       activeLookIndex: 0,
       discardCount: 0,
       insufficientStyle: null,
@@ -212,6 +220,7 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
     set({
       view: "zero",
       aiLooks: [],
+      streamedLooks: [],
       activeLookIndex: 0,
       discardCount: 0,
       celebrationGarments: null,
@@ -328,6 +337,7 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
     set({
       slots: createInitialSlots(),
       dismissedIds: [],
+      streamedLooks: [],
       fallbackGarmentIds: [],
       combineSuggestions: {},
     });

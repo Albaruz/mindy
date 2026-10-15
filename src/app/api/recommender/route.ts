@@ -7,15 +7,24 @@ import {
   readJsonBody,
   requireRouteUser,
 } from "@/lib/api/routeGuards";
-import { RECOMMENDER_MAX_REQUEST_GARMENTS } from "@/constants/generator";
+import {
+  MAX_LOOK_OPTIONS,
+  RECOMMENDER_MAX_REQUEST_GARMENTS,
+} from "@/constants/generator";
 import { COLD_THRESHOLD_C } from "@/constants/weather";
 import { buildOutfitPrompt } from "@/lib/ai/prompts";
 import {
   generateOutfitRecommendation,
+  generateOutfitRecommendationStream,
   getEngineModel,
 } from "@/lib/ai/engine";
 import { generateFallbackLook } from "@/lib/recommender/fallback";
-import { isUpstreamFailure, parseOptions } from "@/lib/recommender/llmOptions";
+import {
+  extractCompletedOptionObjects,
+  isUpstreamFailure,
+  parseCompletedOption,
+  parseOptions,
+} from "@/lib/recommender/llmOptions";
 import { canBuildLook, capBalancedPool } from "@/lib/recommender/pool";
 import {
   readIdList,
@@ -37,6 +46,197 @@ import {
   isRainyWeather,
   poolHasOuterwear,
 } from "@/lib/recommender/weatherRules";
+
+interface RecommenderStreamContext {
+  request: Request;
+  requestId: string;
+  startTime: number;
+  userId: string;
+  systemPrompt: string;
+  userPayload: unknown;
+  knownIds: Set<string>;
+  cappedPool: CandidateGarment[];
+  lockedIds: Set<string>;
+  temperatureC: number;
+  outerwearRequired: boolean;
+  excludedWinterCount: number;
+  excludedRainCount: number;
+  excludedDismissedCount: number;
+}
+
+function createRecommenderStream({
+  request,
+  requestId,
+  startTime,
+  userId,
+  systemPrompt,
+  userPayload,
+  knownIds,
+  cappedPool,
+  lockedIds,
+  temperatureC,
+  outerwearRequired,
+  excludedWinterCount,
+  excludedRainCount,
+  excludedDismissedCount,
+}: RecommenderStreamContext): Response {
+  const encoder = new TextEncoder();
+  const abortController = new AbortController();
+  let streamController: ReadableStreamDefaultController<Uint8Array> | null = null;
+  let closed = false;
+  const previews: OutfitOption[] = [];
+
+  const send = (event: Record<string, unknown>) => {
+    if (!closed && streamController) {
+      streamController.enqueue(
+        encoder.encode(`data: ${JSON.stringify(event)}\n\n`),
+      );
+    }
+  };
+
+  const completeResponse = (options: OutfitOption[], isFallback: boolean) => {
+    const model = isFallback ? "local-fallback" : getEngineModel();
+    logger.requestComplete("recommender", requestId, 200, Date.now() - startTime, {
+      userId,
+      isFallback,
+      optionsCount: options.length,
+      model,
+      streamed: true,
+      excludedWinterGarments: excludedWinterCount,
+      excludedRainMaterials: excludedRainCount,
+      excludedDismissedGarments: excludedDismissedCount,
+    });
+    send({
+      type: "complete",
+      payload: {
+        options,
+        temperatureC,
+        requiredOuterwear: outerwearRequired,
+        _isFallback: isFallback,
+        excludedWinterGarments: excludedWinterCount,
+        excludedRainMaterials: excludedRainCount,
+        excludedDismissedGarments: excludedDismissedCount,
+        model,
+      },
+    });
+  };
+
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      streamController = controller;
+      request.signal.addEventListener(
+        "abort",
+        () => abortController.abort(request.signal.reason),
+        { once: true },
+      );
+      send({ type: "progress", stage: "generating" });
+
+      void (async () => {
+        let content = "";
+        let scannedObjectCount = 0;
+        try {
+          content = await generateOutfitRecommendationStream(
+            systemPrompt,
+            userPayload,
+            (chunk) => {
+              content += chunk;
+              const objects = extractCompletedOptionObjects(content);
+              while (
+                scannedObjectCount < objects.length &&
+                previews.length < MAX_LOOK_OPTIONS
+              ) {
+                const option = parseCompletedOption(
+                  objects[scannedObjectCount],
+                  knownIds,
+                );
+                scannedObjectCount += 1;
+                if (option !== null) {
+                  previews.push(option);
+                  send({ type: "preview", option });
+                }
+              }
+            },
+            abortController.signal,
+          );
+
+          const options = parseOptions(content, knownIds);
+          completeResponse(options, false);
+        } catch (error) {
+          if (abortController.signal.aborted || closed) {
+            return;
+          }
+
+          const message = error instanceof Error ? error.message : String(error);
+          const status = (error as { status?: unknown }).status;
+          const statusSuffix = typeof status === "number" ? ` (status ${status})` : "";
+          if (!isUpstreamFailure(error)) {
+            logger.error(`Stream request failed: ${message}${statusSuffix}`, {
+              route: "recommender",
+              requestId,
+              userId,
+              error,
+              status,
+              streamed: true,
+            });
+            send({ type: "reset" });
+            send({ type: "error", error: "Unexpected recommender error.", status: 500 });
+            return;
+          }
+
+          logger.warn(`LLM stream failed, using local fallback: ${message}${statusSuffix}`, {
+            route: "recommender",
+            requestId,
+            userId,
+            error,
+            status,
+            streamed: true,
+          });
+          send({ type: "reset" });
+          try {
+            const fallbackOptions = generateFallbackLook(
+              cappedPool,
+              lockedIds,
+              temperatureC,
+              outerwearRequired,
+            );
+            completeResponse(fallbackOptions, true);
+          } catch (fallbackError) {
+            logger.error("Local fallback failed for streamed request", {
+              route: "recommender",
+              requestId,
+              userId,
+              error: fallbackError,
+            });
+            send({
+              type: "error",
+              error: "AI service request failed. Try again.",
+              status: 502,
+            });
+          }
+        } finally {
+          if (!closed) {
+            closed = true;
+            controller.close();
+          }
+        }
+      })();
+    },
+    cancel(reason) {
+      closed = true;
+      abortController.abort(reason);
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/event-stream; charset=utf-8",
+      "Cache-Control": "no-cache, no-transform",
+      "X-Accel-Buffering": "no",
+      "x-request-id": requestId,
+    },
+  });
+}
+
 // POST /api/recommender
 // Body: { garments: Garment[], temperatureC?: number, condition?: string,
 //         dayLow?: number, dayHigh?: number, rainProbability?: number,
@@ -250,6 +450,25 @@ export async function POST(request: Request) {
       locale,
     },
   });
+
+  if (request.headers.get("accept")?.includes("text/event-stream")) {
+    return createRecommenderStream({
+      request,
+      requestId,
+      startTime,
+      userId: user.id,
+      systemPrompt,
+      userPayload,
+      knownIds,
+      cappedPool,
+      lockedIds,
+      temperatureC,
+      outerwearRequired,
+      excludedWinterCount,
+      excludedRainCount,
+      excludedDismissedCount: kept.length - eligible.length,
+    });
+  }
 
   let options: OutfitOption[];
   let isFallback = false;

@@ -179,6 +179,16 @@ describe("useGeneratorStore extended coverage", () => {
     expect(state.insufficientStyle).toBeNull();
   });
 
+  it("clears streamed previews when final looks replace them", () => {
+    const look = { id: "preview", garments: [], reason: null, suitability: 80 };
+    useGeneratorStore.getState().startLoading();
+    useGeneratorStore.getState().setStreamedLooks([look]);
+    expect(useGeneratorStore.getState().streamedLooks).toEqual([look]);
+
+    useGeneratorStore.getState().setAiLooks([look]);
+    expect(useGeneratorStore.getState().streamedLooks).toEqual([]);
+  });
+
   it("discardActiveLook is a no-op at the rejection limit", () => {
     useGeneratorStore.getState().setAiLooks([
       { id: "1", garments: [], reason: null, suitability: 80 },

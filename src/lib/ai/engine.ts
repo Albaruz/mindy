@@ -155,3 +155,82 @@ export async function generateOutfitRecommendation(
   }
   throw lastError;
 }
+
+// Streams JSON completion chunks to the caller while retaining the complete
+// response for the same validation path used by non-streaming requests.
+export async function generateOutfitRecommendationStream(
+  systemPrompt: string,
+  userPayload: unknown,
+  onContent: (chunk: string) => void,
+  signal?: AbortSignal,
+): Promise<string> {
+  let lastError: unknown = null;
+
+  for (let attempt = 1; attempt <= AI_MAX_ATTEMPTS; attempt += 1) {
+    let content = "";
+    let firstChunkMs: number | null = null;
+    const startTime = Date.now();
+    try {
+      const stream = await getClient().chat.completions.create(
+        {
+          model: AI_MODEL,
+          temperature: AI_TEMPERATURE,
+          max_tokens: AI_MAX_TOKENS,
+          response_format: AI_RESPONSE_FORMAT,
+          stream: true,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: JSON.stringify(userPayload) },
+          ],
+        },
+        { timeout: AI_TIMEOUT_MS, signal },
+      );
+
+      for await (const chunk of stream) {
+        const delta = chunk.choices[0]?.delta?.content;
+        if (typeof delta !== "string" || delta === "") {
+          continue;
+        }
+        firstChunkMs ??= Date.now() - startTime;
+        content += delta;
+        onContent(delta);
+      }
+
+      if (content === "") {
+        throw new Error("Groq returned an empty completion.");
+      }
+
+      logger.externalCall("groq", "chat.completions.stream", Date.now() - startTime, true, {
+        model: AI_MODEL,
+        attempt,
+        firstChunkMs,
+      });
+      return content;
+    } catch (error) {
+      lastError = error;
+      // Once content was exposed to the caller, do not transparently retry:
+      // the caller may already have rendered verified complete options.
+      if (content !== "" || attempt === AI_MAX_ATTEMPTS || !isRetryable(error)) {
+        logger.error("Groq stream failed", {
+          model: AI_MODEL,
+          attempt,
+          error,
+          maxAttempts: AI_MAX_ATTEMPTS,
+          streamedContent: content !== "",
+        });
+        throw error;
+      }
+
+      const retryDelay = getRetryDelayMs(error, attempt);
+      logger.warn(`Groq stream failed, retrying in ${retryDelay}ms`, {
+        model: AI_MODEL,
+        attempt,
+        error,
+        retryDelay,
+      });
+      await delay(retryDelay);
+    }
+  }
+
+  throw lastError;
+}

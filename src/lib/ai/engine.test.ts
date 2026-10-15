@@ -45,6 +45,7 @@ vi.mock("groq-sdk", () => {
 
 import {
   generateOutfitRecommendation,
+  generateOutfitRecommendationStream,
   getEngineModel,
 } from "./engine";
 import { RateLimitError } from "groq-sdk";
@@ -112,4 +113,47 @@ describe("generateOutfitRecommendation", () => {
     expect(result).toBe("recovered");
     expect(mockCreate).toHaveBeenCalledTimes(2);
   }, 15000);
+});
+
+describe("generateOutfitRecommendationStream", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    process.env.GROQ_API_KEY = "test-key";
+  });
+
+  it("returns the full content and forwards streamed chunks", async () => {
+    const chunks = [
+      { choices: [{ delta: { content: '{"options":[' } }] },
+      { choices: [{ delta: { content: "]}" } }] },
+    ];
+    mockCreate.mockResolvedValue({
+      async *[Symbol.asyncIterator]() {
+        yield* chunks;
+      },
+    });
+    const onContent = vi.fn();
+
+    const result = await generateOutfitRecommendationStream(
+      "system",
+      { foo: "bar" },
+      onContent,
+    );
+
+    expect(result).toBe('{"options":[]}');
+    expect(onContent.mock.calls.map(([chunk]) => chunk)).toEqual([
+      '{"options":[',
+      "]}",
+    ]);
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({ stream: true }),
+      expect.objectContaining({ timeout: expect.any(Number) }),
+    );
+  });
+
+  it("throws without api key", async () => {
+    delete process.env.GROQ_API_KEY;
+    await expect(
+      generateOutfitRecommendationStream("system", {}, vi.fn()),
+    ).rejects.toThrow("GROQ_API_KEY is not configured");
+  });
 });

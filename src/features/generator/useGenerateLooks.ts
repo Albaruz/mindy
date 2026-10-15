@@ -19,7 +19,11 @@ import { buildWeatherUrl } from "@/constants/api";
 import type { WeatherInfo } from "@/types/weather";
 import type { Mood, GenerateLooksInput, GenerateLooksResult } from "./generatorTypes";
 import { buildCandidates } from "./generatorCandidates";
-import { callRecommender, buildRecommenderGarments, type RecommenderRequest } from "./generatorApi";
+import {
+  callRecommenderStream,
+  buildRecommenderGarments,
+  type RecommenderRequest,
+} from "./generatorApi";
 import { readRecommenderError, formatRecommenderError, validateRecommenderResponse } from "./generatorResponse";
 import type { RecommenderResponse } from "./generatorApi";
 import { ERROR_CODES } from "@/constants/errors";
@@ -161,7 +165,30 @@ export function useGenerateLooks() {
         lockedGarmentIds: [...lockedIds],
         dismissedGarmentIds: [...dismissed],
       };
-      const response = await callRecommender(request);
+      const byId = new Map(
+        input.garments.map((garment) => [garment.garmentId, garment] as const),
+      );
+      const response = await callRecommenderStream(
+        request,
+        (option) => {
+          const currentLooks = useGeneratorStore.getState().streamedLooks;
+          const look = resolveLook(
+            option.garmentIds,
+            byId,
+            currentLooks.length,
+            typeof option.reason === "string" ? option.reason : null,
+            typeof option.suitabilityRatio === "number"
+              ? option.suitabilityRatio
+              : 0,
+          );
+          if (look !== null) {
+            useGeneratorStore
+              .getState()
+              .setStreamedLooks([...currentLooks, look]);
+          }
+        },
+        () => useGeneratorStore.getState().setStreamedLooks([]),
+      );
       if (!response.ok) {
         const code = await readRecommenderError(response);
         if (
@@ -177,9 +204,6 @@ export function useGenerateLooks() {
         throw new AppError(ERROR_CODES.NO_OPTIONS);
       }
 
-      const byId = new Map(
-        input.garments.map((garment) => [garment.garmentId, garment] as const),
-      );
       const looks: AiLook[] = [];
       payload.options.slice(0, MAX_LOOK_OPTIONS).forEach((option, index) => {
         const look = resolveLook(

@@ -193,6 +193,10 @@ vi.mock("./LookShowcase", () => ({
   ),
 }));
 
+vi.mock("./ShowcaseCard", () => ({
+  ShowcaseCard: () => <div data-testid="streaming-look-preview" />,
+}));
+
 vi.mock("./InsufficientStyleEmpty", () => ({
   InsufficientStyleEmpty: ({
     onChooseAnother,
@@ -348,6 +352,15 @@ describe("Home view state machine", () => {
     useGeneratorStore.getState().startLoading();
     render(<Home />);
     expect(screen.getByLabelText("loadingLooks")).toBeInTheDocument();
+  });
+
+  it("shows a verified first look while the remaining response streams", () => {
+    useGeneratorStore.getState().startLoading();
+    useGeneratorStore.getState().setStreamedLooks([buildLook()]);
+    render(<Home />);
+    expect(screen.getByTestId("streaming-look-preview")).toBeInTheDocument();
+    expect(screen.getByText("streamingPreview")).toBeInTheDocument();
+    expect(screen.getByLabelText("loadingLooks")).toHaveAttribute("aria-busy", "true");
   });
 
   it("renders the showcase with an active look", () => {

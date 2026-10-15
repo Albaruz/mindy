@@ -24,6 +24,8 @@ import { ZeroState } from "./ZeroState";
 import { StyleStep } from "./StyleStep";
 import { LookShowcase, ShowcaseEmptyState } from "./LookShowcase";
 import { InsufficientStyleEmpty } from "./InsufficientStyleEmpty";
+import { ShowcaseCard } from "./ShowcaseCard";
+import type { AiLook } from "./useGeneratorStore";
 import { getGeneratorReadiness } from "./generatorReadiness";
 import styles from "./Home.module.scss";
 
@@ -56,7 +58,15 @@ const OutfitCelebrationScreen = dynamic(
   },
 );
 
-function LoadingLooks({ showOuterwear }: { showOuterwear: boolean }) {
+const ignoreLookAction = () => undefined;
+
+function LoadingLooks({
+  showOuterwear,
+  preview,
+}: {
+  showOuterwear: boolean;
+  preview: AiLook | null;
+}) {
   const t = useTranslations("Generator");
   const variants = (
     showOuterwear ? ["outerwear", "top", "bottom", "footwear"] : ["top", "bottom", "footwear"]
@@ -68,14 +78,29 @@ function LoadingLooks({ showOuterwear }: { showOuterwear: boolean }) {
       aria-label={t("loadingLooks")}
       className={styles.loading}
     >
-      {variants.map((variant) => (
-        <SmartSkeleton
-          key={variant}
-          variant={variant}
-          label={t(`carousels.${variant}`)}
-          className={styles["loading-card"]}
-        />
-      ))}
+      {preview ? (
+        <>
+          <p>{t("streamingPreview")}</p>
+          <ShowcaseCard
+            look={preview}
+            position={1}
+            total={1}
+            isWearing
+            canDiscard={false}
+            onWear={ignoreLookAction}
+            onDiscard={ignoreLookAction}
+          />
+        </>
+      ) : (
+        variants.map((variant) => (
+          <SmartSkeleton
+            key={variant}
+            variant={variant}
+            label={t(`carousels.${variant}`)}
+            className={styles["loading-card"]}
+          />
+        ))
+      )}
     </div>
   );
 }
@@ -95,6 +120,7 @@ export function Home() {
   const view = useGeneratorStore((state) => state.view);
   const lookStyle = useGeneratorStore((state) => state.lookStyle);
   const aiLooks = useGeneratorStore((state) => state.aiLooks);
+  const streamedLooks = useGeneratorStore((state) => state.streamedLooks);
   const activeLookIndex = useGeneratorStore((state) => state.activeLookIndex);
   const discardCount = useGeneratorStore((state) => state.discardCount);
   const celebrationGarments = useGeneratorStore(
@@ -237,7 +263,10 @@ export function Home() {
       ) : null}
 
       {view === "loading" || generateLooks.isPending ? (
-        <LoadingLooks showOuterwear={showOuterwear} />
+        <LoadingLooks
+          showOuterwear={showOuterwear}
+          preview={streamedLooks[0] ?? null}
+        />
       ) : null}
 
       {view === "showcase" && !generateLooks.isPending ? (

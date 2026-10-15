@@ -1,10 +1,11 @@
 // @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockGetUser, mockCheckRateLimit, mockGenerate } = vi.hoisted(() => ({
+const { mockGetUser, mockCheckRateLimit, mockGenerate, mockGenerateStream } = vi.hoisted(() => ({
   mockGetUser: vi.fn(),
   mockCheckRateLimit: vi.fn(),
   mockGenerate: vi.fn(),
+  mockGenerateStream: vi.fn(),
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -19,6 +20,7 @@ vi.mock("@/lib/rateLimit", () => ({
 
 vi.mock("@/lib/ai/engine", () => ({
   generateOutfitRecommendation: mockGenerate,
+  generateOutfitRecommendationStream: mockGenerateStream,
   getEngineModel: () => "test-model",
 }));
 
@@ -43,10 +45,13 @@ function buildGarment(
   };
 }
 
-function buildRequest(body: unknown): Request {
+function buildRequest(body: unknown, acceptStream = false): Request {
   return new Request("http://localhost/api/recommender", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(acceptStream ? { Accept: "text/event-stream" } : {}),
+    },
     body: JSON.stringify(body),
   });
 }
@@ -109,6 +114,67 @@ describe("POST /api/recommender", () => {
     const body = await response.json();
     expect(body.options).toHaveLength(1);
     expect(body._isFallback).toBe(false);
+  });
+
+  it("streams verified options and finishes with the standard response payload", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    const content =
+      '{"options":[{"garmentIds":["a","b"],"suitabilityRatio":85,"reason":"Nice"}]}';
+    mockGenerateStream.mockImplementation(
+      async (_systemPrompt: string, _payload: unknown, onContent: (chunk: string) => void) => {
+        onContent('{"options":[{"garmentIds":["a","b"],"suitabilityRatio":85,');
+        onContent('"reason":"Nice"}]}');
+        return content;
+      },
+    );
+
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }, true),
+    );
+    const events = (await response.text())
+      .trim()
+      .split("\n\n")
+      .map((frame) => JSON.parse(frame.slice("data: ".length)) as Record<string, unknown>);
+
+    expect(response.headers.get("content-type")).toContain("text/event-stream");
+    expect(events.map((event) => event.type)).toEqual([
+      "progress",
+      "preview",
+      "complete",
+    ]);
+    expect(events[1].option).toMatchObject({ garmentIds: ["a", "b"] });
+    expect(events[2].payload).toMatchObject({
+      _isFallback: false,
+      options: [{ garmentIds: ["a", "b"] }],
+    });
+  });
+
+  it("resets streamed previews before delivering the local fallback", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    mockGenerateStream.mockImplementation(
+      async (_systemPrompt: string, _payload: unknown, onContent: (chunk: string) => void) => {
+        onContent('{"options":[{"garmentIds":["a","b"]}');
+        const error = new Error("Groq stream failed");
+        (error as { status?: number }).status = 503;
+        throw error;
+      },
+    );
+
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }, true),
+    );
+    const events = (await response.text())
+      .trim()
+      .split("\n\n")
+      .map((frame) => JSON.parse(frame.slice("data: ".length)) as Record<string, unknown>);
+
+    expect(events.map((event) => event.type)).toEqual([
+      "progress",
+      "preview",
+      "reset",
+      "complete",
+    ]);
+    expect(events[3].payload).toMatchObject({ _isFallback: true });
   });
 
   it("falls back locally on upstream failure", async () => {
