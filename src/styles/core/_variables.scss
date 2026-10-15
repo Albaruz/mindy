@@ -70,8 +70,6 @@
   --navigation-border: var(--color-border);
   --navigation-shadow: var(--shadow-lg);
   --navigation-text-inactive: var(--color-tab-inactive);
-  // Near-black on the terracotta indicator (2.36 with #ededed failed
-  // WCAG 2.2 AA 4.5:1; mirrors --button-text-primary on the same accent).
   --navigation-text-active: var(--color-primary-contrast);
   --navigation-indicator: var(--color-accent);
 

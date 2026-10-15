@@ -18,6 +18,7 @@ Feature code must import from here — no inline literals for domain logic.
 | `query.ts` | TanStack Query defaults | `QUERY_KEYS`, `QUERY_STALE_TIME_MS`, `WEATHER_STALE_TIME_MS`, `QUERY_RETRY_COUNT`, `QUERY_REFETCH_ON_FOCUS`, `QUERY_NETWORK_MODE`, `QUERY_PERSIST_MAX_AGE_MS` |
 | `geo.ts` | Geolocation settings | `GEOLOCATION_TIMEOUT_MS`, `GEOLOCATION_MAX_AGE_MS` |
 | `storage.ts` | Supabase tables, buckets, persistence keys | `TABLES`, `STORAGE_BUCKETS`, `USER_ID_COLUMN`, `SUPABASE_URL_FALLBACK`, `SUPABASE_ANON_FALLBACK`, `THEME_STORAGE_KEY`, `PERSISTED_CACHE_KEY` |
+| `garment.ts` | Garment tag vocabularies (SSOT) | `GARMENT_*_VALUES`, `GARMENT_*_ALIASES`, `GARMENT_TYPE_CATEGORIES`, `ONE_PIECE_KEYWORDS`, `CUTOUT_DIFFICULTY_VALUES` |
 
 ## Rules
 

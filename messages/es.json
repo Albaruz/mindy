@@ -495,5 +495,10 @@
       "mustard": "Mostaza",
       "beige": "Beige"
     }
+  },
+  "Errors": {
+    "title": "Algo salió mal",
+    "message": "Esta sección no se pudo cargar. Inténtalo de nuevo o vuelve al generador.",
+    "home": "Volver al generador"
   }
 }

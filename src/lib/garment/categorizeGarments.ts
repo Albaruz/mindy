@@ -1,5 +1,10 @@
 import type { Garment } from "@/types/garment";
 import type { Category } from "@/types/garment";
+import {
+  GARMENT_TYPE_ALIASES,
+  GARMENT_TYPE_CATEGORIES,
+  ONE_PIECE_KEYWORDS,
+} from "@/constants/garment";
 import { normalizeGarmentType } from "./normalizers";
 
 // Closed-vocabulary mapping: garment_type IS the macro category, except
@@ -11,7 +16,20 @@ import { normalizeGarmentType } from "./normalizers";
 // normalization migration, so the fallback never sees them.
 // One-piece garments cover top + bottom in a single item, so the bottom
 // carousel must be hidden while one of them is selected on top.
-const ONE_PIECE_KEYWORDS = ["dress", "gown", "jumpsuit"];
+
+// Legacy keyword fallback, derived from GARMENT_TYPE_ALIASES grouped by
+// macro category (single source in constants/garment.ts). Superset of the
+// old hand-written lists: it now also covers Spanish terms, so legacy
+// rows that previously vanished categorize instead.
+const KEYWORDS: Record<Category, string[]> = {
+  top: [],
+  bottom: [],
+  footwear: [],
+  outerwear: [],
+};
+for (const [term, base] of Object.entries(GARMENT_TYPE_ALIASES)) {
+  KEYWORDS[GARMENT_TYPE_CATEGORIES[base]].push(term);
+}
 
 // Lowercase for case-insensitive legacy matching.
 function normalizeGarmentText(value: string | null | undefined): string {
@@ -20,76 +38,16 @@ function normalizeGarmentText(value: string | null | undefined): string {
   }
   return value.toLowerCase().trim();
 }
-const KEYWORDS: Record<Category, string[]> = {
-  top: [
-    "t-shirt",
-    "tshirt",
-    "tee",
-    "shirt",
-    "blouse",
-    "sweater",
-    "hoodie",
-    "sweatshirt",
-    "polo",
-    "tank",
-    "top",
-    "dress",
-    "gown",
-    "jumpsuit",
-  ],
-  bottom: [
-    "jeans",
-    "pants",
-    "trousers",
-    "shorts",
-    "skirt",
-    "leggings",
-    "chinos",
-    "joggers",
-    "bottom",
-  ],
-  footwear: [
-    "sneakers",
-    "shoe",
-    "shoes",
-    "boots",
-    "sandals",
-    "heels",
-    "loafers",
-    "trainers",
-    "footwear",
-    "flats",
-  ],
-  outerwear: [
-    "jacket",
-    "coat",
-    "blazer",
-    "parka",
-    "vest",
-    "windbreaker",
-    "cardigan",
-    "outerwear",
-  ],
-};
 
 const CATEGORY_ORDER: Category[] = ["top", "bottom", "footwear", "outerwear"];
 
 // Strict base for the closed garment_type. Dress is one-piece: it fills
 // the top slot (see isOnePieceGarment) and covers the bottom slot too.
 function closedTypeCategory(garment: Garment): Category | null {
-  switch (garment.garmentType) {
-    case "top":
-    case "dress":
-      return "top";
-    case "bottom":
-      return "bottom";
-    case "footwear":
-      return "footwear";
-    case "outerwear":
-      return "outerwear";
-    default:
-      return null;
+  if (garment.garmentType === null) {
+    return null;
   }
+  return GARMENT_TYPE_CATEGORIES[garment.garmentType] ?? null;
 }
 
 export function categorizeGarment(garment: Garment): Category | null {

@@ -104,6 +104,10 @@
   box-shadow: 0 0 0 var(--focus-ring-offset) var(--navigation-text-active);
 }
 
+.navigation__item--active .navigation__link:hover {
+  color: var(--navigation-text-active);
+}
+
 .navigation__indicator {
   position: absolute;
   inset: 0;

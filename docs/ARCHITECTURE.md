@@ -72,7 +72,7 @@ src/
 │   ├── api.ts                  # API rate limits, timeouts
 │   ├── weather.ts              # Weather thresholds (HEAT, COLD, RAIN)
 │   ├── generator.ts            # Generator constants (MAX_DISCARD_COUNT, etc)
-│   ├── garment.ts              # Garment tag vocabularies (GARMENT_*_VALUES)
+│   ├── garment.ts              # Garment tag vocabularies (GARMENT_*_VALUES, *_ALIASES, TYPE_CATEGORIES, ONE_PIECE_KEYWORDS)
 │   ├── profile.ts              # Profile enums (COLORIMETRIES, MORPHOLOGIES, ...) + inference
 │   ├── ui-config.ts            # UI constants (SHOP_SECTIONS, STYLE_TRIBES, TOTAL_STEPS, ...)
 │   ├── validation.ts           # Input validation rules
@@ -342,7 +342,9 @@ Client: TanStack Query caches result
 
 - **Code Splitting:** `next/dynamic` for heavy components (bg-removal, carousels)
 - **Image Optimization:** `next/image` for garment photos
-- **Bundle Size:** <180KB gzip target with @next/bundle-analyzer
+- **Bundle Size:** <180KB gzip first-load shared JS, enforced by `pnpm budget`
+  (`scripts/check-bundle-budget.mjs`, CI gate after `pnpm build --webpack`).
+  Current: ~140KB. Interactive treemap via `pnpm analyze` (`ANALYZE=true`).
 - **CSS Tokens:** Auto-generated from JSON, zero runtime overhead
 - **Service Worker:** CacheFirst for Storage (200 entries, 30 days)
 - **Lazy Loading:** Images with IntersectionObserver
@@ -368,4 +370,19 @@ Client: TanStack Query caches result
 - **a11y:** axe-core + @axe-core/playwright
 
 [Testing details →](./TESTING.md)
+
+---
+
+## Error Boundaries
+
+- **Per feature:** `src/app/[locale]/(app)/{generator,closet,calendar,profile,settings}/error.tsx`
+  (thin wrappers, one line each)
+- **Locale fallback:** `src/app/[locale]/error.tsx` (auth + public pages)
+- **Last resort:** `src/app/global-error.tsx` (own `<html>/<body>`, inline
+  bilingual copy — no providers available at that level)
+- **Shared UI:** `src/components/FeatureError/` — `FeatureError` (alert +
+  retry + home link) and the `makeRouteError(route)` factory, which logs to
+  Vercel Logs with its route name via `@/lib/logger` before rendering.
+- Copy lives in the `Errors` namespace (`messages/*.json`); retry reuses
+  `Common.retry`.
 

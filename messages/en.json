@@ -410,5 +410,10 @@
     "weatherCard": "Weather in {city}: {label}, {temp} degrees",
     "skipToContent": "Skip to content"
   },
-  "Garments": {}
+  "Garments": {},
+  "Errors": {
+    "title": "Something went wrong",
+    "message": "This section could not be loaded. Try again or go back to the generator.",
+    "home": "Back to the generator"
+  }
 }
