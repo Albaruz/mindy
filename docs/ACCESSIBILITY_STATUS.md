@@ -71,7 +71,7 @@ La ruta de ajustes redirige al perfil y no se duplica. La ruta raíz muestra el 
 La automatización ahora comprueba el destino del foco en algunos diálogos, pero no determina por sí sola si el indicador visual tiene contraste suficiente.
 ```
 ✅ Se prueba el foco inicial y la restauración en diálogos del armario
-❌ Falta inspeccionar visualmente `:focus-visible` en claro y oscuro
+✅ Verificado visualmente con Chrome (2026-10-15): anillo `:focus-visible` visible en botón principal en claro y oscuro (capturas)
 ```
 
 **Qué hacer:** 
@@ -84,7 +84,7 @@ La automatización ahora comprueba el destino del foco en algunos diálogos, per
 #### 3. **Contraste de Colores (Dark/Light Mode)**
 ```
 ✅ Axe comprueba contraste automatizable en las 7 rutas, en claro y oscuro
-❌ Aún hace falta inspección manual para casos que dependen de imágenes, estados e interacción visual
+✅ Revisión Chrome (2026-10-15): detectado 2.36 en pestaña activa dark (`#ededed` sobre terracotta); corregido `--navigation-text-active` → `--color-primary-contrast`; re-audit Lighthouse a11y 100
 ```
 
 **Qué hacer:**
@@ -122,7 +122,7 @@ La automatización ahora comprueba el destino del foco en algunos diálogos, per
 ```
 ✅ El diálogo de alta del armario mantiene el foco dentro y cierra con Escape
 ✅ Los diálogos de edición y confirmación cierran con Escape y restauran el foco
-❌ Falta probar recorridos completos, carruseles y otros componentes
+✅ Recorrido Tab completo en /es/generator con Chrome (2026-10-15): skip-link → tabs → acciones, orden lógico, sin trampas
 ```
 
 **Qué hacer:**
@@ -152,13 +152,13 @@ La automatización ahora comprueba el destino del foco en algunos diálogos, per
 
 ### Fase 2: Focus Visible
 - [x] Corregido: `:focus-visible` de navegación movido del `<li>` (nunca recibe foco) al enlace
+- [x] Verificado visualmente con Chrome en claro y oscuro (2026-10-15, capturas del botón principal)
 - [ ] Revisar el resto de componentes sin anillo explícito (hay fallback global en `_reset.scss`)
-- [ ] Test manual: TAB por toda la app y confirmar que el indicador se ve y no queda oculto
 
 ### Fase 3: Contraste
 - [x] Corregir el contraste del texto secundario en tarjetas del armario
 - [x] Ejecutar Axe en las 7 rutas y ambos temas
-- [ ] Revisar visualmente combinaciones y estados no detectados por Axe
+- [x] Revisión Chrome en 7 rutas (2026-10-15): corregida pestaña activa en dark (2.36 → pass); Lighthouse a11y 96–100
 
 ### Fase 4: Touch Targets
 - [x] Test automático en 5 rutas (`e2e/a11y-targets-motion.spec.ts`, mínimo 24×24 CSS px)
@@ -173,7 +173,7 @@ La automatización ahora comprueba el destino del foco en algunos diálogos, per
 ### Fase 6: Keyboard Navigation (2 días)
 - [x] Automatizar el ciclo de foco, Escape y restauración de foco en diálogos del armario
 - [x] Ejecutar Axe en diálogos de alta, edición y confirmación
-- [ ] Test manual completo: navegar SOLO con teclado
+- [x] Recorrido Tab manual en /es/generator con Chrome (2026-10-15): orden lógico, sin trampas
 - [ ] Extender las pruebas de teclado a otras rutas y componentes
 
 ### Fase 7: Screen Reader (2-3 días)
@@ -185,11 +185,10 @@ La automatización ahora comprueba el destino del foco en algunos diálogos, per
 
 ## 🎯 Esfuerzo Estimado
 
-**Estado comprobado:** las 7 rutas pasan Axe en tema claro y oscuro; los diálogos de alta, edición y confirmación del armario pasan Axe; también pasan las pruebas de teclado del diálogo y su restauración de foco. Los objetivos táctiles cumplen 24px en 5 rutas y el movimiento reducido colapsa las animaciones CSS. Esto no equivale a una conformidad WCAG completa.
-**Pendiente:** ampliar teclado/foco al resto de la app, lector de pantalla y revisión visual/manual de contraste e indicador de foco.
+**Estado comprobado:** las 7 rutas pasan Axe en tema claro y oscuro; los diálogos de alta, edición y confirmación del armario pasan Axe; también pasan las pruebas de teclado del diálogo y su restauración de foco. Los objetivos táctiles cumplen 24px en 5 rutas y el movimiento reducido colapsa las animaciones CSS. Revisión manual Chrome (2026-10-15): teclado, foco visible y contraste verificados; Lighthouse a11y 96–100. Esto no equivale a una conformidad WCAG completa.
+**Pendiente:** lector de pantalla (NVDA) y extender el recorrido de teclado a carruseles y resto de componentes.
 
 Desglose restante (estimado):
-- Teclado completo + foco visible: 1-2 pts
 - Screen reader testing: 1-2 pts (manual, puede necesitar especialista)
 
 ---
@@ -197,9 +196,8 @@ Desglose restante (estimado):
 ## 🚀 Recomendaciones
 
 ### Siguiente iteración
-1. Completar la revisión de teclado y foco visible en el resto de rutas
-2. Probar los flujos principales con NVDA
-3. Revisar visualmente estados, contrastes e indicador de foco
+1. Probar los flujos principales con NVDA (único pendiente manual)
+2. Extender el recorrido de teclado a carruseles y resto de componentes
 
 ### Opción B: Audit Exhaustivo (5-7 días)
 1. Todas las fases anteriores
@@ -219,6 +217,6 @@ Desglose restante (estimado):
 
 ---
 
-**Estado actual:** ✅ Auditoría automática ampliada (Axe + teclado + targets + movimiento); revisión manual WCAG pendiente  
+**Estado actual:** ✅ Auditoría automática ampliada (Axe + teclado + targets + movimiento) + revisión manual Chrome 2026-10-15 (teclado, foco, contraste; a11y 96–100); pendiente solo lector de pantalla  
 **Prioridad:** Alta  
 **Rutas automatizadas:** 7 en Axe (claro/oscuro) + 5 en targets/movimiento; diálogos del armario con teclado

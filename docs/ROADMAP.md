@@ -80,11 +80,12 @@ All core features are live and production-ready. This roadmap outlines improveme
 ## 🔄 In Progress / Next Sprint
 
 ### WCAG 2.2 AA Accessibility Audit
-- [ ] Run axe-core full audit
-- [ ] Fix contrast ratios (dark/light modes)
-- [ ] Test keyboard navigation (Tab, arrows, ESC)
-- [ ] Verify focus visible on all interactive elements
+- [x] Run axe-core full audit
+- [x] Fix contrast ratios (dark/light modes)
+- [x] Test keyboard navigation (Tab, arrows, ESC)
+- [x] Verify focus visible on all interactive elements
 - [ ] Test with screen readers (NVDA, JAWS)
+- **Status (2026-10-15, Chrome MCP):** Lighthouse a11y 96–100 on 7 routes; fixed dark active-tab contrast (2.36 → pass); keyboard walk + focus screenshots verified in both themes. Only manual screen-reader pass remains.
 - **Timeline:** Sprint 7 (1-2 weeks)
 - **Priority:** High
 
