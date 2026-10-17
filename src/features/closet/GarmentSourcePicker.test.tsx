@@ -9,14 +9,16 @@ vi.mock("next-intl", () => ({
 function renderPicker(isOpen: boolean) {
   const onOpenChange = vi.fn();
   const onFile = vi.fn();
+  const onFiles = vi.fn();
   const view = render(
     <GarmentSourcePicker
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       onFile={onFile}
+      onFiles={onFiles}
     />,
   );
-  return { onOpenChange, onFile, ...view };
+  return { onOpenChange, onFile, onFiles, ...view };
 }
 
 describe("GarmentSourcePicker", () => {
@@ -62,6 +64,20 @@ describe("GarmentSourcePicker", () => {
 
     onFile.mockClear();
     fireEvent.change(input, { target: { files: [] } });
+    expect(onFile).not.toHaveBeenCalled();
+  });
+
+  it("passes a gallery selection to the multiple-file callback", () => {
+    const { onFile, onFiles, container } = renderPicker(false);
+    const inputs = container.querySelectorAll<HTMLInputElement>('input[type="file"]');
+    const files = [
+      new File(["one"], "one.png", { type: "image/png" }),
+      new File(["two"], "two.jpg", { type: "image/jpeg" }),
+    ];
+
+    fireEvent.change(inputs[1], { target: { files } });
+
+    expect(onFiles).toHaveBeenCalledWith(files);
     expect(onFile).not.toHaveBeenCalled();
   });
 });

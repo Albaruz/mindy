@@ -11,6 +11,8 @@ interface GarmentSourcePickerProps {
   onOpenChange: (open: boolean) => void;
   /** Called with the photo the user took or picked. */
   onFile: (file: File) => void;
+  /** Called with the gallery selection when multiple upload is supported. */
+  onFiles?: (files: File[]) => void;
 }
 
 interface SourceSheetProps {
@@ -64,6 +66,7 @@ export function GarmentSourcePicker({
   isOpen,
   onOpenChange,
   onFile,
+  onFiles,
 }: GarmentSourcePickerProps) {
   const ta = useTranslations("Accessibility");
   const fabRef = useRef<HTMLButtonElement | null>(null);
@@ -81,11 +84,16 @@ export function GarmentSourcePicker({
   };
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const files = Array.from(event.target.files ?? []);
     event.target.value = "";
-    if (file !== undefined) {
-      onFile(file);
+    if (files.length === 0) {
+      return;
     }
+    if (onFiles !== undefined && files.length > 1) {
+      onFiles(files);
+      return;
+    }
+    onFile(files[0]);
   };
 
   return (
@@ -104,6 +112,7 @@ export function GarmentSourcePicker({
         ref={uploadInputRef}
         type="file"
         accept="image/*"
+        multiple
         aria-hidden="true"
         tabIndex={-1}
         className={styles["file-input"]}

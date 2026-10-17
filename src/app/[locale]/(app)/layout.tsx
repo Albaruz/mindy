@@ -4,6 +4,7 @@ import { AppHeader } from "@/components/AppHeader/AppHeader";
 import { NotificationContainer } from "@/components/Notification/NotificationContainer";
 import { VercelAnalytics } from "@/components/VercelAnalytics/VercelAnalytics";
 import { Providers } from "../../providers";
+import { UploadQueueManager } from "@/features/closet/UploadQueueManager";
 
 // Editorial typography is needed only by authenticated product routes.
 const playfairDisplay = Playfair_Display({
@@ -19,6 +20,7 @@ export default function ProductLayout({ children }: { children: ReactNode }) {
   return (
     <div className={playfairDisplay.variable}>
       <Providers>
+        <UploadQueueManager />
         <NotificationContainer />
         <AppHeader />
         {children}

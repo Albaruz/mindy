@@ -7,5 +7,6 @@
   "modal": 1000,
   "popover": 1100,
   "tooltip": 1200,
-  "toast": 1300
+  "toast": 1300,
+  "modalTop": 1250
 }

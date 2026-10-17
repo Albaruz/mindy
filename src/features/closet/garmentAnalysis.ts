@@ -1,11 +1,6 @@
 import type {
   CutoutDifficulty,
-  GarmentColor,
-  GarmentCut,
-  GarmentMaterial,
-  GarmentSeason,
-  GarmentStyle,
-  GarmentType,
+  InferredTags,
 } from "@/types/garment";
 import { CUTOUT_DIFFICULTY_VALUES } from "@/constants/garment";
 import { ANALYZE_TIMEOUT_MS } from "@/constants/validation";
@@ -19,20 +14,7 @@ import {
 } from "@/lib/garment/normalizers";
 import { API_ROUTES } from "@/constants/api";
 
-export interface InferredTags {
-  category: GarmentType | "";
-  garmentType: GarmentType | "";
-  season: GarmentSeason | "";
-  color: GarmentColor | "";
-  material: GarmentMaterial | "";
-  style: GarmentStyle | "";
-  cutLength: GarmentCut | "";
-  typeDetail: string;
-  colorShade: string;
-  cutoutDifficulty: CutoutDifficulty | "";
-  qualityNote: string;
-  visualDescription: string;
-}
+export type { InferredTags } from "@/types/garment";
 
 export const EMPTY_TAGS: InferredTags = {
   category: "",
@@ -71,7 +53,9 @@ function readDetail(
 export async function suggestTags(
   imageBase64: string,
   locale: "en" | "es",
+  options?: { throwOnError?: boolean },
 ): Promise<InferredTags> {
+  const throwOnError = options?.throwOnError === true;
   try {
     const response = await fetch(API_ROUTES.analyze, {
       method: "POST",
@@ -80,10 +64,16 @@ export async function suggestTags(
       signal: AbortSignal.timeout(ANALYZE_TIMEOUT_MS),
     });
     if (!response.ok) {
+      if (throwOnError) {
+        throw new Error(`Vision analysis failed with status ${response.status}.`);
+      }
       return EMPTY_TAGS;
     }
     const payload: unknown = await response.json();
     if (typeof payload !== "object" || payload === null) {
+      if (throwOnError) {
+        throw new Error("Vision analysis returned an invalid response.");
+      }
       return EMPTY_TAGS;
     }
     const record = payload as Record<string, unknown>;
@@ -119,7 +109,10 @@ export async function suggestTags(
           ? record.visualDescription
           : "",
     };
-  } catch {
+  } catch (error) {
+    if (throwOnError) {
+      throw error instanceof Error ? error : new Error("Vision analysis failed.");
+    }
     return EMPTY_TAGS;
   }
 }

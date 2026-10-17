@@ -10,7 +10,6 @@ import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { PageHeader } from "@/components/PageHeader/PageHeader";
 import { SegmentedControl } from "@/components/SegmentedControl/SegmentedControl";
 import { CelebrationBurst } from "@/components/BottomActionBar/BottomActionBar";
-import { ProcessingOverlay } from "@/components/ProcessingOverlay/ProcessingOverlay";
 import { SearchBar } from "@/components/SearchBar/SearchBar";
 import { FilterChips } from "@/components/FilterChips/FilterChips";
 import { ConfirmDialog } from "@/components/ConfirmDialog/ConfirmDialog";
@@ -19,17 +18,16 @@ import { useClosetQuery } from "@/features/closet/useClosetQuery";
 import { useClosetInventory } from "@/features/closet/useClosetInventory";
 import { useLaundryActions } from "@/features/closet/useLaundryActions";
 import { useGarmentDeletion } from "@/features/closet/useGarmentDeletion";
-import {
-  useUploadGarment,
-  type GarmentFormInput,
-} from "@/features/closet/useUploadGarment";
+import type { GarmentFormInput } from "@/features/closet/useUploadGarment";
 import { useUpdateGarment } from "@/features/closet/useUpdateGarment";
 import { toEditableTags } from "@/features/closet/ExtraTagsEditor";
 import { useGarmentTranslator } from "@/lib/translateGarment";
 import { GarmentCard } from "@/features/closet/GarmentCard";
 import { GarmentFormModal } from "@/features/closet/GarmentFormModal";
 import { GarmentSourcePicker } from "@/features/closet/GarmentSourcePicker";
-import { PhotoQualityDialog } from "@/features/closet/PhotoQualityDialog";
+import { enqueueUploadFiles } from "@/features/closet/UploadQueueManager";
+import { UploadBatchPreview } from "@/features/closet/UploadBatchPreview";
+import { MAX_UPLOAD_BATCH_SIZE } from "@/constants/upload";
 import styles from "./page.module.scss";
 
 function toFormInput(garment: Garment): GarmentFormInput {
@@ -52,10 +50,10 @@ export default function ClosetPage() {
   const inventory = useClosetInventory(garments);
   const laundry = useLaundryActions();
   const deletion = useGarmentDeletion();
-  const upload = useUploadGarment();
   const updateGarment = useUpdateGarment();
   const [editingGarment, setEditingGarment] = useState<Garment | null>(null);
   const [isSourceMenuOpen, setIsSourceMenuOpen] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   const handleUpdate = (input: GarmentFormInput) => {
     if (editingGarment !== null) {
@@ -209,15 +207,26 @@ export default function ClosetPage() {
         )}
       </QueryState>
 
-      {upload.phase === "processing" && upload.qualityGate === null ? (
-        <ProcessingOverlay message={upload.progressNote} />
-      ) : null}
-
       <GarmentSourcePicker
         isOpen={isSourceMenuOpen}
         onOpenChange={setIsSourceMenuOpen}
-        onFile={(file) => void upload.processPhoto(file)}
+        onFile={(file) => void enqueueUploadFiles([file])}
+        onFiles={(files) => setPendingFiles(files.slice(0, MAX_UPLOAD_BATCH_SIZE))}
       />
+
+      {pendingFiles.length > 0 ? (
+        <UploadBatchPreview
+          files={pendingFiles}
+          onRemove={(index) =>
+            setPendingFiles((files) => files.filter((_, fileIndex) => fileIndex !== index))
+          }
+          onStart={() => {
+            void enqueueUploadFiles(pendingFiles);
+            setPendingFiles([]);
+          }}
+          onClose={() => setPendingFiles([])}
+        />
+      ) : null}
 
       {inventory.inventoryView === "dirty" &&
       inventory.dirtyGarments.length > 0 ? (
@@ -247,22 +256,6 @@ export default function ClosetPage() {
           isPending={deletion.isDeleting}
           onConfirm={deletion.confirmDelete}
           onClose={deletion.cancelDelete}
-        />
-      ) : null}
-
-      {upload.qualityGate !== null ? (
-        <PhotoQualityDialog
-          qualityNote={upload.qualityGate.tags.qualityNote || null}
-          cutoutFailed={upload.cutoutFailed}
-          isWorking={upload.phase === "processing"}
-          progressNote={upload.progressNote}
-          onRemoveBackground={() => void upload.removeBackground()}
-          onUseOriginal={() => void upload.useOriginalPhoto()}
-          onChangePhoto={() => {
-            upload.dismissQualityGate();
-            setIsSourceMenuOpen(true);
-          }}
-          onClose={upload.dismissQualityGate}
         />
       ) : null}
 

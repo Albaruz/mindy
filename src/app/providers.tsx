@@ -76,8 +76,8 @@ export function Providers({ children }: { children: ReactNode }) {
             query.state.status === "success",
         },
       }}
-    >
-      {children}
+      >
+        {children}
     </PersistQueryClientProvider>
   );
 }

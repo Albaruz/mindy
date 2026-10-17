@@ -24,6 +24,21 @@ export type GarmentSeason = (typeof GARMENT_SEASON_VALUES)[number];
 /** Vision's assessment of how difficult a clean garment cutout will be. */
 export type CutoutDifficulty = (typeof CUTOUT_DIFFICULTY_VALUES)[number];
 
+/** Normalized tags returned by the vision analysis endpoint. */
+export interface InferredTags {
+  category: GarmentType | "";
+  garmentType: GarmentType | "";
+  season: GarmentSeason | "";
+  color: GarmentColor | "";
+  material: GarmentMaterial | "";
+  style: GarmentStyle | "";
+  cutLength: GarmentCut | "";
+  typeDetail: string;
+  colorShade: string;
+  cutoutDifficulty: CutoutDifficulty | "";
+  qualityNote: string;
+  visualDescription: string;
+}
 
 // Detail keys stored inside extra_tags when the original value is more
 // specific than the closed base (sneakers -> footwear, turquoise -> blue).

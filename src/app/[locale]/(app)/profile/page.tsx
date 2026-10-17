@@ -16,6 +16,7 @@ import { del } from "idb-keyval";
 import { Link } from "@/i18n/navigation";
 import { PERSISTED_CACHE_KEY } from "@/constants/storage";
 import { signOutAction } from "./actions";
+import { useUploadQueueStore } from "@/stores/useUploadQueueStore";
 import styles from "./page.module.scss";
 
 // Overlapping flat swatches for the colorimetry card.
@@ -65,6 +66,7 @@ export default function ProfilePage() {
     // persisted IndexedDB copy (wardrobe/history/profile stay on disk
     // otherwise). The action redirects to /.
     queryClient.clear();
+    void useUploadQueueStore.getState().clearAll();
     void del(PERSISTED_CACHE_KEY)
       .catch(() => {
         // Private mode may reject: memory is already cleared above.

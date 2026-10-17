@@ -3,7 +3,7 @@
 **App de Moda Inteligente | MVP Full-Feature Deployed**
 
 > **Revisión post-deploy** — Estado verificado contra código en la raíz del repositorio | Next 16.3.8 • React 19.2.8 • Vercel Serverless
-> **Fecha:** 2026-10-12
+> **Fecha:** 2026-10-16
 
 ---
 
@@ -87,6 +87,7 @@ pnpm analyze          # Bundle analysis (<180KB gzip)
 ```
 useGeneratorStore      // Máquina de estados del generador
 useNotificationStore   // Notificaciones (auto-dismiss)
+useUploadQueueStore    // Cola global de subida única/múltiple, IndexedDB
 themeStore             // Tema (system/light/dark)
 onboardingStore        // Progreso del onboarding
 ```
@@ -354,6 +355,93 @@ Visualización: PaletteFan + MorphoIcon
 por lector de pantalla; operable con teclado; acciones con nombres inequívocos;
 mensajes de carga/error; traducciones EN/ES. Cubrir fotos fáciles/difíciles,
 cada elección, cancelación, fallo de eliminación de fondo y cambio de foto.
+
+### 📦 Evolutivo — subida múltiple y procesamiento asíncrono
+
+**Estado:** implementado en la primera iteración del evolutivo.
+
+**Alcance funcional:**
+
+- Disponible exclusivamente desde `Armario → Añadir prenda`.
+- La cámara conserva la selección individual; la galería admite selección múltiple.
+- Máximo de 10 imágenes por lote. Cada imagen representa una prenda diferente.
+- Se muestran miniaturas antes de iniciar y la persona puede eliminar imágenes del lote.
+- No se pueden añadir nuevas imágenes una vez iniciada la cola.
+- La subida única utiliza el mismo mecanismo que un lote de un elemento.
+
+**Pipeline por imagen:**
+
+```text
+queued → validating → analyzing (Groq Vision)
+       → removing_background (Web Worker / fallback)
+       → saving (Storage + garments) → completed
+```
+
+- Vision analiza la imagen original antes del borrado de fondo.
+- Las imágenes con dificultad de recorte se marcan `awaiting_review` y se
+  posponen hasta que termina el resto del trabajo automático.
+- La modal de calidad conserva las decisiones del flujo individual: elegir otra,
+  usar la imagen original o intentar eliminar el fondo.
+- Un fallo individual no bloquea las demás imágenes.
+- Los errores transitorios tienen dos reintentos automáticos; también existen
+  reintento individual y acción para volver a intentar las fallidas.
+- Las imágenes inválidas por tipo o tamaño quedan identificadas como fallidas y
+  no se envían al pipeline de IA.
+
+**Cola global y experiencia de usuario:**
+
+- La cola vive en un store Zustand transversal montado en el layout autenticado.
+- El indicador minimizado es visible durante la navegación por la aplicación y
+  muestra únicamente el porcentaje estimado global.
+- Al abrirlo, el panel muestra exclusivamente progreso, miniatura y acciones.
+- Las acciones disponibles son cancelar, reintentar o revisar cuando una imagen
+  requiere decisión manual.
+- Los porcentajes se calculan por etapas completadas y son deliberadamente
+  estimados; no se persisten actualizaciones por cada pequeño cambio visual.
+- Los cambios se anuncian con una región `aria-live="polite"`; las miniaturas son
+  decorativas.
+
+**Persistencia, reanudación y temporales:**
+
+- Los metadatos de la cola y los `File` originales se conservan temporalmente en
+  IndexedDB mediante `idb-keyval`.
+- La cola sobrevive a navegación y recarga de la página.
+- Tras una recarga, cualquier operación interrumpida se reencola desde el inicio
+  de su pipeline seguro; no se intenta reanudar un Web Worker a mitad de una
+  transformación.
+- El original temporal se elimina después de guardar la prenda final o cancelar
+  el elemento.
+- La subida final sigue usando `garments/user_id/uuid.png`; no se crea una tabla
+  de trabajos ni una migración de Supabase en esta iteración.
+
+**Ejecución en segundo plano y limitación de plataforma:**
+
+- La cola no depende de la modal ni de la página del armario: navegar por la PWA
+  no detiene el procesamiento.
+- Vision puede continuar en el Route Handler mientras la aplicación no está en
+  primer plano.
+- El borrado de fondo continúa ejecutándose en cliente mediante `@imgly` y un
+  Web Worker. El sistema operativo puede suspenderlo al bloquear el móvil; en
+  ese caso se reanuda al volver a activar la PWA.
+- No se promete procesamiento ininterrumpido con la pantalla bloqueada hasta
+  migrar el borrado de fondo a un worker de servidor.
+
+**Notificaciones:**
+
+- Al iniciar el primer lote se solicita permiso para notificaciones del navegador.
+- Se muestra una notificación al finalizar el lote; el indicador interno sigue
+  funcionando si se deniega el permiso.
+- No se genera una notificación por cada imagen.
+
+**Coste y límites operativos:**
+
+- La primera versión no requiere una migración ni un servicio adicional de pago
+  en Supabase: usa Storage y la persistencia local ya disponibles.
+- El límite gratuito relevante es el volumen acumulado de Storage, la descarga
+  de imágenes y las llamadas al proveedor de IA, que tienen límites independientes
+  de Supabase.
+- El lote queda limitado a 10 imágenes y los temporales se eliminan para reducir
+  Storage y egress.
 
 **Búsqueda y filtrado:**
 - 🔍 Buscador cliente (sin servidor)
@@ -730,8 +818,10 @@ src/
 │   ├── recommender/        (server-side recommendation rules)
 │   └── ...
 ├── stores/                 (cross-cutting Zustand stores)
+│   └── useUploadQueueStore.ts (cola resumible de imágenes)
 ├── types/                  (TypeScript interfaces)
 ├── constants/              (SSOT — 11 módulos)
+│   ├── upload.ts
 │   ├── ai.ts
 │   ├── profile.ts
 │   ├── ui-config.ts
@@ -967,6 +1057,22 @@ CSP                        // Content Security Policy
 - Acciones, en orden: **Elegir otra (Recomendado)**, **Usar la foto tal cual** y **Probar a quitar el fondo**.
 - Para fotos fáciles se mantiene la eliminación automática. Las fotos grandes se reducen a 1024 px para el procesamiento y a 300 px para Storage.
 - Si fallan el worker y el fallback, la modal conserva las alternativas. La acción de generación IA no se muestra; queda como TODO de la fase 2.
+
+### 📦 Subida múltiple de prendas (fase 1 — completada)
+- Selección múltiple desde galería con un máximo de 10 imágenes por lote; la
+  cámara continúa siendo individual.
+- Cola Zustand global con originales y metadatos temporales en IndexedDB para
+  sobrevivir navegación y recarga.
+- Pipeline asíncrono secuencial por imagen: validación, Vision, eliminación de
+  fondo y persistencia. El progreso es estimado por etapas.
+- Un error o una revisión pendiente no bloquea las demás imágenes; existen dos
+  reintentos automáticos y reintento manual de fallidas.
+- Indicador minimizado visible en toda la zona autenticada. El panel de detalle
+  muestra únicamente porcentaje, miniatura y acciones.
+- La subida única comparte este mecanismo y muestra el mismo progreso.
+- Solicitud de permiso de notificaciones al iniciar el primer lote y aviso al
+  terminar. El borrado de fondo permanece en cliente, por lo que el sistema
+  puede suspenderlo cuando el móvil está bloqueado.
 
 ### 🧺 Cesto Selectivo
 - **Exentos:** Footwear + Outerwear (no se ensucian)
