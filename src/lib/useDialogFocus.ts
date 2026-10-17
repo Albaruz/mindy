@@ -43,7 +43,11 @@ export function useDialogFocus<T extends HTMLElement>(onClose: () => void) {
       node?.querySelector<HTMLElement>(
         'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
       ) ?? null;
-    (target ?? node)?.focus?.();
+    // The dialog is fixed over a potentially scrolled page. Letting the
+    // browser scroll the focused control can move the dialog container itself
+    // to its scroll limit, leaving a blank-looking modal. Focus it without
+    // changing either the page or dialog scroll position.
+    (target ?? node)?.focus?.({ preventScroll: true });
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {

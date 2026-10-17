@@ -156,6 +156,12 @@ export async function generateOutfitRecommendation(
   throw lastError;
 }
 
+function markStreamUpstreamFailure(error: unknown): Error {
+  const marked = error instanceof Error ? error : new Error(String(error));
+  Object.assign(marked, { __upstreamFailure: true });
+  return marked;
+}
+
 // Streams JSON completion chunks to the caller while retaining the complete
 // response for the same validation path used by non-streaming requests.
 export async function generateOutfitRecommendationStream(
@@ -218,7 +224,7 @@ export async function generateOutfitRecommendationStream(
           maxAttempts: AI_MAX_ATTEMPTS,
           streamedContent: content !== "",
         });
-        throw error;
+        throw markStreamUpstreamFailure(error);
       }
 
       const retryDelay = getRetryDelayMs(error, attempt);

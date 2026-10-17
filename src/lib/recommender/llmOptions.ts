@@ -6,13 +6,32 @@ import type { OutfitOption } from "./types";
 // output) degrade to the local fallback: 502 only when the fallback
 // itself cannot build a look. Anything else is a server bug: 500.
 export function isUpstreamFailure(error: unknown): boolean {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    (error as { __upstreamFailure?: unknown }).__upstreamFailure === true
+  ) {
+    return true;
+  }
   const status = (error as { status?: unknown }).status;
   if (typeof status === "number") {
     return true;
   }
+  const name = (error as { name?: unknown }).name;
+  if (
+    name === "APIError" ||
+    name === "GroqError" ||
+    name === "APIConnectionError" ||
+    name === "APIConnectionTimeoutError" ||
+    name === "InternalServerError" ||
+    name === "RateLimitError" ||
+    name === "BadRequestError"
+  ) {
+    return true;
+  }
   return (
     error instanceof Error &&
-    /not configured|empty completion|LLM response|LLM options/.test(
+    /not configured|empty completion|LLM response|LLM options|Groq|upstream|network|fetch failed|timeout|rate limit/i.test(
       error.message,
     )
   );

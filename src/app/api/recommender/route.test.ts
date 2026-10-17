@@ -177,6 +177,26 @@ describe("POST /api/recommender", () => {
     expect(events[3].payload).toMatchObject({ _isFallback: true });
   });
 
+  it("falls back when a stream transport error has no HTTP status", async () => {
+    const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
+    mockGenerateStream.mockRejectedValue(new Error("Groq network failure"));
+
+    const response = await POST(
+      buildRequest({ garments, temperatureC: 20 }, true),
+    );
+    const events = (await response.text())
+      .trim()
+      .split("\n\n")
+      .map((frame) => JSON.parse(frame.slice("data: ".length)) as Record<string, unknown>);
+
+    expect(events.map((event) => event.type)).toEqual([
+      "progress",
+      "reset",
+      "complete",
+    ]);
+    expect(events[2].payload).toMatchObject({ _isFallback: true });
+  });
+
   it("falls back locally on upstream failure", async () => {
     const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
     const error = new Error("Groq failed");

@@ -1,5 +1,9 @@
 // Canonical color picker circles (2.75rem dots, terracotta select ring).
 .color-swatches {
+  box-sizing: border-box;
+  width: 100%;
+  min-inline-size: 0;
+  max-width: 100%;
   padding: 0;
   margin: 0 0 1.25rem;
   border: none;

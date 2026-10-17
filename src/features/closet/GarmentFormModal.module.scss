@@ -6,8 +6,12 @@
 .garment-form-modal__dialog {
   --dialog-shell-bg: var(--color-surface);
   --dialog-shell-max-width: 28rem;
-  --dialog-shell-max-height: 90dvh;
+  --dialog-shell-max-height: calc(100dvh - (var(--space-4) * 2));
   --dialog-shell-radius: var(--radius-xl);
+  width: min(100%, var(--dialog-shell-max-width));
+  min-width: 0;
+  max-width: calc(100vw - (var(--space-4) * 2));
+  overflow: clip;
   padding: var(--space-6);
   box-sizing: border-box;
 }
@@ -52,6 +56,8 @@
 
 .garment-form-modal__content {
   --dialog-shell-padding: 0;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .garment-form-modal__field {
