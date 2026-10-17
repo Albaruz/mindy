@@ -173,7 +173,7 @@ Add to Vercel dashboard:
 - Material filtering for rain
 - CI/CD automation
 
-[Full roadmap →](./docs/ROADMAP.md)
+[Backlog de trabajo →](./docs/BACKLOG.md)
 
 ---
 

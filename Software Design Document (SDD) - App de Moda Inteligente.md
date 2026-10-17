@@ -598,7 +598,7 @@ extra_tags             jsonb {
                          aiCategory: string
                          specificType: string
                          colorShade: string
-                         color_base?: string  // pendiente escritura
+                          color_base?: string  // derivado y escrito por el pipeline de Vision
                          [key: string]: any
                        }
 -- RLS: Solo filas propias
@@ -622,8 +622,8 @@ user_id (FK)           → profiles
 garment_id (FK)        → garments
 signal                 enum ('dismissed')
 created_at             timestamp
--- Uso: Registra descartes (solo escritura, lectura pendiente)
--- Planned: Similitud, embeddings
+-- Uso actual: Registra descartes para el futuro bucle de feedback
+-- Pendiente: lectura, embeddings y similitud (ver docs/BACKLOG.md, #BKL-003)
 ```
 
 ### Políticas de Seguridad
@@ -1002,7 +1002,7 @@ CSP                        // Content Security Policy
 - Visible al tabbing
 - Salta navegación principal
 
-### Accesibilidad (Parcial — audit automático superado)
+### Accesibilidad (implementada con pendiente manual de lector de pantalla)
 
 - ✅ Infraestructura lista
 - ✅ Axe sin infracciones en 7 rutas × tema claro/oscuro (14 combinaciones)
@@ -1010,8 +1010,10 @@ CSP                        // Content Security Policy
 - ✅ Touch targets ≥24px en 5 rutas (navegación corregida de 20×32px a 44px)
 - ✅ Movimiento reducido: sin animaciones CSS supervivientes en 5 rutas
 - ✅ Contraste: token `--color-muted` corregido (`#6b7280` → `#686868`, 4,48:1 → 5,17:1)
-- ❌ Pendiente manual: teclado completo, lector de pantalla, revisión visual de foco/contraste
-- Detalle: `ACCESSIBILITY_STATUS.md`
+- ✅ Revisión manual con Chrome (2026-10-15): teclado, foco visible y contraste en claro/oscuro
+- ✅ Navegación por teclado verificada en `/es/generator`; diálogos con focus trap, Escape y restauración de foco
+- ⏳ Pendiente únicamente: prueba manual con lector de pantalla y extensión del recorrido de teclado a carruseles y componentes adicionales
+- Los resultados y el histórico de auditoría se consolidan en este SDD; las tareas pendientes se mantienen en `docs/BACKLOG.md`
 
 ---
 
@@ -1109,6 +1111,8 @@ CSP                        // Content Security Policy
 
 ## 📋 Backlog Restante
 
+> Esta sección conserva el contexto técnico y las decisiones de los trabajos aún no implementados. La única lista operativa, con prioridades e identificadores, es `docs/BACKLOG.md`.
+
 ### 🎯 Funcionalidades de Negocio
 
 #### 1. Filtrado por Material en Lluvia (PENDIENTE)
@@ -1184,12 +1188,12 @@ Beneficio: Diseño responsive intrinsic
 Estimación: 5 puntos
 ```
 
-#### Visual Regression (PENDIENTE)
+#### Visual Regression (HECHO)
 ```
 Herramienta: Playwright snapshots (toHaveScreenshot)
-Estado: 0 snapshots en e2e/
-Cobertura: Crítica (home, closet, profile, dialogs)
-Estimación: 8 puntos
+Estado: 8 baselines versionados (6 vistas + 2 diálogos)
+Umbral: 1% de diferencia de píxeles
+Integración: gate de CI para diferencias visuales
 ```
 
 #### BEM Completo (PARCIAL)
@@ -1219,7 +1223,7 @@ Checklist WCAG 2.2 AA:
   - Teclado completo: ⏳ (solo diálogos del armario automatizados)
   - Lector de pantalla: ⏳ (requiere prueba manual con NVDA)
 Specs: e2e/a11y.spec.ts (19 tests) + e2e/a11y-targets-motion.spec.ts (10 tests)
-Detalle: ACCESSIBILITY_STATUS.md
+Detalle y trabajo pendiente: `docs/BACKLOG.md` (ítem `#BKL-010`)
 Estimación restante: 2-3 puntos (parte manual)
 ```
 
@@ -1228,10 +1232,10 @@ Estimación restante: 2-3 puntos (parte manual)
 Purga: hecha (capa global muerta eliminada, CSS −27%)
 Gate: scripts/check-bundle-budget.mjs en CI (job build), pasando
   (140,2/180 KB gzip el 2026-10-12)
-Tree-shaking de mixins: sigue abierto en #BKL-015
+Tree-shaking de mixins: queda como trabajo pendiente en `docs/BACKLOG.md` (`#BKL-020`)
 ```
 
-#### Lighthouse CI (PENDIENTE — medición confiable, gate en rojo)
+#### Lighthouse CI (HECHO — gate operativo)
 ```
 Herramienta: lighthouserc + LHCI 0.15.1 (Lighthouse 12.6) + job CI
 Servidor: producción aislada en :3003 para no medir por accidente next dev
@@ -1240,8 +1244,9 @@ Mejora: AppHeader carga TopNavigation dinámicamente; JS sin uso baja
   de ~82KB a ~45KB; score sube de ~0,84 a ~0,87.
 Nota: LHCI previo corría contra servidor de desarrollo en :3000 y
   producía puntuación falsa (0,63-0,71) + fallo de diagnóstico LCP.
-Falta: reducir LCP de /es hasta el umbral 0,90 (LCP <2,5s aprox.)
-Estimación: 3 puntos
+Configuración: umbrales de rendimiento ≥90 y accesibilidad ≥95
+Integración: gate de GitHub Actions (`lighthouse` job), ejecutado contra producción aislada
+Pendiente: conservar métricas históricas de cada ejecución
 ```
 
 ### ⚡ Performance & Optimización
@@ -1286,7 +1291,7 @@ Estimación: 3 puntos
   - Usa defaults de Vercel
 
 ### CI/CD
-- ❌ **No hay:** `.github/workflows` automatizado
+- ⚠️ **No hay pipeline general:** lint, tests, build, previews y deploy automático siguen pendientes. El job específico de Lighthouse sí está configurado y operativo.
 - ✅ **Gates locales:**
   - `eslint` — Linting
   - `tsc --noEmit` — Type checking

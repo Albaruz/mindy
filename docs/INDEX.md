@@ -15,7 +15,7 @@ mindy-smart-closet/
     ├── API.md                          ← API reference (3 endpoints)
     ├── TESTING.md                      ← Testing strategy & execution
     ├── CONTRIBUTING.md                 ← How to contribute
-    └── ROADMAP.md                      ← Features planned & in progress
+    └── BACKLOG.md                      ← Única lista de trabajo pendiente
 ```
 
 ---
@@ -63,10 +63,10 @@ mindy-smart-closet/
    - Rate limiting
 
 ### 🗓️ **Planning features?**
-1. **ROADMAP.md** (10 min)
-   - What's done
-   - What's next
-   - Future plans
+1. **SDD** (30+ min)
+    - Estado implementado y decisiones técnicas
+2. **BACKLOG.md** (10 min)
+    - Trabajo pendiente y prioridades
 
 ### 🏗️ **Understanding the architecture?**
 1. **SDD.md** (30+ min)
@@ -87,7 +87,7 @@ mindy-smart-closet/
 | **API** | Backend/Frontend devs | 300 lines | Endpoint docs |
 | **TESTING** | QA, Developers | 400 lines | Test strategy |
 | **CONTRIBUTING** | Contributors | 300 lines | Workflow |
-| **ROADMAP** | PO, Tech leads | 200 lines | Plans |
+| **BACKLOG** | PO, Tech leads | Work items | Pending work |
 
 ---
 
@@ -97,7 +97,7 @@ mindy-smart-closet/
 ```
 README (Features section)
     ↓
-ROADMAP (what's next)
+    SDD (current state)
     ↓
 SDD (business rules section 6)
 ```
@@ -216,7 +216,7 @@ Start coding!
 - 📖 Documentation updates
 - 🤝 Code of conduct
 
-### ROADMAP.md
+### BACKLOG.md
 - ✅ MVP completed features
 - 🔄 In progress (a11y audit, rain filtering)
 - 📋 Coming soon (similarity, starter wardrobe, tomorrow's outfit)
@@ -235,7 +235,7 @@ Start coding!
 - TESTING.md (test execution)
 - CONTRIBUTING.md (code contribution)
 - SDD (complete spec)
-- ROADMAP.md (future features)
+- BACKLOG.md (future work)
 
 ### ARCHITECTURE points to:
 - API.md (detailed endpoint docs)
@@ -251,7 +251,7 @@ Start coding!
 - SDD (performance baselines)
 - README.md (quality metrics)
 
-### ROADMAP points to:
+### BACKLOG points to:
 - CONTRIBUTING.md (how to help)
 - SDD (current implementation details)
 
@@ -267,7 +267,7 @@ Start coding!
 5. ✅ Ready to code!
 
 ### When Adding a Feature
-1. ☑️ Check ROADMAP.md (is it planned?)
+1. ☑️ Check BACKLOG.md (is it planned?)
 2. ☑️ Read related section in SDD
 3. ☑️ Check ARCHITECTURE.md (where to put it?)
 4. ☑️ Implement + test
@@ -286,7 +286,7 @@ Start coding!
 4. ☑️ Check ARCHITECTURE.md (folder/naming conventions)
 
 ### When Planning Future Work
-1. ☑️ Check ROADMAP.md (what's priority?)
+1. ☑️ Check BACKLOG.md (what's priority?)
 2. ☑️ Check SDD section 11 (backlog with effort)
 3. ☑️ Check CONTRIBUTING.md (template for issues)
 
@@ -361,7 +361,7 @@ A: Docs updated in same PR as code changes (required in CONTRIBUTING.md).
 
 - 💬 Confused about architecture? Read ARCHITECTURE.md
 - 🧪 Don't know how to test? Read TESTING.md
-- 🤔 What should I work on? Check ROADMAP.md
+- 🤔 What should I work on? Check BACKLOG.md
 - 🐛 Found a bug? Check API.md for error handling
 - 📝 Ready to contribute? Read CONTRIBUTING.md
 
