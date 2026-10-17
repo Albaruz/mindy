@@ -24,6 +24,18 @@ export function canBuildLook(pool: CandidateGarment[]): boolean {
 // Balance helper: stable category order for the token-budget cap.
 const POOL_CATEGORY_ORDER = ["top", "bottom", "footwear", "outerwear"];
 
+function candidateQualityScore(candidate: CandidateGarment): number {
+  return [
+    candidate.garmentType,
+    candidate.color,
+    candidate.material,
+    candidate.season,
+    candidate.style,
+    candidate.typeDetail,
+    candidate.visualDescription,
+  ].filter((value) => typeof value === "string" && value !== "").length;
+}
+
 export function capBalancedPool(
   pool: CandidateGarment[],
   lockedIds: Set<string>,
@@ -42,6 +54,9 @@ export function capBalancedPool(
     const list = groups.get(category) ?? [];
     list.push(candidate);
     groups.set(category, list);
+  }
+  for (const list of groups.values()) {
+    list.sort((a, b) => candidateQualityScore(b) - candidateQualityScore(a));
   }
   const ordered = POOL_CATEGORY_ORDER.filter((category) =>
     groups.has(category),

@@ -21,7 +21,10 @@ export const AI_MAX_RETRY_DELAY_MS = 15_000;
 export const AI_TEMPERATURE = 0.3;
 
 /** Maximum tokens for outfit generation response. */
-export const AI_MAX_TOKENS = 1000;
+export const AI_MAX_TOKENS = 1500;
+
+/** Smaller response budget reserved for repairing invalid outfit options. */
+export const AI_REPAIR_MAX_TOKENS = 700;
 
 /** Response format for structured output. */
 export const AI_RESPONSE_FORMAT = { type: "json_object" } as const;
@@ -41,7 +44,7 @@ export const VISION_TIMEOUT_MS = 30_000;
 export const VISION_TEMPERATURE = 0;
 
 /** Vision response cap for tags, quality assessment, and garment description. */
-export const VISION_MAX_TOKENS = 500;
+export const VISION_MAX_TOKENS = 700;
 
 /** Maximum length of Vision's user-facing photo-quality explanation. */
 export const VISION_QUALITY_NOTE_MAX_LENGTH = 140;

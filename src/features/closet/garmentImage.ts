@@ -89,8 +89,9 @@ export async function downscaleToMaxDimension(
   });
 }
 
-// Downscales the processed PNG so the vision payload stays small.
-// Transparency is preserved (PNG), which helps the tagging model.
+// Downscales the original photo so the vision payload stays small. JPEG is
+// intentional here: the original background is useful to Vision and JPEG is
+// substantially smaller than PNG for camera photos.
 export async function toDownscaledDataUrl(blob: Blob): Promise<string> {
   return withBitmap(blob, async (bitmap) => {
     const scale = Math.min(
@@ -102,6 +103,6 @@ export async function toDownscaledDataUrl(blob: Blob): Promise<string> {
     if (!canvas) {
       throw new Error("Canvas is not available.");
     }
-    return canvas.toDataURL("image/png");
+    return canvas.toDataURL("image/jpeg", 0.85);
   });
 }

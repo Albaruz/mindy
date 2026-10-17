@@ -15,7 +15,7 @@ import {
   DialogTitle,
 } from "@/components/Dialog/Dialog";
 import { QUERY_KEYS } from "@/constants/query";
-import { MAX_UPLOAD_RETRIES } from "@/constants/upload";
+import { MAX_UPLOAD_RETRIES, VISION_CONCURRENCY } from "@/constants/upload";
 import { useNotificationStore } from "@/stores/useNotificationStore";
 import { useUploadQueueStore, isUploadActive } from "@/stores/useUploadQueueStore";
 import { requireUser } from "@/lib/supabase/session";
@@ -375,8 +375,10 @@ export function UploadQueueManager() {
     if (!hydrated || running) {
       return;
     }
-    const next = items.find((item) => item.status === "queued");
-    if (next === undefined) {
+    const next = items
+      .filter((item) => item.status === "queued")
+      .slice(0, VISION_CONCURRENCY);
+    if (next.length === 0) {
       const waiting = items.find((item) => item.status === "awaiting_review");
       if (
         waiting !== undefined &&
@@ -389,7 +391,7 @@ export function UploadQueueManager() {
       return;
     }
     running = true;
-    void processItem(next).finally(() => {
+    void Promise.all(next.map((item) => processItem(item))).finally(() => {
       running = false;
       setRunVersion((version) => version + 1);
     });

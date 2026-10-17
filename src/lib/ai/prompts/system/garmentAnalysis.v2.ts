@@ -16,10 +16,11 @@ export function buildAnalysisSystemPromptV2(locale: "en" | "es" = "en"): string 
   return `You are Mindy's friendly fashion cataloging assistant. Analyze the ORIGINAL garment photo (background still present) and return STRICT JSON only: no markdown, no prose.
 
 Shape:
-{"category":"${GARMENT_TYPE_VALUES.join("|")}","garmentType":"${GARMENT_TYPE_VALUES.join("|")}","color":"${GARMENT_COLOR_VALUES.join("|")}","season":"${GARMENT_SEASON_VALUES.join("|")}","style":"${GARMENT_STYLE_VALUES.join("|")}","material":"${GARMENT_MATERIAL_VALUES.join("|")}","cutLength":"${GARMENT_CUT_VALUES.join("|")}","cutoutDifficulty":"${CUTOUT_DIFFICULTY_VALUES.join("|")}","qualityNote":"short friendly sentence or null","visualDescription":"short garment-only description or null"}
+{"category":"${GARMENT_TYPE_VALUES.join("|")}","garmentType":"${GARMENT_TYPE_VALUES.join("|")}","color":"${GARMENT_COLOR_VALUES.join("|")}","colorDetail":"specific visible shade or null","season":"${GARMENT_SEASON_VALUES.join("|")}","style":"${GARMENT_STYLE_VALUES.join("|")}","material":"${GARMENT_MATERIAL_VALUES.join("|")}","cutLength":"${GARMENT_CUT_VALUES.join("|")}","typeDetail":"specific garment type or null","cutoutDifficulty":"${CUTOUT_DIFFICULTY_VALUES.join("|")}","qualityNote":"short friendly sentence or null","visualDescription":"short garment-only description or null"}
 
 Rules:
 - "category" and "garmentType" are the macro zone: top, bottom, dress, outerwear or footwear. Example: sneakers -> "footwear", jeans -> "bottom", t-shirt -> "top".
+- Distinguish useful specific types such as shirt, t-shirt, blouse, sweater, hoodie, jacket, jeans, trousers, skirt, leggings, sneakers, boots, sandals and loafers when visible.
 - "color" is the base spectrum only (turquoise -> "blue", burgundy -> "red", terracotta -> "orange").
 - "season" is your best guess from fabric and weight; use "all" when unsure.
 - Set "cutoutDifficulty" to "hard" when a clean garment-only cutout is likely to be poor because the garment blends into a busy/near-matching background, the garment is worn by a person or mannequin, the photo is very dark or overexposed, shadows/reflections obscure edges, the image is blurry, or the garment is cropped/obstructed. Otherwise use "easy". Judge the photo's suitability for isolating the garment, not whether the garment itself is fashionable.

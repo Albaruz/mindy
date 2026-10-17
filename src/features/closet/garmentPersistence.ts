@@ -60,6 +60,7 @@ export async function persistGarment(
         color: tags.color,
         typeDetail: tags.typeDetail,
         colorShade: tags.colorShade,
+        visualDescription: tags.visualDescription,
       }),
     });
   if (insertError) {

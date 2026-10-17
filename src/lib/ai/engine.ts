@@ -7,6 +7,7 @@ import {
   AI_MAX_RETRY_DELAY_MS,
   AI_TEMPERATURE,
   AI_MAX_TOKENS,
+  AI_REPAIR_MAX_TOKENS,
   AI_RESPONSE_FORMAT,
 } from "@/constants/ai";
 import { logger } from "@/lib/logger";
@@ -116,6 +117,7 @@ export function getEngineModel(): string {
 export async function generateOutfitRecommendation(
   systemPrompt: string,
   userPayload: unknown,
+  maxTokens = AI_MAX_TOKENS,
 ): Promise<string> {
   let lastError: unknown = null;
   for (let attempt = 1; attempt <= AI_MAX_ATTEMPTS; attempt += 1) {
@@ -125,7 +127,7 @@ export async function generateOutfitRecommendation(
         {
           model: AI_MODEL,
           temperature: AI_TEMPERATURE,
-          max_tokens: AI_MAX_TOKENS,
+          max_completion_tokens: AI_MAX_TOKENS,
           response_format: AI_RESPONSE_FORMAT,
           messages: [
             { role: "system", content: systemPrompt },
@@ -169,6 +171,7 @@ export async function generateOutfitRecommendationStream(
   userPayload: unknown,
   onContent: (chunk: string) => void,
   signal?: AbortSignal,
+  maxTokens = AI_MAX_TOKENS,
 ): Promise<string> {
   let lastError: unknown = null;
 
@@ -181,7 +184,7 @@ export async function generateOutfitRecommendationStream(
         {
           model: AI_MODEL,
           temperature: AI_TEMPERATURE,
-          max_tokens: AI_MAX_TOKENS,
+          max_completion_tokens: maxTokens,
           response_format: AI_RESPONSE_FORMAT,
           stream: true,
           messages: [
@@ -240,3 +243,18 @@ export async function generateOutfitRecommendationStream(
 
   throw lastError;
 }
+
+export async function repairOutfitRecommendation(
+  userPayload: unknown,
+  invalidOptions: unknown,
+): Promise<string> {
+  return generateOutfitRecommendation(
+    `You are a strict outfit repair service. Return STRICT JSON only.\nShape: {"options":[{"garmentIds":["<garment-id>"],"suitabilityRatio":0,"reason":"short sentence"}]}\nRules: use only candidate IDs; preserve every locked garment; never repeat an ID; require top and bottom unless a dress or jumpsuit is present; include outerwear when required; do not explain the repair.`,
+    {
+      ...((userPayload as Record<string, unknown>) ?? {}),
+      invalidOptions,
+    },
+    AI_REPAIR_MAX_TOKENS,
+  );
+}
+

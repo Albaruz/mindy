@@ -53,6 +53,7 @@ export interface VisionTags {
   color: GarmentColor | "";
   typeDetail: string;
   colorShade: string;
+  visualDescription?: string;
 }
 
 // Builds the extra_tags payload for a vision-tagged insert. color_base
@@ -66,6 +67,9 @@ export function buildVisionExtraTags(tags: VisionTags): Record<string, string> {
     ...(tags.category === "" ? {} : { aiCategory: tags.category }),
     ...(tags.typeDetail === "" ? {} : { specificType: tags.typeDetail }),
     ...(tags.colorShade === "" ? {} : { colorShade: tags.colorShade }),
+    ...(typeof tags.visualDescription !== "string" || tags.visualDescription === ""
+      ? {}
+      : { visualDescription: tags.visualDescription }),
     ...(tags.color === "" ? {} : { color_base: tags.color }),
   };
 }

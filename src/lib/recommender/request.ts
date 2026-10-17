@@ -49,6 +49,18 @@ function readMaterialDetail(value: unknown): string | null {
   return raw.trim();
 }
 
+function readExtraText(value: unknown, ...keys: string[]): string | null {
+  if (typeof value !== "object" || value === null) return null;
+  const tags = value as Record<string, unknown>;
+  for (const key of keys) {
+    const raw = tags[key];
+    if (typeof raw === "string" && raw.trim() !== "") {
+      return raw.trim().slice(0, 400);
+    }
+  }
+  return null;
+}
+
 export function toCandidate(raw: unknown): CandidateGarment | null {
   if (typeof raw !== "object" || raw === null) {
     return null;
@@ -60,6 +72,7 @@ export function toCandidate(raw: unknown): CandidateGarment | null {
   if (id === null) {
     return null;
   }
+  const extraTags = record.extraTags ?? record.extra_tags;
   return {
     id,
     garmentType: readClosed(
@@ -68,12 +81,14 @@ export function toCandidate(raw: unknown): CandidateGarment | null {
     ),
     color: readClosed(record.color, normalizeGarmentColor),
     colorBase: readBaseColor(
-      record.extraTags ?? record.extra_tags,
+      extraTags,
     ),
     material: readClosed(record.material, normalizeGarmentMaterial),
     materialDetail: readMaterialDetail(
-      record.extraTags ?? record.extra_tags,
+      extraTags,
     ),
+    typeDetail: readExtraText(extraTags, "specificType", "typeDetail"),
+    visualDescription: readExtraText(extraTags, "visualDescription"),
     season: readClosed(record.season, normalizeGarmentSeason),
     style: readClosed(record.style, normalizeGarmentStyle),
     isDirty:

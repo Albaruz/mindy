@@ -45,10 +45,10 @@ export const MEASUREMENT_MIN_CM = 20;
 export const MEASUREMENT_MAX_CM = 300;
 
 /** Maximum image data-URL length accepted by the vision endpoint. */
-export const MAX_IMAGE_DATA_CHARS = 7_000_000;
+export const MAX_IMAGE_DATA_CHARS = 12_000_000;
 
 /** Cap expensive client-side image processing while preserving garment detail. */
-export const MAX_IMAGE_PROCESSING_DIMENSION_PX = 1024;
+export const MAX_IMAGE_PROCESSING_DIMENSION_PX = 1536;
 
 /** Maximum upload payload accepted by the closet flow (10 MB). */
 export const MAX_UPLOAD_FILE_SIZE_BYTES = 10 * 1024 * 1024;

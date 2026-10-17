@@ -1,7 +1,10 @@
 // Upload queue limits and browser persistence identifiers.
 
 /** Maximum number of images accepted in one closet upload batch. */
-export const MAX_UPLOAD_BATCH_SIZE = 10;
+export const MAX_UPLOAD_BATCH_SIZE = 25;
+
+/** Maximum number of Vision requests processed at the same time. */
+export const VISION_CONCURRENCY = 3;
 
 /** Automatic attempts after a transient item failure. */
 export const MAX_UPLOAD_RETRIES = 2;

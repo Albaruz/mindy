@@ -2,6 +2,12 @@ import { readString } from "@/lib/readers";
 import { MAX_LOOK_OPTIONS } from "@/constants/generator";
 import { readIdList } from "./request";
 import type { OutfitOption } from "./types";
+import {
+  categorizeGarment,
+  isOnePieceGarment,
+} from "@/lib/garment/categorizeGarments";
+import { toClassifiableGarment } from "./request";
+import type { CandidateGarment } from "./types";
 // Upstream hiccups (Groq HTTP errors, empty completions, unusable model
 // output) degrade to the local fallback: 502 only when the fallback
 // itself cannot build a look. Anything else is a server bug: 500.
@@ -146,4 +152,35 @@ export function parseOptions(content: string, knownIds: Set<string>): OutfitOpti
     throw new Error("LLM options reference no known garment IDs");
   }
   return valid;
+}
+
+/** Removes syntactically valid options that violate server-side constraints. */
+export function filterValidOutfitOptions(
+  options: OutfitOption[],
+  candidates: CandidateGarment[],
+  lockedIds: Set<string>,
+  requireOuterwear: boolean,
+): OutfitOption[] {
+  const byId = new Map(candidates.map((candidate) => [candidate.id, candidate]));
+  return options.filter((option) => {
+    if (new Set(option.garmentIds).size !== option.garmentIds.length) {
+      return false;
+    }
+    if (![...lockedIds].every((id) => option.garmentIds.includes(id))) {
+      return false;
+    }
+    const selected = option.garmentIds
+      .map((id) => byId.get(id))
+      .filter((candidate): candidate is CandidateGarment => candidate !== undefined);
+    const categories = new Set(
+      selected.map((candidate) => categorizeGarment(toClassifiableGarment(candidate))),
+    );
+    const hasOnePiece = selected.some((candidate) =>
+      isOnePieceGarment(toClassifiableGarment(candidate)),
+    );
+    if (!hasOnePiece && (!categories.has("top") || !categories.has("bottom"))) {
+      return false;
+    }
+    return !requireOuterwear || categories.has("outerwear");
+  });
 }

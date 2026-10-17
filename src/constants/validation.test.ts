@@ -40,7 +40,7 @@ describe("validation constants", () => {
   });
 
   it("exposes image upload guards", () => {
-    expect(MAX_IMAGE_DATA_CHARS).toBe(7_000_000);
+    expect(MAX_IMAGE_DATA_CHARS).toBe(12_000_000);
     expect(IMAGE_DATA_URL_PREFIX).toBe("data:image/");
   });
 });

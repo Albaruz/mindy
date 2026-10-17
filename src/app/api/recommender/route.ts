@@ -16,6 +16,7 @@ import { buildOutfitPrompt } from "@/lib/ai/prompts";
 import {
   generateOutfitRecommendation,
   generateOutfitRecommendationStream,
+  repairOutfitRecommendation,
   getEngineModel,
 } from "@/lib/ai/engine";
 import { generateFallbackLook } from "@/lib/recommender/fallback";
@@ -24,6 +25,7 @@ import {
   isUpstreamFailure,
   parseCompletedOption,
   parseOptions,
+  filterValidOutfitOptions,
 } from "@/lib/recommender/llmOptions";
 import { canBuildLook, capBalancedPool } from "@/lib/recommender/pool";
 import {
@@ -85,6 +87,7 @@ function createRecommenderStream({
   let streamController: ReadableStreamDefaultController<Uint8Array> | null = null;
   let closed = false;
   const previews: OutfitOption[] = [];
+  let repairAttempted = false;
 
   const send = (event: Record<string, unknown>) => {
     if (!closed && streamController) {
@@ -101,6 +104,7 @@ function createRecommenderStream({
       isFallback,
       optionsCount: options.length,
       model,
+      repairAttempted,
       streamed: true,
       excludedWinterGarments: excludedWinterCount,
       excludedRainMaterials: excludedRainCount,
@@ -159,7 +163,27 @@ function createRecommenderStream({
             abortController.signal,
           );
 
-          const options = parseOptions(content, knownIds);
+           let options = filterValidOutfitOptions(
+             parseOptions(content, knownIds),
+             cappedPool,
+             lockedIds,
+             outerwearRequired,
+           );
+           if (options.length === 0) {
+             repairAttempted = true;
+             options = filterValidOutfitOptions(
+               parseOptions(
+                 await repairOutfitRecommendation(userPayload, content),
+                 knownIds,
+               ),
+               cappedPool,
+               lockedIds,
+               outerwearRequired,
+             );
+           }
+           if (options.length === 0) {
+             throw new Error("LLM options violate outfit constraints");
+           }
           completeResponse(options, false);
         } catch (error) {
           if (abortController.signal.aborted || closed) {
@@ -472,12 +496,29 @@ export async function POST(request: Request) {
 
   let options: OutfitOption[];
   let isFallback = false;
+  let repairAttempted = false;
   try {
     const content = await generateOutfitRecommendation(
       systemPrompt,
       userPayload,
     );
-    options = parseOptions(content, knownIds);
+     options = filterValidOutfitOptions(
+       parseOptions(content, knownIds),
+       cappedPool,
+       lockedIds,
+       outerwearRequired,
+      );
+      if (options.length === 0) {
+        repairAttempted = true;
+        const repairedContent = await repairOutfitRecommendation(userPayload, content);
+       options = filterValidOutfitOptions(
+         parseOptions(repairedContent, knownIds),
+         cappedPool,
+         lockedIds,
+         outerwearRequired,
+       );
+     }
+     if (options.length === 0) throw new Error("LLM options violate outfit constraints");
   } catch (error) {
     // Log the real cause server-side: the client only gets a short
     // message, so without this the failure is impossible to diagnose.
@@ -494,7 +535,7 @@ export async function POST(request: Request) {
     }
     // Graceful degradation: the local cerebelo answers with the same
     // contract plus _isFallback so the client skips AI training.
-    logger.warn(`LLM failed, using local fallback: ${message}${statusSuffix}`, { route: 'recommender', requestId, userId: user.id, error, status });
+     logger.warn(`LLM failed, using local fallback: ${message}${statusSuffix}`, { route: 'recommender', requestId, userId: user.id, error, status, repairAttempted });
     try {
       options = generateFallbackLook(
         cappedPool,
@@ -524,6 +565,7 @@ export async function POST(request: Request) {
     excludedWinterGarments: excludedWinterCount,
     excludedRainMaterials: excludedRainCount,
     excludedDismissedGarments: kept.length - eligible.length,
+    repairAttempted,
   });
   // Debug headers for observability (safe to expose, no secrets)
   const responseHeaders = {
@@ -545,6 +587,7 @@ export async function POST(request: Request) {
       excludedRainMaterials: excludedRainCount,
       excludedDismissedGarments: kept.length - eligible.length,
       model: isFallback ? "local-fallback" : getEngineModel(),
+      repairAttempted,
     },
     { status: 200, headers: responseHeaders },
   );

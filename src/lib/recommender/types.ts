@@ -18,6 +18,8 @@ export interface CandidateGarment {
   // Free-text material detail (suede/gamuza/ante) for the rain rule: suede
   // has no closed value, so the closed material column cannot catch it.
   materialDetail: string | null;
+  typeDetail?: string | null;
+  visualDescription?: string | null;
   season: GarmentSeason | null;
   style: GarmentStyle | null;
   isDirty: boolean;
