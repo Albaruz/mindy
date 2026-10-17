@@ -28,6 +28,7 @@ export function StyleStep({ value, isPending, onChange, onConfirm, onBack }: Sty
         value={value}
         onSelect={onChange}
         formatOption={(option) => t(`styles.${option}`)}
+        alignment="center"
       />
       <div className={styles["style-step__actions"]}>
         <Button

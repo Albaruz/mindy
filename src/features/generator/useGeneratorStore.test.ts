@@ -73,6 +73,13 @@ describe("useGeneratorStore", () => {
     expect(useGeneratorStore.getState().aiLooks).toHaveLength(0);
     expect(useGeneratorStore.getState().view).toBe("zero");
   });
+
+  it("keeps the selected outfit day in the generator and resets it to today", () => {
+    useGeneratorStore.getState().setOutfitDay("tomorrow");
+    expect(useGeneratorStore.getState().outfitDay).toBe("tomorrow");
+    useGeneratorStore.getState().resetFlow();
+    expect(useGeneratorStore.getState().outfitDay).toBe("today");
+  });
 });
 
 describe("useGeneratorStore extended coverage", () => {

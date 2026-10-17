@@ -46,12 +46,57 @@
   animation: zero-state-greeting-in var(--duration-slow) var(--ease-out);
 }
 
+.zero-state__temperatures {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+  width: min(100%, 22rem);
+  margin-top: calc(var(--space-3) * -1);
+}
+
+.zero-state__temperature {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: 0;
+  text-align: center;
+}
+
+.zero-state__temperature-icon {
+  flex: 0 0 auto;
+  color: var(--color-accent);
+}
+
+.zero-state__temperature--selected {
+  color: var(--color-accent);
+}
+
+.zero-state__temperature--unavailable {
+  opacity: 0.55;
+}
+
+.zero-state__temperature-value {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-5xl);
+  font-weight: var(--font-weight-black);
+  color: var(--color-accent);
+  line-height: 1.1;
+}
+
 .zero-state__actions {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   width: 100%;
   max-width: 22rem;
+}
+
+.zero-state__forecast-note {
+  max-width: 22rem;
+  margin: calc(var(--space-6) * -0.5) 0 0;
+  color: var(--color-tab-inactive);
+  font-size: var(--font-size-sm);
 }
 
 @keyframes zero-state-in {

@@ -26,7 +26,14 @@ export function HistoryCard({ entry }: { entry: HistoryEntry }) {
 
   return (
     <article className={styles["history-card"]}>
-      <h3 className={styles["history-card__date"]}>{dayLabel}</h3>
+      <h3 className={styles["history-card__date"]}>
+        {dayLabel}
+        {entry.history.isPlanned ? (
+          <span className={styles["history-card__planned"]}>
+            {t("planned")}
+          </span>
+        ) : null}
+      </h3>
       {entry.garments.length > 0 ? (
         <ul className={styles["history-card__strip"]}>
           {entry.garments.map((garment) => (

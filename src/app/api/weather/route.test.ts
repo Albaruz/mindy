@@ -124,6 +124,8 @@ describe("GET /api/weather extended coverage", () => {
           slot(dt, 10.2, "Clear", 0.5),
           slot(dt + 3600, 15.7, "Rain", 0.8),
           slot(dt + 7200, 12.3, "Clouds", 0.1),
+          slot(dt + 86400, 16.2, "Clear", 0.2),
+          slot(dt + 90000, 20.8, "Clouds", 0.4),
         ],
         city: { timezone: 0 },
       },
@@ -141,6 +143,12 @@ describe("GET /api/weather extended coverage", () => {
     expect(body.dayHigh).toBe(16);
     expect(body.dayCondition).toBe("Rain");
     expect(body.rainProbability).toBe(80);
+    expect(body.today.temperatureC).toBe(21.4);
+    expect(body.today.dayLow).toBe(10);
+    expect(body.tomorrow.temperatureC).toBe(19);
+    expect(body.tomorrow.dayLow).toBe(16);
+    expect(body.tomorrow.dayHigh).toBe(21);
+    expect(body.tomorrow.rainProbability).toBe(40);
   });
 
   it("falls back to next slots late at night", async () => {

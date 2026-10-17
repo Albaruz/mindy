@@ -20,7 +20,18 @@ interface WeatherPayload {
   dayHigh: number | null;
   dayCondition: string | null;
   rainProbability: number | null;
+  today: WeatherDayPayload;
+  tomorrow: WeatherDayPayload | null;
   fallback: boolean;
+}
+
+interface WeatherDayPayload {
+  temperatureC: number;
+  condition: string | null;
+  dayLow: number | null;
+  dayHigh: number | null;
+  dayCondition: string | null;
+  rainProbability: number | null;
 }
 
 function fallbackResponse(reason: string, requestId: string, userId: string, startTime: number) {
@@ -34,6 +45,15 @@ function fallbackResponse(reason: string, requestId: string, userId: string, sta
     dayHigh: null,
     dayCondition: null,
     rainProbability: null,
+    today: {
+      temperatureC: DEFAULT_TEMPERATURE_C,
+      condition: null,
+      dayLow: null,
+      dayHigh: null,
+      dayCondition: null,
+      rainProbability: null,
+    },
+    tomorrow: null,
     fallback: true,
   };
   return NextResponse.json(body, {
@@ -100,7 +120,7 @@ export async function GET(request: Request) {
         },
       ),
       fetch(
-        `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&cnt=8&appid=${encodeURIComponent(apiKey)}`,
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&cnt=16&appid=${encodeURIComponent(apiKey)}`,
         {
           signal: AbortSignal.timeout(OPENWEATHER_TIMEOUT_MS),
           next: { revalidate: OPENWEATHER_CACHE_SECONDS },
@@ -135,11 +155,24 @@ export async function GET(request: Request) {
         ? readString(first.main)
         : null;
 
-    const body: WeatherPayload = {
+    const forecastDays = await readForecastDays(forecast);
+    const today: WeatherDayPayload = {
+      ...forecastDays.today,
       temperatureC,
       condition,
+    };
+    const body: WeatherPayload = {
+      ...today,
       city: readString(record.name),
-      ...(await readDaySummary(forecast)),
+      today: {
+        temperatureC: today.temperatureC,
+        condition: today.condition,
+        dayLow: today.dayLow,
+        dayHigh: today.dayHigh,
+        dayCondition: today.dayCondition,
+        rainProbability: today.rainProbability,
+      },
+      tomorrow: toWeatherDayPayload(forecastDays.tomorrow),
       fallback: false,
     };
     const durationMs = Date.now() - startTime;
@@ -157,6 +190,8 @@ export async function GET(request: Request) {
 }
 
 interface DaySummary {
+  temperatureC: number | null;
+  condition: string | null;
   dayLow: number | null;
   dayHigh: number | null;
   dayCondition: string | null;
@@ -164,6 +199,8 @@ interface DaySummary {
 }
 
 const EMPTY_DAY_SUMMARY: DaySummary = {
+  temperatureC: null,
+  condition: null,
   dayLow: null,
   dayHigh: null,
   dayCondition: null,
@@ -204,24 +241,23 @@ function readSlotPop(entry: Record<string, unknown>): number | null {
   return typeof pop === "number" && Number.isFinite(pop) ? pop : null;
 }
 
-// Day aggregation in city-local time: slots sharing today's local date.
-// Falls back to the next slots when none remain today (late-night edge).
-// A failed forecast never blocks current conditions: returns nulls.
-async function readDaySummary(
+// Day aggregation in city-local time. Today's summary keeps the existing
+// late-night fallback; tomorrow is only valid when its own date has slots.
+async function readForecastDays(
   forecastResponse: Response,
-): Promise<DaySummary> {
+): Promise<{ today: DaySummary; tomorrow: DaySummary | null }> {
   try {
     if (!forecastResponse.ok) {
-      return EMPTY_DAY_SUMMARY;
+      return { today: EMPTY_DAY_SUMMARY, tomorrow: null };
     }
     const payload: unknown = await forecastResponse.json();
     if (typeof payload !== "object" || payload === null) {
-      return EMPTY_DAY_SUMMARY;
+      return { today: EMPTY_DAY_SUMMARY, tomorrow: null };
     }
     const record = payload as Record<string, unknown>;
     const list = Array.isArray(record.list) ? record.list : [];
     if (list.length === 0) {
-      return EMPTY_DAY_SUMMARY;
+      return { today: EMPTY_DAY_SUMMARY, tomorrow: null };
     }
     const city =
       typeof record.city === "object" && record.city !== null
@@ -230,60 +266,95 @@ async function readDaySummary(
     const timezoneShift =
       city !== null && typeof city.timezone === "number" ? city.timezone : 0;
     const todayKey = Math.floor((Date.now() / 1000 + timezoneShift) / 86400);
-    const slots = list.filter(
+    const validEntries = list.filter(
       (entry): entry is Record<string, unknown> =>
         typeof entry === "object" &&
         entry !== null &&
-        typeof (entry as Record<string, unknown>).dt === "number" &&
+        typeof (entry as Record<string, unknown>).dt === "number",
+    );
+    const todaySlots = validEntries.filter(
+      (entry) =>
         Math.floor(
-          (((entry as Record<string, unknown>).dt as number) +
-            timezoneShift) /
-            86400,
+          ((entry.dt as number) + timezoneShift) / 86400,
         ) === todayKey,
     );
+    const tomorrowSlots = validEntries.filter(
+      (entry) =>
+        Math.floor(
+          ((entry.dt as number) + timezoneShift) / 86400,
+        ) === todayKey + 1,
+    );
     // Late at night the remaining day may be empty: look ahead instead.
-    const effective =
-      slots.length > 0
-        ? slots
-        : list
-            .filter(
-              (entry): entry is Record<string, unknown> =>
-                isRecord(entry),
-            )
-            .slice(0, 4);
+    const effectiveToday =
+      todaySlots.length > 0 ? todaySlots : validEntries.slice(0, 4);
 
-    let low: number | null = null;
-    let high: number | null = null;
-    let maxPop = -1;
-    let worst: string | null = null;
-    for (const entry of effective) {
-      const temp = readSlotTemperature(entry);
-      if (temp !== null) {
-        low = low === null ? temp : Math.min(low, temp);
-        high = high === null ? temp : Math.max(high, temp);
-      }
-      const pop = readSlotPop(entry);
-      if (pop !== null) {
-        maxPop = Math.max(maxPop, pop);
-      }
-      const slotCondition = readSlotCondition(entry);
-      if (
-        slotCondition !== null &&
-        CONDITION_SEVERITY.includes(slotCondition) &&
-        (worst === null ||
-          CONDITION_SEVERITY.indexOf(slotCondition) <
-            CONDITION_SEVERITY.indexOf(worst))
-      ) {
-        worst = slotCondition;
-      }
-    }
     return {
-      dayLow: low === null ? null : Math.round(low),
-      dayHigh: high === null ? null : Math.round(high),
-      dayCondition: worst,
-      rainProbability: maxPop < 0 ? null : Math.round(maxPop * 100),
+      today: summarizeDay(effectiveToday),
+      tomorrow:
+        tomorrowSlots.length > 0 ? summarizeDay(tomorrowSlots) : null,
     };
   } catch {
-    return EMPTY_DAY_SUMMARY;
+    return { today: EMPTY_DAY_SUMMARY, tomorrow: null };
   }
+}
+
+function summarizeDay(entries: Record<string, unknown>[]): DaySummary {
+  let low: number | null = null;
+  let high: number | null = null;
+  let temperatureTotal = 0;
+  let temperatureCount = 0;
+  let maxPop = -1;
+  let worst: string | null = null;
+  let firstCondition: string | null = null;
+  for (const entry of entries) {
+    const temp = readSlotTemperature(entry);
+    if (temp !== null) {
+      low = low === null ? temp : Math.min(low, temp);
+      high = high === null ? temp : Math.max(high, temp);
+      temperatureTotal += temp;
+      temperatureCount += 1;
+    }
+    const pop = readSlotPop(entry);
+    if (pop !== null) {
+      maxPop = Math.max(maxPop, pop);
+    }
+    const slotCondition = readSlotCondition(entry);
+    firstCondition ??= slotCondition;
+    if (
+      slotCondition !== null &&
+      CONDITION_SEVERITY.includes(slotCondition) &&
+      (worst === null ||
+        CONDITION_SEVERITY.indexOf(slotCondition) <
+          CONDITION_SEVERITY.indexOf(worst))
+    ) {
+      worst = slotCondition;
+    }
+  }
+  return {
+    temperatureC:
+      temperatureCount === 0
+        ? null
+        : Math.round(temperatureTotal / temperatureCount),
+    condition: firstCondition,
+    dayLow: low === null ? null : Math.round(low),
+    dayHigh: high === null ? null : Math.round(high),
+    dayCondition: worst,
+    rainProbability: maxPop < 0 ? null : Math.round(maxPop * 100),
+  };
+}
+
+function toWeatherDayPayload(
+  summary: DaySummary | null,
+): WeatherDayPayload | null {
+  if (summary === null || summary.temperatureC === null) {
+    return null;
+  }
+  return {
+    temperatureC: summary.temperatureC,
+    condition: summary.condition,
+    dayLow: summary.dayLow,
+    dayHigh: summary.dayHigh,
+    dayCondition: summary.dayCondition,
+    rainProbability: summary.rainProbability,
+  };
 }

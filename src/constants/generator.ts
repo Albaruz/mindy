@@ -17,6 +17,9 @@ export const CAROUSEL_LOOP_MIN_SLIDES = 3;
 // jumpsuit may cover both top and bottom; outerwear remains optional.
 export const REQUIRED_GENERATOR_CATEGORIES = ["top", "bottom", "footwear"] as const;
 
+// Closed vocabulary for the weather context used by both generator modes.
+export const OUTFIT_DAY_VALUES = ["today", "tomorrow"] as const;
+
 // Recommender server limits (src/lib/recommender).
 // Token-budget cap for the garments sent to the LLM, with a soft cap per
 // category so one family cannot eat the whole budget.

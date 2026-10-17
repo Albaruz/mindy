@@ -1,12 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { getCurrentPosition } from "@/lib/geolocation";
-import { readFiniteNumber } from "@/lib/readers";
 import type { Category, Garment } from "@/types/garment";
 import {
   useGeneratorStore,
   type AiLook,
   type LookStyle,
+  type OutfitDay,
 } from "./useGeneratorStore";
 import {
   categorizeGarment,
@@ -17,6 +17,7 @@ import { MAX_LOOK_OPTIONS } from "@/constants/generator";
 import { DEFAULT_TEMPERATURE_C } from "@/constants/weather";
 import { buildWeatherUrl } from "@/constants/api";
 import type { WeatherInfo } from "@/types/weather";
+import { getWeatherForDay, parseWeatherPayload } from "./useWeatherQuery";
 import type { Mood, GenerateLooksInput, GenerateLooksResult } from "./generatorTypes";
 import { buildCandidates } from "./generatorCandidates";
 import {
@@ -65,7 +66,9 @@ const DEFAULT_CLIMATE: Climate = {
 
 // Shared with the manual "Combinar" flow (useCombineLocked): day-based
 // climate resolved once per inference, defaulting to 20C offline.
-export async function resolveClimate(): Promise<Climate> {
+export async function resolveClimate(
+  outfitDay: OutfitDay = useGeneratorStore.getState().outfitDay,
+): Promise<Climate> {
   try {
     const position = await getCurrentPosition();
     const response = await fetch(
@@ -74,21 +77,17 @@ export async function resolveClimate(): Promise<Climate> {
     if (!response.ok) {
       return DEFAULT_CLIMATE;
     }
-    const payload = (await response.json()) as {
-      temperatureC?: unknown;
-      condition?: unknown;
-      dayLow?: unknown;
-      dayHigh?: unknown;
-      rainProbability?: unknown;
-    };
+    const weather = parseWeatherPayload(await response.json());
+    const selectedWeather = getWeatherForDay(weather, outfitDay);
+    if (selectedWeather === null) {
+      return DEFAULT_CLIMATE;
+    }
     return {
-      temperatureC:
-        readFiniteNumber(payload.temperatureC) ?? DEFAULT_CLIMATE.temperatureC,
-      condition:
-        typeof payload.condition === "string" ? payload.condition : null,
-      dayLow: readFiniteNumber(payload.dayLow),
-      dayHigh: readFiniteNumber(payload.dayHigh),
-      rainProbability: readFiniteNumber(payload.rainProbability),
+      temperatureC: selectedWeather.temperatureC,
+      condition: selectedWeather.condition,
+      dayLow: selectedWeather.dayLow,
+      dayHigh: selectedWeather.dayHigh,
+      rainProbability: selectedWeather.rainProbability,
     };
   } catch {
     return DEFAULT_CLIMATE;

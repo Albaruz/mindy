@@ -34,6 +34,11 @@
     "greetingCool": "It will get chilly{place}. Play your layers right.",
     "greetingHot": "It will be hot{place}. Light and stylish, melting is not a look.",
     "greetingFair": "Nice weather{place}. You're on today, choose well.",
+    "daySelectorLabel": "Which day is this look for?",
+    "temperatureUnavailable": "—",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "forecastUnavailable": "Tomorrow's forecast is not available.",
     "autoButton": "Dress me, I can't think today",
     "manualButton": "I'll pick, I'm picky",
     "styleHeading": "Choose today's style",
@@ -53,6 +58,8 @@
     "loadingLooks": "Cooking up your look",
     "streamingPreview": "Your first look is ready; finishing the recommendations…",
     "wear": "I'll wear this today",
+    "wearUnavailable": "Only today's look can be recorded",
+    "saveTomorrow": "Save for tomorrow",
     "wearing": "Locking it in…",
     "discard": "Not this one",
     "editManual": "Let me tweak it",
@@ -210,6 +217,7 @@
     "loadError": "Could not load your history.",
     "empty": "No looks worn yet. Your history will appear here.",
     "unavailable": "Garments no longer available.",
+    "planned": "Planned",
     "garmentFallback": "Garment"
   },
   "Auth": {
@@ -361,6 +369,7 @@
     "lookGenerated": "Look's ready! I respected your locks, I'm obedient like that.",
     "fallbackStylist": "Intern mode 🧵 Trainee stylist in charge.",
     "lookSaved": "That's the one! Look locked in. Go get them.",
+    "outfitPlanned": "Look saved for tomorrow. You can replace it whenever you like.",
     "wearFailed": "Couldn't save it. Try again, come on.",
     "stylistUnavailable": "Oops, my fashion brain just short-circuited. Give me a second to recover.",
     "errors": {

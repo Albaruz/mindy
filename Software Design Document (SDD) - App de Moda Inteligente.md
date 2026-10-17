@@ -1167,15 +1167,19 @@ Detalles:
 Estimación: 5 puntos
 ```
 
-#### 6. Outfit para Mañana (PENDIENTE - NUEVO)
+#### 6. Outfit para Mañana (IMPLEMENTADO)
 ```
-Concepto: Generar look basado en clima del día siguiente
-Ventaja: Planificación anticipada
-Cambios:
-  - Selector: "Hoy / Mañana" en ZeroState
-  - Datos: forecast[day] en vez de current
-  - Copy: "Mañana hará X°C"
-Estimación: 3 puntos
+Concepto: Planificación de un look para el día siguiente usando la previsión meteorológica.
+Implementación:
+  - Selector accesible "Hoy / Mañana" en ZeroState.
+  - La previsión de mañana se calcula y valida por fecha en `/api/weather`.
+  - El estado `outfitDay` alimenta la generación automática y el modo manual.
+  - Mañana se deshabilita cuando no existe una previsión válida.
+  - La acción principal cambia de "Ponérmelo" a "Guardar para mañana".
+  - Se persiste en `outfit_history` como entrada planificada (`is_planned=true`).
+  - El índice único `(user_id, planned_date)` permite reemplazar la planificación del mismo día.
+  - Los looks planificados no se marcan como ya usados.
+  - La migración es `20261017000000_planned_outfits.sql` y la mutación está en `usePlanTomorrow`.
 ```
 
 ### 🎨 Arquitectura CSS
@@ -1333,19 +1337,15 @@ pnpm analyze                 # Bundle analysis
 **Prioridad Alta (Sprint siguiente):**
 1. Lluvia → filtrado de materiales
 2. Audit final a11y WCAG 2.2 AA
-3. Snapshots visuales E2E
 
 **Prioridad Media (2-3 sprints):**
-4. Similitud en descartes (embeddings)
-5. Starter wardrobe + onboarding mejorado
-6. Outfit para mañana
-7. Container queries
-8. CI/CD automation (`.github/workflows`)
+3. Similitud en descartes (embeddings)
+4. Starter wardrobe + onboarding mejorado
+5. Container queries
+6. CI/CD automation (`.github/workflows`)
 
 **Prioridad Baja (nice-to-have):**
 - Storybook
-- PurgeCSS
-- LHCI
 - BEM completo
 
 ---

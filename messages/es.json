@@ -34,6 +34,11 @@
     "greetingCool": "Refrescará{place}. Ni manga corta ni nórdico: juega bien tus cartas.",
     "greetingHot": "Hará calor{place}. Ligero y con estilo, que derretirse no es un look.",
     "greetingFair": "Buen tiempo{place}. Hoy te sales, elige bien.",
+    "daySelectorLabel": "¿Para qué día quieres tu look?",
+    "temperatureUnavailable": "—",
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "forecastUnavailable": "La previsión para mañana no está disponible.",
     "autoButton": "Vísteme, que hoy no pienso",
     "manualButton": "Lo elijo yo, que soy exigente",
     "styleHeading": "Elige el estilo de hoy",
@@ -53,6 +58,8 @@
     "loadingLooks": "Maquinando tu look",
     "streamingPreview": "Tu primer look está listo; terminando las recomendaciones…",
     "wear": "Me lo pongo hoy",
+    "wearUnavailable": "Solo se puede registrar el look de hoy",
+    "saveTomorrow": "Guardar para mañana",
     "wearing": "Fichándolo…",
     "discard": "Este no",
     "editManual": "Lo afino yo",
@@ -210,6 +217,7 @@
     "loadError": "No se pudo cargar tu historial.",
     "empty": "Aún no hay looks. Tu historial aparecerá aquí.",
     "unavailable": "Prendas ya no disponibles.",
+    "planned": "Planificado",
     "garmentFallback": "Prenda"
   },
   "Auth": {
@@ -361,6 +369,7 @@
     "lookGenerated": "¡Look listo! He respetado tus bloqueos, que soy obediente.",
     "fallbackStylist": "Modo becario 🧵 Estilista en prácticas al mando.",
     "lookSaved": "¡Este es el bueno! Look fichado. A por todas.",
+    "outfitPlanned": "Look guardado para mañana. Puedes sustituirlo cuando quieras.",
     "wearFailed": "No he podido ficharlo. Prueba otra vez, anda.",
     "stylistUnavailable": "Ups, mi cerebro fashionista ha cortocircuitado. Dame un segundo que me recompongo.",
     "errors": {

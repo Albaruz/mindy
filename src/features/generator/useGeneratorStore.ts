@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import type { Category, Garment, GarmentStyle } from "@/types/garment";
-import { MAX_DISCARD_COUNT } from "@/constants/generator";
+import {
+  MAX_DISCARD_COUNT,
+  OUTFIT_DAY_VALUES,
+} from "@/constants/generator";
 import { categorizeGarment } from "@/lib/garment/categorizeGarments";
 
 export interface Slot {
@@ -19,6 +22,7 @@ export type GeneratorView =
 // style vocabulary (see GARMENT_STYLE_VALUES), so the StyleStep offers
 // exactly the tags the closet form assigns.
 export type LookStyle = GarmentStyle;
+export type OutfitDay = (typeof OUTFIT_DAY_VALUES)[number];
 
 // Auto-mode rejection budget: at most 4 left-swipes per generation
 // before the limit empty state takes over.
@@ -56,6 +60,7 @@ export interface GeneratorState {
   // View state machine for the generator flow.
   view: GeneratorView;
   lookStyle: LookStyle;
+  outfitDay: OutfitDay;
   aiLooks: AiLook[];
   streamedLooks: AiLook[];
   activeLookIndex: number;
@@ -66,6 +71,7 @@ export interface GeneratorState {
   showCelebration: (garments: Garment[]) => void;
   dismissCelebration: () => void;
   setLookStyle: (style: LookStyle) => void;
+  setOutfitDay: (day: OutfitDay) => void;
   startManual: () => void;
   startAutoSelect: () => void;
   startLoading: () => void;
@@ -135,6 +141,7 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
   combineSuggestions: {},
   view: "zero",
   lookStyle: "casual",
+  outfitDay: "today",
   aiLooks: [],
   streamedLooks: [],
   activeLookIndex: 0,
@@ -154,6 +161,10 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
 
   setLookStyle: (style) => {
     set({ lookStyle: style, insufficientStyle: null });
+  },
+
+  setOutfitDay: (outfitDay) => {
+    set({ outfitDay });
   },
 
   startManual: () => {
@@ -219,6 +230,7 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
   resetFlow: () => {
     set({
       view: "zero",
+      outfitDay: "today",
       aiLooks: [],
       streamedLooks: [],
       activeLookIndex: 0,

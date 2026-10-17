@@ -7,4 +7,6 @@ export interface OutfitHistory {
   garmentIds: string[];
   wornDate: string;
   createdAt: string;
+  isPlanned: boolean;
+  plannedDate: string | null;
 }

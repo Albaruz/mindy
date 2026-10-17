@@ -11,6 +11,8 @@ interface OptionPillsProps<T extends string> {
   value: T | "";
   onSelect: (value: T) => void;
   formatOption?: (value: T) => string;
+  disabledOptions?: readonly T[];
+  alignment?: "start" | "center";
   // Optional decorative icon shown before each label (aria-hidden by the caller).
   renderIcon?: (value: T) => ReactNode;
   // Hide the legend when a visible heading already labels the group
@@ -27,28 +29,45 @@ export function OptionPills<T extends string>({
   value,
   onSelect,
   formatOption = (option) => option,
+  disabledOptions = [],
+  alignment = "start",
   renderIcon,
   hideLabel = false,
 }: OptionPillsProps<T>) {
   return (
-    <fieldset className={styles["option-pills"]}>
+    <fieldset
+      className={cn(
+        styles["option-pills"],
+        alignment === "center" && styles["option-pills--centered"],
+      )}
+    >
       <legend className={hideLabel ? "visually-hidden" : styles["option-pills__legend"]}>
         {label}
       </legend>
       <div className={styles["option-pills__options"]} role="radiogroup" aria-label={label}>
         {options.map((option) => {
           const selected = value === option;
+          const disabled = disabledOptions.includes(option);
           return (
             <label
               key={option}
-              className={cn(styles["option-pills__option"], selected && styles["option-pills__option--selected"])}
+              className={cn(
+                styles["option-pills__option"],
+                selected && styles["option-pills__option--selected"],
+                disabled && styles["option-pills__option--disabled"],
+              )}
             >
               <input
                 type="radio"
                 name={name}
                 value={option}
                 checked={selected}
-                onChange={() => onSelect(option)}
+                disabled={disabled}
+                onChange={() => {
+                  if (!disabled) {
+                    onSelect(option);
+                  }
+                }}
                 className={cn("visually-hidden", styles["option-pills__radio"])}
               />
               <span className={styles["option-pills__label"]}>

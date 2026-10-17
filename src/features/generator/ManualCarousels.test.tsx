@@ -40,6 +40,10 @@ vi.mock("./useWearToday", () => ({
   useWearToday: () => ({ isPending: false, mutate: vi.fn() }),
 }));
 
+vi.mock("./usePlanTomorrow", () => ({
+  usePlanTomorrow: () => ({ isPending: false, mutate: vi.fn() }),
+}));
+
 vi.mock("./CategoryCarousel", () => ({
   CategoryCarousel: ({ category }: { category: string }) => (
     <div data-testid={`carousel-${category}`} />

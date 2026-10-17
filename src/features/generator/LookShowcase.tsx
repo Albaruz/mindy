@@ -10,6 +10,7 @@ interface LookShowcaseProps {
   position: number;
   total: number;
   isWearing: boolean;
+  canWear?: boolean;
   canDiscard: boolean;
   onWear: () => void;
   onDiscard: () => void;
@@ -24,6 +25,7 @@ export function LookShowcase({
   position,
   total,
   isWearing,
+  canWear = true,
   canDiscard,
   onWear,
   onDiscard,
@@ -37,6 +39,7 @@ export function LookShowcase({
         position={position}
         total={total}
         isWearing={isWearing}
+        canWear={canWear}
         canDiscard={canDiscard}
         onWear={onWear}
         onDiscard={onDiscard}

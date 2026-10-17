@@ -18,6 +18,7 @@ interface ShowcaseCardProps {
   position: number;
   total: number;
   isWearing: boolean;
+  canWear?: boolean;
   canDiscard: boolean;
   onWear: () => void;
   onDiscard: () => void;
@@ -33,6 +34,7 @@ export function ShowcaseCard({
   position,
   total,
   isWearing,
+  canWear = true,
   canDiscard,
   onWear,
   onDiscard,
@@ -60,7 +62,7 @@ export function ShowcaseCard({
     _: MouseEvent | TouchEvent | PointerEvent,
     info: PanInfo,
   ) => {
-    if (info.offset.x >= SWIPE_COMMIT_PX) {
+    if (info.offset.x >= SWIPE_COMMIT_PX && canWear) {
       onWear();
     } else if (info.offset.x <= -SWIPE_COMMIT_PX && canDiscard) {
       onDiscard();

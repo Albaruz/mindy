@@ -38,4 +38,22 @@ describe("OptionPills", () => {
       "visually-hidden",
     );
   });
+
+  it("renders disabled options without allowing selection", () => {
+    const onSelect = vi.fn();
+    render(
+      <OptionPills
+        name="day"
+        label="Day"
+        options={["today", "tomorrow"] as const}
+        value="today"
+        onSelect={onSelect}
+        disabledOptions={["tomorrow"]}
+      />,
+    );
+    const tomorrow = screen.getByRole("radio", { name: "tomorrow" });
+    expect(tomorrow).toBeDisabled();
+    fireEvent.click(tomorrow);
+    expect(onSelect).not.toHaveBeenCalled();
+  });
 });

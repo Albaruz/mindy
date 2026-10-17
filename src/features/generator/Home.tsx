@@ -15,9 +15,14 @@ import { useDoLaundry } from "@/features/profile/useDoLaundry";
 import { useProfileQuery } from "@/features/profile/useProfileQuery";
 import { useGeneratorStore } from "./useGeneratorStore";
 import { MAX_DISCARD_COUNT } from "@/constants/generator";
-import { shouldShowOuterwear, useWeatherQuery } from "./useWeatherQuery";
+import {
+  getWeatherForDay,
+  shouldShowOuterwear,
+  useWeatherQuery,
+} from "./useWeatherQuery";
 import { useGenerateLooks } from "./useGenerateLooks";
 import { useWearToday } from "./useWearToday";
+import { usePlanTomorrow } from "./usePlanTomorrow";
 import type { RecommenderProfile } from "./generatorTypes";
 import { categorizeGarments, isWearableGarment } from "@/lib/garment/categorizeGarments";
 import { ZeroState } from "./ZeroState";
@@ -119,6 +124,8 @@ export function Home() {
 
   const view = useGeneratorStore((state) => state.view);
   const lookStyle = useGeneratorStore((state) => state.lookStyle);
+  const outfitDay = useGeneratorStore((state) => state.outfitDay);
+  const setOutfitDay = useGeneratorStore((state) => state.setOutfitDay);
   const aiLooks = useGeneratorStore((state) => state.aiLooks);
   const streamedLooks = useGeneratorStore((state) => state.streamedLooks);
   const activeLookIndex = useGeneratorStore((state) => state.activeLookIndex);
@@ -133,6 +140,7 @@ export function Home() {
 
   const generateLooks = useGenerateLooks();
   const wearToday = useWearToday();
+  const planTomorrow = usePlanTomorrow();
   const doLaundry = useDoLaundry();
 
   const cleanGarments = useMemo(
@@ -144,8 +152,11 @@ export function Home() {
     () => categorizeGarments(cleanGarments),
     [cleanGarments],
   );
+  const selectedWeather = getWeatherForDay(weather, outfitDay);
   const showOuterwear = shouldShowOuterwear(
-    weather,
+    selectedWeather === null || weather === null || weather === undefined
+      ? weather
+      : { ...weather, ...selectedWeather },
     byCategory.outerwear.length,
   );
   const readiness = getGeneratorReadiness(garments);
@@ -184,8 +195,13 @@ export function Home() {
     router.push("/calendar");
   };
   const handleWearActiveLook = () => {
-    if (activeLook && !wearToday.isPending) {
+    if (!activeLook || wearToday.isPending || planTomorrow.isPending) {
+      return;
+    }
+    if (outfitDay === "today") {
       wearToday.mutate(activeLook.garments);
+    } else {
+      planTomorrow.mutate(activeLook.garments);
     }
   };
   const handleDiscardActiveLook = () => {
@@ -247,6 +263,8 @@ export function Home() {
         <ZeroState
           weather={weather}
           colorimetry={profile?.colorimetry ?? null}
+          outfitDay={outfitDay}
+          onOutfitDayChange={setOutfitDay}
           onAuto={() => useGeneratorStore.getState().startAutoSelect()}
           onManual={() => useGeneratorStore.getState().startManual()}
         />
@@ -288,7 +306,8 @@ export function Home() {
               look={activeLook}
               position={activeLookIndex + 1}
               total={aiLooks.length}
-              isWearing={wearToday.isPending}
+              isWearing={wearToday.isPending || planTomorrow.isPending}
+              canWear={outfitDay === "today"}
               canDiscard={!discardLimitReached}
               onWear={handleWearActiveLook}
               onDiscard={handleDiscardActiveLook}
@@ -298,10 +317,16 @@ export function Home() {
             />
             <BottomActionBar
               label={ta("lookActions")}
-              primaryLabel={t("wear")}
+              primaryLabel={
+                outfitDay === "today" ? t("wear") : t("saveTomorrow")
+              }
               onPrimary={handleWearActiveLook}
-              primaryDisabled={wearToday.isPending}
-              isPrimaryPending={wearToday.isPending}
+              primaryDisabled={
+                wearToday.isPending || planTomorrow.isPending
+              }
+              isPrimaryPending={
+                wearToday.isPending || planTomorrow.isPending
+              }
               left={{
                 label: ta("resetFlow"),
                 onClick: () => useGeneratorStore.getState().resetFlow(),

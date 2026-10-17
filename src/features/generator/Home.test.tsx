@@ -79,6 +79,7 @@ vi.mock("./useWeatherQuery", async (importOriginal) => {
 const {
   mockGenerateMutate,
   mockWearMutate,
+  mockPlanMutate,
   mockWeatherData,
   mockProfileData,
   mockClosetData,
@@ -87,6 +88,7 @@ const {
 } = vi.hoisted(() => ({
   mockGenerateMutate: vi.fn(),
   mockWearMutate: vi.fn(),
+  mockPlanMutate: vi.fn(),
   mockWeatherData: vi.fn<() => WeatherInfo | null>(() => null),
   mockProfileData: vi.fn<() => UserProfile | null>(() => null),
   mockClosetData: vi.fn<() => Garment[]>(() => []),
@@ -191,6 +193,15 @@ vi.mock("./LookShowcase", () => ({
       <button type="button" data-testid="empty-manual" onClick={onManual} />
     </div>
   ),
+}));
+
+vi.mock("./usePlanTomorrow", () => ({
+  usePlanTomorrow: () => ({
+    get isPending() {
+      return false;
+    },
+    mutate: mockPlanMutate,
+  }),
 }));
 
 vi.mock("./ShowcaseCard", () => ({

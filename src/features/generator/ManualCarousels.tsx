@@ -15,10 +15,15 @@ import {
   isOnePieceGarment,
   isWearableGarment,
 } from "@/lib/garment/categorizeGarments";
-import { shouldShowOuterwear, useWeatherQuery } from "./useWeatherQuery";
+import {
+  getWeatherForDay,
+  shouldShowOuterwear,
+  useWeatherQuery,
+} from "./useWeatherQuery";
 import { useDismissGarment } from "./useDismissGarment";
 import { useCombineLocked } from "./useCombineLocked";
 import { useWearToday } from "./useWearToday";
+import { usePlanTomorrow } from "./usePlanTomorrow";
 import type { RecommenderProfile } from "./generatorTypes";
 import type { Garment } from "@/types/garment";
 import { CategoryCarousel } from "./CategoryCarousel";
@@ -52,6 +57,7 @@ export function ManualCarousels({
   const { data: garments = [], isPending } = useClosetQuery();
   const { data: profile } = useProfileQuery();
   const { data: weather } = useWeatherQuery();
+  const outfitDay = useGeneratorStore((state) => state.outfitDay);
   const slots = useGeneratorStore((state) => state.slots);
   const combineSuggestions = useGeneratorStore(
     (state) => state.combineSuggestions,
@@ -64,6 +70,7 @@ export function ManualCarousels({
   const dismissGarment = useDismissGarment();
   const combineLocked = useCombineLocked();
   const wearToday = useWearToday();
+  const planTomorrow = usePlanTomorrow();
 
   const cleanGarments = useMemo(
     () =>
@@ -97,8 +104,11 @@ export function ManualCarousels({
     }
     return ordered;
   }, [byCategory, combineSuggestions]);
+  const selectedWeather = getWeatherForDay(weather, outfitDay);
   const showOuterwear = shouldShowOuterwear(
-    weather,
+    selectedWeather === null || weather === null || weather === undefined
+      ? weather
+      : { ...weather, ...selectedWeather },
     orderedByCategory.outerwear.length,
   );
   const topIsOnePiece = isOnePieceGarment(slots.top.garment);
@@ -164,10 +174,18 @@ export function ManualCarousels({
   );
 
   const handleWearManual = () => {
-    if (manualGarments.length === 0 || wearToday.isPending) {
+    if (
+      manualGarments.length === 0 ||
+      wearToday.isPending ||
+      planTomorrow.isPending
+    ) {
       return;
     }
-    wearToday.mutate(manualGarments);
+    if (outfitDay === "today") {
+      wearToday.mutate(manualGarments);
+    } else {
+      planTomorrow.mutate(manualGarments);
+    }
   };
 
   const renderCarousel = (category: Category) => {
@@ -203,10 +221,16 @@ export function ManualCarousels({
       </div>
       <BottomActionBar
         label={ta("lookActions")}
-        primaryLabel={t("wear")}
+        primaryLabel={
+          outfitDay === "today" ? t("wear") : t("saveTomorrow")
+        }
         onPrimary={handleWearManual}
-        primaryDisabled={manualGarments.length === 0 || wearToday.isPending}
-        isPrimaryPending={wearToday.isPending}
+        primaryDisabled={
+          manualGarments.length === 0 ||
+          wearToday.isPending ||
+          planTomorrow.isPending
+        }
+        isPrimaryPending={wearToday.isPending || planTomorrow.isPending}
         left={{
           label: ta("resetLocks"),
           onClick: unlockAll,

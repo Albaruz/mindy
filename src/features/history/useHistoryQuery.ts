@@ -14,6 +14,8 @@ interface OutfitHistoryRow {
   garment_ids: string[] | null;
   worn_date: string;
   created_at: string;
+  is_planned?: boolean;
+  planned_date?: string | null;
 }
 
 export interface HistoryEntry {
@@ -27,7 +29,9 @@ const HISTORY_COLUMNS = `
   user_id,
   garment_ids,
   worn_date,
-  created_at
+  created_at,
+  is_planned,
+  planned_date
 `.trim();
 
 // Columns for garments table (reused from garmentMappers)
@@ -55,6 +59,8 @@ function toHistory(row: OutfitHistoryRow): OutfitHistory {
     garmentIds: row.garment_ids ?? [],
     wornDate: row.worn_date,
     createdAt: row.created_at,
+    isPlanned: row.is_planned === true,
+    plannedDate: row.planned_date ?? null,
   };
 }
 
