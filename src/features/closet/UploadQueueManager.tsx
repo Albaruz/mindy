@@ -32,17 +32,23 @@ import styles from "./UploadQueueManager.module.scss";
 
 let running = false;
 
-function globalProgress(items: UploadQueueItem[]): number {
-  if (items.length === 0) {
-    return 0;
-  }
-  return Math.round(
-    items.reduce((total, item) => total + item.progress, 0) / items.length,
-  );
-}
-
 function blocksCompletion(status: UploadQueueItem["status"]): boolean {
   return status !== "completed" && status !== "cancelled" && status !== "failed";
+}
+
+function advanceItemProgress(
+  updateItem: (id: string, patch: Partial<UploadQueueItem>) => void,
+  id: string,
+  progress: number,
+  patch: Partial<UploadQueueItem> = {},
+): void {
+  const current = useUploadQueueStore
+    .getState()
+    .items.find((item) => item.id === id);
+  updateItem(id, {
+    ...patch,
+    progress: Math.max(current?.progress ?? 0, progress),
+  });
 }
 
 function requestNotificationPermission(): void {
@@ -84,6 +90,7 @@ function UploadQueuePanel({
 }: UploadQueuePanelProps) {
   const t = useTranslations("UploadQueue");
   const items = useUploadQueueStore((state) => state.items);
+  const progress = useUploadQueueStore((state) => state.progressCeiling);
   const isDetailsOpen = useUploadQueueStore((state) => state.isDetailsOpen);
   const setDetailsOpen = useUploadQueueStore((state) => state.setDetailsOpen);
   const [exitingIds, setExitingIds] = useState<string[]>([]);
@@ -114,7 +121,6 @@ function UploadQueuePanel({
   const displayItems = items.filter(
     (item) => isUploadActive(item.status) || exitingIds.includes(item.id),
   );
-  const progress = globalProgress(displayItems);
 
   if (displayItems.length === 0) {
     return null;
@@ -285,10 +291,9 @@ export function UploadQueueManager() {
 
   const finishWithTags = useCallback(
     async (item: UploadQueueItem, file: File, tags: InferredTags, useOriginal: boolean) => {
-      updateItem(item.id, {
+      advanceItemProgress(updateItem, item.id, useOriginal ? 80 : 60, {
         status: useOriginal ? "saving" : "removing_background",
         stage: useOriginal ? "saving" : "background",
-        progress: useOriginal ? 80 : 60,
         error: null,
         cutoutFailed: false,
       });
@@ -311,34 +316,34 @@ export function UploadQueueManager() {
     async (item: UploadQueueItem) => {
       const file = await getFile(item.id);
       if (file === undefined) {
-        updateItem(item.id, {
+        advanceItemProgress(updateItem, item.id, 0, {
           status: "failed",
           stage: "done",
-          progress: 100,
           error: tq("missingFile"),
         });
         return;
       }
       try {
-        updateItem(item.id, {
+        advanceItemProgress(updateItem, item.id, 5, {
           status: "validating",
           stage: "validation",
-          progress: 5,
           error: null,
         });
         const imageData = await toDownscaledDataUrl(file);
-        updateItem(item.id, { status: "analyzing", stage: "analysis", progress: 25 });
+        advanceItemProgress(updateItem, item.id, 25, {
+          status: "analyzing",
+          stage: "analysis",
+        });
         const tags = await suggestTags(
           imageData,
           locale === "es" ? "es" : "en",
           { throwOnError: true },
         );
-        updateItem(item.id, { tags, progress: 50 });
+        advanceItemProgress(updateItem, item.id, 50, { tags });
         if (tags.cutoutDifficulty === "hard") {
-          updateItem(item.id, {
+          advanceItemProgress(updateItem, item.id, 50, {
             status: "awaiting_review",
             stage: "review",
-            progress: 50,
             qualityNote: tags.qualityNote || null,
           });
           return;
@@ -347,18 +352,16 @@ export function UploadQueueManager() {
       } catch (error) {
         const attempts = item.attempts + 1;
         if (attempts <= MAX_UPLOAD_RETRIES) {
-          updateItem(item.id, {
+          advanceItemProgress(updateItem, item.id, 0, {
             status: "queued",
             stage: "validation",
-            progress: 0,
             attempts,
             error: null,
           });
         } else {
-          updateItem(item.id, {
+          advanceItemProgress(updateItem, item.id, 0, {
             status: "failed",
             stage: "done",
-            progress: 100,
             attempts,
             error: error instanceof Error ? error.message : tq("failed"),
           });
@@ -432,7 +435,7 @@ export function UploadQueueManager() {
   }, [addNotification, items, lastCompletionCount, tq]);
 
   const retry = useCallback(
-    (id: string) => updateItem(id, { status: "queued", stage: "validation", progress: 0, attempts: 0, error: null }),
+    (id: string) => updateItem(id, { status: "queued", stage: "validation", attempts: 0, error: null }),
     [updateItem],
   );
 

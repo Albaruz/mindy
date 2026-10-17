@@ -13,6 +13,7 @@ import {
 interface UploadQueueState {
   hydrated: boolean;
   items: UploadQueueItem[];
+  progressCeiling: number;
   isDetailsOpen: boolean;
   reviewItemId: string | null;
   hydrate: () => Promise<void>;
@@ -43,6 +44,7 @@ function revokePreview(item: UploadQueueItem | undefined): void {
 export const useUploadQueueStore = create<UploadQueueState>()((set, get) => ({
   hydrated: false,
   items: [],
+  progressCeiling: 0,
   isDetailsOpen: false,
   reviewItemId: null,
 
@@ -96,7 +98,7 @@ export const useUploadQueueStore = create<UploadQueueState>()((set, get) => ({
         fileSize: file.size,
         status: valid ? "queued" : "failed",
         stage: valid ? "validation" : "done",
-        progress: valid ? 0 : 100,
+        progress: 0,
         attempts: 0,
         error: valid ? null : "This image does not meet the upload requirements.",
         tags: null,
@@ -114,7 +116,7 @@ export const useUploadQueueStore = create<UploadQueueState>()((set, get) => ({
       ),
     );
     const items = [...get().items, ...newItems];
-    set({ items, isDetailsOpen: true });
+    set({ items, progressCeiling: 0, isDetailsOpen: true });
     sync(items);
     return newItems.map((item) => item.id);
   },
@@ -124,8 +126,18 @@ export const useUploadQueueStore = create<UploadQueueState>()((set, get) => ({
       const items = state.items.map((item) =>
         item.id === id ? { ...item, ...patch } : item,
       );
+      const rawProgress =
+        items.length === 0
+          ? 0
+          : Math.round(
+              items.reduce((total, item) => total + item.progress, 0) /
+                items.length,
+            );
       sync(items);
-      return { items };
+      return {
+        items,
+        progressCeiling: Math.max(state.progressCeiling, rawProgress),
+      };
     });
   },
 
@@ -139,6 +151,7 @@ export const useUploadQueueStore = create<UploadQueueState>()((set, get) => ({
     const items = get().items.filter((candidate) => candidate.id !== id);
     set({
       items,
+      progressCeiling: items.length === 0 ? 0 : get().progressCeiling,
       reviewItemId: get().reviewItemId === id ? null : get().reviewItemId,
     });
     sync(items);
@@ -154,7 +167,7 @@ export const useUploadQueueStore = create<UploadQueueState>()((set, get) => ({
   clearAll: async () => {
     const all = get().items.map((item) => item.id);
     await Promise.all(all.map((id) => get().removeItem(id)));
-    set({ items: [], reviewItemId: null, isDetailsOpen: false });
+    set({ items: [], progressCeiling: 0, reviewItemId: null, isDetailsOpen: false });
     sync([]);
   },
 

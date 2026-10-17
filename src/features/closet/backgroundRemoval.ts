@@ -9,14 +9,18 @@ const PNG_OUTPUT: BackgroundRemovalOptions = {
   output: { format: "image/png", quality: 1 },
 };
 
-// Runs @imgly/background-removal in a Web Worker to avoid blocking the main thread.
-// The worker loads the UMD build from jsDelivr CDN (cached by browser).
+// Runs @imgly/background-removal in a bundled Web Worker to avoid blocking the
+// main thread. The bundler keeps the worker and its dependency out of the
+// application thread; model assets remain loaded by @imgly on demand.
 async function removeBackgroundInWorker(
   file: Blob,
   options: BackgroundRemovalOptions,
 ): Promise<Blob> {
   return new Promise((resolve, reject) => {
-    const worker = new Worker("/bg-removal-worker.js");
+    const worker = new Worker(
+      new URL("./backgroundRemoval.worker.ts", import.meta.url),
+      { type: "module" },
+    );
     let ready = false;
 
     worker.onmessage = (event) => {
