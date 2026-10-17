@@ -114,6 +114,12 @@
     "closetNoCleanItems": "Ahora mismo no hay prendas limpias que mostrar.",
     "basketEmpty": "Huele a rosas por aquí. Tu cesto está inmaculado.",
     "count": "Mostrando {shown} de {total}",
+    "pagination": {
+      "label": "Paginación del armario",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "page": "Página {current} de {total}"
+    },
     "noResults": "Ni rastro. O está en Narnia, o nunca te la compraste.",
     "takePhoto": "Hacer foto",
     "uploadImage": "Subir imagen",

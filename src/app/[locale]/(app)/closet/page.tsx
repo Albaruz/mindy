@@ -168,7 +168,7 @@ export default function ClosetPage() {
               <MotionConfig reducedMotion="user">
                 <div className={styles.grid}>
                   <AnimatePresence>
-                    {inventory.filteredGarments
+                     {inventory.pagedGarments
                       .filter(
                         (garment) =>
                           !laundry.washingGarmentIds.has(garment.garmentId),
@@ -203,6 +203,30 @@ export default function ClosetPage() {
                 </div>
               </MotionConfig>
             )}
+            {inventory.pageCount > 1 ? (
+              <nav className={styles.pagination} aria-label={t("pagination.label")}>
+                <Button
+                  type="button"
+                  disabled={inventory.page === 1}
+                  onClick={() => inventory.setPage(inventory.page - 1)}
+                >
+                  {t("pagination.previous")}
+                </Button>
+                <span aria-current="page">
+                  {t("pagination.page", {
+                    current: inventory.page,
+                    total: inventory.pageCount,
+                  })}
+                </span>
+                <Button
+                  type="button"
+                  disabled={inventory.page === inventory.pageCount}
+                  onClick={() => inventory.setPage(inventory.page + 1)}
+                >
+                  {t("pagination.next")}
+                </Button>
+              </nav>
+            ) : null}
           </>
         )}
       </QueryState>

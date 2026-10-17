@@ -114,6 +114,12 @@
     "closetNoCleanItems": "No clean garments to show right now.",
     "basketEmpty": "Smells like roses in here. Your basket is spotless.",
     "count": "Showing {shown} of {total}",
+    "pagination": {
+      "label": "Closet pagination",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {current} of {total}"
+    },
     "noResults": "No trace. Either it's in Narnia or you never bought it.",
     "takePhoto": "Take photo",
     "uploadImage": "Upload image",

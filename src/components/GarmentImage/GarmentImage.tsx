@@ -1,3 +1,5 @@
+import { LazyImage } from "@/components/LazyImage/LazyImage";
+
 interface GarmentImageProps {
   /** Garment photo URL; null renders the placeholder (or nothing). */
   src: string | null;
@@ -28,14 +30,12 @@ export function GarmentImage({
     ) : null;
   }
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
+    <LazyImage
       src={src}
       alt={alt}
       loading={loading}
-      decoding={loading === "eager" ? "async" : undefined}
-      fetchPriority={loading === "eager" ? "high" : undefined}
       className={className}
+      wrapperClassName={className}
     />
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
+import { CLOSET_PAGE_SIZE } from "@/constants/ui-config";
 import type { Garment } from "@/types/garment";
 import type { CategoryFilter } from "@/types/ui";
 import {
@@ -30,6 +31,7 @@ export function useClosetInventory(garments: Garment[]) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>("all");
   const [inventoryView, setInventoryView] = useState<InventoryView>("clean");
+  const [page, setPage] = useState(1);
   // Deferred query keeps the input responsive while the grid filters.
   const deferredQuery = useDeferredValue(searchQuery);
 
@@ -54,6 +56,25 @@ export function useClosetInventory(garments: Garment[]) {
       ),
     [baseGarments, activeCategory, deferredQuery],
   );
+  const pageCount = Math.max(1, Math.ceil(filteredGarments.length / CLOSET_PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pagedGarments = useMemo(
+    () => filteredGarments.slice((currentPage - 1) * CLOSET_PAGE_SIZE, currentPage * CLOSET_PAGE_SIZE),
+    [currentPage, filteredGarments],
+  );
+
+  const changeSearchQuery = (value: string) => {
+    setSearchQuery(value);
+    setPage(1);
+  };
+  const changeActiveCategory = (value: CategoryFilter) => {
+    setActiveCategory(value);
+    setPage(1);
+  };
+  const changeInventoryView = (value: InventoryView) => {
+    setInventoryView(value);
+    setPage(1);
+  };
 
   // Keep a truly empty wardrobe distinct from a wardrobe whose clothes are
   // all waiting for laundry.
@@ -82,14 +103,18 @@ export function useClosetInventory(garments: Garment[]) {
 
   return {
     searchQuery,
-    setSearchQuery,
+    setSearchQuery: changeSearchQuery,
     activeCategory,
-    setActiveCategory,
+    setActiveCategory: changeActiveCategory,
     inventoryView,
-    setInventoryView,
+    setInventoryView: changeInventoryView,
     cleanGarments,
     dirtyGarments,
     filteredGarments,
+    pagedGarments,
+    page: currentPage,
+    pageCount,
+    setPage,
     total: baseGarments.length,
     hasQuery,
     isActuallyEmpty,

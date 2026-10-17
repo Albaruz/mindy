@@ -21,6 +21,21 @@
   color: var(--color-muted);
 }
 
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-block: 0.5rem 1rem;
+}
+
+.pagination > span {
+  min-width: 5rem;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
 // Floating global wash action, pinned above the safe area while the
 // dirty view holds garments.
 .wash-all-wrap {
