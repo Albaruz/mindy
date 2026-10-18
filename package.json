@@ -14,6 +14,7 @@
     "test:e2e": "playwright test",
     "test:a11y": "playwright test e2e/a11y.spec.ts --workers=1",
     "budget": "node scripts/check-bundle-budget.mjs",
+    "evaluate:recommender": "node scripts/evaluate-recommender.mjs",
     "lhci": "lhci autorun",
     "tokens:build": "ts-node scripts/build-tokens.mts",
     "analyze": "ANALYZE=true pnpm build"

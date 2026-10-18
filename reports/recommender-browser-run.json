@@ -1,0 +1,51 @@
+{
+  "endpoint": "http://localhost:3000/api/recommender",
+  "source": "authenticated browser session",
+  "totalCases": 4,
+  "passedCases": 4,
+  "fallbackCases": 0,
+  "repairedCases": 0,
+  "averageLatencyMs": 1284,
+  "rows": [
+    {
+      "case": "mild",
+      "status": 200,
+      "latencyMs": 1154,
+      "model": "openai/gpt-oss-20b",
+      "fallback": false,
+      "repairAttempted": false,
+      "options": 3,
+      "passed": true
+    },
+    {
+      "case": "rain",
+      "status": 200,
+      "latencyMs": 1678,
+      "model": "openai/gpt-oss-20b",
+      "fallback": false,
+      "repairAttempted": false,
+      "options": 2,
+      "passed": true
+    },
+    {
+      "case": "locked",
+      "status": 200,
+      "latencyMs": 995,
+      "model": "openai/gpt-oss-20b",
+      "fallback": false,
+      "repairAttempted": false,
+      "options": 2,
+      "passed": true
+    },
+    {
+      "case": "dress",
+      "status": 200,
+      "latencyMs": 1309,
+      "model": "openai/gpt-oss-20b",
+      "fallback": false,
+      "repairAttempted": false,
+      "options": 2,
+      "passed": true
+    }
+  ]
+}

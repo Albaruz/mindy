@@ -1,0 +1,77 @@
+[
+  {
+    "name": "mild casual day",
+    "body": {
+      "temperatureC": 19,
+      "condition": "clear",
+      "dayLow": 15,
+      "dayHigh": 21,
+      "rainProbability": 5,
+      "style": "casual",
+      "mood": "relaxed",
+      "profile": { "preferredFit": "regular", "lifestyle": "casual" },
+      "garments": [
+        { "id": "mild-top-1", "garmentType": "top", "color": "white", "material": "cotton", "season": "summer", "style": "casual" },
+        { "id": "mild-top-2", "garmentType": "top", "color": "blue", "material": "cotton", "season": "all", "style": "casual" },
+        { "id": "mild-bottom-1", "garmentType": "bottom", "color": "navy", "material": "denim", "season": "all", "style": "casual" },
+        { "id": "mild-bottom-2", "garmentType": "bottom", "color": "black", "material": "cotton", "season": "all", "style": "casual" },
+        { "id": "mild-shoes-1", "garmentType": "footwear", "color": "white", "material": "leather", "season": "all", "style": "casual" }
+      ]
+    }
+  },
+  {
+    "name": "rainy day with outerwear",
+    "body": {
+      "temperatureC": 10,
+      "condition": "rain",
+      "dayLow": 8,
+      "dayHigh": 12,
+      "rainProbability": 90,
+      "style": "casual",
+      "profile": { "preferredFit": "regular", "lifestyle": "urban" },
+      "garments": [
+        { "id": "rain-top-1", "garmentType": "top", "color": "gray", "material": "cotton", "season": "mid_season", "style": "casual" },
+        { "id": "rain-bottom-1", "garmentType": "bottom", "color": "black", "material": "denim", "season": "all", "style": "casual" },
+        { "id": "rain-shoes-1", "garmentType": "footwear", "color": "black", "material": "leather", "season": "all", "style": "casual" },
+        { "id": "rain-outerwear-1", "garmentType": "outerwear", "color": "navy", "material": "polyester", "season": "winter", "style": "casual" }
+      ],
+      "expected": { "requiresOuterwear": true }
+    }
+  },
+  {
+    "name": "locked formal garment",
+    "body": {
+      "temperatureC": 18,
+      "condition": "clear",
+      "dayLow": 14,
+      "dayHigh": 20,
+      "rainProbability": 0,
+      "style": "formal",
+      "lockedGarmentIds": ["formal-top-1"],
+      "profile": { "preferredFit": "slim", "lifestyle": "office" },
+      "garments": [
+        { "id": "formal-top-1", "garmentType": "top", "color": "white", "material": "cotton", "season": "all", "style": "formal" },
+        { "id": "formal-bottom-1", "garmentType": "bottom", "color": "black", "material": "wool", "season": "all", "style": "formal" },
+        { "id": "formal-bottom-2", "garmentType": "bottom", "color": "navy", "material": "wool", "season": "all", "style": "formal" },
+        { "id": "formal-shoes-1", "garmentType": "footwear", "color": "black", "material": "leather", "season": "all", "style": "formal" }
+      ]
+    }
+  },
+  {
+    "name": "one-piece dress",
+    "body": {
+      "temperatureC": 23,
+      "condition": "clear",
+      "dayLow": 19,
+      "dayHigh": 25,
+      "rainProbability": 0,
+      "style": "elegant",
+      "profile": { "preferredFit": "regular", "lifestyle": "social" },
+      "garments": [
+        { "id": "dress-1", "garmentType": "dress", "color": "green", "material": "cotton", "season": "summer", "style": "elegant", "extraTags": { "specificType": "midi dress" } },
+        { "id": "dress-shoes-1", "garmentType": "footwear", "color": "beige", "material": "leather", "season": "summer", "style": "elegant" },
+        { "id": "dress-shoes-2", "garmentType": "footwear", "color": "black", "material": "leather", "season": "all", "style": "elegant" }
+      ]
+    }
+  }
+]
