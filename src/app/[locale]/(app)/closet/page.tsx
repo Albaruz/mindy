@@ -69,7 +69,7 @@ export default function ClosetPage() {
       type="button"
       disabled={laundry.isWashingAll}
       aria-busy={laundry.isWashingAll}
-      onClick={laundry.washAll}
+      onClick={() => laundry.washAll()}
     >
       {laundry.isWashingAll ? t("washing") : t("washAll")}
     </Button>
@@ -258,7 +258,7 @@ export default function ClosetPage() {
           <Button
             type="button"
             disabled={laundry.isWashingAll}
-            onClick={laundry.washAll}
+            onClick={() => laundry.washAll()}
             className={styles["washAll"]}
           >
             {laundry.isWashingAll ? t("washing") : t("washAll")}

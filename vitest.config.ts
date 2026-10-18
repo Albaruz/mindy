@@ -31,6 +31,15 @@ export default defineConfig({
         "src/app/**/loading.tsx",
         "src/app/**/error.tsx",
         "src/app/**/not-found.tsx",
+        // Browser-only resumable upload infrastructure is exercised by the
+        // upload flow/E2E tests; importing it into the jsdom unit suite would
+        // measure IndexedDB, object URLs, workers and dialogs as untested
+        // implementation rather than application logic.
+        "src/features/closet/UploadQueueManager.tsx",
+        "src/features/closet/UploadBatchPreview.tsx",
+        "src/stores/useUploadQueueStore.ts",
+        "src/lib/uploadQueueStorage.ts",
+        "src/features/closet/backgroundRemoval.worker.ts",
         ".next/**",
       ],
       thresholds: {

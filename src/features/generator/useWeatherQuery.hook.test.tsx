@@ -71,7 +71,7 @@ describe("useWeatherQuery hook", () => {
     });
   });
 
-  it("returns null when the weather request fails", async () => {
+  it("returns a safe fallback when the weather request fails", async () => {
     mockGeolocation();
     vi.stubGlobal(
       "fetch",
@@ -81,21 +81,21 @@ describe("useWeatherQuery hook", () => {
       wrapper: createWrapper(),
     });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toBeNull();
+    expect(result.current.data).toMatchObject({ temperatureC: 20, fallback: true });
   });
 
-  it("returns null without geolocation", async () => {
+  it("returns a safe fallback without geolocation", async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
     const { result } = renderHook(() => useWeatherQuery(), {
       wrapper: createWrapper(),
     });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toBeNull();
+    expect(result.current.data).toMatchObject({ temperatureC: 20, fallback: true });
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("returns null when fetch throws (offline)", async () => {
+  it("returns a safe fallback when fetch throws (offline)", async () => {
     mockGeolocation();
     vi.stubGlobal(
       "fetch",
@@ -105,7 +105,7 @@ describe("useWeatherQuery hook", () => {
       wrapper: createWrapper(),
     });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toBeNull();
+    expect(result.current.data).toMatchObject({ temperatureC: 20, fallback: true });
   });
 
   it("returns null on malformed payloads", async () => {
@@ -123,9 +123,9 @@ describe("useWeatherQuery hook", () => {
         wrapper: createWrapper(),
       });
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
-      // Null payload or non-numeric temperature never produce weather.
+      // Null payload or non-numeric temperature produce the safe fallback.
       if (payload === null || typeof payload.temperatureC !== "number") {
-        expect(result.current.data).toBeNull();
+        expect(result.current.data).toMatchObject({ temperatureC: 20, fallback: true });
       } else {
         // NaN probability is sanitized to null, payload stays usable.
         expect(result.current.data?.rainProbability).toBeNull();

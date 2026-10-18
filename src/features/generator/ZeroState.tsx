@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { Thermometer } from "lucide-react";
 import { Button } from "@/components/Button/Button";
 import { GREETING_MIN_DISPLAY_MS } from "@/constants/animations";
+import { DEFAULT_TEMPERATURE_C } from "@/constants/weather";
 import { OUTFIT_DAY_VALUES } from "@/constants/generator";
 import { OptionPills } from "@/components/OptionPills/OptionPills";
 import type { Colorimetry } from "@/types/user";
@@ -151,7 +152,9 @@ export function ZeroState({
   const formatTemperature = (day: OutfitDay) => {
     const dayWeather = getSelectedWeather(weather, day);
     if (dayWeather === null) {
-      return t("temperatureUnavailable");
+      return weather?.fallback && day === "today"
+        ? `${DEFAULT_TEMPERATURE_C}°`
+        : t("temperatureUnavailable");
     }
     if (dayWeather.dayLow !== null && dayWeather.dayHigh !== null) {
       return `${dayWeather.dayLow}°–${dayWeather.dayHigh}°`;

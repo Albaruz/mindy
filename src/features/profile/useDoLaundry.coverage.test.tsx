@@ -23,6 +23,7 @@ vi.mock("next-intl", () => ({
 
 import { useDoLaundry } from "./useDoLaundry";
 import { useNotificationStore } from "@/stores/useNotificationStore";
+import type { Garment } from "@/types/garment";
 
 function createWrapper() {
   const client = new QueryClient({
@@ -80,5 +81,47 @@ describe("useDoLaundry branch coverage", () => {
     await waitFor(() =>
       expect(useNotificationStore.getState().notifications.length).toBeGreaterThan(0),
     );
+  });
+
+  it("updates cached garments and basket optimistically", async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: "user-one" } } });
+    mockEqDirty.mockResolvedValue({ error: null });
+    mockEqUser.mockReturnValue({ eq: mockEqDirty });
+    mockUpdate.mockReturnValue({ eq: mockEqUser });
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+    const garment = { garmentId: "g1", isDirty: true } as Garment;
+    client.setQueryData(["garments"], [garment]);
+    client.setQueryData(["laundry-basket"], [garment]);
+    function Wrapper({ children }: { children: React.ReactNode }) {
+      return React.createElement(QueryClientProvider, { client }, children);
+    }
+    const { result } = renderHook(() => useDoLaundry(), { wrapper: Wrapper });
+    result.current.mutate();
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(client.getQueryData<Garment[]>(["garments"])?.[0]?.isDirty).toBe(false);
+    expect(client.getQueryData<Garment[]>(["laundry-basket"])).toEqual([]);
+  });
+
+  it("restores cached garments and basket after a failed update", async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: "user-one" } } });
+    mockEqDirty.mockResolvedValue({ error: new Error("update failed") });
+    mockEqUser.mockReturnValue({ eq: mockEqDirty });
+    mockUpdate.mockReturnValue({ eq: mockEqUser });
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+    const garment = { garmentId: "g1", isDirty: true } as Garment;
+    client.setQueryData(["garments"], [garment]);
+    client.setQueryData(["laundry-basket"], [garment]);
+    function Wrapper({ children }: { children: React.ReactNode }) {
+      return React.createElement(QueryClientProvider, { client }, children);
+    }
+    const { result } = renderHook(() => useDoLaundry(), { wrapper: Wrapper });
+    result.current.mutate();
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(client.getQueryData<Garment[]>(["garments"])).toEqual([garment]);
+    expect(client.getQueryData<Garment[]>(["laundry-basket"])).toEqual([garment]);
   });
 });

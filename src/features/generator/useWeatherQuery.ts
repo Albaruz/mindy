@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS, QUERY_REFETCH_ON_FOCUS, WEATHER_STALE_TIME_MS } from "@/constants/query";
 import {
+  DEFAULT_TEMPERATURE_C,
   COLD_THRESHOLD_C,
   RAIN_EXPECTED_THRESHOLD,
   isRainyConditionValue,
@@ -29,8 +30,6 @@ export function isRainExpected(rainProbability: number | null | undefined): bool
   );
 }
 
-// Resolves once per page visit (cached 10 min). Null when location is
-// unavailable or denied: callers fall back to inventory-based behavior.
 export function parseWeatherPayload(payload: unknown): WeatherInfo | null {
   if (typeof payload !== "object" || payload === null) {
     return null;
@@ -108,6 +107,19 @@ export function parseWeatherPayload(payload: unknown): WeatherInfo | null {
   };
 }
 
+function clientFallbackWeather(): WeatherInfo {
+  return {
+    temperatureC: DEFAULT_TEMPERATURE_C,
+    condition: null,
+    city: null,
+    dayLow: null,
+    dayHigh: null,
+    dayCondition: null,
+    rainProbability: null,
+    fallback: true,
+  };
+}
+
 export function getWeatherForDay(
   weather: WeatherInfo | null | undefined,
   day: OutfitDay,
@@ -128,6 +140,9 @@ export function getWeatherForDay(
   };
 }
 
+// Resolves once per page visit (cached 10 min). A local fallback keeps the
+// generator usable when location permission, the route, or OpenWeather is
+// unavailable; the fallback flag prevents it being presented as a forecast.
 async function fetchWeather(): Promise<WeatherInfo | null> {
   try {
     const position = await getCurrentPosition();
@@ -135,11 +150,11 @@ async function fetchWeather(): Promise<WeatherInfo | null> {
       buildWeatherUrl(position.coords.latitude, position.coords.longitude),
     );
     if (!response.ok) {
-      return null;
+      return clientFallbackWeather();
     }
-    return parseWeatherPayload(await response.json());
+    return parseWeatherPayload(await response.json()) ?? clientFallbackWeather();
   } catch {
-    return null;
+    return clientFallbackWeather();
   }
 }
 

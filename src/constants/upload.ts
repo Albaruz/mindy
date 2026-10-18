@@ -3,8 +3,12 @@
 /** Maximum number of images accepted in one closet upload batch. */
 export const MAX_UPLOAD_BATCH_SIZE = 25;
 
-/** Maximum number of Vision requests processed at the same time. */
-export const VISION_CONCURRENCY = 3;
+/** Maximum number of Vision requests processed at the same time.
+ * Keep this serial: the analysis and persistence pipeline is stateful, and
+ * upstream/serverless rate limits make parallel batches lose items even
+ * though the browser accepted them.
+ */
+export const VISION_CONCURRENCY = 1;
 
 /** Automatic attempts after a transient item failure. */
 export const MAX_UPLOAD_RETRIES = 2;

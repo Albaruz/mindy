@@ -5,6 +5,12 @@ import { createClient } from "@/lib/supabase/client";
 import { useNotificationStore } from "@/stores/useNotificationStore";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { requireUser } from "@/lib/supabase/session";
+import type { Garment } from "@/types/garment";
+
+interface LaundryContext {
+  garments: Garment[] | undefined;
+  basket: Garment[] | undefined;
+}
 
 // Marks every dirty garment of the current user as clean, emptying the
 // laundry basket. Closet and basket queries revalidate afterwards.
@@ -26,11 +32,37 @@ export function useDoLaundry() {
         throw error;
       }
     },
+    // Remove dirty garments immediately. This avoids leaving the basket
+    // visible while an invalidation/refetch is delayed by a production
+    // network or a persisted query cache.
+    onMutate: async (): Promise<LaundryContext> => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.garments });
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.laundryBasket });
+      const context: LaundryContext = {
+        garments: queryClient.getQueryData<Garment[]>(QUERY_KEYS.garments),
+        basket: queryClient.getQueryData<Garment[]>(QUERY_KEYS.laundryBasket),
+      };
+      queryClient.setQueryData<Garment[] | undefined>(
+        QUERY_KEYS.garments,
+        (current) => current?.map((garment) => ({ ...garment, isDirty: false })),
+      );
+      queryClient.setQueryData<Garment[]>(QUERY_KEYS.laundryBasket, []);
+      return context;
+    },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.laundryBasket });
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments });
     },
-    onError: () => {
+    // Invalidate marks the cache stale, but an explicit refetch also covers
+    // cached queries restored by the PWA persister and guarantees that the
+    // UI reflects the database result after the mutation settles.
+    onSettled: () => {
+      void queryClient.refetchQueries({ queryKey: QUERY_KEYS.laundryBasket });
+      void queryClient.refetchQueries({ queryKey: QUERY_KEYS.garments });
+    },
+    onError: (_error, _variables, context) => {
+      queryClient.setQueryData(QUERY_KEYS.garments, context?.garments);
+      queryClient.setQueryData(QUERY_KEYS.laundryBasket, context?.basket);
       useNotificationStore
         .getState()
         .addNotification("error", t("laundryFailed"));

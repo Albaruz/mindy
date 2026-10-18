@@ -127,7 +127,7 @@ export async function generateOutfitRecommendation(
         {
           model: AI_MODEL,
           temperature: AI_TEMPERATURE,
-          max_completion_tokens: AI_MAX_TOKENS,
+          max_completion_tokens: maxTokens,
           response_format: AI_RESPONSE_FORMAT,
           messages: [
             { role: "system", content: systemPrompt },
