@@ -306,11 +306,9 @@ Visualización: PaletteFan + MorphoIcon
 2. 🎯 Análisis automático con vision IA
    - Envía: `POST /api/analyze` con imagen redimensionada
    - Recibe: tags de prenda y evaluación de dificultad/calidad de la foto
-3. ✅ Si Vision considera que el recorte es fácil, se elimina el fondo automáticamente.
-   - El original se reduce a un máximo de 1024 px por lado antes de ejecutar
-     `@imgly/background-removal`, para reducir memoria y tiempo de proceso.
-   - Primero se usa el Web Worker; si falla, se usa el fallback en el hilo
-     principal. El resultado final se normaliza a 300 px de ancho para Storage.
+3. 💾 Si la foto es válida, se guarda la imagen original como imagen mostrada y
+   como `original_image_url`. El borrado de fondo no forma parte del camino
+   crítico de subida y nunca se ejecuta automáticamente.
 4. ⚠️ Si Vision marca la foto como difícil, detener la subida y abrir la modal
    con el motivo (si está disponible) y consejos breves:
    - fondo neutro que contraste con la prenda;
@@ -321,15 +319,16 @@ Visualización: PaletteFan + MorphoIcon
      cámara o galería; no persiste la selección pendiente.
    - **Usar la foto tal cual:** conserva el fondo, normaliza la imagen y la
      guarda como PNG.
-   - **Probar a quitar el fondo:** ejecuta el mismo procesamiento; si los dos
-     intentos fallan, mantiene la modal abierta para que la persona elija otra
-     acción.
-   - La generación de imagen con IA todavía no se muestra ni ejecuta. Su
-     implementación queda anotada como TODO en el código para la fase 2.
+    - La generación de imagen con IA todavía no se muestra ni ejecuta. Su
+      implementación queda anotada como TODO en el código para la fase 2.
 6. Cerrar con Escape o con el botón de cierre descarta la foto pendiente. No se
    guarda ni se sustituye una imagen sin una decisión explícita.
 7. 💾 Almacenamiento: `garments/user_id/uuid.png` en Supabase Storage
-8. 🏷️ Edición de tags
+8. 🖼️ Desde el detalle/edición de la prenda se puede:
+    - **Cambiar imagen:** reemplaza la imagen actual y la original.
+    - **Quitar fondo:** procesa la original, actualiza `image_url` y conserva
+      `original_image_url` para futuras operaciones.
+9. 🏷️ Edición de tags
    - Tags IA automáticos: `aiCategory`, `specificType`, `colorShade`
    - Tags extra: key/value customizados (límites configurables)
    - Editor visual con chips `ExtraTagsEditor`
@@ -373,15 +372,16 @@ cada elección, cancelación, fallo de eliminación de fondo y cambio de foto.
 
 ```text
 queued → validating → analyzing (Groq Vision)
-       → removing_background (Web Worker / fallback)
-       → saving (Storage + garments) → completed
+       → saving_original (Storage + garments) → completed
 ```
 
 - Vision analiza la imagen original antes del borrado de fondo.
 - Las imágenes con dificultad de recorte se marcan `awaiting_review` y se
-  posponen hasta que termina el resto del trabajo automático.
+  detienen para que la persona elija entre conservarlas o seleccionar otra.
 - La modal de calidad conserva las decisiones del flujo individual: elegir otra,
-  usar la imagen original o intentar eliminar el fondo.
+-  o usar la imagen original.
+- El borrado de fondo solo se inicia desde el detalle de una prenda y nunca
+  bloquea la subida ni el procesamiento de un lote.
 - Un fallo individual no bloquea las demás imágenes.
 - Los errores transitorios tienen dos reintentos automáticos; también existen
   reintento individual y acción para volver a intentar las fallidas.
@@ -411,8 +411,10 @@ queued → validating → analyzing (Groq Vision)
   transformación.
 - El original temporal se elimina después de guardar la prenda final o cancelar
   el elemento.
-- La subida final sigue usando `garments/user_id/uuid.png`; no se crea una tabla
-  de trabajos ni una migración de Supabase en esta iteración.
+- La subida final sigue usando `garments/user_id/uuid.png`. La columna
+  `original_image_url` conserva la fuente y `image_url` referencia la versión
+  mostrada; la migración `20261018215904_add_garment_original_image` backfillea
+  prendas existentes.
 
 **Ejecución en segundo plano y limitación de plataforma:**
 
@@ -420,9 +422,10 @@ queued → validating → analyzing (Groq Vision)
   no detiene el procesamiento.
 - Vision puede continuar en el Route Handler mientras la aplicación no está en
   primer plano.
-- El borrado de fondo continúa ejecutándose en cliente mediante `@imgly` y un
-  Web Worker. El sistema operativo puede suspenderlo al bloquear el móvil; en
-  ese caso se reanuda al volver a activar la PWA.
+- El borrado de fondo continúa ejecutándose bajo demanda en cliente mediante
+  `@imgly` y un Web Worker. El sistema operativo puede suspenderlo al bloquear
+  el móvil; en ese caso se reintenta desde el detalle al volver a activar la
+  PWA.
 - No se promete procesamiento ininterrumpido con la pantalla bloqueada hasta
   migrar el borrado de fondo a un worker de servidor.
 
@@ -435,8 +438,8 @@ queued → validating → analyzing (Groq Vision)
 
 **Coste y límites operativos:**
 
-- La primera versión no requiere una migración ni un servicio adicional de pago
-  en Supabase: usa Storage y la persistencia local ya disponibles.
+- La imagen original/procesada requiere la migración de Supabase
+  `20261018215904_add_garment_original_image`, sin añadir un servicio de pago.
 - El límite gratuito relevante es el volumen acumulado de Storage, la descarga
   de imágenes y las llamadas al proveedor de IA, que tienen límites independientes
   de Supabase.

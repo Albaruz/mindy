@@ -42,6 +42,8 @@ src/
 │   │   ├── useClosetInventory.ts     # Search / category / clean-vs-laundry view state
 │   │   ├── useLaundryActions.ts      # Optimistic wash + wash-all celebration
 │   │   ├── useGarmentDeletion.ts     # Confirm-then-delete flow
+│   │   ├── useGarmentImageActions.ts # Replace image or create a processed display image
+│   │   ├── GarmentFormModal.tsx      # Tag editor + image actions
 │   │   ├── GarmentSourcePicker.tsx   # Add button + camera/gallery sheet
 │   │   └── garmentOptions.ts         # Closet UI data (swatches, form option lists)
 │   ├── profile/                 # Profile, laundry basket, colorimetry UI
@@ -176,12 +178,18 @@ extra_preferences (jsonb)
 garment_id (PK, uuid)
 user_id (FK) → profiles
 image_url (Supabase Storage)
+original_image_url (Supabase Storage, preserved source photo)
 garment_type, style, cut_length, color, material, season
 is_dirty (default false)
 is_external_garment (for starter wardrobe)
 last_worn_date
 extra_tags (jsonb: {aiCategory, specificType, colorShade, ...})
 ```
+
+`image_url` is the image currently displayed in the closet. `original_image_url`
+stores the uploaded source image. A background-removal operation updates only
+`image_url`; replacing the image updates both URLs. Existing rows are backfilled
+from `image_url` by migration `20261018215904_add_garment_original_image`.
 
 ### Outfit History
 ```sql

@@ -373,7 +373,8 @@ async function analyzeGarment(imageBase64: string) {
   return garment;
 }
 
-// Full upload pipeline
+// Full upload pipeline. Background removal is optional and is not part of the
+// critical upload path.
 async function uploadGarment(file: File) {
   // 1. Compress & convert to base64
   const base64 = await toDownscaledDataUrl(file, { maxWidth: 1024 });
@@ -381,8 +382,9 @@ async function uploadGarment(file: File) {
   // 2. Analyze with AI
   const garmentData = await analyzeGarment(base64);
 
-  // 3. Remove background
-  const imagePng = await removeBackground(base64);
+  // 3. Store the original source image. The user may request background
+  // removal later from the garment edit view.
+  const imagePng = file;
 
   // 4. Upload to storage
   const path = `garments/${userId}/${uuid()}.png`;
@@ -394,6 +396,7 @@ async function uploadGarment(file: File) {
   await supabase.from('garments').insert({
     user_id: userId,
     image_url: `${STORAGE_URL}/${path}`,
+    original_image_url: `${STORAGE_URL}/${path}`,
     garment_type: garmentData.garment_type,
     style: garmentData.style,
     color: garmentData.color,
@@ -407,6 +410,21 @@ async function uploadGarment(file: File) {
   });
 }
 ```
+
+### Garment image actions
+
+Image transformations are client-side, authenticated mutations handled by the
+closet feature rather than public API route handlers:
+
+- **Change image:** uploads a new PNG and updates both `image_url` and
+  `original_image_url`.
+- **Remove background:** reads `original_image_url`, processes it in the
+  background-removal worker, uploads the result, and updates only `image_url`.
+- **Delete garment:** removes the database row and both referenced Storage
+  objects when they are different.
+
+All database updates are scoped by `garment_id` and the authenticated
+`user_id`. A failed transformation leaves the currently displayed image intact.
 
 ---
 

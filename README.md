@@ -13,7 +13,7 @@
 
 - **🤖 AI-Powered Outfits** — Personalized recommendations based on climate, style, and colorimetry
 - **🎨 Color Profile** — 5-step onboarding to detect your seasonal palette (spring/summer/autumn/winter)
-- **📸 Smart Closet** — Upload photos with auto background removal, AI-powered tagging
+- **📸 Smart Closet** — Upload photos with optional background removal, AI-powered tagging, and image editing
 - **🌦️ Climate-Aware** — Real-time weather integration (OpenWeather) with smart filtering
 - **📅 History & Calendar** — Track your looks, view monthly usage patterns
 - **🧺 Laundry Management** — Selective dirty tracking (footwear & outerwear exempt)
