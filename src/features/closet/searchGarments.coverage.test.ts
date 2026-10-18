@@ -53,6 +53,16 @@ describe("matchesGarmentSearch token branches", () => {
     expect(matchesGarmentSearch(garment, "hightop")).toBe(true);
   });
 
+  it("matches joined print values by either the full value or its parts", () => {
+    const garment = buildGarment({
+      extraTags: { print: "animal_print" },
+    });
+    expect(matchesGarmentSearch(garment, "animal")).toBe(true);
+    expect(matchesGarmentSearch(garment, "animal print")).toBe(true);
+    expect(matchesGarmentSearch(garment, "animal_print")).toBe(true);
+    expect(matchesGarmentSearch(garment, "estampado animal")).toBe(true);
+  });
+
   it("returns false when the garment has no searchable text", () => {
     const empty = buildGarment({
       garmentType: null,

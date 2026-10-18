@@ -54,10 +54,14 @@ function haystackMatches(haystack: string, term: string): boolean {
   if (needle === "") {
     return false;
   }
-  return normalizeSearchText(haystack)
+  const tokens = normalizeSearchText(haystack)
     .split(" ")
     .filter((token) => token !== "")
-    .some((token) => matchesToken(stripJoiners(token), needle));
+    .flatMap((token) => [token, ...token.split(/[-_]/g)]);
+  // Keep both views of joined values: the compact form preserves queries such
+  // as "hightop" while the parts make "animal" and "animal print" match
+  // values stored as "animal_print" or "animal-print".
+  return tokens.some((token) => matchesToken(stripJoiners(token), needle));
 }
 
 // Strict AND filtering: every query concept must match at least one field.
