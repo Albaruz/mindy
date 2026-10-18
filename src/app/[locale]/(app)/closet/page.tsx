@@ -13,7 +13,7 @@ import { CelebrationBurst } from "@/components/BottomActionBar/BottomActionBar";
 import { SearchBar } from "@/components/SearchBar/SearchBar";
 import { FilterChips } from "@/components/FilterChips/FilterChips";
 import { ConfirmDialog } from "@/components/ConfirmDialog/ConfirmDialog";
-import type { Garment } from "@/types/garment";
+import type { Garment, GarmentCut, GarmentStyle } from "@/types/garment";
 import { useClosetQuery } from "@/features/closet/useClosetQuery";
 import { useClosetInventory } from "@/features/closet/useClosetInventory";
 import { useLaundryActions } from "@/features/closet/useLaundryActions";
@@ -38,6 +38,8 @@ function toFormInput(garment: Garment): GarmentFormInput {
     material: garment.material ?? "",
     style: garment.style ?? "",
     cutLength: garment.cutLength ?? "",
+    styles: garment.styles,
+    cuts: garment.cuts,
     extraTags: toEditableTags(garment.extraTags),
   };
 }

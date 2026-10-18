@@ -138,6 +138,7 @@ export function ZeroState({
     weather?.city,
   );
   const showIcon = revealedWeather !== null;
+  const contentReady = revealedWeather !== null || weather?.fallback === true;
   const conditionKey =
     revealedWeather !== null &&
     (revealedWeather.condition ?? revealedWeather.dayCondition) !== null &&
@@ -163,7 +164,10 @@ export function ZeroState({
   };
 
   return (
-    <div className={styles["zero-state"]} data-testid="generator-zero-state">
+    <div
+      className={styles["zero-state"]}
+      data-testid="generator-zero-state"
+    >
       {/* The icon slot is always rendered so the weather icon fades in
       without shoving the greeting down when the forecast resolves. */}
       <div
@@ -187,65 +191,89 @@ export function ZeroState({
       {/* The live region stays mounted so screen readers keep announcing;
       only the inner copy remounts (key) to replay the crossfade. */}
       <p aria-live="polite" className={styles["zero-state__greeting"]}>
-        <span
-          key={message}
-          className={styles["zero-state__greeting-text"]}
-        >
-          {message}
-        </span>
+        {!contentReady ? (
+          <span className={styles["zero-state__loading-placeholder"]}>
+            {/* The JFIF asset is served directly because Next Image optimization
+                does not handle this existing asset reliably in development. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/loading-transparent.png"
+              alt=""
+              className={styles["zero-state__loading-image"]}
+            />
+            <span
+              key={message}
+              className={styles["zero-state__greeting-text"]}
+            >
+              {message}
+            </span>
+          </span>
+        ) : null}
+        {contentReady ? (
+          <span
+            key={message}
+            className={styles["zero-state__greeting-text"]}
+          >
+            {message}
+          </span>
+        ) : null}
       </p>
-      <div
-        className={styles["zero-state__temperatures"]}
-        role="status"
-        aria-label={formatTemperature(outfitDay)}
-      >
-        <div
-          className={cn(
-            styles["zero-state__temperature"],
-            styles["zero-state__temperature--selected"],
-            outfitDay === "tomorrow" &&
-              !tomorrowAvailable &&
-              styles["zero-state__temperature--unavailable"],
-          )}
-        >
-          <Thermometer
-            aria-hidden="true"
-            className={styles["zero-state__temperature-icon"]}
-            size={28}
+      {contentReady ? (
+        <>
+          <div
+            className={styles["zero-state__temperatures"]}
+            role="status"
+            aria-label={formatTemperature(outfitDay)}
+          >
+            <div
+              className={cn(
+                styles["zero-state__temperature"],
+                styles["zero-state__temperature--selected"],
+                outfitDay === "tomorrow" &&
+                  !tomorrowAvailable &&
+                  styles["zero-state__temperature--unavailable"],
+              )}
+            >
+              <Thermometer
+                aria-hidden="true"
+                className={styles["zero-state__temperature-icon"]}
+                size={28}
+              />
+              <strong className={styles["zero-state__temperature-value"]}>
+                {formatTemperature(outfitDay)}
+              </strong>
+            </div>
+          </div>
+          {weather?.fallback ? (
+            <p className={styles["zero-state__forecast-note"]} role="status">
+              {t("weatherFallbackNote")}
+            </p>
+          ) : null}
+          <OptionPills
+            name="generator-outfit-day"
+            label={t("daySelectorLabel")}
+            options={OUTFIT_DAY_VALUES}
+            value={outfitDay}
+            onSelect={onOutfitDayChange}
+            formatOption={formatDayOption}
+            disabledOptions={tomorrowAvailable ? [] : ["tomorrow"]}
+            alignment="center"
           />
-          <strong className={styles["zero-state__temperature-value"]}>
-            {formatTemperature(outfitDay)}
-          </strong>
-        </div>
-      </div>
-      {weather?.fallback ? (
-        <p className={styles["zero-state__forecast-note"]} role="status">
-          {t("weatherFallbackNote")}
-        </p>
+          {!tomorrowAvailable ? (
+            <p className={styles["zero-state__forecast-note"]}>
+              {t("forecastUnavailable")}
+            </p>
+          ) : null}
+          <div className={styles["zero-state__actions"]}>
+            <Button type="button" onClick={onAuto}>
+              {t("autoButton")}
+            </Button>
+            <Button type="button" variant="secondary" onClick={onManual}>
+              {t("manualButton")}
+            </Button>
+          </div>
+        </>
       ) : null}
-      <OptionPills
-        name="generator-outfit-day"
-        label={t("daySelectorLabel")}
-        options={OUTFIT_DAY_VALUES}
-        value={outfitDay}
-        onSelect={onOutfitDayChange}
-        formatOption={formatDayOption}
-        disabledOptions={tomorrowAvailable ? [] : ["tomorrow"]}
-        alignment="center"
-      />
-      {!tomorrowAvailable ? (
-        <p className={styles["zero-state__forecast-note"]}>
-          {t("forecastUnavailable")}
-        </p>
-      ) : null}
-      <div className={styles["zero-state__actions"]}>
-        <Button type="button" onClick={onAuto}>
-          {t("autoButton")}
-        </Button>
-        <Button type="button" variant="secondary" onClick={onManual}>
-          {t("manualButton")}
-        </Button>
-      </div>
     </div>
   );
 }

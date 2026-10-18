@@ -52,6 +52,8 @@ export async function persistGarment(
       garment_type: tags.garmentType === "" ? null : tags.garmentType,
       style: tags.style === "" ? null : tags.style,
       cut_length: tags.cutLength === "" ? null : tags.cutLength,
+      styles: tags.styles ?? (tags.style === "" ? [] : [tags.style]),
+      cut_lengths: tags.cuts ?? (tags.cutLength === "" ? [] : [tags.cutLength]),
       color: tags.color === "" ? null : tags.color,
       material: tags.material === "" ? null : tags.material,
       season: tags.season === "" ? null : tags.season,
@@ -60,6 +62,8 @@ export async function persistGarment(
         color: tags.color,
         typeDetail: tags.typeDetail,
         colorShade: tags.colorShade,
+        secondaryColor: tags.secondaryColor,
+        print: tags.print,
         visualDescription: tags.visualDescription,
       }),
     });

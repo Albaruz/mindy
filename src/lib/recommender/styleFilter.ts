@@ -83,18 +83,18 @@ export function readRequestedStyle(value: unknown): string | null {
 }
 
 export function matchesRequestedStyle(
-  garmentStyle: string | null,
+  garmentStyle: string | string[] | null,
   styleKey: string,
 ): boolean {
   if (garmentStyle === null) {
     return false;
   }
-  const normalized = normalizeStyleText(garmentStyle);
-  if (normalized === "") {
-    return false;
-  }
   const keywords = STYLE_FILTER_KEYWORDS[styleKey];
-  return keywords.some(
-    (keyword) => normalized === keyword || normalized.includes(keyword),
-  );
+  const values = Array.isArray(garmentStyle) ? garmentStyle : [garmentStyle];
+  return values.some((value) => {
+    const normalized = normalizeStyleText(value);
+    return normalized !== "" && keywords.some(
+      (keyword) => normalized === keyword || normalized.includes(keyword),
+    );
+  });
 }

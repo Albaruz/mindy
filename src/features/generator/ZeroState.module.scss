@@ -3,6 +3,8 @@
 // Pure CSS with BEM naming - no @use imports.
 
 .zero-state {
+  position: relative;
+  top: calc(var(--space-4) * -1);
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -44,6 +46,23 @@
 .zero-state__greeting-text {
   display: block;
   animation: zero-state-greeting-in var(--duration-slow) var(--ease-out);
+}
+
+.zero-state__loading-placeholder {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.zero-state__loading-image {
+  display: block;
+  width: 8rem;
+  height: 8rem;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+  animation: zero-state-loading-float 1.8s var(--ease-inOut) infinite;
 }
 
 .zero-state__temperatures {
@@ -134,5 +153,21 @@
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes zero-state-loading-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.35rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zero-state__loading-image {
+    animation: none;
   }
 }

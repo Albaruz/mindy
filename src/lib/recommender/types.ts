@@ -22,6 +22,7 @@ export interface CandidateGarment {
   visualDescription?: string | null;
   season: GarmentSeason | null;
   style: GarmentStyle | null;
+  styles: GarmentStyle[];
   isDirty: boolean;
 }
 

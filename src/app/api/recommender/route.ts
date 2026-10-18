@@ -411,7 +411,7 @@ export async function POST(request: Request) {
     pool = eligible.filter(
       (candidate) =>
         lockedIds.has(candidate.id) ||
-        matchesRequestedStyle(candidate.style, requestedStyle),
+        matchesRequestedStyle(candidate.styles, requestedStyle),
     );
     if (!canBuildLook(pool)) {
       // No Groq call: failing fast keeps the response honest instead of

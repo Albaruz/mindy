@@ -12,7 +12,7 @@ import {
   normalizeGarmentType,
 } from "@/lib/garment/normalizers";
 import { readString } from "@/lib/readers";
-import type { Garment, GarmentSeason } from "@/types/garment";
+import type { Garment, GarmentSeason, GarmentStyle } from "@/types/garment";
 import type { CandidateGarment } from "./types";
 function readClosed<T extends string>(
   value: unknown,
@@ -91,6 +91,14 @@ export function toCandidate(raw: unknown): CandidateGarment | null {
     visualDescription: readExtraText(extraTags, "visualDescription"),
     season: readClosed(record.season, normalizeGarmentSeason),
     style: readClosed(record.style, normalizeGarmentStyle),
+    styles: Array.isArray(record.styles)
+      ? (record.styles as unknown[]).flatMap((value) => {
+          const normalized = normalizeGarmentStyle(value).base;
+          return normalized === null ? [] : [normalized];
+        })
+      : readClosed(record.style, normalizeGarmentStyle) === null
+        ? []
+        : [readClosed(record.style, normalizeGarmentStyle) as GarmentStyle],
     isDirty:
       record.isDirty === true || (record as Record<string, unknown>).is_dirty === true,
   };
@@ -168,13 +176,15 @@ export function toClassifiableGarment(candidate: CandidateGarment): Garment {
     garmentType: candidate.garmentType,
     style: candidate.style,
     cutLength: null,
+    styles: candidate.styles,
+    cuts: [],
     color: candidate.color,
     material: candidate.material,
     season: candidate.season as GarmentSeason | null,
     isDirty: candidate.isDirty,
     lastWornDate: null,
     isExternalGarment: false,
-    extraTags: {},
+    extraTags: { styles: candidate.styles },
     createdAt: "",
   };
 }

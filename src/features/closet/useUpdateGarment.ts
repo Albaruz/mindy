@@ -32,6 +32,8 @@ export function useUpdateGarment() {
           garment_type: input.garmentType === "" ? null : input.garmentType,
           style: input.style === "" ? null : input.style,
           cut_length: input.cutLength === "" ? null : input.cutLength,
+          styles: input.styles ?? (input.style === "" ? [] : [input.style]),
+          cut_lengths: input.cuts ?? (input.cutLength === "" ? [] : [input.cutLength]),
           color: input.color === "" ? null : input.color,
           material: input.material === "" ? null : input.material,
           season,

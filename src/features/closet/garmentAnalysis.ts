@@ -26,6 +26,8 @@ export const EMPTY_TAGS: InferredTags = {
   cutLength: "",
   typeDetail: "",
   colorShade: "",
+  secondaryColor: "",
+  print: "",
   cutoutDifficulty: "",
   qualityNote: "",
   visualDescription: "",
@@ -88,13 +90,22 @@ export async function suggestTags(
       color: readClosedTag(colorValue, normalizeGarmentColor),
       material: readClosedTag(record.material, normalizeGarmentMaterial),
       style: readClosedTag(record.style, normalizeGarmentStyle),
+      styles: Array.isArray(record.styles)
+        ? record.styles.filter((value): value is NonNullable<InferredTags["styles"]>[number] => normalizeGarmentStyle(value).base !== null)
+        : [],
       cutLength: readClosedTag(record.cutLength, normalizeGarmentCut),
+      cuts: Array.isArray(record.cuts)
+        ? record.cuts.filter((value): value is NonNullable<InferredTags["cuts"]>[number] => normalizeGarmentCut(value).base !== null)
+        : [],
       typeDetail:
         readDetail(record.typeDetail ?? record.specificType, normalizeGarmentType) ||
         readDetail(typeValue, normalizeGarmentType),
       colorShade:
         readDetail(record.colorDetail ?? record.shade, normalizeGarmentColor) ||
         readDetail(colorValue, normalizeGarmentColor),
+      secondaryColor:
+        typeof record.secondaryColor === "string" ? record.secondaryColor.trim() : "",
+      print: typeof record.print === "string" ? record.print.trim() : "",
       cutoutDifficulty:
         typeof record.cutoutDifficulty === "string" &&
         (CUTOUT_DIFFICULTY_VALUES as readonly string[]).includes(

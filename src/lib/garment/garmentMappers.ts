@@ -17,6 +17,8 @@ export interface GarmentRow {
   garment_type: GarmentType | null;
   style: GarmentStyle | null;
   cut_length: GarmentCut | null;
+  styles: GarmentStyle[] | null;
+  cut_lengths: GarmentCut[] | null;
   color: GarmentColor | null;
   material: GarmentMaterial | null;
   season: GarmentSeason | null;
@@ -35,6 +37,8 @@ export function toGarment(row: GarmentRow): Garment {
     garmentType: row.garment_type,
     style: row.style,
     cutLength: row.cut_length,
+    styles: row.styles ?? (row.style === null ? [] : [row.style]),
+    cuts: row.cut_lengths ?? (row.cut_length === null ? [] : [row.cut_length]),
     color: row.color,
     material: row.material,
     season: row.season,
@@ -53,6 +57,8 @@ export interface VisionTags {
   color: GarmentColor | "";
   typeDetail: string;
   colorShade: string;
+  secondaryColor?: string;
+  print?: string;
   visualDescription?: string;
 }
 
@@ -62,11 +68,13 @@ export interface VisionTags {
 // the closed vocabulary guaranteed (no extra LLM field needed).
 // Readers (recommender fallback, search, future similarity) consume
 // extra_tags.color_base.
-export function buildVisionExtraTags(tags: VisionTags): Record<string, string> {
+export function buildVisionExtraTags(tags: VisionTags): Record<string, unknown> {
   return {
     ...(tags.category === "" ? {} : { aiCategory: tags.category }),
     ...(tags.typeDetail === "" ? {} : { specificType: tags.typeDetail }),
     ...(tags.colorShade === "" ? {} : { colorShade: tags.colorShade }),
+    ...(!tags.secondaryColor ? {} : { secondary_color: tags.secondaryColor }),
+    ...(!tags.print ? {} : { print: tags.print }),
     ...(typeof tags.visualDescription !== "string" || tags.visualDescription === ""
       ? {}
       : { visualDescription: tags.visualDescription }),

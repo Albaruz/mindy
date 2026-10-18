@@ -8,8 +8,9 @@ interface OptionPillsProps<T extends string> {
   name: string;
   label: string;
   options: readonly T[];
-  value: T | "";
+  value: T | "" | readonly T[];
   onSelect: (value: T) => void;
+  multiple?: boolean;
   formatOption?: (value: T) => string;
   disabledOptions?: readonly T[];
   alignment?: "start" | "center";
@@ -28,6 +29,7 @@ export function OptionPills<T extends string>({
   options,
   value,
   onSelect,
+  multiple = false,
   formatOption = (option) => option,
   disabledOptions = [],
   alignment = "start",
@@ -44,9 +46,15 @@ export function OptionPills<T extends string>({
       <legend className={hideLabel ? "visually-hidden" : styles["option-pills__legend"]}>
         {label}
       </legend>
-      <div className={styles["option-pills__options"]} role="radiogroup" aria-label={label}>
+      <div
+        className={styles["option-pills__options"]}
+        role={multiple ? "group" : "radiogroup"}
+        aria-label={label}
+      >
         {options.map((option) => {
-          const selected = value === option;
+          const selected = multiple
+            ? Array.isArray(value) && value.includes(option)
+            : value === option;
           const disabled = disabledOptions.includes(option);
           return (
             <label
@@ -58,7 +66,7 @@ export function OptionPills<T extends string>({
               )}
             >
               <input
-                type="radio"
+                type={multiple ? "checkbox" : "radio"}
                 name={name}
                 value={option}
                 checked={selected}

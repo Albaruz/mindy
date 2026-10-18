@@ -15,6 +15,8 @@ const GARMENT_COLUMNS = `
   garment_type,
   style,
   cut_length,
+  styles,
+  cut_lengths,
   color,
   material,
   season,

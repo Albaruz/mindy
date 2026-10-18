@@ -59,6 +59,19 @@ export const GARMENT_MATERIAL_VALUES = [
   "knit",
 ] as const;
 
+export const GARMENT_PRINT_VALUES = [
+  "stripes",
+  "leopard",
+  "animal_print",
+  "floral",
+  "plaid",
+  "polka_dot",
+  "geometric",
+  "camouflage",
+  "graphic",
+  "abstract",
+] as const;
+
 export const GARMENT_SEASON_VALUES = [
   "summer",
   "winter",

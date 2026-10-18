@@ -33,8 +33,12 @@ export interface InferredTags {
   material: GarmentMaterial | "";
   style: GarmentStyle | "";
   cutLength: GarmentCut | "";
+  styles?: GarmentStyle[];
+  cuts?: GarmentCut[];
   typeDetail: string;
   colorShade: string;
+  secondaryColor: string;
+  print: string;
   cutoutDifficulty: CutoutDifficulty | "";
   qualityNote: string;
   visualDescription: string;
@@ -46,6 +50,8 @@ export interface GarmentExtraTags {
   aiCategory?: string;
   specificType?: string;
   colorShade?: string;
+  secondary_color?: string;
+  print?: string;
   materialDetail?: string;
   styleDetail?: string;
   cutDetail?: string;
@@ -61,6 +67,8 @@ export interface Garment {
   garmentType: GarmentType | null;
   style: GarmentStyle | null;
   cutLength: GarmentCut | null;
+  styles: GarmentStyle[];
+  cuts: GarmentCut[];
   color: GarmentColor | null;
   material: GarmentMaterial | null;
   season: GarmentSeason | null;

@@ -57,6 +57,14 @@ function readText(value: unknown, maxLength = 60): string | null {
   return trimmed;
 }
 
+function readClosedList(value: unknown, allowed: readonly string[]): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter(
+    (item): item is string =>
+      typeof item === "string" && (allowed as readonly string[]).includes(item),
+  );
+}
+
 // POST /api/analyze — Body: { imageBase64: "data:image/png;base64,..." }
 // Without GROQ_API_KEY the client falls back to manual tagging.
 export async function POST(req: Request) {
@@ -160,10 +168,14 @@ export async function POST(req: Request) {
       // closed base + extra_tags.colorShade (turquoise -> blue).
       colorDetail: readText(record.colorDetail ?? record.shade, 40),
       color: readClosedText(record.color, GARMENT_COLOR_VALUES, 40),
+      secondaryColor: readText(record.secondaryColor, 40),
+      print: readText(record.print, 30),
       season: readClosedText(record.season, GARMENT_SEASON_VALUES),
       style: readClosedText(record.style, GARMENT_STYLE_VALUES),
+      styles: readClosedList(record.styles, GARMENT_STYLE_VALUES),
       material: readClosedText(record.material, GARMENT_MATERIAL_VALUES),
       cutLength: readClosedText(record.cutLength, GARMENT_CUT_VALUES),
+      cuts: readClosedList(record.cuts, GARMENT_CUT_VALUES),
       typeDetail: readText(record.typeDetail ?? record.specificType, 60),
       cutoutDifficulty: readClosedText(
         record.cutoutDifficulty,

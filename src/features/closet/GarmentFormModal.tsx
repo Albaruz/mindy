@@ -87,6 +87,12 @@ export function GarmentFormModal({
   const [cutLength, setCutLength] = useState<GarmentCut | "">(
     initialValues.cutLength,
   );
+  const [selectedStyles, setSelectedStyles] = useState<GarmentStyle[]>(
+    initialValues.styles ?? (initialValues.style === "" ? [] : [initialValues.style]),
+  );
+  const [selectedCuts, setSelectedCuts] = useState<GarmentCut[]>(
+    initialValues.cuts ?? (initialValues.cutLength === "" ? [] : [initialValues.cutLength]),
+  );
   const [extraTags, setExtraTags] = useState<Record<string, string>>(
     initialValues.extraTags,
   );
@@ -110,6 +116,8 @@ export function GarmentFormModal({
       material,
       style,
       cutLength,
+      styles: selectedStyles,
+      cuts: selectedCuts,
       extraTags,
     });
   };
@@ -192,8 +200,17 @@ export function GarmentFormModal({
             name="style"
             label={t("form.style")}
             options={GARMENT_STYLES}
-            value={style}
-            onSelect={setStyle}
+            value={selectedStyles}
+            onSelect={(option) => {
+              setSelectedStyles((current) => {
+                const next = current.includes(option)
+                  ? current.filter((value) => value !== option)
+                  : [...current, option];
+                setStyle(next[0] ?? "");
+                return next;
+              });
+            }}
+            multiple
             formatOption={(option) => translate(option, "style") ?? option}
           />
 
@@ -201,8 +218,17 @@ export function GarmentFormModal({
             name="cutLength"
             label={t("form.cut")}
             options={GARMENT_CUTS}
-            value={cutLength}
-            onSelect={setCutLength}
+            value={selectedCuts}
+            onSelect={(option) => {
+              setSelectedCuts((current) => {
+                const next = current.includes(option)
+                  ? current.filter((value) => value !== option)
+                  : [...current, option];
+                setCutLength(next[0] ?? "");
+                return next;
+              });
+            }}
+            multiple
             formatOption={(option) => translate(option, "cut") ?? option}
           />
 

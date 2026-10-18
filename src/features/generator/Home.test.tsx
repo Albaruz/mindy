@@ -73,7 +73,12 @@ vi.mock("@/features/profile/useDoLaundry", () => ({
 
 vi.mock("./useWeatherQuery", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./useWeatherQuery")>();
-  return { ...actual, useWeatherQuery: () => ({ data: mockWeatherData() }) };
+  return {
+    ...actual,
+    useWeatherQuery: () => ({
+      data: mockWeatherData(),
+    }),
+  };
 });
 
 const {

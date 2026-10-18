@@ -40,6 +40,8 @@ export interface GarmentFormInput {
   material: GarmentMaterial | "";
   style: GarmentStyle | "";
   cutLength: GarmentCut | "";
+  styles?: GarmentStyle[];
+  cuts?: GarmentCut[];
   // Free-form extra tags edited as chips (aiCategory, color_base, ...).
   extraTags: Record<string, string>;
 }
