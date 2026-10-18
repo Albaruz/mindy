@@ -218,6 +218,11 @@ export function ZeroState({
           </strong>
         </div>
       </div>
+      {weather?.fallback ? (
+        <p className={styles["zero-state__forecast-note"]} role="status">
+          {t("weatherFallbackNote")}
+        </p>
+      ) : null}
       <OptionPills
         name="generator-outfit-day"
         label={t("daySelectorLabel")}

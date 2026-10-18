@@ -107,6 +107,7 @@ describe("ZeroState branches", () => {
   it("shows neutral greeting when weather.fallback is true", () => {
     renderZeroState({ weather: { condition: "Clear", fallback: true } });
     expect(screen.getByText("t.greetingNeutral")).toBeInTheDocument();
+    expect(screen.getByText("t.weatherFallbackNote")).toBeInTheDocument();
   });
 
   it("shows raining greeting when current condition is Rain", () => {

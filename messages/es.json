@@ -36,6 +36,7 @@
     "greetingFair": "Buen tiempo{place}. Hoy te sales, elige bien.",
     "daySelectorLabel": "¿Para qué día quieres tu look?",
     "temperatureUnavailable": "—",
+    "weatherFallbackNote": "Activa la ubicación para consultar el tiempo real. Mientras tanto usamos una temperatura estándar.",
     "today": "Hoy",
     "tomorrow": "Mañana",
     "forecastUnavailable": "La previsión para mañana no está disponible.",

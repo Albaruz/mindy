@@ -36,6 +36,7 @@
     "greetingFair": "Nice weather{place}. You're on today, choose well.",
     "daySelectorLabel": "Which day is this look for?",
     "temperatureUnavailable": "—",
+    "weatherFallbackNote": "Enable location to get the live weather. For now, we're using a standard temperature.",
     "today": "Today",
     "tomorrow": "Tomorrow",
     "forecastUnavailable": "Tomorrow's forecast is not available.",
