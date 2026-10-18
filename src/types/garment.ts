@@ -64,6 +64,7 @@ export interface Garment {
   garmentId: string;
   userId: string;
   imageUrl: string | null;
+  originalImageUrl?: string | null;
   garmentType: GarmentType | null;
   style: GarmentStyle | null;
   cutLength: GarmentCut | null;

@@ -14,7 +14,6 @@ import type {
 import { useNotificationStore } from "@/stores/useNotificationStore";
 import { MAX_UPLOAD_FILE_SIZE_BYTES } from "@/constants/validation";
 import { toDownscaledDataUrl } from "./garmentImage";
-import { removeBackgroundWithFallback } from "./backgroundRemoval";
 import {
   persistGarment,
   GARMENT_STORAGE_BUCKET,
@@ -47,7 +46,8 @@ export interface GarmentFormInput {
 }
 
 // Analyze the original photo first. Difficult images pause for an explicit
-// user choice; good images keep the usual automatic background-removal flow.
+// user choice; normal images are saved as-is so background removal never blocks
+// the default upload flow.
 export function useUploadGarment() {
   const queryClient = useQueryClient();
   const { addNotification } = useNotificationStore.getState();
@@ -58,7 +58,6 @@ export function useUploadGarment() {
   const [qualityGate, setQualityGate] = useState<QualityGateRequest | null>(
     null,
   );
-  const [cutoutFailed, setCutoutFailed] = useState(false);
 
   async function saveGarment(source: Blob, tags: InferredTags): Promise<void> {
     const supabase = createClient();
@@ -85,7 +84,6 @@ export function useUploadGarment() {
     }
 
     setQualityGate(null);
-    setCutoutFailed(false);
     setPhase("processing");
     try {
       // Vision must see the original: its background, contrast, lighting and
@@ -100,19 +98,8 @@ export function useUploadGarment() {
         return;
       }
 
-      setProgressNote(t("uploadRemoving"));
-      let png: Blob;
-      try {
-        png = await removeBackgroundWithFallback(file, () =>
-          setProgressNote(t("uploadRemovingFallback")),
-        );
-      } catch {
-        setQualityGate({ file, tags });
-        setCutoutFailed(true);
-        return;
-      }
-
-      await saveGarment(png, tags);
+      setProgressNote(t("uploadUploading"));
+      await saveGarment(file, tags);
       addNotification("success", t("added"));
     } catch (err) {
       addNotification(
@@ -120,37 +107,6 @@ export function useUploadGarment() {
         err instanceof Error
           ? err.message
           : "Could not process the photo. Try another one.",
-      );
-    } finally {
-      setProgressNote(null);
-      setPhase("idle");
-    }
-  }
-
-  async function removeBackground(): Promise<void> {
-    if (qualityGate === null || phase === "processing") {
-      return;
-    }
-    setPhase("processing");
-    setCutoutFailed(false);
-    try {
-      setProgressNote(t("uploadRemoving"));
-      let png: Blob;
-      try {
-        png = await removeBackgroundWithFallback(qualityGate.file, () =>
-          setProgressNote(t("uploadRemovingFallback")),
-        );
-      } catch {
-        setCutoutFailed(true);
-        return;
-      }
-      await saveGarment(png, qualityGate.tags);
-      setQualityGate(null);
-      addNotification("success", t("added"));
-    } catch (err) {
-      addNotification(
-        "error",
-        err instanceof Error ? err.message : t("uploadFailed"),
       );
     } finally {
       setProgressNote(null);
@@ -168,7 +124,6 @@ export function useUploadGarment() {
       // Normalize JPEG/WebP/PNG to the bucket's image/png policy.
       await saveGarment(qualityGate.file, qualityGate.tags);
       setQualityGate(null);
-      setCutoutFailed(false);
       addNotification("success", t("added"));
     } catch (err) {
       addNotification(
@@ -186,7 +141,6 @@ export function useUploadGarment() {
       return;
     }
     setQualityGate(null);
-    setCutoutFailed(false);
   }
 
   return {
@@ -194,8 +148,6 @@ export function useUploadGarment() {
     progressNote,
     processPhoto,
     qualityGate,
-    cutoutFailed,
-    removeBackground,
     useOriginalPhoto,
     dismissQualityGate,
   };

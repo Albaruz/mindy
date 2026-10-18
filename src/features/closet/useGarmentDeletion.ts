@@ -27,7 +27,11 @@ export function useGarmentDeletion() {
     const target = pendingDelete;
     setDeletingGarmentId(target.garmentId);
     deleteGarment.mutate(
-      { garmentId: target.garmentId, imageUrl: target.imageUrl },
+       {
+         garmentId: target.garmentId,
+         imageUrl: target.imageUrl,
+         originalImageUrl: target.originalImageUrl,
+       },
       {
         onSettled: () => {
           setDeletingGarmentId(null);

@@ -78,7 +78,7 @@ async function removeBackgroundFallback(
 
 // Worker first, main-thread fallback second. Throws only when both fail.
 export async function removeBackgroundWithFallback(
-  file: File,
+  file: Blob,
   onFallback: () => void,
 ): Promise<Blob> {
   const processingImage = await downscaleToMaxDimension(

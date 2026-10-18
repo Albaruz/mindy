@@ -14,6 +14,7 @@ export interface GarmentRow {
   garment_id: string;
   user_id: string;
   image_url: string | null;
+  original_image_url: string | null;
   garment_type: GarmentType | null;
   style: GarmentStyle | null;
   cut_length: GarmentCut | null;
@@ -34,6 +35,7 @@ export function toGarment(row: GarmentRow): Garment {
     garmentId: row.garment_id,
     userId: row.user_id,
     imageUrl: row.image_url,
+    originalImageUrl: row.original_image_url ?? row.image_url,
     garmentType: row.garment_type,
     style: row.style,
     cutLength: row.cut_length,

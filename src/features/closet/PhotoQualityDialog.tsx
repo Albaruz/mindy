@@ -16,10 +16,8 @@ import styles from "./PhotoQualityDialog.module.scss";
 
 interface PhotoQualityDialogProps {
   qualityNote: string | null;
-  cutoutFailed: boolean;
   isWorking: boolean;
   progressNote: string | null;
-  onRemoveBackground: () => void;
   onUseOriginal: () => void;
   onChangePhoto: () => void;
   onClose: () => void;
@@ -28,10 +26,8 @@ interface PhotoQualityDialogProps {
 /** Gives the user control when Vision expects the photo cutout to be tricky. */
 export function PhotoQualityDialog({
   qualityNote,
-  cutoutFailed,
   isWorking,
   progressNote,
-  onRemoveBackground,
   onUseOriginal,
   onChangePhoto,
   onClose,
@@ -71,12 +67,6 @@ export function PhotoQualityDialog({
           <p className={styles["photo-quality__note"]}>
             <Sparkles aria-hidden="true" size={18} />
             <span>{qualityNote}</span>
-          </p>
-        ) : null}
-
-        {cutoutFailed ? (
-          <p role="alert" className={styles["photo-quality__error"]}>
-            {t("qualityCutoutFailed")}
           </p>
         ) : null}
 
@@ -129,18 +119,6 @@ export function PhotoQualityDialog({
           >
             {t("qualityUseOriginal")}
           </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            className={styles["photo-quality__link-action"]}
-            disabled={isWorking}
-            onClick={onRemoveBackground}
-          >
-            {t("qualityRemoveBackground")}
-          </Button>
-          {/* TODO(phase 2): Implement the authenticated Cloudflare Workers AI
-              flow using Groq's stored garment description. Add the action
-              here and require preview confirmation before saving. */}
         </div>
       </DialogFooter>
     </Dialog>

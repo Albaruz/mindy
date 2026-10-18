@@ -18,9 +18,11 @@ export function useDeleteGarment() {
     mutationFn: async ({
       garmentId,
       imageUrl,
+      originalImageUrl,
     }: {
       garmentId: string;
       imageUrl: string | null;
+      originalImageUrl?: string | null;
     }): Promise<void> => {
       const supabase = createClient();
       const user = await requireUser(supabase, "You must be signed in to delete garments.");
@@ -34,11 +36,12 @@ export function useDeleteGarment() {
         throw error;
       }
 
-      const storagePath = toStoragePath(imageUrl);
-      if (storagePath !== null) {
+      const paths = [toStoragePath(imageUrl), toStoragePath(originalImageUrl ?? null)]
+        .filter((path): path is string => path !== null);
+      if (paths.length > 0) {
         await supabase.storage
           .from(GARMENT_STORAGE_BUCKET)
-          .remove([storagePath]);
+          .remove([...new Set(paths)]);
       }
     },
     onSuccess: () => {

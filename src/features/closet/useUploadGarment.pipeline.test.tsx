@@ -10,7 +10,6 @@ const {
   mockInsert,
   mockStorageFrom,
   mockFrom,
-  mockRemoveBackground,
 } = vi.hoisted(() => ({
   mockGetUser: vi.fn(),
   mockUpload: vi.fn(),
@@ -18,16 +17,11 @@ const {
   mockInsert: vi.fn(),
   mockStorageFrom: vi.fn(),
   mockFrom: vi.fn(),
-  mockRemoveBackground: vi.fn(),
 }));
 
 vi.mock("next-intl", () => ({
   useLocale: () => "en",
   useTranslations: () => (key: string) => key,
-}));
-
-vi.mock("@imgly/background-removal", () => ({
-  removeBackground: mockRemoveBackground,
 }));
 
 vi.mock("@/lib/supabase/client", () => ({
@@ -148,9 +142,6 @@ describe("useUploadGarment pipeline", () => {
     vi.spyOn(crypto, "randomUUID").mockReturnValue(
       "11111111-1111-1111-1111-111111111111",
     );
-    mockRemoveBackground.mockResolvedValue(
-      new Blob(["cutout"], { type: "image/png" }),
-    );
   });
 
   it("runs the full pipeline and inserts inferred tags", async () => {
@@ -169,18 +160,18 @@ describe("useUploadGarment pipeline", () => {
           .notifications.some((n) => n.message === "added"),
       ).toBe(true),
     );
-    expect(mockRemoveBackground).toHaveBeenCalledTimes(1);
     expect(mockUpload).toHaveBeenCalledTimes(1);
     expect(mockInsert).toHaveBeenCalledTimes(1);
     expect(mockInsert.mock.calls[0][0]).toMatchObject({
       user_id: "u1",
       image_url: "https://example.com/g1.png",
+      original_image_url: "https://example.com/g1.png",
       garment_type: "top",
     });
     expect(result.current.phase).toBe("idle");
   });
 
-  it("downscales large originals before background removal", async () => {
+  it("saves large originals without background removal", async () => {
     setupSupabaseSuccess();
     mockAnalyzeSuccess();
     vi.stubGlobal(
@@ -197,9 +188,7 @@ describe("useUploadGarment pipeline", () => {
       ),
     );
 
-    expect(mockRemoveBackground).toHaveBeenCalledOnce();
-    expect(mockRemoveBackground.mock.calls[0][0]).toBeInstanceOf(Blob);
-    expect(mockRemoveBackground.mock.calls[0][0].type).toBe("image/png");
+    expect(mockUpload).toHaveBeenCalledOnce();
   });
 
   it("analyzes the original first and pauses difficult photos before cutout", async () => {
@@ -230,7 +219,6 @@ describe("useUploadGarment pipeline", () => {
     expect(result.current.qualityGate?.tags.qualityNote).toBe(
       "The dark fabric blends into the background.",
     );
-    expect(mockRemoveBackground).not.toHaveBeenCalled();
     expect(mockUpload).not.toHaveBeenCalled();
     expect(result.current.phase).toBe("idle");
   });
@@ -258,7 +246,6 @@ describe("useUploadGarment pipeline", () => {
 
     await act(async () => result.current.useOriginalPhoto());
 
-    expect(mockRemoveBackground).not.toHaveBeenCalled();
     expect(mockUpload).toHaveBeenCalledOnce();
     expect(mockUpload.mock.calls[0][1].type).toBe("image/png");
     expect(mockInsert.mock.calls[0][0]).toMatchObject({
@@ -266,59 +253,6 @@ describe("useUploadGarment pipeline", () => {
       color: "black",
     });
     expect(result.current.qualityGate).toBeNull();
-  });
-
-  it("runs background removal on the held photo when the user chooses it", async () => {
-    setupSupabaseSuccess();
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () =>
-        Response.json({
-          garmentType: "top",
-          color: "black",
-          cutoutDifficulty: "hard",
-          visualDescription: "A black cotton tee with short sleeves.",
-        }),
-      ),
-    );
-    const { result } = renderHook(() => useUploadGarment(), {
-      wrapper: createWrapper(),
-    });
-    await act(async () =>
-      result.current.processPhoto(
-        new File(["photo"], "photo.png", { type: "image/png" }),
-      ),
-    );
-
-    await act(async () => result.current.removeBackground());
-
-    expect(mockRemoveBackground).toHaveBeenCalledOnce();
-    expect(mockUpload).toHaveBeenCalledOnce();
-    expect(mockInsert.mock.calls[0][0]).toMatchObject({
-      garment_type: "top",
-      color: "black",
-    });
-    expect(result.current.qualityGate).toBeNull();
-    expect(result.current.cutoutFailed).toBe(false);
-  });
-
-  it("keeps the decision modal available when background removal fails", async () => {
-    setupSupabaseSuccess();
-    mockRemoveBackground.mockRejectedValue(new Error("cutout failed"));
-    mockAnalyzeSuccess();
-    const { result } = renderHook(() => useUploadGarment(), {
-      wrapper: createWrapper(),
-    });
-
-    await act(async () =>
-      result.current.processPhoto(
-        new File(["photo"], "photo.png", { type: "image/png" }),
-      ),
-    );
-
-    expect(result.current.qualityGate).not.toBeNull();
-    expect(result.current.cutoutFailed).toBe(true);
-    expect(mockUpload).not.toHaveBeenCalled();
   });
 
   it("falls back to empty tags when analysis fails", async () => {

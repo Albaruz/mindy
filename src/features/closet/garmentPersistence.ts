@@ -49,6 +49,7 @@ export async function persistGarment(
     .insert({
       user_id: deps.userId,
       image_url: imageUrl,
+      original_image_url: imageUrl,
       garment_type: tags.garmentType === "" ? null : tags.garmentType,
       style: tags.style === "" ? null : tags.style,
       cut_length: tags.cutLength === "" ? null : tags.cutLength,

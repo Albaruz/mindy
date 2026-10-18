@@ -21,7 +21,6 @@ import { useUploadQueueStore, isUploadActive } from "@/stores/useUploadQueueStor
 import { requireUser } from "@/lib/supabase/session";
 import { createClient } from "@/lib/supabase/client";
 import { toDownscaledDataUrl } from "./garmentImage";
-import { removeBackgroundWithFallback } from "./backgroundRemoval";
 import { suggestTags } from "./garmentAnalysis";
 import { persistGarment } from "./garmentPersistence";
 import { deleteUploadFile } from "@/lib/uploadQueueStorage";
@@ -290,24 +289,20 @@ export function UploadQueueManager() {
   );
 
   const finishWithTags = useCallback(
-    async (item: UploadQueueItem, file: File, tags: InferredTags, useOriginal: boolean) => {
-      advanceItemProgress(updateItem, item.id, useOriginal ? 80 : 60, {
-        status: useOriginal ? "saving" : "removing_background",
-        stage: useOriginal ? "saving" : "background",
+    async (item: UploadQueueItem, file: File, tags: InferredTags) => {
+      advanceItemProgress(updateItem, item.id, 80, {
+        status: "saving",
+        stage: "saving",
         error: null,
         cutoutFailed: false,
       });
-      let source = file as Blob;
-      if (!useOriginal) {
-        source = await removeBackgroundWithFallback(file, () => undefined);
-      }
       const currentItem = useUploadQueueStore
         .getState()
         .items.find((candidate) => candidate.id === item.id);
       if (currentItem === undefined || currentItem.status === "cancelled") {
         return;
       }
-      await save(source, tags, item.id);
+      await save(file, tags, item.id);
     },
     [save, updateItem],
   );
@@ -348,7 +343,9 @@ export function UploadQueueManager() {
           });
           return;
         }
-        await finishWithTags(item, file, tags, false);
+        // Keep the original by default. Background removal is only started
+        // after an explicit choice in the quality review.
+        await finishWithTags(item, file, tags);
       } catch (error) {
         const attempts = item.attempts + 1;
         if (attempts <= MAX_UPLOAD_RETRIES) {
@@ -444,7 +441,7 @@ export function UploadQueueManager() {
   const review = useCallback((id: string) => setReviewItem(id), [setReviewItem]);
 
   const resolveReview = useCallback(
-    async (useOriginal: boolean) => {
+    async () => {
       if (reviewItem === null || reviewItem.tags === null) {
         return;
       }
@@ -456,13 +453,13 @@ export function UploadQueueManager() {
       }
       setReviewItem(null);
       try {
-        await finishWithTags(reviewItem, file, reviewItem.tags, useOriginal);
+        await finishWithTags(reviewItem, file, reviewItem.tags);
       } catch (error) {
         updateItem(reviewItem.id, {
           status: "awaiting_review",
           stage: "review",
           error: error instanceof Error ? error.message : tq("failed"),
-          cutoutFailed: !useOriginal,
+          cutoutFailed: false,
         });
         setReviewItem(reviewItem.id);
       }
@@ -488,11 +485,9 @@ export function UploadQueueManager() {
       {reviewItem !== null && reviewItem.tags !== null ? (
         <PhotoQualityDialog
           qualityNote={reviewItem.qualityNote}
-          cutoutFailed={reviewItem.cutoutFailed}
-          isWorking={reviewItem.status === "removing_background" || reviewItem.status === "saving"}
-          progressNote={null}
-          onRemoveBackground={() => void resolveReview(false)}
-          onUseOriginal={() => void resolveReview(true)}
+           isWorking={reviewItem.status === "saving"}
+           progressNote={null}
+           onUseOriginal={() => void resolveReview()}
           onChangePhoto={() => void removeItem(reviewItem.id)}
           onClose={() => setReviewItem(null)}
         />

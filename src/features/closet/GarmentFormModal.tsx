@@ -45,9 +45,13 @@ interface GarmentFormModalProps {
   previewUrl: string | null;
   previewAlt: string;
   isSaving: boolean;
+  isImageProcessing?: boolean;
+  imageError?: string | null;
   submitError: string | null;
   onClose: () => void;
   onSubmit: (input: GarmentFormInput) => void;
+  onChangeImage?: (file: File) => void;
+  onRemoveBackground?: () => void;
 }
 
 const SEASON_ICONS: Record<GarmentSeason, typeof Sun> = {
@@ -69,11 +73,16 @@ export function GarmentFormModal({
   previewUrl,
   previewAlt,
   isSaving,
+  isImageProcessing = false,
+  imageError = null,
   submitError,
   onClose,
   onSubmit,
+  onChangeImage,
+  onRemoveBackground,
 }: GarmentFormModalProps) {
   const errorRef = useRef<HTMLParagraphElement | null>(null);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
 
   const [garmentType, setGarmentType] = useState<GarmentType | "">(
     initialValues.garmentType,
@@ -153,6 +162,50 @@ export function GarmentFormModal({
             // Blob/object URL of the pending photo: next/image cannot optimize it.
             // eslint-disable-next-line @next/next/no-img-element
             <img src={previewUrl} alt={previewAlt} className={styles["garment-form-modal__preview"]} />
+          ) : null}
+          {onChangeImage !== undefined || onRemoveBackground !== undefined ? (
+            <div className={styles["garment-form-modal__image-actions"]}>
+              {onChangeImage !== undefined ? (
+                <>
+                  <input
+                    ref={imageInputRef}
+                    type="file"
+                    accept="image/*"
+                    className={styles["garment-form-modal__file-input"]}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      event.target.value = "";
+                      if (file) onChangeImage(file);
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={isSaving || isImageProcessing}
+                    onClick={() => imageInputRef.current?.click()}
+                  >
+                    {t("imageChooseNew")}
+                  </Button>
+                </>
+              ) : null}
+              {onRemoveBackground !== undefined ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  disabled={isSaving || isImageProcessing}
+                  onClick={onRemoveBackground}
+                >
+                  {isImageProcessing
+                    ? t("imageRemovingBackground")
+                    : t("imageRemoveBackground")}
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
+          {imageError !== null ? (
+            <p role="alert" className={styles["garment-form-modal__error"]}>
+              {imageError}
+            </p>
           ) : null}
           <form onSubmit={handleSubmit}>
           <OptionPills

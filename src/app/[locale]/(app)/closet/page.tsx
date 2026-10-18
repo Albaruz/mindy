@@ -13,7 +13,7 @@ import { CelebrationBurst } from "@/components/BottomActionBar/BottomActionBar";
 import { SearchBar } from "@/components/SearchBar/SearchBar";
 import { FilterChips } from "@/components/FilterChips/FilterChips";
 import { ConfirmDialog } from "@/components/ConfirmDialog/ConfirmDialog";
-import type { Garment, GarmentCut, GarmentStyle } from "@/types/garment";
+import type { Garment } from "@/types/garment";
 import { useClosetQuery } from "@/features/closet/useClosetQuery";
 import { useClosetInventory } from "@/features/closet/useClosetInventory";
 import { useLaundryActions } from "@/features/closet/useLaundryActions";
@@ -28,6 +28,7 @@ import { GarmentSourcePicker } from "@/features/closet/GarmentSourcePicker";
 import { enqueueUploadFiles } from "@/features/closet/UploadQueueManager";
 import { UploadBatchPreview } from "@/features/closet/UploadBatchPreview";
 import { MAX_UPLOAD_BATCH_SIZE } from "@/constants/upload";
+import { useGarmentImageActions } from "@/features/closet/useGarmentImageActions";
 import styles from "./page.module.scss";
 
 function toFormInput(garment: Garment): GarmentFormInput {
@@ -53,6 +54,7 @@ export default function ClosetPage() {
   const laundry = useLaundryActions();
   const deletion = useGarmentDeletion();
   const updateGarment = useUpdateGarment();
+  const imageActions = useGarmentImageActions();
   const [editingGarment, setEditingGarment] = useState<Garment | null>(null);
   const [isSourceMenuOpen, setIsSourceMenuOpen] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
@@ -64,6 +66,21 @@ export default function ClosetPage() {
         { onSuccess: () => setEditingGarment(null) },
       );
     }
+  };
+
+  const handleImageUpdated = (result: {
+    imageUrl: string;
+    originalImageUrl: string;
+  }) => {
+    setEditingGarment((current) =>
+      current === null
+        ? current
+        : {
+            ...current,
+            imageUrl: result.imageUrl,
+            originalImageUrl: result.originalImageUrl,
+          },
+    );
   };
 
   const washAllButton = (
@@ -298,9 +315,23 @@ export default function ClosetPage() {
           }
           isSaving={updateGarment.isPending}
           submitError={updateGarment.isError ? t("saveError") : null}
-          onClose={() => setEditingGarment(null)}
-          onSubmit={handleUpdate}
-        />
+           onClose={() => setEditingGarment(null)}
+           onSubmit={handleUpdate}
+           isImageProcessing={imageActions.isPending}
+           imageError={imageActions.isError ? t("imageUpdateError") : null}
+           onChangeImage={(file) =>
+             imageActions.mutate(
+               { garment: editingGarment, file },
+               { onSuccess: handleImageUpdated },
+             )
+           }
+           onRemoveBackground={() =>
+             imageActions.mutate(
+               { garment: editingGarment, removeBackground: true },
+               { onSuccess: handleImageUpdated },
+             )
+           }
+         />
       ) : null}
     </section>
   );

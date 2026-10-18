@@ -11,10 +11,8 @@ describe("PhotoQualityDialog", () => {
     render(
       <PhotoQualityDialog
         qualityNote="The garment blends into the background."
-        cutoutFailed={false}
         isWorking={false}
         progressNote={null}
-        onRemoveBackground={vi.fn()}
         onUseOriginal={vi.fn()}
         onChangePhoto={vi.fn()}
         onClose={vi.fn()}
@@ -33,35 +31,28 @@ describe("PhotoQualityDialog", () => {
       "qualityClose",
       expect.stringContaining("qualityChooseAnother"),
       "qualityUseOriginal",
-      "qualityRemoveBackground",
     ]);
   });
 
-  it("offers original, background-removal, and retake actions", () => {
-    const onRemoveBackground = vi.fn();
+  it("offers original and retake actions", () => {
     const onUseOriginal = vi.fn();
     const onChangePhoto = vi.fn();
 
     render(
       <PhotoQualityDialog
         qualityNote={null}
-        cutoutFailed
-        isWorking={false}
-        progressNote={null}
-        onRemoveBackground={onRemoveBackground}
-        onUseOriginal={onUseOriginal}
+         isWorking={false}
+         progressNote={null}
+         onUseOriginal={onUseOriginal}
         onChangePhoto={onChangePhoto}
         onClose={vi.fn()}
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "qualityRemoveBackground" }));
     fireEvent.click(screen.getByRole("button", { name: "qualityUseOriginal" }));
     fireEvent.click(screen.getByRole("button", { name: /qualityChooseAnother/ }));
 
-    expect(onRemoveBackground).toHaveBeenCalledOnce();
     expect(onUseOriginal).toHaveBeenCalledOnce();
     expect(onChangePhoto).toHaveBeenCalledOnce();
-    expect(screen.getByRole("alert")).toBeInTheDocument();
   });
 });

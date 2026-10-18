@@ -11,6 +11,7 @@ const GARMENT_COLUMNS = `
   garment_id,
   user_id,
   image_url,
+  original_image_url,
   garment_type,
   style,
   cut_length,
