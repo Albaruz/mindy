@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS, QUERY_REFETCH_ON_FOCUS, WEATHER_STALE_TIME_MS } from "@/constants/query";
 import {
-  DEFAULT_TEMPERATURE_C,
+  getSeasonalFallbackWeather,
   COLD_THRESHOLD_C,
   RAIN_EXPECTED_THRESHOLD,
   isRainyConditionValue,
@@ -108,14 +108,15 @@ export function parseWeatherPayload(payload: unknown): WeatherInfo | null {
 }
 
 function clientFallbackWeather(): WeatherInfo {
+  const fallback = getSeasonalFallbackWeather();
   return {
-    temperatureC: DEFAULT_TEMPERATURE_C,
-    condition: null,
+    temperatureC: fallback.temperatureC,
+    condition: fallback.condition,
     city: null,
-    dayLow: null,
-    dayHigh: null,
-    dayCondition: null,
-    rainProbability: null,
+    dayLow: fallback.dayLow,
+    dayHigh: fallback.dayHigh,
+    dayCondition: fallback.dayCondition,
+    rainProbability: fallback.rainProbability,
     fallback: true,
   };
 }

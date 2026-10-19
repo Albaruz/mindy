@@ -108,6 +108,8 @@ describe("ZeroState branches", () => {
     renderZeroState({ weather: { condition: "Clear", fallback: true } });
     expect(screen.getByText("t.greetingNeutral")).toBeInTheDocument();
     expect(screen.getByText("t.weatherFallbackNote")).toBeInTheDocument();
+    expect(screen.queryByText("t.daySelectorLabel")).not.toBeInTheDocument();
+    expect(screen.queryByText("t.forecastUnavailable")).not.toBeInTheDocument();
   });
 
   it("shows raining greeting when current condition is Rain", () => {
@@ -211,6 +213,7 @@ describe("ZeroState branches", () => {
     const onAuto = vi.fn();
     const onManual = vi.fn();
     renderZeroState({ weather: { condition: "Clear", temperatureC: 15, dayLow: 10, dayHigh: 20 }, onAuto, onManual });
+    advanceTimers();
     expect(screen.getByRole("button", { name: "Auto" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Manual" })).toBeInTheDocument();
   });
@@ -218,6 +221,7 @@ describe("ZeroState branches", () => {
   it("calls onAuto when Auto button clicked", () => {
     const onAuto = vi.fn();
     renderZeroState({ weather: { condition: "Clear", temperatureC: 15, dayLow: 10, dayHigh: 20 }, onAuto });
+    advanceTimers();
     screen.getByRole("button", { name: "Auto" }).click();
     expect(onAuto).toHaveBeenCalledTimes(1);
   });
@@ -225,6 +229,7 @@ describe("ZeroState branches", () => {
   it("calls onManual when Manual button clicked", () => {
     const onManual = vi.fn();
     renderZeroState({ weather: { condition: "Clear", temperatureC: 15, dayLow: 10, dayHigh: 20 }, onManual });
+    advanceTimers();
     screen.getByRole("button", { name: "Manual" }).click();
     expect(onManual).toHaveBeenCalledTimes(1);
   });

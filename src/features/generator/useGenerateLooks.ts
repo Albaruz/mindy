@@ -14,7 +14,7 @@ import {
 } from "@/lib/garment/categorizeGarments";
 import { useNotificationStore } from "@/stores/useNotificationStore";
 import { MAX_LOOK_OPTIONS } from "@/constants/generator";
-import { DEFAULT_TEMPERATURE_C } from "@/constants/weather";
+import { getSeasonalFallbackWeather } from "@/constants/weather";
 import { buildWeatherUrl } from "@/constants/api";
 import type { WeatherInfo } from "@/types/weather";
 import { getWeatherForDay, parseWeatherPayload } from "./useWeatherQuery";
@@ -56,16 +56,20 @@ type Climate = Pick<
   "temperatureC" | "condition" | "dayLow" | "dayHigh" | "rainProbability"
 >;
 
-const DEFAULT_CLIMATE: Climate = {
-  temperatureC: DEFAULT_TEMPERATURE_C,
-  condition: null,
-  dayLow: null,
-  dayHigh: null,
-  rainProbability: null,
-};
+function getDefaultClimate(): Climate {
+  const fallback = getSeasonalFallbackWeather();
+  return {
+    temperatureC: fallback.temperatureC,
+    condition: fallback.condition,
+    dayLow: fallback.dayLow,
+    dayHigh: fallback.dayHigh,
+    rainProbability: fallback.rainProbability,
+  };
+}
 
 // Shared with the manual "Combinar" flow (useCombineLocked): day-based
-// climate resolved once per inference, defaulting to 20C offline.
+// climate resolved once per inference, defaulting to the Spanish seasonal
+// average when location or the weather service is unavailable.
 export async function resolveClimate(
   outfitDay: OutfitDay = useGeneratorStore.getState().outfitDay,
 ): Promise<Climate> {
@@ -75,12 +79,12 @@ export async function resolveClimate(
       buildWeatherUrl(position.coords.latitude, position.coords.longitude),
     );
     if (!response.ok) {
-      return DEFAULT_CLIMATE;
+      return getDefaultClimate();
     }
     const weather = parseWeatherPayload(await response.json());
     const selectedWeather = getWeatherForDay(weather, outfitDay);
     if (selectedWeather === null) {
-      return DEFAULT_CLIMATE;
+      return getDefaultClimate();
     }
     return {
       temperatureC: selectedWeather.temperatureC,
@@ -90,7 +94,7 @@ export async function resolveClimate(
       rainProbability: selectedWeather.rainProbability,
     };
   } catch {
-    return DEFAULT_CLIMATE;
+    return getDefaultClimate();
   }
 }
 

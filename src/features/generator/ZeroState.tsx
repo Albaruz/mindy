@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 import { Thermometer } from "lucide-react";
 import { Button } from "@/components/Button/Button";
 import { GREETING_MIN_DISPLAY_MS } from "@/constants/animations";
-import { DEFAULT_TEMPERATURE_C } from "@/constants/weather";
+import { getSeasonalFallbackWeather } from "@/constants/weather";
 import { OUTFIT_DAY_VALUES } from "@/constants/generator";
 import { OptionPills } from "@/components/OptionPills/OptionPills";
 import type { Colorimetry } from "@/types/user";
@@ -127,6 +127,19 @@ export function ZeroState({
   const selectedWeather = getSelectedWeather(weather, outfitDay);
   const tomorrowAvailable =
     weatherReady && weather.tomorrow !== undefined && weather.tomorrow !== null;
+  const showDaySelector = tomorrowAvailable;
+  useEffect(() => {
+    // A stale persisted selection must not keep the generator in tomorrow
+    // mode when the API has confirmed that tomorrow is unavailable.
+    if (
+      weather !== null &&
+      weather !== undefined &&
+      !tomorrowAvailable &&
+      outfitDay === "tomorrow"
+    ) {
+      onOutfitDayChange("today");
+    }
+  }, [onOutfitDayChange, outfitDay, tomorrowAvailable, weather]);
   // Narrowed once: non-null from here on, so the icon helpers below
   // typecheck without aliased-condition chains.
   const revealedWeather =
@@ -154,7 +167,7 @@ export function ZeroState({
     const dayWeather = getSelectedWeather(weather, day);
     if (dayWeather === null) {
       return weather?.fallback && day === "today"
-        ? `${DEFAULT_TEMPERATURE_C}°`
+        ? `${getSeasonalFallbackWeather().temperatureC}°`
         : t("temperatureUnavailable");
     }
     if (dayWeather.dayLow !== null && dayWeather.dayHigh !== null) {
@@ -249,20 +262,16 @@ export function ZeroState({
               {t("weatherFallbackNote")}
             </p>
           ) : null}
-          <OptionPills
-            name="generator-outfit-day"
-            label={t("daySelectorLabel")}
-            options={OUTFIT_DAY_VALUES}
-            value={outfitDay}
-            onSelect={onOutfitDayChange}
-            formatOption={formatDayOption}
-            disabledOptions={tomorrowAvailable ? [] : ["tomorrow"]}
-            alignment="center"
-          />
-          {!tomorrowAvailable ? (
-            <p className={styles["zero-state__forecast-note"]}>
-              {t("forecastUnavailable")}
-            </p>
+          {showDaySelector ? (
+            <OptionPills
+              name="generator-outfit-day"
+              label={t("daySelectorLabel")}
+              options={OUTFIT_DAY_VALUES}
+              value={outfitDay}
+              onSelect={onOutfitDayChange}
+              formatOption={formatDayOption}
+              alignment="center"
+            />
           ) : null}
           <div className={styles["zero-state__actions"]}>
             <Button type="button" onClick={onAuto}>

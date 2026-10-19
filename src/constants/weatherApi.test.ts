@@ -1,4 +1,19 @@
 import { describe, expect, it } from "vitest";
+import { getSeasonalFallbackWeather } from "./weather";
+
+describe("getSeasonalFallbackWeather", () => {
+  it.each([
+    [new Date(2026, 0, 15), 10, "Clouds"],
+    [new Date(2026, 3, 15), 16, "Clear"],
+    [new Date(2026, 6, 15), 24, "Clear"],
+    [new Date(2026, 9, 15), 18, "Clouds"],
+  ])("returns the Spanish seasonal profile for %s", (date, temperatureC, condition) => {
+    expect(getSeasonalFallbackWeather(date as Date)).toMatchObject({
+      temperatureC,
+      condition,
+    });
+  });
+});
 import {
   isRainVulnerableMaterial,
   isRainyConditionValue,

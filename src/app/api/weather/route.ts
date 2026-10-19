@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { DEFAULT_TEMPERATURE_C } from "@/constants/weather";
+import { getSeasonalFallbackWeather } from "@/constants/weather";
 import { logger, generateRequestId } from "@/lib/logger";
 import { isRecord, readFiniteNumber, readString } from "@/lib/readers";
 import { isGuardResponse, rateLimitResponse, requireRouteUser } from "@/lib/api/routeGuards";
@@ -36,22 +36,23 @@ interface WeatherDayPayload {
 
 function fallbackResponse(reason: string, requestId: string, userId: string, startTime: number) {
   const durationMs = Date.now() - startTime;
+  const fallback = getSeasonalFallbackWeather();
   logger.warn(`Serving default climate: ${reason}`, { route: 'weather', requestId, userId, durationMs, fallback: true });
   const body: WeatherPayload = {
-    temperatureC: DEFAULT_TEMPERATURE_C,
-    condition: null,
+    temperatureC: fallback.temperatureC,
+    condition: fallback.condition,
     city: null,
-    dayLow: null,
-    dayHigh: null,
-    dayCondition: null,
-    rainProbability: null,
+    dayLow: fallback.dayLow,
+    dayHigh: fallback.dayHigh,
+    dayCondition: fallback.dayCondition,
+    rainProbability: fallback.rainProbability,
     today: {
-      temperatureC: DEFAULT_TEMPERATURE_C,
-      condition: null,
-      dayLow: null,
-      dayHigh: null,
-      dayCondition: null,
-      rainProbability: null,
+      temperatureC: fallback.temperatureC,
+      condition: fallback.condition,
+      dayLow: fallback.dayLow,
+      dayHigh: fallback.dayHigh,
+      dayCondition: fallback.dayCondition,
+      rainProbability: fallback.rainProbability,
     },
     tomorrow: null,
     fallback: true,

@@ -17,6 +17,7 @@ vi.mock("@/lib/rateLimit", () => ({
 }));
 
 import { GET } from "./route";
+import { getSeasonalFallbackWeather } from "@/constants/weather";
 
 function buildRequest(url: string): Request {
   return new Request(url);
@@ -39,7 +40,7 @@ describe("GET /api/weather", () => {
     const response = await GET(buildRequest("http://localhost/api/weather"));
     const body = await response.json();
     expect(body.fallback).toBe(true);
-    expect(body.temperatureC).toBe(20);
+    expect(body.temperatureC).toBe(getSeasonalFallbackWeather().temperatureC);
   });
 
   it("serves fallback when rate limited", async () => {
@@ -243,7 +244,7 @@ describe("GET /api/weather extended coverage", () => {
       await handler(buildRequest("http://localhost/api/weather?lat=40&lon=-3"))
     ).json();
     expect(body.fallback).toBe(true);
-    expect(body.temperatureC).toBe(20);
+    expect(body.temperatureC).toBe(getSeasonalFallbackWeather().temperatureC);
   });
 
   it("serves fallback on out-of-range or non-numeric coordinates", async () => {

@@ -4,6 +4,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import React from "react";
 
 import { useWeatherQuery } from "./useWeatherQuery";
+import { getSeasonalFallbackWeather } from "@/constants/weather";
 
 function createWrapper() {
   const client = new QueryClient({
@@ -81,7 +82,7 @@ describe("useWeatherQuery hook", () => {
       wrapper: createWrapper(),
     });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toMatchObject({ temperatureC: 20, fallback: true });
+    expect(result.current.data).toMatchObject({ temperatureC: getSeasonalFallbackWeather().temperatureC, fallback: true });
   });
 
   it("returns a safe fallback without geolocation", async () => {
@@ -91,7 +92,7 @@ describe("useWeatherQuery hook", () => {
       wrapper: createWrapper(),
     });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toMatchObject({ temperatureC: 20, fallback: true });
+    expect(result.current.data).toMatchObject({ temperatureC: getSeasonalFallbackWeather().temperatureC, fallback: true });
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -105,7 +106,7 @@ describe("useWeatherQuery hook", () => {
       wrapper: createWrapper(),
     });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toMatchObject({ temperatureC: 20, fallback: true });
+    expect(result.current.data).toMatchObject({ temperatureC: getSeasonalFallbackWeather().temperatureC, fallback: true });
   });
 
   it("returns null on malformed payloads", async () => {
@@ -125,7 +126,7 @@ describe("useWeatherQuery hook", () => {
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
       // Null payload or non-numeric temperature produce the safe fallback.
       if (payload === null || typeof payload.temperatureC !== "number") {
-        expect(result.current.data).toMatchObject({ temperatureC: 20, fallback: true });
+        expect(result.current.data).toMatchObject({ temperatureC: getSeasonalFallbackWeather().temperatureC, fallback: true });
       } else {
         // NaN probability is sanitized to null, payload stays usable.
         expect(result.current.data?.rainProbability).toBeNull();
