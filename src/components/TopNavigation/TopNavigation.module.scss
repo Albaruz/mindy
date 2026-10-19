@@ -17,125 +17,117 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
   overscroll-behavior-x: contain;
-}
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
-.navigation::-webkit-scrollbar {
-  display: none;
-}
+  &__list {
+    display: flex;
+    gap: var(--space-1);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+  }
 
-.navigation__list {
-  display: flex;
-  gap: var(--space-1);
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-}
+  &__item {
+    position: relative;
+    display: flex;
+    flex: 0 0 auto;
+    align-items: stretch;
+    justify-content: stretch;
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    padding: 0;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1;
+    color: var(--navigation-text-inactive);
+    text-decoration: none;
+    white-space: nowrap;
+    border-radius: var(--navigation-item-radius);
+    transition: color var(--duration-fast);
 
-.navigation__item {
-  position: relative;
-  display: flex;
-  flex: 0 0 auto;
-  align-items: stretch;
-  justify-content: stretch;
-  min-width: var(--touch-target-min);
-  min-height: var(--touch-target-min);
-  padding: 0;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  line-height: 1;
-  color: var(--navigation-text-inactive);
-  text-decoration: none;
-  white-space: nowrap;
-  border-radius: var(--navigation-item-radius);
-  transition: color var(--duration-fast);
-}
+    &--active {
+      color: var(--navigation-text-active);
 
-.navigation__link:focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-  z-index: 1;
-}
+      .navigation__link:focus-visible {
+        box-shadow: 0 0 0 var(--focus-ring-offset) var(--navigation-text-active);
+      }
 
-.navigation__link {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  min-width: var(--touch-target-min);
-  min-height: var(--touch-target-min);
-  padding: var(--space-1) var(--space-3);
-  color: inherit;
-  border-radius: var(--navigation-item-radius);
-}
+      .navigation__link:hover,
+      .navigation__icon {
+        color: var(--navigation-text-active);
+      }
+    }
+  }
 
-.navigation__icon {
-  display: flex;
-  flex-shrink: 0;
-  width: 1.125rem;
-  height: 1.125rem;
-  color: inherit;
-}
+  &__link {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    padding: var(--space-1) var(--space-3);
+    color: inherit;
+    border-radius: var(--navigation-item-radius);
 
-.navigation__label {
-  /* Text content */
-}
+    &:focus-visible {
+      z-index: 1;
+      outline: var(--focus-ring-width) solid var(--focus-ring-color);
+      outline-offset: var(--focus-ring-offset);
+    }
+  }
 
-.navigation__content {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  justify-content: center;
-}
+  &__icon {
+    display: flex;
+    flex-shrink: 0;
+    width: 1.125rem;
+    height: 1.125rem;
+    color: inherit;
+  }
 
-/* Modifiers */
-.navigation__item--active {
-  color: var(--navigation-text-active);
-}
+  &__label {
+    /* Text content */
+  }
 
-// The global accent outline sits outside the link (offset), i.e. on the
-// nav surface — but its inner edge touches the active accent pill, leaving
-// only a faint sliver visible. The selected tab therefore pairs it with an
-// inner band in the pill's contrasting text tone: oat on accent inside,
-// accent on surface outside.
-.navigation__item--active .navigation__link:focus-visible {
-  box-shadow: 0 0 0 var(--focus-ring-offset) var(--navigation-text-active);
-}
+  &__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+  }
 
-.navigation__item--active .navigation__link:hover {
-  color: var(--navigation-text-active);
-}
-
-.navigation__indicator {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: var(--navigation-indicator);
-  border-radius: var(--navigation-item-radius);
-  pointer-events: none;
-}
-
-.navigation__item--active .navigation__icon {
-  color: var(--navigation-text-active);
+  &__indicator {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: var(--navigation-indicator);
+    border-radius: var(--navigation-item-radius);
+    pointer-events: none;
+  }
 }
 
 /* Tight header space: icon-only pill. Queries the app-header container
    (not the viewport) so the pill collapses whenever its layout slot is
    narrow, e.g. beside the logo on wrapped headers or in embedded contexts. */
 @container app-header (max-width: 26rem) {
-  .navigation__label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-  }
+  .navigation {
+    &__label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+    }
 
-  .navigation__link {
-    padding: var(--space-1) var(--space-3);
+    &__link {
+      padding: var(--space-1) var(--space-3);
+    }
   }
 }
 

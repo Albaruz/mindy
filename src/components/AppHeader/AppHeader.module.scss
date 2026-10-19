@@ -10,61 +10,55 @@
   backdrop-filter: blur(var(--header-blur));
   -webkit-backdrop-filter: blur(var(--header-blur));
   border-bottom: 1px solid var(--header-border);
-}
 
-.app-header__content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  min-height: var(--header-height);
-  padding: var(--space-2) var(--space-4);
-  container-type: inline-size;
-  container-name: app-header;
-}
+  &__content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    min-height: var(--header-height);
+    padding: var(--space-2) var(--space-4);
+    container-type: inline-size;
+    container-name: app-header;
+  }
 
-.app-header__logo {
-  display: block;
-  width: auto;
-  height: var(--logo-height);
-  flex-shrink: 0;
-}
+  &__logo {
+    display: block;
+    flex-shrink: 0;
+    width: auto;
+    height: var(--logo-height);
+  }
 
-.app-header__nav {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
-  min-width: 0;
+  &__nav {
+    display: flex;
+    flex: 1;
+    justify-content: flex-end;
+    min-width: 0;
+  }
 }
 
 // Viewport padding for the full-bleed header bar itself; the wrap/reorder
 // of nav content below responds to the app-header container instead.
 @media (max-width: 48rem) {
-  .app-header__content {
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
+  .app-header {
+    &__content {
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-3);
+    }
   }
 }
 
 @container app-header (max-width: 48rem) {
-  .app-header__nav {
-    order: 2;
-    width: 100%;
-    justify-content: flex-end;
-  }
+  .app-header {
+    &__nav {
+      order: 2;
+      width: 100%;
+      justify-content: flex-end;
+    }
 
-  .app-header__logo {
-    order: 1;
+    &__logo {
+      order: 1;
+    }
   }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .app-header__logo {
-    /* Logo maintains its colors in dark mode */
-  }
-}
-
-:root[data-theme="dark"] .app-header__logo {
-  /* Logo maintains its colors in dark mode */
 }

@@ -7,88 +7,85 @@
   background: var(--garmentcard-bg);
   border-radius: var(--garmentcard-radius);
   overflow: hidden;
-}
+  &__image,
+  &__placeholder {
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--garmentcard-image-bg);
+  }
 
-.garment-card__image {
-  display: block;
-  width: 100%;
-  aspect-ratio: 1;
-  object-fit: contain;
-  background: var(--garmentcard-image-bg);
-}
+  &__image {
+    display: block;
+    object-fit: contain;
+  }
 
-.garment-card__placeholder {
-  width: 100%;
-  aspect-ratio: 1;
-  background: var(--garmentcard-image-bg);
-}
+  &__action {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    color: var(--garmentcard-action-color);
+    background: var(--garmentcard-action-bg);
+    border: 1px solid var(--garmentcard-action-border);
+    border-radius: var(--radius-circle);
+    cursor: pointer;
+    transition:
+      color var(--duration-fast),
+      background var(--duration-fast),
+      border-color var(--duration-fast);
 
-.garment-card__action {
-  min-width: var(--touch-target-min);
-  min-height: var(--touch-target-min);
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--garmentcard-action-color);
-  background: var(--garmentcard-action-bg);
-  border: 1px solid var(--garmentcard-action-border);
-  border-radius: var(--radius-circle);
-  cursor: pointer;
-  transition:
-    color var(--duration-fast),
-    background var(--duration-fast),
-    border-color var(--duration-fast);
-}
+    &:hover:not(:disabled) {
+      background: var(--color-border);
+    }
 
-.garment-card__action:hover:not(:disabled) {
-  background: var(--color-border);
-}
+    &:focus-visible {
+      outline: var(--focus-ring-width) solid var(--focus-ring-color);
+      outline-offset: var(--focus-ring-offset);
+    }
 
-.garment-card__action:focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-}
+    &--top-right {
+      top: var(--space-2);
+      right: var(--space-2);
+    }
 
-.garment-card__action--top-right {
-  top: var(--space-2);
-  right: var(--space-2);
-}
+    &--top-left {
+      top: var(--space-2);
+      left: var(--space-2);
+    }
+  }
 
-.garment-card__action--top-left {
-  top: var(--space-2);
-  left: var(--space-2);
-}
+  &__body {
+    padding: var(--garmentcard-body-padding);
+  }
 
-.garment-card__body {
-  padding: var(--garmentcard-body-padding);
-}
+  &__title {
+    margin: 0;
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-base);
+    color: var(--color-foreground);
+  }
 
-.garment-card__title {
-  margin: 0;
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-base);
-  color: var(--color-foreground);
-}
-
-.garment-card__meta {
-  margin: var(--space-1) 0 0;
-  font-size: var(--font-size-xs);
-  color: var(--color-muted);
-  line-height: var(--line-height-base);
+  &__meta {
+    margin: var(--space-1) 0 0;
+    font-size: var(--font-size-xs);
+    line-height: var(--line-height-base);
+    color: var(--color-muted);
+  }
 }
 
 /* IconButton styles (local) */
 .icon-button {
-  min-width: var(--touch-target-min);
-  min-height: var(--touch-target-min);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: var(--touch-target-min);
   height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
   padding: 0;
   color: var(--color-tab-inactive);
   background: var(--color-surface);
@@ -99,25 +96,25 @@
     color var(--duration-fast),
     background var(--duration-fast),
     border-color var(--duration-fast);
-}
 
-.icon-button:focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: var(--focus-ring-offset);
-}
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
 
-.icon-button__icon {
-  display: flex;
-  width: 1.125rem;
-  height: 1.125rem;
-  color: inherit;
-  flex-shrink: 0;
-}
+  &__icon {
+    display: flex;
+    flex-shrink: 0;
+    width: 1.125rem;
+    height: 1.125rem;
+    color: inherit;
+  }
 
-.icon-button:disabled,
-.icon-button[aria-disabled="true"],
-.icon-button.is-disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
+  &:disabled,
+  &[aria-disabled="true"],
+  &.is-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 }

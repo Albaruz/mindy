@@ -14,43 +14,47 @@
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow-lg);
   animation: toast-enter var(--duration-normal) var(--ease-out);
-}
 
-.notification__icon {
-  flex-shrink: 0;
-  width: 1.25rem;
-  height: 1.25rem;
-  color: var(--color-accent);
-}
+  &__icon {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--color-accent);
+  }
 
-.notification__message {
-  margin: 0;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-base);
-}
+  &__message {
+    margin: 0;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-base);
+  }
 
-/* Variants */
-.notification--success .notification__icon {
-  color: var(--color-success);
-}
+  /* Variants */
+  &--success {
+    .notification__icon {
+      color: var(--color-success);
+    }
+  }
 
-.notification--error {
-  border-color: var(--color-error);
-  background: color-mix(in srgb, var(--color-error) 8%, var(--color-oat));
-}
+  &--error {
+    border-color: var(--color-error);
+    background: color-mix(in srgb, var(--color-error) 8%, var(--color-oat));
 
-.notification--error .notification__icon {
-  color: var(--color-error);
-}
+    .notification__icon {
+      color: var(--color-error);
+    }
+  }
 
-.notification--info .notification__icon {
-  color: var(--color-primary);
-}
+  &--info {
+    .notification__icon {
+      color: var(--color-primary);
+    }
+  }
 
-/* Exit animation */
-.notification--exiting {
-  animation: toast-exit var(--duration-normal) var(--ease-in) forwards;
+  /* Exit animation */
+  &--exiting {
+    animation: toast-exit var(--duration-normal) var(--ease-in) forwards;
+  }
 }
 
 /* Keyframes are declared here because CSS Modules hash animation names:

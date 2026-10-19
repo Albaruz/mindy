@@ -15,6 +15,7 @@ import {
 } from "./useGenerateLooks";
 import { useGeneratorStore } from "./useGeneratorStore";
 import { ERROR_CODES } from "@/constants/errors";
+import { getSeasonalFallbackWeather } from "@/constants/weather";
 import { AppError } from "@/lib/errors";
 
 function buildGarment(id: string, type: Garment["garmentType"]): Garment {
@@ -166,7 +167,7 @@ describe("useGenerateLooks mutation", () => {
     );
     expect(body.style).toBe("casual");
     expect(body.mood).toBe("relaxed");
-    expect(body.temperatureC).toBe(20);
+    expect(body.temperatureC).toBe(getSeasonalFallbackWeather().temperatureC);
   });
 
   it("rejects responses without usable garments", async () => {
