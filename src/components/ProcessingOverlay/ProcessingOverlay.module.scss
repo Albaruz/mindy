@@ -13,15 +13,20 @@
   backdrop-filter: blur(2px);
 }
 
+.backdrop--blocking {
+  z-index: var(--z-modalTop);
+  cursor: wait;
+}
+
 .card {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   max-width: min(22rem, calc(100vw - 2rem));
   padding: 1rem 1.25rem;
-  // Warm Refuge pairing: Avena card with Marron Ceniza text.
-  background: var(--color-oat);
-  color: var(--color-auth-text);
+  // Keep a stable AA contrast pair in both light and dark themes.
+  background: #f9f6f0;
+  color: #2f2723;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.25);
@@ -30,6 +35,10 @@
 
 .spinner {
   flex-shrink: 0;
+}
+
+.eraser {
+  animation: erase 0.9s ease-in-out infinite alternate;
 }
 
 .message {
@@ -50,14 +59,20 @@
   }
 }
 
-// The card keeps its light Warm Refuge look in dark mode too, so pin the
-// text tone: the dark auth-text value would wash out on Avena.
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .card {
-    color: #4a3f39;
+@keyframes erase {
+  from {
+    transform: translateX(-0.2rem) rotate(-12deg);
+  }
+
+  to {
+    transform: translateX(0.2rem) rotate(12deg);
   }
 }
 
-:root[data-theme="dark"] .card {
-  color: #4a3f39;
+@media (prefers-reduced-motion: reduce) {
+  .eraser,
+  .card {
+    animation: none;
+  }
 }
+

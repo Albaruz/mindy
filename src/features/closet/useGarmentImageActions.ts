@@ -70,8 +70,21 @@ export function useGarmentImageActions() {
           ? [storagePath(garment.imageUrl)]
           : []
         : [storagePath(garment.imageUrl), storagePath(garment.originalImageUrl)];
-      const paths = oldPaths.filter((path): path is string => path !== null);
-      if (paths.length > 0) await client.storage.from(GARMENT_STORAGE_BUCKET).remove(paths);
+       // A newly created garment normally stores the same URL in both columns.
+       // Delete each old object once; duplicate paths can make Storage reject
+       // an otherwise successful image replacement.
+       const paths = [
+         ...new Set(oldPaths.filter((path): path is string => path !== null)),
+       ];
+       if (paths.length > 0) {
+         const { error: cleanupError } = await client.storage
+           .from(GARMENT_STORAGE_BUCKET)
+           .remove(paths);
+         // The database now points at the new image. A cleanup failure should
+         // not tell the user that replacing the image failed or roll back the
+         // already persisted change.
+         if (cleanupError) console.warn("Could not remove the previous garment image.", cleanupError);
+       }
 
       return {
         imageUrl: nextUrl,
@@ -87,5 +100,9 @@ export function useGarmentImageActions() {
     onError: (error) => notify("error", error instanceof Error ? error.message : t("imageUpdateFailed")),
   });
 
-  return mutation;
+  return {
+    ...mutation,
+    isRemovingBackground:
+      mutation.isPending && mutation.variables?.removeBackground === true,
+  };
 }

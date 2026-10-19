@@ -27,6 +27,7 @@ import { GarmentFormModal } from "@/features/closet/GarmentFormModal";
 import { GarmentSourcePicker } from "@/features/closet/GarmentSourcePicker";
 import { enqueueUploadFiles } from "@/features/closet/UploadQueueManager";
 import { UploadBatchPreview } from "@/features/closet/UploadBatchPreview";
+import { ProcessingOverlay } from "@/components/ProcessingOverlay/ProcessingOverlay";
 import { MAX_UPLOAD_BATCH_SIZE } from "@/constants/upload";
 import { useGarmentImageActions } from "@/features/closet/useGarmentImageActions";
 import styles from "./page.module.scss";
@@ -331,8 +332,15 @@ export default function ClosetPage() {
                { onSuccess: handleImageUpdated },
              )
            }
+          />
+       ) : null}
+       {imageActions.isRemovingBackground ? (
+         <ProcessingOverlay
+           blocking
+           variant="backgroundRemoval"
+           message={t("imageRemovingBackgroundOverlay")}
          />
-      ) : null}
+       ) : null}
     </section>
   );
 }

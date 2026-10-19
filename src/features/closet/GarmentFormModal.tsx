@@ -2,7 +2,14 @@
 
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Infinity as InfinityIcon, Leaf, Snowflake, Sun } from "lucide-react";
+import {
+  Eraser,
+  ImagePlus,
+  Infinity as InfinityIcon,
+  Leaf,
+  Snowflake,
+  Sun,
+} from "lucide-react";
 import { useGarmentTranslator } from "@/lib/translateGarment";
 import type {
   GarmentColor,
@@ -178,26 +185,32 @@ export function GarmentFormModal({
                       if (file) onChangeImage(file);
                     }}
                   />
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    disabled={isSaving || isImageProcessing}
-                    onClick={() => imageInputRef.current?.click()}
-                  >
-                    {t("imageChooseNew")}
-                  </Button>
+                   <Button
+                     type="button"
+                     variant="secondary"
+                     size="sm"
+                     iconOnly
+                     aria-label={t("imageChooseNew")}
+                     disabled={isSaving || isImageProcessing}
+                     onClick={() => imageInputRef.current?.click()}
+                     className={styles["garment-form-modal__image-action"]}
+                   >
+                     <ImagePlus aria-hidden="true" size={20} />
+                   </Button>
                 </>
               ) : null}
               {onRemoveBackground !== undefined ? (
                 <Button
                   type="button"
                   variant="ghost"
+                  size="sm"
+                  iconOnly
+                  aria-label={t("imageRemoveBackground")}
                   disabled={isSaving || isImageProcessing}
                   onClick={onRemoveBackground}
+                  className={styles["garment-form-modal__image-action"]}
                 >
-                  {isImageProcessing
-                    ? t("imageRemovingBackground")
-                    : t("imageRemoveBackground")}
+                  <Eraser aria-hidden="true" size={20} />
                 </Button>
               ) : null}
             </div>
