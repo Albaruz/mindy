@@ -15,8 +15,8 @@
   justify-content: center;
   min-height: 2.75rem;
   padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-tab-inactive);
   cursor: pointer;
   background: transparent;

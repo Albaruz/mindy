@@ -100,7 +100,7 @@
   font-size: var(--font-size-5xl);
   font-weight: var(--font-weight-black);
   color: var(--color-accent);
-  line-height: 1.1;
+  line-height: var(--line-height-tight);
 }
 
 .zero-state__actions {

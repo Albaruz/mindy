@@ -23,8 +23,8 @@
 .mood {
   min-height: 2.75rem;
   padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   text-transform: capitalize;
   color: var(--color-tab-inactive);
   background: var(--color-surface);
@@ -56,15 +56,15 @@
 
 .unsorted-title {
   margin: 0;
-  font-size: 0.8125rem;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--letter-spacing-wide);
 }
 
 .unsorted-hint {
   margin: 0;
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
   color: var(--color-muted);
 }
 
@@ -93,7 +93,7 @@
 }
 
 .unsorted-label {
-  font-size: 0.6875rem;
+  font-size: var(--font-size-2xs);
   color: var(--color-muted);
   text-align: center;
   text-transform: capitalize;

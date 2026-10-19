@@ -30,8 +30,8 @@
   gap: 0.75rem;
   min-height: 3rem;
   padding: 0.5rem 0.75rem;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-foreground);
   background: transparent;
   border: none;
@@ -53,7 +53,7 @@
   justify-content: center;
   width: 3.5rem;
   height: 3.5rem;
-  color: #ffffff;
+  color: var(--color-primary-contrast);
   background: var(--color-accent);
   border: none;
   border-radius: 50%;

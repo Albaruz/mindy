@@ -1,6 +1,12 @@
 // Immersive Stories-style onboarding canvas on default background.
 // Oat background, Playfair Display questions, Brown Ash text, Terracotta hero.
 .page {
+  --onboarding-thermal-gradient: linear-gradient(
+    90deg,
+    var(--season-summer-2),
+    var(--season-autumn-1)
+  );
+
   display: flex;
   flex-direction: column;
   max-width: 28rem;
@@ -24,7 +30,7 @@
 
 .step-counter {
   margin: 0.75rem 0 0;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   color: var(--color-muted);
 }
 
@@ -49,21 +55,21 @@
 
 .question {
   margin: 0 0 0.25rem;
-  font-size: 1.75rem;
+  font-size: var(--font-size-4xl);
 }
 
 // Body-font lead carrying the step question, slightly larger.
 .lead {
   margin: 0 0 1rem;
-  font-size: 1.0625rem;
-  font-weight: 600;
-  line-height: 1.45;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-base);
   color: var(--color-tab-inactive);
 }
 
 .subcopy {
   margin: 0 0 1rem;
-  font-size: 0.9375rem;
+  font-size: var(--font-size-md);
   color: var(--color-muted);
 }
 
@@ -75,16 +81,16 @@
   legend {
     padding: 0;
     margin-bottom: 0.625rem;
-    font-size: 0.875rem;
-    font-weight: 700;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
     color: var(--color-tab-inactive);
   }
 }
 
 // Giant clean text input (step 1 only).
 .giant-label {
-  font-size: 0.875rem;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   color: var(--color-tab-inactive);
 }
 
@@ -92,19 +98,16 @@
   min-height: 3.5rem;
   padding: 0.75rem 1rem;
   margin-top: 0.5rem;
-  font-family:
-    var(--font-display, Georgia),
-    Georgia,
-    serif;
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-black);
   color: var(--color-tab-inactive);
   background: var(--color-surface);
   border: 2px solid var(--color-border);
   border-radius: var(--radius-lg);
 
   &::placeholder {
-    font-weight: 400;
+    font-weight: var(--font-weight-normal);
     color: var(--color-muted);
     opacity: 0.7;
   }
@@ -145,19 +148,16 @@
 }
 
 .editorial-name {
-  font-family:
-    var(--font-display, Georgia),
-    Georgia,
-    serif;
-  font-size: 1.5rem;
-  font-weight: 800;
-  line-height: 1.1;
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-black);
+  line-height: var(--line-height-tight);
   color: var(--color-tab-inactive);
   text-align: left;
 }
 
 .editorial-hint {
-  font-size: 0.8125rem;
+  font-size: var(--font-size-sm);
   color: var(--color-muted);
   text-align: left;
 }
@@ -198,22 +198,22 @@
 }
 
 .measure-value {
-  font-size: 1.5rem;
-  font-weight: 800;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-black);
   color: var(--color-foreground);
-  line-height: 1;
+  line-height: var(--line-height-none);
 }
 
 .measure-unit {
   margin-left: 0.125rem;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-muted);
 }
 
 .measure-name {
-  font-size: 0.8125rem;
-  font-weight: 700;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   color: var(--color-tab-inactive);
 }
 
@@ -231,8 +231,8 @@
 .thermal-label {
   display: block;
   margin-bottom: 0.625rem;
-  font-size: 0.875rem;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   color: var(--color-tab-inactive);
 }
 
@@ -240,7 +240,7 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 0.375rem;
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
   color: var(--color-muted);
 }
 
@@ -255,7 +255,7 @@
 
   &::-webkit-slider-runnable-track {
     height: 0.875rem;
-    background: linear-gradient(90deg, #7a8b99 0%, #c87966 100%);
+    background: var(--onboarding-thermal-gradient);
     border-radius: var(--radius-pill);
   }
 
@@ -273,7 +273,7 @@
 
   &::-moz-range-track {
     height: 0.875rem;
-    background: linear-gradient(90deg, #7a8b99 0%, #c87966 100%);
+    background: var(--onboarding-thermal-gradient);
     border-radius: var(--radius-pill);
   }
 
@@ -295,8 +295,8 @@
 
 .thermal-value {
   margin: 0.25rem 0 0;
-  font-size: 0.875rem;
-  font-weight: 700;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   color: var(--color-foreground);
   text-align: center;
 }
@@ -304,7 +304,7 @@
 .error {
   padding: 0.625rem 0.75rem;
   margin: 0 0 1rem;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   color: var(--color-error);
   background: color-mix(in srgb, var(--color-error) 8%, transparent);
   border-radius: var(--radius-sm);
@@ -353,6 +353,6 @@
 
 .success-title {
   margin: 0;
-  font-size: 2rem;
+  font-size: var(--font-size-4xl);
   text-wrap: balance;
 }

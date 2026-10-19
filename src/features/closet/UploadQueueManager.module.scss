@@ -1,6 +1,10 @@
-$upload-progress-gradient: linear-gradient(90deg, var(--color-accent), #e3a08d);
-
 .upload-queue-manager {
+  --upload-queue-progress-gradient: linear-gradient(
+    90deg,
+    var(--color-accent),
+    var(--color-accent-light)
+  );
+
   &__indicator {
     position: fixed;
     right: 1rem;
@@ -42,7 +46,7 @@ $upload-progress-gradient: linear-gradient(90deg, var(--color-accent), #e3a08d);
       span {
         display: block;
         height: 100%;
-        background: $upload-progress-gradient;
+        background: var(--upload-queue-progress-gradient);
         border-radius: inherit;
         box-shadow: 0 0 0.5rem color-mix(in srgb, var(--color-accent) 55%, transparent);
         transition: width 180ms ease;
@@ -137,7 +141,7 @@ $upload-progress-gradient: linear-gradient(90deg, var(--color-accent), #e3a08d);
     display: block;
     height: 100%;
     overflow: hidden;
-    background: $upload-progress-gradient;
+    background: var(--upload-queue-progress-gradient);
     border-radius: inherit;
     transition: width 280ms ease;
 

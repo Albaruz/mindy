@@ -10,14 +10,14 @@
   &__legend {
     padding: 0;
     margin-bottom: 0.625rem;
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
     color: var(--color-tab-inactive);
   }
 
   &__value {
     margin-left: 0.5rem;
-    font-weight: 500;
+    font-weight: var(--font-weight-medium);
     color: var(--color-muted);
   }
 
@@ -69,8 +69,8 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 1.25rem;
-          font-weight: 800;
+          font-size: var(--font-size-xl);
+          font-weight: var(--font-weight-black);
           color: var(--color-error);
           content: "\2715";
         }
@@ -89,8 +89,8 @@
   }
 
   &__name {
-    font-size: 0.75rem;
-    font-weight: 500;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
     color: var(--color-muted);
   }
 

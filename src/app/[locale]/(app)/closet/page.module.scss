@@ -17,7 +17,7 @@
 
 .count {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   color: var(--color-muted);
 }
 
@@ -33,7 +33,7 @@
   min-width: 5rem;
   text-align: center;
   color: var(--color-muted);
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
 }
 
 // Floating global wash action, pinned above the safe area while the

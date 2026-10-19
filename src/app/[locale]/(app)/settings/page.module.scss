@@ -13,8 +13,8 @@
   legend {
     padding: 0;
     margin-bottom: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
     color: var(--color-tab-inactive);
   }
 }
@@ -49,12 +49,12 @@
 }
 
 .card-title {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-foreground);
 }
 
 .card-description {
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   color: var(--color-muted);
 }

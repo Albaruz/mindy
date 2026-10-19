@@ -107,11 +107,11 @@
   }
 
   &__confetti1 {
-    background: #e9b44c;
+    background: var(--color-warning);
   }
 
   &__confetti2 {
-    background: #7fb069;
+    background: var(--color-success);
   }
 
   &__confetti3 {

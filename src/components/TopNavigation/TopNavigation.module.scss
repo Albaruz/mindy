@@ -40,7 +40,7 @@
     padding: 0;
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
-    line-height: 1;
+    line-height: var(--line-height-none);
     color: var(--navigation-text-inactive);
     text-decoration: none;
     white-space: nowrap;
