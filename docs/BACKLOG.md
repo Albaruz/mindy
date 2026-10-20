@@ -53,3 +53,34 @@ No se retomará la búsqueda de imágenes de catálogo (Unsplash, Wikimedia, Pix
 - **Pendientes de prioridad media:** 4
 - **Pendientes de prioridad baja:** 3
 - **Fuente de funcionalidades completadas:** SDD, sección 10 y secciones técnicas correspondientes
+
+## ROI estimado de evolutivos de negocio
+
+La siguiente tabla prioriza únicamente los evolutivos pendientes con impacto directo
+en la experiencia de usuario, la calidad de las recomendaciones o la activación y
+retención. El ROI es una estimación relativa (beneficio esperado frente al coste de
+integración), no una previsión financiera: debe validarse con métricas reales después
+de cada entrega.
+
+| ID | Evolutivo | Beneficio de negocio esperado | ROI estimado | Esfuerzo de integración (Fibonacci) | Prioridad recomendada |
+|---|---|---|---:|---:|---|
+| #BKL-005 | Starter Wardrobe | Permite generar looks desde el primer día y reduce el abandono durante el onboarding. | **Muy alto** | **5 pts** | 1 |
+| #BKL-016 | Filtrado de materiales con lluvia | Aumenta la relevancia y la confianza de las recomendaciones en un caso de uso frecuente. | **Alto** | **3 pts** | 2 |
+| #BKL-003 | Similitud en descartes | Personaliza el recomendador con el feedback histórico y reduce propuestas repetitivas. | **Alto** | **8 pts** | 3 |
+| #BKL-017 | Alternativa de prenda generada por IA | Reduce la fricción al cargar prendas y puede mejorar la finalización del armario, pero depende del coste, la cuota y la calidad de las imágenes. | **Medio-alto** | **13 pts** | 4 |
+
+### Criterio de estimación
+
+- **ROI muy alto:** beneficio amplio y cercano al flujo de activación, con esfuerzo bajo o medio.
+- **ROI alto:** mejora clara de la utilidad o personalización con esfuerzo contenido.
+- **ROI medio-alto:** oportunidad relevante, pero con incertidumbre técnica, coste operativo o riesgo de adopción.
+- **Fibonacci:** 1, 2, 3, 5, 8 y 13 puntos representan tamaño relativo de integración,
+  incluyendo desarrollo, datos, pruebas, seguridad y despliegue. No equivalen
+  directamente a días.
+
+El orden recomendado no sustituye a una priorización financiera: antes de implementar
+`#BKL-017` conviene validar el coste por generación, los límites de cuota y una métrica
+de éxito (por ejemplo, porcentaje de usuarios que aceptan la alternativa). Los
+evolutivos técnicos (`#BKL-010`, `#BKL-012`, `#BKL-018`, `#BKL-019` y `#BKL-020`)
+se mantienen fuera de esta tabla porque su retorno es principalmente de calidad,
+operación o mantenibilidad, no de negocio directo.
