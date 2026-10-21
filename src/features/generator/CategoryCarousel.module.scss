@@ -71,6 +71,7 @@
 }
 
 .category-carousel__viewport :global(.swiper) {
+  min-height: 0;
   width: 100%;
   max-width: 100%;
   height: 100%;
@@ -79,9 +80,11 @@
 
 .category-carousel__viewport :global(.swiper-wrapper) {
   height: 100%;
+  min-height: 0;
 }
 
 .category-carousel__viewport :global(.swiper-slide) {
+  display: flex;
   width: 56%;
   min-width: 0;
   max-width: 100%;
@@ -160,6 +163,8 @@
 
 .category-carousel__slide {
   position: relative;
+  display: flex;
+  flex: 1 1 auto;
   height: 100%;
   min-height: 0;
   padding: var(--space-2);
@@ -174,6 +179,7 @@
 }
 
 .category-carousel__image {
+  flex: 1 1 auto;
   display: block;
   width: 100%;
   max-width: 100%;

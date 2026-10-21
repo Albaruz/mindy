@@ -14,12 +14,10 @@ interface LookShowcaseProps {
   canDiscard: boolean;
   onWear: () => void;
   onDiscard: () => void;
-  onEditManual: () => void;
 }
 
-// Showcase composition: swipeable card (wear right, discard left) plus
-// the discreet manual-edit escape hatch. Wear/discard/reset actions live
-// in the floating bottom action bar as the clickable path.
+// Showcase composition: the swipeable card offers gesture controls while
+// wear, discard, and reset remain available in the floating action bar.
 export function LookShowcase({
   look,
   position,
@@ -29,9 +27,7 @@ export function LookShowcase({
   canDiscard,
   onWear,
   onDiscard,
-  onEditManual,
 }: LookShowcaseProps) {
-  const t = useTranslations("Generator");
   return (
     <div className={styles["look-showcase"]} data-testid="generator-showcase">
       <ShowcaseCard
@@ -44,13 +40,6 @@ export function LookShowcase({
         onWear={onWear}
         onDiscard={onDiscard}
       />
-      <button
-        type="button"
-        onClick={onEditManual}
-        className={styles["look-showcase__edit-link"]}
-      >
-        {t("editManual")}
-      </button>
     </div>
   );
 }

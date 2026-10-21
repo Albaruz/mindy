@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import type { AiLook } from "./useGeneratorStore";
 
 vi.mock("next-intl", () => ({
@@ -34,8 +33,7 @@ function buildLook(): AiLook {
 }
 
 describe("LookShowcase", () => {
-  it("renders card and edit link", async () => {
-    const onEditManual = vi.fn();
+  it("renders the swipeable card without a redundant manual edit action", () => {
     render(
       <LookShowcase
         look={buildLook()}
@@ -45,13 +43,11 @@ describe("LookShowcase", () => {
         canDiscard
         onWear={() => {}}
         onDiscard={() => {}}
-        onEditManual={onEditManual}
       />,
     );
     expect(screen.getByTestId("generator-showcase")).toBeInTheDocument();
     expect(screen.getByTestId("showcase-card")).toHaveTextContent("look-1");
-    await userEvent.click(screen.getByRole("button", { name: "editManual" }));
-    expect(onEditManual).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("button", { name: "editManual" })).not.toBeInTheDocument();
   });
 });
 

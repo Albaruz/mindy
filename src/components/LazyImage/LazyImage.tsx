@@ -13,10 +13,12 @@ type LazyImageProps = Omit<
   alt: string;
   // Explicit loading strategy. "lazy" (default) defers offscreen fetches
   // via IntersectionObserver + native lazy. "eager" loads immediately
-  // with high fetch priority (use for the active carousel slide).
+  // (use for the active carousel slide and its immediate neighbours).
   loading?: "lazy" | "eager";
   // Distance threshold to start loading before the image enters view.
   rootMargin?: string;
+  // Only the visible image should compete for high-priority network bandwidth.
+  priority?: boolean;
   wrapperClassName?: string;
 };
 
@@ -28,6 +30,7 @@ export function LazyImage({
   alt,
   loading = "lazy",
   rootMargin = "200px",
+  priority = false,
   className,
   wrapperClassName,
   onLoad,
@@ -81,7 +84,7 @@ export function LazyImage({
           alt={alt}
           loading={loading}
           decoding="async"
-          fetchPriority={isEager ? "high" : "auto"}
+          fetchPriority={priority ? "high" : "auto"}
           onLoad={(event) => {
             setLoadedSrc(src);
             onLoad?.(event);

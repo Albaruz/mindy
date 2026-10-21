@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useOnboardingStore } from "@/features/onboarding/onboardingStore";
@@ -29,6 +29,7 @@ vi.mock("framer-motion", () => ({
 }));
 
 const pushMock = vi.fn();
+const scrollToMock = vi.fn();
 
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
@@ -98,13 +99,35 @@ async function goToFinalStep(user: ReturnType<typeof userEvent.setup>) {
 }
 
 beforeEach(() => {
+  vi.stubGlobal("scrollTo", scrollToMock);
+  scrollToMock.mockClear();
   useOnboardingStore.getState().reset();
   saveMock.mockReset();
   saveMock.mockResolvedValue({ error: null });
   pushMock.mockReset();
 });
 
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
 describe("OnboardingWizard", () => {
+  it("returns to the top when the step changes", async () => {
+    const user = userEvent.setup();
+    useOnboardingStore.getState().setDisplayName("Ada");
+
+    render(<OnboardingWizard />);
+    scrollToMock.mockClear();
+
+    await user.click(screen.getByRole("button", { name: "continue" }));
+
+    expect(scrollToMock).toHaveBeenCalledWith({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  });
+
   it("starts on step 1 with Continue disabled until the name is valid", () => {
     render(<OnboardingWizard />);
     expect(screen.getByTestId("mock-step-welcome")).toBeInTheDocument();

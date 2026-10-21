@@ -34,6 +34,7 @@ export function GarmentImage({
       src={src}
       alt={alt}
       loading={loading}
+      priority={loading === "eager"}
       className={className}
       wrapperClassName={className}
     />

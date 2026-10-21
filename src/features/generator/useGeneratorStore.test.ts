@@ -87,24 +87,6 @@ describe("useGeneratorStore extended coverage", () => {
     useGeneratorStore.getState().resetFlow();
   });
 
-  it("preloads the active look into manual carousels", () => {
-    const top = buildGarment("top-1", "top");
-    const bottom = buildGarment("bottom-1", "bottom");
-    useGeneratorStore.getState().setAiLooks([
-      { id: "1", garments: [top, bottom], reason: null, suitability: 80 },
-    ]);
-    useGeneratorStore.getState().editActiveLookInManual();
-    const state = useGeneratorStore.getState();
-    expect(state.view).toBe("manual");
-    expect(state.slots.top.garment?.garmentId).toBe("top-1");
-    expect(state.slots.bottom.garment?.garmentId).toBe("bottom-1");
-  });
-
-  it("switches to manual without an active look", () => {
-    useGeneratorStore.getState().editActiveLookInManual();
-    expect(useGeneratorStore.getState().view).toBe("manual");
-  });
-
   it("unlockAll keeps garments and clears suggestions", () => {
     const top = buildGarment("top-1", "top");
     useGeneratorStore.getState().setGarment("top", top);

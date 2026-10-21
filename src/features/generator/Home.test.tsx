@@ -167,11 +167,9 @@ vi.mock("./LookShowcase", () => ({
   LookShowcase: ({
     onWear,
     onDiscard,
-    onEditManual,
   }: {
     onWear: () => void;
     onDiscard: () => void;
-    onEditManual: () => void;
   }) => (
     <div data-testid="look-showcase">
       <button type="button" data-testid="showcase-wear" onClick={onWear} />
@@ -179,11 +177,6 @@ vi.mock("./LookShowcase", () => ({
         type="button"
         data-testid="showcase-discard"
         onClick={onDiscard}
-      />
-      <button
-        type="button"
-        data-testid="showcase-edit"
-        onClick={onEditManual}
       />
     </div>
   ),
@@ -492,17 +485,13 @@ describe("Home interactions", () => {
     ).toBe("zero");
   });
 
-  it("wears, discards and edits the active look", async () => {
+  it("wears and discards the active look", async () => {
     useGeneratorStore.getState().setAiLooks([buildLook("a"), buildLook("b")]);
     render(<Home />);
     await userEvent.click(screen.getByTestId("showcase-wear"));
     expect(mockWearMutate).toHaveBeenCalledTimes(1);
     await userEvent.click(screen.getByTestId("showcase-discard"));
     expect(useGeneratorStore.getState().discardCount).toBe(1);
-    await userEvent.click(screen.getByTestId("showcase-edit"));
-    expect(
-      screen.getByLabelText("sectionLabel").getAttribute("data-view"),
-    ).toBe("manual");
   });
 
   it("skips wearing while a wear is pending", async () => {

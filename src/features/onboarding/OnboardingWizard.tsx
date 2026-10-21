@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/Button/Button";
@@ -95,6 +102,12 @@ export function OnboardingWizard({
     }
     const timer = setTimeout(() => setSaveArmed(true), SAVE_ARM_DELAY_MS);
     return () => clearTimeout(timer);
+  }, [step]);
+
+  // Step content can be taller than the viewport. Every new question starts
+  // from its beginning instead of inheriting the previous step's scroll offset.
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }, [step]);
 
   const canContinue = isStepComplete(step, {

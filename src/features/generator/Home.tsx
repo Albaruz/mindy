@@ -302,19 +302,16 @@ export function Home() {
           />
         ) : activeLook ? (
           <>
-            <LookShowcase
+              <LookShowcase
               look={activeLook}
               position={activeLookIndex + 1}
               total={aiLooks.length}
               isWearing={wearToday.isPending || planTomorrow.isPending}
               canWear={outfitDay === "today"}
-              canDiscard={!discardLimitReached}
-              onWear={handleWearActiveLook}
-              onDiscard={handleDiscardActiveLook}
-              onEditManual={() =>
-                useGeneratorStore.getState().editActiveLookInManual()
-              }
-            />
+                canDiscard={!discardLimitReached}
+                onWear={handleWearActiveLook}
+                onDiscard={handleDiscardActiveLook}
+              />
             <BottomActionBar
               label={ta("lookActions")}
               primaryLabel={

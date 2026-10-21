@@ -44,10 +44,22 @@ afterEach(() => {
 
 describe("LazyImage", () => {
   it("loads immediately when eager", () => {
-    render(<LazyImage src="photo.jpg" alt="Garment" loading="eager" />);
-    expect(screen.getByRole("img", { name: "Garment" })).toHaveAttribute(
+    render(
+      <LazyImage src="photo.jpg" alt="Garment" loading="eager" priority />,
+    );
+    const image = screen.getByRole("img", { name: "Garment" });
+    expect(image).toHaveAttribute(
       "src",
       "photo.jpg",
+    );
+    expect(image).toHaveAttribute("fetchpriority", "high");
+  });
+
+  it("does not assign high network priority to eager adjacent images", () => {
+    render(<LazyImage src="photo.jpg" alt="Garment" loading="eager" />);
+    expect(screen.getByRole("img", { name: "Garment" })).toHaveAttribute(
+      "fetchpriority",
+      "auto",
     );
   });
 

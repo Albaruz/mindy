@@ -4,7 +4,6 @@ import {
   MAX_DISCARD_COUNT,
   OUTFIT_DAY_VALUES,
 } from "@/constants/generator";
-import { categorizeGarment } from "@/lib/garment/categorizeGarments";
 
 export interface Slot {
   garment: Garment | null;
@@ -79,7 +78,6 @@ export interface GeneratorState {
   setAiLooks: (looks: AiLook[]) => void;
   failStrictStyleFilter: (style: LookStyle) => void;
   discardActiveLook: () => void;
-  editActiveLookInManual: () => void;
   resetFlow: () => void;
   toggleLock: (category: Category) => void;
   // Wizard pinning: lock a category around an explicit garment (the
@@ -118,18 +116,6 @@ function createInitialSlots(): Record<Category, Slot> {
     footwear: { garment: null, isLocked: false },
     outerwear: { garment: null, isLocked: false },
   };
-}
-
-// Group a flat garment list by carousel slot for manual preloading.
-function mapGarmentsToSlots(garments: Garment[]): Partial<Record<Category, Garment>> {
-  const look: Partial<Record<Category, Garment>> = {};
-  for (const garment of garments) {
-    const category = categorizeGarment(garment);
-    if (category !== null && look[category] === undefined) {
-      look[category] = garment;
-    }
-  }
-  return look;
 }
 
 export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
@@ -214,17 +200,6 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
       activeLookIndex: 0,
       discardCount: discardCount + 1,
     });
-  },
-
-  // Escape hatch: preload the manual carousels with the active AI look,
-  // then switch to the independent carousel view.
-  editActiveLookInManual: () => {
-    const { aiLooks, activeLookIndex } = get();
-    const active = aiLooks[activeLookIndex];
-    if (active) {
-      get().setFullLook(mapGarmentsToSlots(active.garments));
-    }
-    set({ view: "manual" });
   },
 
   resetFlow: () => {

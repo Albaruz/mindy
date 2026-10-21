@@ -67,7 +67,8 @@ export function CategoryCarousel({
   const LockIcon = isLocked ? Lock : LockOpen;
   const swiperRef = useRef<SwiperInstance | null>(null);
   // Active slide drives eager preloading of neighbours so swipes
-  // feel instant while distant slides stay deferred.
+  // feel instant while distant slides stay deferred. Only the active image
+  // receives high network priority; eager neighbours stay normal priority.
   const [activeIndex, setActiveIndex] = useState(initialSlide);
   const lazyEnabled = imageLoading === "lazy";
   const isCoverflow = effect === "coverflow";
@@ -219,6 +220,7 @@ export function CategoryCarousel({
                       title
                     }
                     loading={isSlideEager(index) ? "eager" : "lazy"}
+                    priority={index === activeIndex}
                     className={styles["category-carousel__image"]}
                   />
                 ) : (
