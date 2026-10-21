@@ -5,7 +5,7 @@ import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { PasswordInput } from "@/components/PasswordInput/PasswordInput";
-import { SmartSkeleton } from "@/components/Skeletons/SmartSkeleton";
+import { Loading } from "@/components/Loading/Loading";
 import { Link, useRouter } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useNotificationStore } from "@/stores/useNotificationStore";
@@ -98,7 +98,7 @@ function ResetPasswordForm() {
       subtitle={t("updatePasswordSubtitle")}
     >
         {status === "checking" ? (
-          <SmartSkeleton label={t("updatePasswordTitle")} />
+          <Loading />
         ) : status === "invalid" ? (
           <>
             <p role="alert" className="auth-form__error">

@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { QueryState } from "@/components/QueryState/QueryState";
 import { useLocale, useTranslations } from "next-intl";
-import { SmartSkeleton } from "@/components/Skeletons/SmartSkeleton";
+import { Loading } from "@/components/Loading/Loading";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { PageHeader } from "@/components/PageHeader/PageHeader";
 import {
@@ -61,13 +61,7 @@ export default function CalendarPage() {
       <QueryState
         isPending={isPending}
         isError={isError}
-        pending={
-          <div className={styles.feed}>
-          <SmartSkeleton label={t("title")} />
-          <SmartSkeleton label={t("title")} />
-          <SmartSkeleton label={t("title")} />
-        </div>
-        }
+        pending={<Loading />}
         errorMessage={t("loadError")}
         retryLabel={tc("retry")}
         onRetry={() => void refetch()}

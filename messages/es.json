@@ -9,7 +9,8 @@
     "retry": "Reintentar",
     "cancel": "Cancelar",
     "processing": "Procesando",
-    "processingEllipsis": "Procesando…"
+    "processingEllipsis": "Procesando…",
+    "loadingMessage": "Un momentito… estamos ordenando el armario"
   },
   "Settings": {
     "title": "Ajustes",

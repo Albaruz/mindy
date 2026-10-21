@@ -4,7 +4,7 @@ import { useState } from "react";
 import { QueryState } from "@/components/QueryState/QueryState";
 import { useTranslations } from "next-intl";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
-import { SmartSkeleton } from "@/components/Skeletons/SmartSkeleton";
+import { Loading } from "@/components/Loading/Loading";
 import { Button } from "@/components/Button/Button";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { PageHeader } from "@/components/PageHeader/PageHeader";
@@ -111,14 +111,7 @@ export default function ClosetPage() {
       <QueryState
         isPending={isPending}
         isError={isError}
-        pending={
-          <div className={styles.grid}>
-            <SmartSkeleton label={t("title")} />
-            <SmartSkeleton label={t("title")} />
-            <SmartSkeleton label={t("title")} />
-            <SmartSkeleton label={t("title")} />
-          </div>
-        }
+        pending={<Loading />}
         errorMessage={t("loadError")}
         retryLabel={tc("retry")}
         onRetry={() => void refetch()}

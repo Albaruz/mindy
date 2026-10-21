@@ -9,7 +9,8 @@
     "retry": "Retry",
     "cancel": "Cancel",
     "processing": "Processing",
-    "processingEllipsis": "Processing…"
+    "processingEllipsis": "Processing…",
+    "loadingMessage": "One moment… we're tidying up the closet"
   },
   "Settings": {
     "title": "Settings",

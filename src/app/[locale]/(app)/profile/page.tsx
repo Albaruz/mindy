@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Pencil } from "lucide-react";
-import { SmartSkeleton } from "@/components/Skeletons/SmartSkeleton";
+import { Loading } from "@/components/Loading/Loading";
 import { Button } from "@/components/Button/Button";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { useProfileQuery } from "@/features/profile/useProfileQuery";
@@ -96,11 +96,7 @@ export default function ProfilePage() {
       </div>
 
       {isProfilePending ? (
-        <div className={styles.bento}>
-          <SmartSkeleton label={t("headline")} />
-          <SmartSkeleton label={t("headline")} />
-          <SmartSkeleton label={t("headline")} />
-        </div>
+        <Loading />
       ) : isProfileError ? (
         <EmptyState message={t("loadError")}>
           <Button onClick={() => void refetchProfile()}>
