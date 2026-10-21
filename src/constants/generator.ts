@@ -23,7 +23,7 @@ export const OUTFIT_DAY_VALUES = ["today", "tomorrow"] as const;
 // Recommender server limits (src/lib/recommender).
 // Token-budget cap for the garments sent to the LLM, with a soft cap per
 // category so one family cannot eat the whole budget.
-export const RECOMMENDER_MAX_GARMENTS = 60;
+export const RECOMMENDER_MAX_GARMENTS = 25;
 export const RECOMMENDER_MAX_PER_CATEGORY = 15;
 
 // Hard request-size guard: more garments than this is a 413.

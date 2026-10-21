@@ -15,9 +15,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Mindy — Match your clothes",
+  title: "Mindy: Tu armario, en su mejor versión.",
   description:
-    "Smart closet PWA with outfit recommendations based on weather, mood, and color analysis.",
+    "Armario inteligente con recomendaciones de outfits basadas en el clima, el estado de ánimo y el análisis de colores.",
   manifest: "/manifest.webmanifest",
   icons: {
     apple: "/icons/icon-192.png",

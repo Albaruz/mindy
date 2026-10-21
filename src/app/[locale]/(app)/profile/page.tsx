@@ -7,6 +7,7 @@ import { SmartSkeleton } from "@/components/Skeletons/SmartSkeleton";
 import { Button } from "@/components/Button/Button";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { useProfileQuery } from "@/features/profile/useProfileQuery";
+import { useProfileValueLabel } from "@/features/profile/profileValueLabels";
 import { MorphoIcon } from "@/features/profile/MorphoIcon";
 import { SEASON_PALETTES } from "@/constants/profile";
 import { SettingsControls } from "@/features/settings/SettingsControls";
@@ -35,18 +36,11 @@ function PaletteFan({ season }: { season: Colorimetry }) {
   );
 }
 
-function formatValue(value: string | null, notSet: string): string {
-  if (value === null) {
-    return notSet;
-  }
-  const spaced = value.replace(/_/g, " ");
-  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
-}
-
 export default function ProfilePage() {
   const t = useTranslations("Profile");
   const tc = useTranslations("Common");
   const ts = useTranslations("Settings");
+  const valueLabel = useProfileValueLabel();
   const {
     data: profile,
     isPending: isProfilePending,
@@ -124,7 +118,7 @@ export default function ProfilePage() {
           <article className={styles["color-card"]}>
             <p className={styles["card-kicker"]}>{t("labels.colorimetry")}</p>
             <p className={styles["card-hero"]}>
-              {formatValue(profile.colorimetry, t("notSet"))}
+              {valueLabel("colorimetry", profile.colorimetry) ?? t("notSet")}
             </p>
             {profile.colorimetry !== null ? (
               <PaletteFan season={profile.colorimetry} />
@@ -141,7 +135,7 @@ export default function ProfilePage() {
             <div className={styles["morpho-text"]}>
               <p className={styles["card-kicker"]}>{t("labels.morphology")}</p>
               <p className={styles["card-hero"]}>
-                {formatValue(profile.morphology, t("notSet"))}
+                {valueLabel("morphology", profile.morphology) ?? t("notSet")}
               </p>
             </div>
           </article>
@@ -149,14 +143,14 @@ export default function ProfilePage() {
           <article className={styles["fit-card"]}>
             <p className={styles["card-caption"]}>{t("fitCaption")}</p>
             <p className={styles["card-value"]}>
-              {formatValue(profile.preferredFit, t("notSet"))}
+              {valueLabel("fit", profile.preferredFit) ?? t("notSet")}
             </p>
           </article>
 
           <article className={styles["life-card"]}>
             <p className={styles["card-caption"]}>{t("lifestyleCaption")}</p>
             <p className={styles["card-value"]}>
-              {formatValue(profile.lifestyle, t("notSet"))}
+              {valueLabel("lifestyle", profile.lifestyle) ?? t("notSet")}
             </p>
           </article>
         </div>

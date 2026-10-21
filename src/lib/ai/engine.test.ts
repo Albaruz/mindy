@@ -156,4 +156,19 @@ describe("generateOutfitRecommendationStream", () => {
       generateOutfitRecommendationStream("system", {}, vi.fn()),
     ).rejects.toThrow("GROQ_API_KEY is not configured");
   });
+
+  it("defers a generic streaming JSON validation failure to route recovery", async () => {
+    mockCreate.mockResolvedValue({
+      async *[Symbol.asyncIterator]() {
+        throw new Error(
+          "Failed to validate JSON. See failed_generation for details.",
+        );
+      },
+    });
+
+    await expect(
+      generateOutfitRecommendationStream("system", {}, vi.fn()),
+    ).rejects.toMatchObject({ __upstreamFailure: true });
+    expect(mockCreate).toHaveBeenCalledTimes(1);
+  });
 });

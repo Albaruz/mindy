@@ -1,9 +1,27 @@
 import { describe, expect, it } from "vitest";
 import {
+  classifyAiFallbackReason,
   extractCompletedOptionObjects,
   parseCompletedOption,
   parseOptions,
 } from "./llmOptions";
+
+describe("recommender fallback telemetry", () => {
+  it("classifies Groq JSON stream validation failures", () => {
+    expect(
+      classifyAiFallbackReason(
+        new Error("Failed to validate JSON. See failed_generation for details."),
+        false,
+      ),
+    ).toBe("stream_json_validation_failed");
+  });
+
+  it("classifies an invalid repaired response separately", () => {
+    expect(
+      classifyAiFallbackReason(new Error("LLM response is invalid JSON"), true),
+    ).toBe("repair_failed");
+  });
+});
 
 describe("streamed recommender option parsing", () => {
   it("extracts only complete option objects and handles braces in strings", () => {

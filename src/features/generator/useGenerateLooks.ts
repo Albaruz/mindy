@@ -17,7 +17,11 @@ import { MAX_LOOK_OPTIONS } from "@/constants/generator";
 import { getSeasonalFallbackWeather } from "@/constants/weather";
 import { buildWeatherUrl } from "@/constants/api";
 import type { WeatherInfo } from "@/types/weather";
-import { getWeatherForDay, parseWeatherPayload } from "./useWeatherQuery";
+import {
+  getWeatherForDay,
+  parseWeatherPayload,
+  useWeatherQuery,
+} from "./useWeatherQuery";
 import type { Mood, GenerateLooksInput, GenerateLooksResult } from "./generatorTypes";
 import { buildCandidates } from "./generatorCandidates";
 import {
@@ -64,6 +68,26 @@ function getDefaultClimate(): Climate {
     dayLow: fallback.dayLow,
     dayHigh: fallback.dayHigh,
     rainProbability: fallback.rainProbability,
+  };
+}
+
+// Auto generation must not wait for a fresh GPS fix. The page already owns a
+// cached weather query; when it is still loading, the seasonal fallback keeps
+// the primary action responsive and the server applies its normal safeguards.
+export function resolveCachedClimate(
+  weather: WeatherInfo | null | undefined,
+  outfitDay: OutfitDay,
+): Climate {
+  const selectedWeather = getWeatherForDay(weather, outfitDay);
+  if (selectedWeather === null) {
+    return getDefaultClimate();
+  }
+  return {
+    temperatureC: selectedWeather.temperatureC,
+    condition: selectedWeather.condition,
+    dayLow: selectedWeather.dayLow,
+    dayHigh: selectedWeather.dayHigh,
+    rainProbability: selectedWeather.rainProbability,
   };
 }
 
@@ -139,6 +163,7 @@ function resolveLook(
 export function useGenerateLooks() {
   const t = useTranslations("Notifications");
   const locale = useLocale();
+  const { data: weather } = useWeatherQuery();
   return useMutation({
     mutationFn: async (input: GenerateLooksInput): Promise<GenerateLooksResult> => {
       const { dismissedIds, getLockedGarments } =
@@ -152,7 +177,10 @@ export function useGenerateLooks() {
         throw new AppError(ERROR_CODES.NO_GARMENTS);
       }
 
-      const climate = await resolveClimate();
+      const climate = resolveCachedClimate(
+        weather,
+        useGeneratorStore.getState().outfitDay,
+      );
       const apiGarments = buildRecommenderGarments(candidates);
       const request: RecommenderRequest = {
         garments: apiGarments,
@@ -243,7 +271,7 @@ export function useGenerateLooks() {
       }
       setAiLooks(looks);
       // Fallback looks skip AI training: record their IDs for amnesia
-      // and announce the trainee stylist instead of the success toast.
+      // and announce the fallback stylist instead of the success toast.
       if (isFallback) {
         setFallbackGarmentIds(
           looks.flatMap((look) =>

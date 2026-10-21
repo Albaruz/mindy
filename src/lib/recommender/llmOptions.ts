@@ -1,5 +1,9 @@
 import { readString } from "@/lib/readers";
 import { MAX_LOOK_OPTIONS } from "@/constants/generator";
+import {
+  GROQ_JSON_VALIDATION_ERROR_MARKERS,
+  type AiFallbackReason,
+} from "@/constants/ai";
 import { readIdList } from "./request";
 import type { OutfitOption } from "./types";
 import {
@@ -41,6 +45,49 @@ export function isUpstreamFailure(error: unknown): boolean {
       error.message,
     )
   );
+}
+
+// Normalized telemetry reasons deliberately omit provider payloads, candidate
+// IDs, and profile data. They make fallbacks measurable without exposing data.
+export function classifyAiFallbackReason(
+  error: unknown,
+  repairAttempted: boolean,
+): AiFallbackReason {
+  const status = (error as { status?: unknown }).status;
+  const name = (error as { name?: unknown }).name;
+  const message = error instanceof Error ? error.message.toLowerCase() : "";
+
+  if (GROQ_JSON_VALIDATION_ERROR_MARKERS.some((marker) => message.includes(marker))) {
+    return "stream_json_validation_failed";
+  }
+  if (status === 429 || name === "RateLimitError" || message.includes("rate limit")) {
+    return "groq_rate_limited";
+  }
+  if (name === "APIConnectionTimeoutError" || message.includes("timeout")) {
+    return "groq_timeout";
+  }
+  if (name === "APIConnectionError" || /network|fetch failed|connection/.test(message)) {
+    return "groq_connection";
+  }
+  if (typeof status === "number" && status >= 500) {
+    return "groq_server_error";
+  }
+  if (message.includes("empty completion")) {
+    return "empty_completion";
+  }
+  if (message.includes("invalid json") || message.includes("not a json object")) {
+    return repairAttempted ? "repair_failed" : "invalid_json";
+  }
+  if (message.includes("has no outfit options")) {
+    return repairAttempted ? "repair_failed" : "missing_options";
+  }
+  if (message.includes("reference no known garment ids")) {
+    return repairAttempted ? "repair_failed" : "unknown_garment_ids";
+  }
+  if (message.includes("violate outfit constraints")) {
+    return repairAttempted ? "repair_failed" : "constraint_rejection";
+  }
+  return "upstream_unknown";
 }
 
 function clampRatio(value: unknown): number {
@@ -182,5 +229,50 @@ export function filterValidOutfitOptions(
       return false;
     }
     return !requireOuterwear || categories.has("outerwear");
+  });
+}
+
+/**
+ * Filters options to ensure variety across them:
+ * - No repeated tops across options
+ * - No repeated bottoms across options
+ * - Locked garments are exempt (must appear in all options)
+ * - Footwear and outerwear may repeat
+ * Keeps the highest-suitability option when conflicts occur.
+ */
+export function enforceVarietyAcrossOptions(
+  options: OutfitOption[],
+  candidates: CandidateGarment[],
+  lockedIds: Set<string>,
+): OutfitOption[] {
+  const byId = new Map(candidates.map((candidate) => [candidate.id, candidate]));
+  const usedTops = new Set<string>();
+  const usedBottoms = new Set<string>();
+
+  // Sort by suitability descending so we keep best options
+  const sorted = [...options].sort(
+    (a, b) => b.suitabilityRatio - a.suitabilityRatio,
+  );
+
+  return sorted.filter((option) => {
+    const selected = option.garmentIds
+      .map((id) => byId.get(id))
+      .filter((candidate): candidate is CandidateGarment => candidate !== undefined);
+
+    for (const garment of selected) {
+      const category = categorizeGarment(toClassifiableGarment(garment));
+      if (lockedIds.has(garment.id)) continue; // locked always allowed
+      if (category === "top" && usedTops.has(garment.id)) return false;
+      if (category === "bottom" && usedBottoms.has(garment.id)) return false;
+    }
+
+    // Mark as used for subsequent options
+    for (const garment of selected) {
+      const category = categorizeGarment(toClassifiableGarment(garment));
+      if (lockedIds.has(garment.id)) continue;
+      if (category === "top") usedTops.add(garment.id);
+      if (category === "bottom") usedBottoms.add(garment.id);
+    }
+    return true;
   });
 }

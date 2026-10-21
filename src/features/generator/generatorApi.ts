@@ -36,6 +36,7 @@ export interface RecommenderOption {
 export interface RecommenderResponse {
   options: RecommenderOption[];
   _isFallback?: boolean;
+  fallbackReason?: string | null;
 }
 
 function isRecommenderOption(value: unknown): value is RecommenderOption {
@@ -56,7 +57,10 @@ function isRecommenderResponse(value: unknown): value is RecommenderResponse {
   return (
     Array.isArray(response.options) &&
     response.options.every(isRecommenderOption) &&
-    (response._isFallback === undefined || typeof response._isFallback === "boolean")
+    (response._isFallback === undefined || typeof response._isFallback === "boolean") &&
+    (response.fallbackReason === undefined ||
+      response.fallbackReason === null ||
+      typeof response.fallbackReason === "string")
   );
 }
 

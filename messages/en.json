@@ -27,7 +27,7 @@
   "Generator": {
     "sectionLabel": "Look generator",
     "placePrefix": "in",
-    "greetingNeutral": "What are we wearing today, superstar?",
+    "greetingNeutral": "What look are you going to rock today?",
     "greetingRaining": "It's raining{place}. Bundle up, I'll handle the matching.",
     "greetingRainExpected": "It's going to rain{place}. Wear something cute, umbrellas don't do miracles.",
     "greetingCold": "It's freezing out there. Put on something decent and I'll make it match.",
@@ -202,6 +202,32 @@
       "lifestyle": "Lifestyle",
       "fit": "Preferred fit"
     },
+    "morphologies": {
+      "triangle": "Triangle",
+      "inverted_triangle": "Inverted triangle",
+      "hourglass": "Hourglass",
+      "rectangle": "Rectangle",
+      "oval": "Oval"
+    },
+    "colorimetries": {
+      "spring": "Spring",
+      "summer": "Summer",
+      "autumn": "Autumn",
+      "winter": "Winter"
+    },
+    "fits": {
+      "slim": "Fitted",
+      "regular": "Regular",
+      "oversized": "Oversized",
+      "mixed": "Mixed"
+    },
+    "lifestyles": {
+      "casual_daily": "Everyday casual",
+      "corporate_office": "Corporate office",
+      "active_sports": "Active sports",
+      "home_remote": "Remote work",
+      "social_events": "Social events"
+    },
     "notSet": "Not set",
     "fitCaption": "How you like to wear it",
     "lifestyleCaption": "Your day to day",
@@ -373,8 +399,8 @@
     "imageUpdateFailed": "Could not update the image.",
     "deleted": "Garment deleted.",
     "deleteFailed": "Could not delete the garment. Try again.",
-    "lookGenerated": "Look's ready! I respected your locks, I'm obedient like that.",
-    "fallbackStylist": "Intern mode 🧵 Trainee stylist in charge.",
+    "lookGenerated": "Done! What an outfit we pulled off.",
+    "fallbackStylist": "Looks like Mindy got distracted window shopping. I'll take over.",
     "lookSaved": "That's the one! Look locked in. Go get them.",
     "outfitPlanned": "Look saved for tomorrow. You can replace it whenever you like.",
     "wearFailed": "Couldn't save it. Try again, come on.",

@@ -27,7 +27,7 @@
   "Generator": {
     "sectionLabel": "Generador de looks",
     "placePrefix": "en",
-    "greetingNeutral": "¿Qué nos ponemos hoy, artista?",
+    "greetingNeutral": "¿Qué look te vas a marcar hoy?",
     "greetingRaining": "Llueve{place}. Abrígate bien, que yo me encargo de que combine.",
     "greetingRainExpected": "Va a llover{place}. Ponte algo con gracia, que el paraguas no hace milagros.",
     "greetingCold": "Hace un frío que pela. Ponte algo decente que yo me encargo de que combine.",
@@ -202,6 +202,32 @@
       "lifestyle": "Estilo de vida",
       "fit": "Ajuste preferido"
     },
+    "morphologies": {
+      "triangle": "Triángulo",
+      "inverted_triangle": "Triángulo invertido",
+      "hourglass": "Reloj de arena",
+      "rectangle": "Rectángulo",
+      "oval": "Oval"
+    },
+    "colorimetries": {
+      "spring": "Primavera",
+      "summer": "Verano",
+      "autumn": "Otoño",
+      "winter": "Invierno"
+    },
+    "fits": {
+      "slim": "Ceñido",
+      "regular": "Regular",
+      "oversized": "Oversize",
+      "mixed": "Mixto"
+    },
+    "lifestyles": {
+      "casual_daily": "Casual a diario",
+      "corporate_office": "Oficina o corporativo",
+      "active_sports": "Deportivo activo",
+      "home_remote": "Teletrabajo",
+      "social_events": "Eventos sociales"
+    },
     "notSet": "Sin definir",
     "fitCaption": "Cómo te gusta llevarlo",
     "lifestyleCaption": "Tu día a día",
@@ -373,8 +399,8 @@
     "imageUpdateFailed": "No se pudo actualizar la imagen.",
     "deleted": "Prenda eliminada.",
     "deleteFailed": "No se pudo eliminar la prenda. Inténtalo de nuevo.",
-    "lookGenerated": "¡Look listo! He respetado tus bloqueos, que soy obediente.",
-    "fallbackStylist": "Modo becario 🧵 Estilista en prácticas al mando.",
+    "lookGenerated": "¡Hecho! Menudo outfit nos hemos marcado.",
+    "fallbackStylist": "Parece que Mindy se ha despistado mirando escaparates. Cojo el relevo.",
     "lookSaved": "¡Este es el bueno! Look fichado. A por todas.",
     "outfitPlanned": "Look guardado para mañana. Puedes sustituirlo cuando quieras.",
     "wearFailed": "No he podido ficharlo. Prueba otra vez, anda.",

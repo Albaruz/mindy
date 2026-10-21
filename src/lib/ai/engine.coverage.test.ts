@@ -136,6 +136,7 @@ describe("generateOutfitRecommendation branch coverage", () => {
     await expect(generateOutfitRecommendation("s", {})).rejects.toThrow(
       "limited",
     );
-    expect(mockCreate).toHaveBeenCalledTimes(3);
+    // Primary (attempt 1) + Fallback (attempt 1) + Primary (attempt 2) + Primary (attempt 3) = 4
+    expect(mockCreate).toHaveBeenCalledTimes(4);
   }, 30000);
 });

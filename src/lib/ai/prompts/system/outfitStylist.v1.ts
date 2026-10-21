@@ -77,6 +77,5 @@ Rules:
 - Prefer explicit candidate metadata over assumptions. Never invent a material, color, style or garment detail.
 - Validate each option for weather, cleanliness, requested style and locked garments before returning it.
 - Every option needs at least a top and a bottom (plus footwear when available).${styleFilter !== null ? `\n- Style filter (strict): every outfit must be wearable for ${styleFilter}. Never mix in another style to fill a gap.` : ""}${requireOuterwear ? "\n- Outerwear (mandatory): it is raining or cold and the candidate list contains outerwear. Every outfit MUST include exactly one outerwear garment." : ""}${requireRainSafeMaterials ? "\n- Rain-safe materials: it is raining. Avoid silk, suede, and other water-sensitive materials unless the user locked them." : ""}
-- Keep "reason" to one short sentence per option.
-- Write every "reason" in ${languageName}. Keep JSON keys in English.`;
+- Variety across options: never reuse the same top or bottom garment in different options. Footwear and outerwear may repeat.`;
 }

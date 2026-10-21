@@ -2,11 +2,14 @@
 // Centralized constants for the Groq/LLM integration.
 // Override via environment variables where noted.
 
-/** Model identifier for Groq API. Default: openai/gpt-oss-20b */
+/** Primary model identifier for Groq API. Default: openai/gpt-oss-20b */
 export const AI_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-20b";
 
-/** Request timeout in milliseconds. Default: 30s */
-export const AI_TIMEOUT_MS = 30_000;
+/** Fallback model with higher TPM limits for rate limit recovery. */
+export const AI_MODEL_FALLBACK = "llama-3.1-8b-instant";
+
+/** Request timeout in milliseconds. Default: 15s. */
+export const AI_TIMEOUT_MS = 15_000;
 
 /** Maximum retry attempts for transient failures (rate limits, json_validate_failed, empty completion). Default: 3 */
 export const AI_MAX_ATTEMPTS = 3;
@@ -20,14 +23,76 @@ export const AI_MAX_RETRY_DELAY_MS = 15_000;
 /** Temperature for outfit generation (0.0 - 1.0). Lower = more deterministic. */
 export const AI_TEMPERATURE = 0.3;
 
-/** Maximum tokens for outfit generation response. */
-export const AI_MAX_TOKENS = 1500;
+/** Maximum tokens for outfit generation response. Reduced from 1500 to fit within TPM limits. */
+export const AI_MAX_TOKENS = 2000;
 
 /** Smaller response budget reserved for repairing invalid outfit options. */
-export const AI_REPAIR_MAX_TOKENS = 700;
+export const AI_REPAIR_MAX_TOKENS = 500;
 
 /** Response format for structured output. */
 export const AI_RESPONSE_FORMAT = { type: "json_object" } as const;
+
+/** Strict JSON Schema for Structured Outputs (non-streaming recovery). */
+export const AI_STRUCTURED_RESPONSE_FORMAT = {
+  type: "json_schema",
+  json_schema: {
+    name: "outfit_options",
+    strict: true,
+    schema: {
+      type: "object",
+      additionalProperties: false,
+      required: ["options"],
+      properties: {
+        options: {
+          type: "array",
+          minItems: 1,
+          maxItems: 3,
+          items: {
+            type: "object",
+            additionalProperties: false,
+            required: ["garmentIds", "suitabilityRatio", "reason"],
+            properties: {
+              garmentIds: {
+                type: "array",
+                minItems: 2,
+                maxItems: 4,
+                items: { type: "string" }
+              },
+              suitabilityRatio: { type: "integer", minimum: 0, maximum: 100 },
+              reason: { type: "string", maxLength: 200 }
+            }
+          }
+        }
+      }
+    }
+  }
+} as const;
+
+
+/** Safe, aggregate-only classifications for recommender fallback telemetry. */
+export const AI_FALLBACK_REASONS = [
+  "stream_json_validation_failed",
+  "groq_rate_limited",
+  "groq_timeout",
+  "groq_connection",
+  "groq_server_error",
+  "empty_completion",
+  "invalid_json",
+  "missing_options",
+  "unknown_garment_ids",
+  "constraint_rejection",
+  "repair_failed",
+  "upstream_unknown",
+] as const;
+
+export type AiFallbackReason = (typeof AI_FALLBACK_REASONS)[number];
+
+/** Provider messages which identify a failed JSON-mode stream generation. */
+export const GROQ_JSON_VALIDATION_ERROR_MARKERS = [
+  "failed_generation",
+  "failed to validate json",
+  "json_validate_failed",
+] as const;
 
 // ---------------------------------------------------------------------------
 // Vision (garment tagging)

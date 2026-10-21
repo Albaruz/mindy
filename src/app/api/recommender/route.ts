@@ -11,22 +11,27 @@ import {
   MAX_LOOK_OPTIONS,
   RECOMMENDER_MAX_REQUEST_GARMENTS,
 } from "@/constants/generator";
+import { AI_TIMEOUT_MS } from "@/constants/ai";
 import { COLD_THRESHOLD_C } from "@/constants/weather";
 import { buildOutfitPrompt } from "@/lib/ai/prompts";
 import {
   generateOutfitRecommendation,
   generateOutfitRecommendationStream,
+  generateStructuredOutfitRecommendation,
   repairOutfitRecommendation,
   getEngineModel,
 } from "@/lib/ai/engine";
 import { generateFallbackLook } from "@/lib/recommender/fallback";
 import {
   extractCompletedOptionObjects,
+  classifyAiFallbackReason,
   isUpstreamFailure,
   parseCompletedOption,
   parseOptions,
   filterValidOutfitOptions,
+  enforceVarietyAcrossOptions,
 } from "@/lib/recommender/llmOptions";
+import type { AiFallbackReason } from "@/constants/ai";
 import { canBuildLook, capBalancedPool } from "@/lib/recommender/pool";
 import {
   readIdList,
@@ -64,6 +69,22 @@ interface RecommenderStreamContext {
   excludedWinterCount: number;
   excludedRainCount: number;
   excludedDismissedCount: number;
+  candidateCount: number;
+  eligibleCandidateCount: number;
+  requestedStyle: string | null;
+}
+
+// The model receives only stable, normalized wardrobe facts. Free-text image
+// descriptions add substantial prompt noise and can contain arbitrary text,
+// while the recommender decisions are fully covered by the closed tags below.
+function toPromptCandidates(candidates: CandidateGarment[]) {
+  return candidates.map((candidate) => ({
+    id: candidate.id,
+    garmentType: candidate.garmentType,
+    color: candidate.color,
+    material: candidate.material,
+    season: candidate.season,
+  }));
 }
 
 function createRecommenderStream({
@@ -81,6 +102,9 @@ function createRecommenderStream({
   excludedWinterCount,
   excludedRainCount,
   excludedDismissedCount,
+  candidateCount,
+  eligibleCandidateCount,
+  requestedStyle,
 }: RecommenderStreamContext): Response {
   const encoder = new TextEncoder();
   const abortController = new AbortController();
@@ -97,7 +121,11 @@ function createRecommenderStream({
     }
   };
 
-  const completeResponse = (options: OutfitOption[], isFallback: boolean) => {
+  const completeResponse = (
+    options: OutfitOption[],
+    isFallback: boolean,
+    fallbackReason: ReturnType<typeof classifyAiFallbackReason> | null = null,
+  ) => {
     const model = isFallback ? "local-fallback" : getEngineModel();
     logger.requestComplete("recommender", requestId, 200, Date.now() - startTime, {
       userId,
@@ -105,7 +133,13 @@ function createRecommenderStream({
       optionsCount: options.length,
       model,
       repairAttempted,
+      fallbackReason,
       streamed: true,
+      candidateCount,
+      eligibleCandidateCount,
+      cappedCandidateCount: cappedPool.length,
+      requestedStyle,
+      outerwearRequired,
       excludedWinterGarments: excludedWinterCount,
       excludedRainMaterials: excludedRainCount,
       excludedDismissedGarments: excludedDismissedCount,
@@ -121,6 +155,7 @@ function createRecommenderStream({
         excludedRainMaterials: excludedRainCount,
         excludedDismissedGarments: excludedDismissedCount,
         model,
+        fallbackReason,
       },
     });
   };
@@ -138,30 +173,48 @@ function createRecommenderStream({
       void (async () => {
         let content = "";
         let scannedObjectCount = 0;
+        let streamTimedOut = false;
         try {
-          content = await generateOutfitRecommendationStream(
-            systemPrompt,
-            userPayload,
-            (chunk) => {
-              content += chunk;
-              const objects = extractCompletedOptionObjects(content);
-              while (
-                scannedObjectCount < objects.length &&
-                previews.length < MAX_LOOK_OPTIONS
-              ) {
-                const option = parseCompletedOption(
-                  objects[scannedObjectCount],
-                  knownIds,
-                );
-                scannedObjectCount += 1;
-                if (option !== null) {
-                  previews.push(option);
-                  send({ type: "preview", option });
-                }
-              }
-            },
-            abortController.signal,
-          );
+          let timeoutId: ReturnType<typeof setTimeout> | null = null;
+          try {
+            const timeout = new Promise<never>((_, reject) => {
+              timeoutId = setTimeout(() => {
+                streamTimedOut = true;
+                abortController.abort(new Error("Recommender stream timed out"));
+                reject(new Error("Recommender stream timed out"));
+              }, AI_TIMEOUT_MS);
+            });
+            content = await Promise.race([
+              generateOutfitRecommendationStream(
+                systemPrompt,
+                userPayload,
+                (chunk) => {
+                  content += chunk;
+                  const objects = extractCompletedOptionObjects(content);
+                  while (
+                    scannedObjectCount < objects.length &&
+                    previews.length < MAX_LOOK_OPTIONS
+                  ) {
+                    const option = parseCompletedOption(
+                      objects[scannedObjectCount],
+                      knownIds,
+                    );
+                    scannedObjectCount += 1;
+                    if (option !== null) {
+                      previews.push(option);
+                      send({ type: "preview", option });
+                    }
+                  }
+                },
+                abortController.signal,
+              ),
+              timeout,
+            ]);
+          } finally {
+            if (timeoutId !== null) {
+              clearTimeout(timeoutId);
+            }
+          }
 
            let options = filterValidOutfitOptions(
              parseOptions(content, knownIds),
@@ -184,16 +237,18 @@ function createRecommenderStream({
            if (options.length === 0) {
              throw new Error("LLM options violate outfit constraints");
            }
+            // Enforce variety across options (no repeated tops/bottoms)
+            options = enforceVarietyAcrossOptions(options, cappedPool, lockedIds);
           completeResponse(options, false);
         } catch (error) {
-          if (abortController.signal.aborted || closed) {
+          if (request.signal.aborted || closed) {
             return;
           }
 
           const message = error instanceof Error ? error.message : String(error);
           const status = (error as { status?: unknown }).status;
           const statusSuffix = typeof status === "number" ? ` (status ${status})` : "";
-          if (!isUpstreamFailure(error)) {
+          if (!streamTimedOut && !isUpstreamFailure(error)) {
             logger.error(`Stream request failed: ${message}${statusSuffix}`, {
               route: "recommender",
               requestId,
@@ -207,6 +262,49 @@ function createRecommenderStream({
             return;
           }
 
+          const fallbackReason = streamTimedOut
+            ? "groq_timeout"
+            : classifyAiFallbackReason(error, repairAttempted);
+
+          // Try structured output recovery for JSON validation failures
+          // before falling back to local rules. This uses strict JSON Schema
+          // which Groq enforces server-side, avoiding invalid JSON.
+          if (fallbackReason === "stream_json_validation_failed") {
+            try {
+              const recoveredContent = await generateStructuredOutfitRecommendation(
+                systemPrompt,
+                userPayload,
+              );
+              let recoveredOptions = filterValidOutfitOptions(
+                parseOptions(recoveredContent, knownIds),
+                cappedPool,
+                lockedIds,
+                outerwearRequired,
+              );
+              if (recoveredOptions.length > 0) {
+                completeResponse(recoveredOptions, false);
+                return;
+              }
+              throw new Error("Structured recovery options violate outfit constraints");
+            } catch (recoveryError) {
+              logger.warn("Structured output recovery failed", {
+                route: "recommender",
+                requestId,
+                userId,
+                error: recoveryError,
+                recoveryFailureReason: classifyAiFallbackReason(
+                  recoveryError,
+                  repairAttempted,
+                ),
+                candidateCount,
+                eligibleCandidateCount,
+                cappedCandidateCount: cappedPool.length,
+                requestedStyle,
+                outerwearRequired,
+              });
+            }
+          }
+
           logger.warn(`LLM stream failed, using local fallback: ${message}${statusSuffix}`, {
             route: "recommender",
             requestId,
@@ -214,6 +312,12 @@ function createRecommenderStream({
             error,
             status,
             streamed: true,
+            fallbackReason,
+            candidateCount,
+            eligibleCandidateCount,
+            cappedCandidateCount: cappedPool.length,
+            requestedStyle,
+            outerwearRequired,
           });
           send({ type: "reset" });
           try {
@@ -223,7 +327,13 @@ function createRecommenderStream({
               temperatureC,
               outerwearRequired,
             );
-            completeResponse(fallbackOptions, true);
+            // Enforce variety across fallback options
+            const variedFallback = enforceVarietyAcrossOptions(
+              fallbackOptions,
+              cappedPool,
+              lockedIds,
+            );
+            completeResponse(variedFallback, true, fallbackReason);
           } catch (fallbackError) {
             logger.error("Local fallback failed for streamed request", {
               route: "recommender",
@@ -439,6 +549,7 @@ export async function POST(request: Request) {
   const requireRainSafeMaterials = isRainy;
 
   const locale = readLocale(input.locale ?? input.language, request);
+  const promptCandidates = toPromptCandidates(cappedPool);
 
   const { systemPrompt, userPayload } = buildOutfitPrompt({
     profile: readStylistProfile(input.profile),
@@ -470,7 +581,7 @@ export async function POST(request: Request) {
       mood: readString(input.mood),
       style: requestedStyle,
       lockedGarmentIds: [...lockedIds],
-      candidates: cappedPool,
+      candidates: promptCandidates,
       locale,
     },
   });
@@ -491,23 +602,40 @@ export async function POST(request: Request) {
       excludedWinterCount,
       excludedRainCount,
       excludedDismissedCount: kept.length - eligible.length,
+      candidateCount: candidates.length,
+      eligibleCandidateCount: eligible.length,
+      requestedStyle,
     });
   }
 
   let options: OutfitOption[];
   let isFallback = false;
   let repairAttempted = false;
+  let fallbackReason: AiFallbackReason | null = null;
   try {
-    const content = await generateOutfitRecommendation(
-      systemPrompt,
-      userPayload,
-    );
+    let content: string;
+    try {
+      content = await generateStructuredOutfitRecommendation(
+        systemPrompt,
+        userPayload,
+      );
+    } catch (structuredError) {
+      logger.warn("Structured output failed, falling back to json_object", {
+        route: "recommender",
+        requestId,
+        userId: user.id,
+        error: structuredError,
+      });
+      content = await generateOutfitRecommendation(systemPrompt, userPayload);
+    }
      options = filterValidOutfitOptions(
        parseOptions(content, knownIds),
        cappedPool,
        lockedIds,
        outerwearRequired,
       );
+      // Enforce variety across options (no repeated tops/bottoms)
+      options = enforceVarietyAcrossOptions(options, cappedPool, lockedIds);
       if (options.length === 0) {
         repairAttempted = true;
         const repairedContent = await repairOutfitRecommendation(userPayload, content);
@@ -533,9 +661,23 @@ export async function POST(request: Request) {
         { status: 500 },
       );
     }
+    fallbackReason = classifyAiFallbackReason(error, repairAttempted);
     // Graceful degradation: the local cerebelo answers with the same
     // contract plus _isFallback so the client skips AI training.
-     logger.warn(`LLM failed, using local fallback: ${message}${statusSuffix}`, { route: 'recommender', requestId, userId: user.id, error, status, repairAttempted });
+     logger.warn(`LLM failed, using local fallback: ${message}${statusSuffix}`, {
+       route: "recommender",
+       requestId,
+       userId: user.id,
+       error,
+       status,
+       repairAttempted,
+       fallbackReason,
+       candidateCount: candidates.length,
+       eligibleCandidateCount: eligible.length,
+       cappedCandidateCount: cappedPool.length,
+       requestedStyle,
+       outerwearRequired,
+     });
     try {
       options = generateFallbackLook(
         cappedPool,
@@ -543,6 +685,8 @@ export async function POST(request: Request) {
         temperatureC,
         outerwearRequired,
       );
+      // Enforce variety across fallback options
+      options = enforceVarietyAcrossOptions(options, cappedPool, lockedIds);
       isFallback = true;
     } catch (fallbackError) {
       const fallbackMessage =
@@ -566,11 +710,13 @@ export async function POST(request: Request) {
     excludedRainMaterials: excludedRainCount,
     excludedDismissedGarments: kept.length - eligible.length,
     repairAttempted,
+    fallbackReason,
   });
   // Debug headers for observability (safe to expose, no secrets)
   const responseHeaders = {
     "x-groq-model": isFallback ? "local-fallback" : getEngineModel(),
     "x-fallback": String(isFallback),
+    "x-fallback-reason": fallbackReason ?? "none",
     "x-options-count": String(options.length),
     "x-excluded-winter": String(excludedWinterCount),
     "x-excluded-rain": String(excludedRainCount),
@@ -588,6 +734,7 @@ export async function POST(request: Request) {
       excludedDismissedGarments: kept.length - eligible.length,
       model: isFallback ? "local-fallback" : getEngineModel(),
       repairAttempted,
+      fallbackReason,
     },
     { status: 200, headers: responseHeaders },
   );
