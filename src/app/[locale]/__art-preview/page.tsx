@@ -1,6 +1,6 @@
 // TEMPORARY visual QA route for the onboarding art. Not linked anywhere;
 // delete before merging.
-import { OnboardingArt } from "@/features/onboarding/OnboardingArt";
+import { OnboardingArt } from "@/features/onboarding/components/onboarding-art/OnboardingArt";
 
 const STEPS = [1, 2, 3, 4, 5] as const;
 

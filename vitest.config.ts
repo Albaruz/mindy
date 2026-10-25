@@ -35,11 +35,11 @@ export default defineConfig({
         // upload flow/E2E tests; importing it into the jsdom unit suite would
         // measure IndexedDB, object URLs, workers and dialogs as untested
         // implementation rather than application logic.
-        "src/features/closet/UploadQueueManager.tsx",
-        "src/features/closet/UploadBatchPreview.tsx",
+        "src/features/closet/components/upload/upload-queue-manager/UploadQueueManager.tsx",
+        "src/features/closet/components/upload/upload-batch-preview/UploadBatchPreview.tsx",
         "src/stores/useUploadQueueStore.ts",
         "src/lib/uploadQueueStorage.ts",
-        "src/features/closet/backgroundRemoval.worker.ts",
+        "src/features/closet/services/images/backgroundRemoval.worker.ts",
         ".next/**",
       ],
       thresholds: {

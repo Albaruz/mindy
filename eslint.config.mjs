@@ -8,10 +8,17 @@ import nextTs from "eslint-config-next/typescript";
 // domains legitimately read or trigger (closet data, profile, laundry).
 const FEATURES = ["closet", "generator", "history", "onboarding", "profile", "settings"];
 const SHARED_DATA_HOOKS = [
-  "@/features/closet/useClosetQuery",
-  "@/features/closet/useFavoritesQuery",
-  "@/features/profile/useProfileQuery",
-  "@/features/profile/useDoLaundry",
+  "@/features/closet/hooks/queries/useClosetQuery",
+  "@/features/closet/hooks/queries/useFavoritesQuery",
+  "@/features/profile/hooks/profile/useProfileQuery",
+  "@/features/profile/hooks/laundry/useDoLaundry",
+];
+const SHARED_DATA_HOOK_DIRECTORIES = [
+  "@/features/closet/hooks/",
+  "@/features/closet/hooks/queries/",
+  "@/features/profile/hooks/",
+  "@/features/profile/hooks/laundry/",
+  "@/features/profile/hooks/profile/",
 ];
 
 const featureIsolation = FEATURES.map((feature) => ({
@@ -25,8 +32,11 @@ const featureIsolation = FEATURES.map((feature) => ({
           {
             group: [
               ...FEATURES.filter((other) => other !== feature).map(
-                (other) => `@/features/${other}/*`,
+                (other) => `@/features/${other}/**`,
               ),
+              // `ignore` requires parent directories to be unignored before
+              // individual nested files can be allowlisted.
+              ...SHARED_DATA_HOOK_DIRECTORIES.map((directory) => `!${directory}`),
               ...SHARED_DATA_HOOKS.map((hook) => `!${hook}`),
             ],
             message:

@@ -37,19 +37,33 @@ src/
 │   └── globals.scss             # Global styles
 │
 ├── features/                    # Business domains (isolated: see "Layering rules" below)
-│   ├── generator/               # Outfit generation: store, hooks, carousels, showcase, celebration
-│   ├── closet/                  # Wardrobe: queries/mutations, upload pipeline, inventory + laundry hooks
-│   │   ├── useClosetInventory.ts     # Search / category / clean-vs-laundry view state
-│   │   ├── useLaundryActions.ts      # Optimistic wash + wash-all celebration
-│   │   ├── useGarmentDeletion.ts     # Confirm-then-delete flow
-│   │   ├── useGarmentImageActions.ts # Replace image or create a processed display image
-│   │   ├── GarmentFormModal.tsx      # Tag editor + image actions
-│   │   ├── GarmentSourcePicker.tsx   # Add button + camera/gallery sheet
-│   │   └── garmentOptions.ts         # Closet UI data (swatches, form option lists)
+│   ├── generator/               # Outfit generation, organized by responsibility
+│   │   ├── api/recommender/
+│   │   ├── components/{flow,manual,showcase,states,weather}/<component-name>/
+│   │   ├── domain/recommendations/
+│   │   ├── hooks/{generation,outfit-actions,weather}/
+│   │   ├── state/generator-store/
+│   │   └── views/home/
+│   ├── closet/                  # Wardrobe, uploads, inventory, and laundry
+│   │   ├── components/{garments,upload}/<component-name>/
+│   │   ├── domain/{garments,inventory}/
+│   │   ├── hooks/{garment-actions,inventory,laundry,queries,upload}/
+│   │   └── services/{images,persistence}/
 │   ├── profile/                 # Profile, laundry basket, colorimetry UI
+│   │   ├── components/morpho-icon/
+│   │   ├── domain/profile/
+│   │   └── hooks/{laundry,profile}/
 │   ├── history/                 # Outfit history (calendar)
-│   ├── onboarding/              # 5-step wizard (OnboardingWizard + steps/), store, inference
-│   └── settings/                # Theme store + settings controls
+│   │   ├── components/history-card/
+│   │   └── hooks/queries/
+│   ├── onboarding/              # 5-step wizard
+│   │   ├── components/{onboarding-art,steps/<step-name>}/
+│   │   ├── domain/inference/
+│   │   ├── state/onboarding-store/
+│   │   └── views/onboarding-wizard/
+│   └── settings/                # Theme and settings controls
+│       ├── components/settings-controls/
+│       └── state/theme-store/
 │
 ├── stores/                      # Cross-cutting Zustand stores (notifications)
 │
@@ -120,10 +134,14 @@ src/
         └── _visually-hidden.scss # .visually-hidden (custom inputs, hidden legends)
 ```
 
-Component styles live next to their component as `Component.module.scss`
-(CSS Modules). Structure shared by several components is **not** duplicated
-or injected with mixins: it is a global BEM class applied in the markup
-next to the component's own module class (see `docs/REFACTOR.md`).
+Feature directories use kebab-case. Each component and view owns a folder for
+its implementation, styles, tests, and private helpers. Hooks, domain modules,
+stores, and API clients are grouped by responsibility; their tests remain next
+to the implementation. Component styles use `Component.module.scss` (CSS Modules).
+This keeps ownership clear while folders group files by responsibility. Structure shared
+by several components is **not** duplicated or injected with mixins: it is a
+global BEM class applied in the markup next to the component's own module class
+(see `docs/REFACTOR.md`).
 
 ### Layering rules
 

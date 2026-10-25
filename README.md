@@ -131,7 +131,23 @@ La organización sigue una arquitectura **Feature-Driven**: cada dominio de nego
 │   │   └── api/                  # Endpoints seguros: weather, recommender y analyze
 │   ├── components/               # Kit de interfaz reutilizable y agnóstico de dominio
 │   ├── constants/                # Valores centralizados y vocabularios controlados
-│   ├── features/                 # Dominios: closet, generator, profile, history y onboarding
+│   ├── features/                 # Dominios de negocio organizados por responsabilidad
+│   │   ├── generator/
+│   │   │   ├── api/recommender/
+│   │   │   ├── components/{flow,manual,showcase,states,weather}/<component>/
+│   │   │   ├── domain/recommendations/
+│   │   │   ├── hooks/{generation,outfit-actions,weather}/
+│   │   │   ├── state/generator-store/
+│   │   │   └── views/home/
+│   │   ├── closet/
+│   │   │   ├── components/{garments,upload}/<component>/
+│   │   │   ├── domain/{garments,inventory}/
+│   │   │   ├── hooks/{garment-actions,inventory,laundry,queries,upload}/
+│   │   │   └── services/{images,persistence}/
+│   │   ├── history/               # components/history-card y hooks/queries
+│   │   ├── profile/               # components/morpho-icon, domain/profile, hooks/{laundry,profile}
+│   │   ├── onboarding/            # components/{onboarding-art,steps/<step>}, domain/inference, state/onboarding-store, views/onboarding-wizard
+│   │   └── settings/              # components/settings-controls y state/theme-store
 │   ├── lib/                      # Lógica compartida: IA, Supabase, reglas y utilidades
 │   ├── stores/                   # Estado global con Zustand
 │   ├── styles/                   # Tokens, estilos base, shells globales y SCSS Modules
@@ -139,6 +155,11 @@ La organización sigue una arquitectura **Feature-Driven**: cada dominio de nego
 ├── package.json                  # Dependencias y comandos de desarrollo
 └── next.config.ts                # Configuración de Next.js, PWA y cabeceras
 ```
+
+Los directorios de las features usan `kebab-case`. Cada componente y vista tiene
+su propia carpeta para mantener juntos el archivo `.tsx`, sus estilos y sus
+tests. Hooks, dominio, estado, API y servicios se agrupan por responsabilidad;
+los tests de esos módulos permanecen junto a su implementación.
 
 ### Flujo de datos resumido
 

@@ -14,14 +14,14 @@ vi.mock("idb-keyval", () => ({
   del: mockDel,
 }));
 
-vi.mock("@/features/settings/themeStore", async (importOriginal) => {
+vi.mock("@/features/settings/state/theme-store/themeStore", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import("@/features/settings/themeStore")>();
+    await importOriginal<typeof import("@/features/settings/state/theme-store/themeStore")>();
   return { ...actual, applyThemeMode: mockApplyTheme };
 });
 
 import { Providers } from "./providers";
-import { useThemeStore } from "@/features/settings/themeStore";
+import { useThemeStore } from "@/features/settings/state/theme-store/themeStore";
 
 describe("Providers offline persistence", () => {
   it("renders children and applies the stored theme", async () => {

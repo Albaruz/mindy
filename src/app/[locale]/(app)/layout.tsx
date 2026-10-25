@@ -4,7 +4,7 @@ import { AppHeader } from "@/components/AppHeader/AppHeader";
 import { NotificationContainer } from "@/components/Notification/NotificationContainer";
 import { VercelAnalytics } from "@/components/VercelAnalytics/VercelAnalytics";
 import { Providers } from "../../providers";
-import { UploadQueueManager } from "@/features/closet/UploadQueueManager";
+import { UploadQueueManager } from "@/features/closet/components/upload/upload-queue-manager/UploadQueueManager";
 
 // Editorial typography is needed only by authenticated product routes.
 const playfairDisplay = Playfair_Display({

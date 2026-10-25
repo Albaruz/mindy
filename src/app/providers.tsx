@@ -5,7 +5,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { del, get, set } from "idb-keyval";
-import { applyThemeMode, useThemeStore } from "@/features/settings/themeStore";
+import { applyThemeMode, useThemeStore } from "@/features/settings/state/theme-store/themeStore";
 import { PERSISTED_CACHE_KEY } from "@/constants/storage";
 import {
   QUERY_NETWORK_MODE,

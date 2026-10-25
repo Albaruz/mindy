@@ -3,7 +3,7 @@
 // blink without an authenticated session.
 import { getTranslations } from "next-intl/server";
 import { TopNavigation } from "@/components/TopNavigation/TopNavigation";
-import { SettingsControls } from "@/features/settings/SettingsControls";
+import { SettingsControls } from "@/features/settings/components/settings-controls/SettingsControls";
 
 export default async function PreviewPage({
   params,

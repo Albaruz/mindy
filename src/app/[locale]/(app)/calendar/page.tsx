@@ -9,8 +9,8 @@ import { PageHeader } from "@/components/PageHeader/PageHeader";
 import {
   useHistoryQuery,
   type HistoryEntry,
-} from "@/features/history/useHistoryQuery";
-import { HistoryCard } from "@/features/history/HistoryCard";
+} from "@/features/history/hooks/queries/useHistoryQuery";
+import { HistoryCard } from "@/features/history/components/history-card/HistoryCard";
 import styles from "./page.module.scss";
 
 interface MonthGroup {
