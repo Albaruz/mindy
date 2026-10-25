@@ -97,8 +97,28 @@ export function generateFallbackLook(
 
   const options: OutfitOption[] = [];
   const seen = new Set<string>();
+  const lockedBottoms = (byCategory.get("bottom") ?? []).filter((candidate) =>
+    lockedIds.has(candidate.id),
+  );
+  const lockedOnePieceTops = (byCategory.get("top") ?? []).filter(
+    (candidate) =>
+      lockedIds.has(candidate.id) &&
+      isOnePieceGarment(toClassifiableGarment(candidate)),
+  );
+  if (lockedBottoms.length > 0 && lockedOnePieceTops.length > 0) {
+    throw new Error("Conflicting one-piece and bottom constraints.");
+  }
+
   for (let round = 0; round < 3; round += 1) {
-    const top = pickCandidate(byCategory.get("top") ?? [], lockedIds, temperatureC);
+    const topCandidates =
+      lockedBottoms.length > 0
+        ? (byCategory.get("top") ?? []).filter(
+            (candidate) =>
+              lockedIds.has(candidate.id) ||
+              !isOnePieceGarment(toClassifiableGarment(candidate)),
+          )
+        : byCategory.get("top") ?? [];
+    const top = pickCandidate(topCandidates, lockedIds, temperatureC);
     if (!top) {
       break;
     }
@@ -128,7 +148,12 @@ export function generateFallbackLook(
     if (footwear) {
       ids.push(footwear.id);
     }
-    if (requireOuterwear) {
+    if (
+      requireOuterwear ||
+      (byCategory.get("outerwear") ?? []).some((candidate) =>
+        lockedIds.has(candidate.id),
+      )
+    ) {
       const outerwear = pickCandidate(
         byCategory.get("outerwear") ?? [],
         lockedIds,

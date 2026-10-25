@@ -1064,6 +1064,99 @@ describe("POST /api/recommender residual coverage", () => {
     expect(response.status).toBe(200);
   });
 
+  it("keeps the selected favorite in the pool when the candidate cap applies", async () => {
+    const garments: unknown[] = [];
+    for (let index = 0; index < 40; index += 1) {
+      garments.push(buildGarment(`top-${index}`, "top"));
+    }
+    for (let index = 0; index < 10; index += 1) {
+      garments.push(buildGarment(`bottom-${index}`, "bottom"));
+      garments.push(buildGarment(`shoe-${index}`, "footwear"));
+    }
+    mockGenerate.mockResolvedValue(
+      okOptions(["top-39", "bottom-0", "shoe-0"]),
+    );
+
+    const response = await POST(
+      buildRequest({
+        garments,
+        temperatureC: 20,
+        forcedFavoritesIds: ["top-39"],
+      }),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body._isFallback).toBe(false);
+    expect(body.options[0].garmentIds).toContain("top-39");
+  });
+
+  it("keeps an explicitly selected favorite through heat and rain filters", async () => {
+    const garments = [
+      { ...buildGarment("favorite-top", "top", "casual", "silk"), season: "winter" },
+      buildGarment("bottom", "bottom"),
+    ];
+    mockGenerate.mockImplementation(async (_system, payload) => {
+      const candidates = (payload as { candidates: Array<{ id: string }> }).candidates;
+      expect(candidates.map((candidate) => candidate.id)).toContain("favorite-top");
+      return okOptions(["favorite-top", "bottom"]);
+    });
+
+    const response = await POST(
+      buildRequest({
+        garments,
+        temperatureC: 30,
+        dayHigh: 30,
+        condition: "Rain",
+        forcedFavoritesIds: ["favorite-top"],
+      }),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.options[0].garmentIds).toContain("favorite-top");
+  });
+
+  it("does not treat a dirty favorite as an available forced candidate", async () => {
+    const garments = [
+      { ...buildGarment("favorite-top", "top"), isDirty: true },
+      buildGarment("bottom", "bottom"),
+    ];
+
+    const response = await POST(
+      buildRequest({
+        garments,
+        temperatureC: 20,
+        forcedFavoritesIds: ["favorite-top"],
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(mockGenerate).not.toHaveBeenCalled();
+  });
+
+  it("includes a selected favorite outerwear in the local fallback on a warm day", async () => {
+    const garments = [
+      buildGarment("top", "top"),
+      buildGarment("bottom", "bottom"),
+      buildGarment("favorite-coat", "outerwear"),
+    ];
+    mockGenerate.mockRejectedValue(groqFailure());
+
+    const response = await POST(
+      buildRequest({
+        garments,
+        temperatureC: 22,
+        forcedFavoritesIds: ["favorite-coat"],
+      }),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body._isFallback).toBe(true);
+    expect(body.options[0].garmentIds).toContain("favorite-coat");
+  });
+
   it("fills the budget round-robin up to the cap", async () => {
     const garments: unknown[] = [];
     for (let i = 0; i < 20; i += 1) garments.push(buildGarment(`t${i}`, "top"));

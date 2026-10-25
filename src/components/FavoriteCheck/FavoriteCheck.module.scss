@@ -1,0 +1,76 @@
+/* FavoriteCheck Component Styles (CSS Module) */
+/* Unified visual check with heart - IDENTICAL appearance everywhere */
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  min-height: var(--touch-target-min);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  font-family: inherit;
+  color: var(--color-tab-inactive);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition:
+    color var(--duration-fast),
+    background var(--duration-fast),
+    border-color var(--duration-fast);
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-favorite);
+    color: var(--color-favorite);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  &:disabled,
+  &--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Selected state - red background, white icon/text */
+  &--selected {
+    border-color: var(--color-favorite);
+    background: var(--color-favorite);
+    color: var(--color-oat);
+
+    // Keep the text contrast explicit instead of relying only on inheritance.
+    .label {
+      color: var(--color-oat);
+    }
+  }
+
+  .heart {
+    display: block;
+    flex-shrink: 0;
+    transition: color var(--duration-fast), background-color var(--duration-fast);
+
+    &--selected {
+      color: var(--color-oat);
+      background-color: var(--color-favorite);
+      border-radius: 50%;
+    }
+  }
+
+  .label {
+    display: inline;
+  }
+
+  &--hide-label {
+    width: var(--touch-target-min);
+    justify-content: center;
+    padding: 0;
+
+    .label {
+      display: none;
+    }
+  }
+}

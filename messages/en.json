@@ -110,7 +110,15 @@
     "cityFallback": "Your location",
     "rainToday": "Rain today: {pct}%",
     "rainUnknown": "Rain today: —",
-    "umbrella": " · bring an umbrella"
+    "umbrella": " · bring an umbrella",
+    "filters": {
+      "favorites": "Favorites"
+    },
+    "styleStepSelectFavorite": "Pick your star piece",
+    "favoritesPickerEmpty": "Favorites need their close-up. Snap a pic in your closet first.",
+    "favoritesPickerGoToCloset": "Head to the closet",
+    "favoritesSelectionTitle": "Time for the MVP",
+    "favoritesSelectionSubtitle": "Pick your ride-or-die for this {style} fit."
   },
   "Closet": {
     "title": "My closet",
@@ -144,7 +152,8 @@
       "tops": "Tops",
       "bottoms": "Bottoms",
       "shoes": "Shoes",
-      "outerwear": "Outerwear"
+      "outerwear": "Outerwear",
+      "favorites": "Favorites"
     },
     "editTitle": "Edit garment",
     "saveChanges": "Save changes",
@@ -152,7 +161,6 @@
     "saveError": "Could not save changes. Try again.",
     "imageChooseNew": "Change image",
     "imageRemoveBackground": "Remove background",
-    "imageRemovingBackground": "Removing background…",
     "imageRemovingBackgroundOverlay": "Mindy is making your garment picture-perfect…",
     "imageUpdateError": "Could not update the image.",
     "deleteTitle": "Delete {name}?",
@@ -181,7 +189,6 @@
       "color": "Color",
       "material": "Material",
       "style": "Style",
-      "stylePlaceholder": "Select a style",
       "cut": "Cut / length",
       "validation": "Please choose what kind of garment it is.",
       "extraTags": "Extra tags",
@@ -189,7 +196,10 @@
       "tagKeyPh": "e.g. color_base",
       "tagValuePh": "e.g. terracotta",
       "tagHintEmpty": "Write both a key and a value to add a tag.",
-      "tagHintDuplicate": "\"{key}\" already exists. Remove it first to replace it."
+      "tagHintDuplicate": "\"{key}\" already exists. Remove it first to replace it.",
+      "addToFavorites": "Add to favorites",
+      "removeFromFavorites": "Remove from favorites",
+      "deleteGarment": "Say goodbye"
     }
   },
   "Profile": {
@@ -406,6 +416,9 @@
     "outfitPlanned": "Look saved for tomorrow. You can replace it whenever you like.",
     "wearFailed": "Couldn't save it. Try again, come on.",
     "stylistUnavailable": "Oops, my fashion brain just short-circuited. Give me a second to recover.",
+    "addedToFavorites": "Heart secured. Officially a fave.",
+    "removedFromFavorites": "Out of the VIP section. No hard feelings.",
+    "favoriteFailed": "My heart just glitched. Try again.",
     "errors": {
       "NO_GARMENTS": "Add garments to your closet first.",
       "STYLIST_UNAVAILABLE": "The stylist is unavailable right now. Try again.",
@@ -454,6 +467,9 @@
     "deleteGarment": "Delete {name}",
     "washGarment": "Wash {name}",
     "editGarment": "Edit {name}",
+    "addToFavorites": "Add {name} to favorites",
+    "removeFromFavorites": "Remove {name} from favorites",
+    "selectGarment": "Use {name} for this look",
     "removeTag": "Remove {key} tag",
     "addTag": "Add tag",
     "carousel": "{title} carousel",
@@ -481,6 +497,7 @@
     "measureValue": "{value} centimeters",
     "vetoColor": "Veto {color}",
     "weatherCard": "Weather in {city}: {label}, {temp} degrees",
+    "back": "Go back",
     "skipToContent": "Skip to content"
   },
   "Garments": {},

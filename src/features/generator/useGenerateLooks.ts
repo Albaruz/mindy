@@ -172,7 +172,13 @@ export function useGenerateLooks() {
       const lockedIds = new Set(locked.map((g) => g.garmentId));
       const dismissed = new Set(dismissedIds);
 
-      const candidates = buildCandidates(input.garments, lockedIds, dismissed);
+      const forcedFavoriteIds = new Set(input.forcedFavoritesIds ?? []);
+      const candidates = buildCandidates(
+        input.garments,
+        lockedIds,
+        dismissed,
+        forcedFavoriteIds,
+      );
       if (candidates.length === 0) {
         throw new AppError(ERROR_CODES.NO_GARMENTS);
       }
@@ -195,6 +201,7 @@ export function useGenerateLooks() {
         locale,
         lockedGarmentIds: [...lockedIds],
         dismissedGarmentIds: [...dismissed],
+        forcedFavoritesIds: input.forcedFavoritesIds ?? [],
       };
       const byId = new Map(
         input.garments.map((garment) => [garment.garmentId, garment] as const),

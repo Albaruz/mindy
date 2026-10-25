@@ -8,6 +8,21 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
+vi.mock("./useToggleFavorite", () => ({
+  useToggleFavorite: () => ({
+    isPending: false,
+    mutate: vi.fn(),
+  }),
+}));
+
+vi.mock("@/stores/useNotificationStore", () => ({
+  useNotificationStore: {
+    getState: () => ({
+      addNotification: vi.fn(),
+    }),
+  },
+}));
+
 const { mockTranslate, mockTranslateDetail } = vi.hoisted(() => ({
   mockTranslate: vi.fn(),
   mockTranslateDetail: vi.fn(),
@@ -36,6 +51,9 @@ function buildGarment(overrides: Partial<Garment> = {}): Garment {
     isExternalGarment: false,
     extraTags: { specificType: "tee" },
     createdAt: "",
+    styles: ["casual"],
+    cuts: [],
+    isFavorite: false,
     ...overrides,
   };
 }
@@ -90,10 +108,18 @@ describe("GarmentCard wash branches", () => {
     expect(screen.getByRole("button", { name: "washGarment" })).toBeDisabled();
   });
 
-  it("renders no action buttons without handlers", () => {
+  it("renders the favorite toggle without wash or edit handlers", () => {
     mockTranslate.mockImplementation((value: string | null) => value);
     mockTranslateDetail.mockImplementation((value: string | null) => value);
     render(<GarmentCard garment={buildGarment()} />);
-    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "addToFavorites" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "washGarment" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "editGarment" }),
+    ).not.toBeInTheDocument();
   });
 });

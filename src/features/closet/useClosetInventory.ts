@@ -3,7 +3,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import { CLOSET_PAGE_SIZE } from "@/constants/ui-config";
 import type { Garment } from "@/types/garment";
-import type { CategoryFilter } from "@/types/ui";
+import type { CategoryFilter, FavoritesFilter } from "@/types/ui";
 import {
   isInLaundryGarment,
   isWashableGarment,
@@ -24,12 +24,13 @@ export type EmptyMessageKey =
   | "closetNoCleanItems";
 
 // Unified inventory: clean garments vs the laundry basket (dirty and not
-// laundry-exempt, mirroring the basket query). Search and category filters
-// apply on top of the active view: strict category prefilter first, then
-// the strict text search.
+// laundry-exempt, mirroring the basket query). Search, category and favorites
+// filters apply on top of the active view: strict category prefilter first,
+// then favorites filter, then the strict text search.
 export function useClosetInventory(garments: Garment[]) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>("all");
+  const [showFavorites, setShowFavorites] = useState<FavoritesFilter>(false);
   const [inventoryView, setInventoryView] = useState<InventoryView>("clean");
   const [page, setPage] = useState(1);
   // Deferred query keeps the input responsive while the grid filters.
@@ -49,12 +50,14 @@ export function useClosetInventory(garments: Garment[]) {
   );
   const baseGarments = inventoryView === "clean" ? cleanGarments : dirtyGarments;
   const filteredGarments = useMemo(
-    () =>
-      filterGarmentsBySearch(
-        filterGarmentsByCategory(baseGarments, activeCategory),
-        deferredQuery,
-      ),
-    [baseGarments, activeCategory, deferredQuery],
+    () => {
+      let result = filterGarmentsByCategory(baseGarments, activeCategory);
+      if (showFavorites) {
+        result = result.filter((g) => g.isFavorite);
+      }
+      return filterGarmentsBySearch(result, deferredQuery);
+    },
+    [baseGarments, activeCategory, showFavorites, deferredQuery],
   );
   const pageCount = Math.max(1, Math.ceil(filteredGarments.length / CLOSET_PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
@@ -71,6 +74,10 @@ export function useClosetInventory(garments: Garment[]) {
     setActiveCategory(value);
     setPage(1);
   };
+  const changeShowFavorites = (value: FavoritesFilter) => {
+    setShowFavorites(value);
+    setPage(1);
+  };
   const changeInventoryView = (value: InventoryView) => {
     setInventoryView(value);
     setPage(1);
@@ -78,7 +85,7 @@ export function useClosetInventory(garments: Garment[]) {
 
   // Keep a truly empty wardrobe distinct from a wardrobe whose clothes are
   // all waiting for laundry.
-  const hasQuery = deferredQuery.trim() !== "" || activeCategory !== "all";
+  const hasQuery = deferredQuery.trim() !== "" || activeCategory !== "all" || showFavorites;
   const isActuallyEmpty = garments.length === 0;
   const allWashableGarmentsAreDirty =
     washableGarments.length > 0 &&
@@ -106,6 +113,8 @@ export function useClosetInventory(garments: Garment[]) {
     setSearchQuery: changeSearchQuery,
     activeCategory,
     setActiveCategory: changeActiveCategory,
+    showFavorites,
+    setShowFavorites: changeShowFavorites,
     inventoryView,
     setInventoryView: changeInventoryView,
     cleanGarments,

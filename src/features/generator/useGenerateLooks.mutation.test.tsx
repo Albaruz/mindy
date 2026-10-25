@@ -24,6 +24,7 @@ import { useGeneratorStore } from "./useGeneratorStore";
 import { ERROR_CODES } from "@/constants/errors";
 import { getSeasonalFallbackWeather } from "@/constants/weather";
 import { AppError } from "@/lib/errors";
+import type { Garment } from "@/types/garment";
 
 function createWrapper() {
   const client = new QueryClient({
@@ -54,6 +55,68 @@ describe("useGenerateLooks mutation", () => {
     expect(result.current.error).toBeInstanceOf(AppError);
     expect((result.current.error as AppError).code).toBe(ERROR_CODES.NO_GARMENTS);
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("sends a selected available favorite as a forced recommender candidate", async () => {
+    const favoriteTop = {
+      garmentId: "favorite-top",
+      userId: "user-1",
+      imageUrl: null,
+      garmentType: "top",
+      style: "casual",
+      cutLength: null,
+      styles: ["casual"],
+      cuts: [],
+      color: "black",
+      material: "cotton",
+      season: "all",
+      isDirty: false,
+      lastWornDate: null,
+      isExternalGarment: false,
+      extraTags: {},
+      createdAt: "2026-01-01T00:00:00.000Z",
+      isFavorite: true,
+    } as Garment;
+    const bottom = {
+      ...favoriteTop,
+      garmentId: "bottom",
+      garmentType: "bottom",
+      isDirty: false,
+      isFavorite: false,
+    } as Garment;
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockResolvedValue(
+      new Response(
+        `data: ${JSON.stringify({
+          type: "complete",
+          payload: {
+            options: [{ garmentIds: ["favorite-top", "bottom"] }],
+            _isFallback: false,
+          },
+        })}\n\n`,
+        { headers: { "Content-Type": "text/event-stream" } },
+      ),
+    );
+    const { result } = renderHook(() => useGenerateLooks(), {
+      wrapper: createWrapper(),
+    });
+
+    result.current.mutate({
+      garments: [favoriteTop, bottom],
+      profile: null,
+      style: "casual",
+      forcedFavoritesIds: ["favorite-top"],
+    });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    const request = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body)) as {
+      garments: Array<{ garmentId: string }>;
+      forcedFavoritesIds: string[];
+    };
+    expect(request.garments.map((garment) => garment.garmentId)).toContain(
+      "favorite-top",
+    );
+    expect(request.forcedFavoritesIds).toContain("favorite-top");
   });
 });
 

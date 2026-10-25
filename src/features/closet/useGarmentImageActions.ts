@@ -95,6 +95,7 @@ export function useGarmentImageActions() {
     },
     onSuccess: (_, variables) => {
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments });
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.favorites });
       notify("success", variables.removeBackground ? t("backgroundRemoved") : t("imageUpdated"));
     },
     onError: (error) => notify("error", error instanceof Error ? error.message : t("imageUpdateFailed")),

@@ -7,11 +7,17 @@ export const API_ROUTES = {
   weather: "/api/weather",
   recommender: "/api/recommender",
   analyze: "/api/analyze",
+  favorites: "/api/favorites",
+  garments: "/api/garments",
 } as const;
 
 /** Builds the weather endpoint URL for device coordinates. */
 export function buildWeatherUrl(latitude: number, longitude: number): string {
   return `${API_ROUTES.weather}?lat=${latitude}&lon=${longitude}`;
+}
+
+export function buildGarmentFavoriteUrl(garmentId: string): string {
+  return `${API_ROUTES.garments}/${encodeURIComponent(garmentId)}/favorite`;
 }
 
 // ---------------------------------------------------------------------------
@@ -23,6 +29,7 @@ export const RATE_LIMITS = {
   weather: { key: "weather", limit: 30, windowMs: 60 * 60 * 1000 },
   recommender: { key: "recommender", limit: 5, windowMs: 60 * 1000 },
   analyze: { key: "analyze", limit: 30, windowMs: 10 * 60 * 1000 },
+  favorite: { key: "favorite", limit: 60, windowMs: 60 * 1000 },
 } as const;
 
 /** Memory cap for tracked rate-limit keys (oldest evicted first). */

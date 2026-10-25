@@ -1,10 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AnimatePresence } from "framer-motion";
-import { RotateCcw, X } from "lucide-react";
+import { X, ChevronLeft } from "lucide-react";
 import { SmartSkeleton } from "@/components/Skeletons/SmartSkeleton";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { BottomActionBar } from "@/components/BottomActionBar/BottomActionBar";
@@ -32,6 +32,8 @@ import { InsufficientStyleEmpty } from "./InsufficientStyleEmpty";
 import { ShowcaseCard } from "./ShowcaseCard";
 import type { AiLook } from "./useGeneratorStore";
 import { getGeneratorReadiness } from "./generatorReadiness";
+import { useFavoritesQuery } from "@/features/closet/useFavoritesQuery";
+import { FavoritesSelectionStep } from "./FavoritesSelectionStep";
 import styles from "./Home.module.scss";
 
 // Swiper carousels are heavy: split them so the zero state stays instant.
@@ -121,6 +123,7 @@ export function Home() {
   } = useClosetQuery();
   const { data: profile } = useProfileQuery();
   const { data: weather } = useWeatherQuery();
+  const { data: favorites = [] } = useFavoritesQuery();
 
   const view = useGeneratorStore((state) => state.view);
   const lookStyle = useGeneratorStore((state) => state.lookStyle);
@@ -171,16 +174,36 @@ export function Home() {
           lifestyle: profile.lifestyle,
         };
 
+  const [useFavorite, setUseFavorite] = useState(false);
+  const availableFavorites = useMemo(
+    () => favorites.filter(isWearableGarment),
+    [favorites],
+  );
+
   const handleConfirmStyle = () => {
     if (readiness.status !== "ready") {
       return;
     }
-    useGeneratorStore.getState().startLoading();
+    // If user checked the favorite checkbox and has favorites, navigate to favorites selection step
+    if (useFavorite && availableFavorites.length > 0) {
+      useGeneratorStore.getState().startFavoritesSelection();
+    } else {
+      startGeneration([]);
+    }
+  };
+
+  const startGeneration = (forcedFavoritesIds: string[]) => {
+    useGeneratorStore.getState().setView("loading");
     generateLooks.mutate({
       garments,
       profile: recommenderProfile,
       style: useGeneratorStore.getState().lookStyle,
+      forcedFavoritesIds,
     });
+  };
+
+  const handleFavoritesSelect = (garmentId: string) => {
+    startGeneration([garmentId]);
   };
 
   const activeLook = aiLooks[activeLookIndex] ?? null;
@@ -277,6 +300,18 @@ export function Home() {
           onChange={(style) => useGeneratorStore.getState().setLookStyle(style)}
           onConfirm={handleConfirmStyle}
           onBack={() => useGeneratorStore.getState().setView("zero")}
+          hasFavorites={availableFavorites.length > 0}
+          useFavorite={useFavorite}
+          onToggleFavorite={setUseFavorite}
+        />
+      ) : null}
+
+      {view === "favorites-selection" ? (
+        <FavoritesSelectionStep
+          onSelect={handleFavoritesSelect}
+          onBack={() => {
+            useGeneratorStore.getState().setView("auto-select");
+          }}
         />
       ) : null}
 
@@ -325,9 +360,9 @@ export function Home() {
                 wearToday.isPending || planTomorrow.isPending
               }
               left={{
-                label: ta("resetFlow"),
-                onClick: () => useGeneratorStore.getState().resetFlow(),
-                icon: <RotateCcw aria-hidden="true" size={22} />,
+                label: ta("back"),
+                onClick: () => useGeneratorStore.getState().setView("zero"),
+                icon: <ChevronLeft aria-hidden="true" size={22} />,
               }}
               right={{
                 label: ta("discardLook", {

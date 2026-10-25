@@ -2,7 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import type { Garment } from "@/types/garment";
 import type { OutfitHistory } from "@/types/history";
-import { toGarment, type GarmentRow } from "@/lib/garment/garmentMappers";
+import {
+  GARMENT_ROW_COLUMNS,
+  toGarment,
+  type GarmentRow,
+} from "@/lib/garment/garmentMappers";
 import { ENTITY_GC_TIME_MS, ENTITY_STALE_TIME_MS, QUERY_KEYS } from "@/constants/query";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { getSessionUser } from "@/lib/supabase/session";
@@ -32,26 +36,6 @@ const HISTORY_COLUMNS = `
   created_at,
   is_planned,
   planned_date
-`.trim();
-
-// Columns for garments table (reused from garmentMappers)
-const GARMENT_COLUMNS = `
-  garment_id,
-  user_id,
-  image_url,
-  garment_type,
-  style,
-  cut_length,
-  styles,
-  cut_lengths,
-  color,
-  material,
-  season,
-  is_dirty,
-  last_worn_date,
-  is_external_garment,
-  extra_tags,
-  created_at
 `.trim();
 
 function toHistory(row: OutfitHistoryRow): OutfitHistory {
@@ -91,7 +75,7 @@ async function fetchHistory(): Promise<HistoryEntry[]> {
 
   const { data: garmentRows, error: garmentsError } = await supabase
     .from(TABLES.garments)
-    .select(GARMENT_COLUMNS)
+    .select(GARMENT_ROW_COLUMNS)
     .in("garment_id", garmentIds);
   if (garmentsError) {
     throw garmentsError;

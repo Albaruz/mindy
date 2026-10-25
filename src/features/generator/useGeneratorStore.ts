@@ -13,6 +13,7 @@ export interface Slot {
 export type GeneratorView =
   | "zero"
   | "auto-select"
+  | "favorites-selection"
   | "loading"
   | "showcase"
   | "manual";
@@ -66,6 +67,8 @@ export interface GeneratorState {
   // Style rejected by strict server filtering (422). Drives the dedicated
   // empty state on the showcase screen instead of a generic error.
   insufficientStyle: LookStyle | null;
+  // Manual mode: show only favorites in carousels (independent filter)
+  showFavorites: boolean;
   setView: (view: GeneratorView) => void;
   showCelebration: (garments: Garment[]) => void;
   dismissCelebration: () => void;
@@ -73,6 +76,7 @@ export interface GeneratorState {
   setOutfitDay: (day: OutfitDay) => void;
   startManual: () => void;
   startAutoSelect: () => void;
+  startFavoritesSelection: () => void;
   startLoading: () => void;
   setStreamedLooks: (looks: AiLook[]) => void;
   setAiLooks: (looks: AiLook[]) => void;
@@ -100,6 +104,9 @@ export interface GeneratorState {
   dismissGarment: (category: Category, replacement: Garment) => void;
   resetCanvas: () => void;
   getLockedGarments: () => Garment[];
+  // Manual mode: toggle favorites filter
+  setShowFavorites: (show: boolean) => void;
+  toggleShowFavorites: () => void;
 }
 
 const CATEGORIES: readonly Category[] = [
@@ -132,6 +139,7 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
   streamedLooks: [],
   activeLookIndex: 0,
   insufficientStyle: null,
+  showFavorites: false,
 
   setView: (view) => {
     set({ view });
@@ -159,6 +167,10 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
 
   startAutoSelect: () => {
     set({ view: "auto-select", insufficientStyle: null });
+  },
+
+  startFavoritesSelection: () => {
+    set({ view: "favorites-selection", insufficientStyle: null });
   },
 
   startLoading: () => {
@@ -340,5 +352,12 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
 
   setFallbackGarmentIds: (ids) => {
     set({ fallbackGarmentIds: ids });
+  },
+  // Manual mode: toggle favorites filter
+  setShowFavorites: (show) => {
+    set({ showFavorites: show });
+  },
+  toggleShowFavorites: () => {
+    set((state) => ({ showFavorites: !state.showFavorites }));
   },
 }));

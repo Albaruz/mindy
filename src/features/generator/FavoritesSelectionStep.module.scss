@@ -1,0 +1,150 @@
+// FavoritesSelectionStep Component Styles (CSS Module)
+// Matches StyleStep visual layout but shows a grid of shared GarmentCards.
+// Pure CSS with BEM naming - no @use imports.
+
+.favorites-selection-step {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: var(--space-8) var(--space-6);
+  animation: style-step-in var(--duration-normal) var(--ease-out);
+  min-height: calc(100dvh - var(--header-height) - var(--tabbar-height));
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    align-self: center;
+    width: 100%;
+    max-width: 22rem;
+    margin-top: calc(var(--space-4) * -1);
+  }
+
+  &__back-button {
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radius-circle);
+  }
+
+  &__title {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-foreground);
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  &__header-spacer {
+    flex-shrink: 0;
+    width: 2.75rem;
+  }
+
+  &__subtitle {
+    align-self: center;
+    max-width: 22rem;
+    margin: calc(var(--space-2) * -1) 0 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-muted);
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  &__content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: var(--space-6);
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding-bottom: var(--space-8);
+    overflow-y: auto;
+  }
+
+  &__category {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  &__category-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-width: 0;
+    margin: 0;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-clay);
+  }
+
+  &__category-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  &__category-count {
+    flex-shrink: 0;
+    padding: 0.125rem 0.5rem;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-muted);
+    background: var(--color-oat);
+    border-radius: var(--radius-pill);
+  }
+
+  // min() keeps the track floor below the container width on narrow phones,
+  // and min-width: 0 on the items stops long titles from widening the grid.
+  &__category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(140px, 100%), 1fr));
+    gap: var(--space-3);
+    min-width: 0;
+    max-width: 100%;
+
+    > * {
+      min-width: 0;
+    }
+  }
+
+  &__empty {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    padding: var(--space-8);
+    color: var(--color-muted);
+    text-align: center;
+  }
+
+  &__empty-text {
+    margin: 0;
+    font-size: var(--font-size-base);
+    overflow-wrap: anywhere;
+  }
+}
+
+@keyframes style-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

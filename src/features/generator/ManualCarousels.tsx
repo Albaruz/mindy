@@ -2,10 +2,11 @@
 
 import { useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { RotateCcw, Sparkles, WandSparkles } from "lucide-react";
+import { ChevronLeft, WandSparkles } from "lucide-react";
 import "swiper/css";
 import "swiper/css/effect-coverflow";
 import { BottomActionBar } from "@/components/BottomActionBar/BottomActionBar";
+import { FavoriteCheck } from "@/components/FavoriteCheck/FavoriteCheck";
 import { useClosetQuery } from "@/features/closet/useClosetQuery";
 import { useProfileQuery } from "@/features/profile/useProfileQuery";
 import type { Category } from "@/types/garment";
@@ -65,17 +66,24 @@ export function ManualCarousels({
   const toggleLockGarment = useGeneratorStore(
     (state) => state.toggleLockGarment,
   );
-  const unlockAll = useGeneratorStore((state) => state.unlockAll);
   const setGarment = useGeneratorStore((state) => state.setGarment);
   const dismissGarment = useDismissGarment();
   const combineLocked = useCombineLocked();
   const wearToday = useWearToday();
   const planTomorrow = usePlanTomorrow();
+  // Manual mode: favorites filter
+  const showFavorites = useGeneratorStore((state) => state.showFavorites);
+  const toggleShowFavorites = useGeneratorStore((state) => state.toggleShowFavorites);
 
   const cleanGarments = useMemo(
-    () =>
-      garments.filter(isWearableGarment),
-    [garments],
+    () => {
+      let filtered = garments.filter(isWearableGarment);
+      if (showFavorites) {
+        filtered = filtered.filter((g) => g.isFavorite);
+      }
+      return filtered;
+    },
+    [garments, showFavorites],
   );
   const byCategory = useMemo(
     () => categorizeGarments(cleanGarments),
@@ -232,9 +240,9 @@ export function ManualCarousels({
         }
         isPrimaryPending={wearToday.isPending || planTomorrow.isPending}
         left={{
-          label: ta("resetLocks"),
-          onClick: unlockAll,
-          icon: <RotateCcw aria-hidden="true" size={22} />,
+          label: ta("back"),
+          onClick: () => useGeneratorStore.getState().setView("zero"),
+          icon: <ChevronLeft aria-hidden="true" size={22} />,
         }}
         right={{
           label: ta("combineLocked"),
@@ -242,11 +250,15 @@ export function ManualCarousels({
           disabled: garments.length === 0 || combineLocked.isPending,
           icon: <WandSparkles aria-hidden="true" size={22} />,
         }}
-        extraRight={{
-          label: t("autoButton"),
-          onClick: () => useGeneratorStore.getState().startAutoSelect(),
-          icon: <Sparkles aria-hidden="true" size={22} />,
-        }}
+        extraRightControl={
+          <FavoriteCheck
+            mode="toggle"
+            selected={showFavorites}
+            label={t("filters.favorites")}
+            hideLabel
+            onClick={toggleShowFavorites}
+          />
+        }
       />
     </div>
   );

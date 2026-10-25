@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { Garment } from "@/types/garment";
+import type { ReactNode } from "react";
 
 const { mockCloset, mockWeather, mockToggleLock } = vi.hoisted(() => ({
   mockCloset: vi.fn(),
@@ -51,7 +53,18 @@ vi.mock("./CategoryCarousel", () => ({
 }));
 
 vi.mock("@/components/BottomActionBar/BottomActionBar", () => ({
-  BottomActionBar: () => <div data-testid="action-bar" />,
+  BottomActionBar: ({
+    left,
+    extraRightControl,
+  }: {
+    left: { label: string; onClick: () => void };
+    extraRightControl?: ReactNode;
+  }) => (
+    <div data-testid="action-bar">
+      <button type="button" aria-label={left.label} onClick={left.onClick} />
+      {extraRightControl}
+    </div>
+  ),
 }));
 
 import { ManualCarousels } from "./ManualCarousels";
@@ -92,6 +105,33 @@ describe("ManualCarousels", () => {
     expect(screen.getByTestId("generator-manual")).toBeInTheDocument();
     expect(screen.getByTestId("carousel-top")).toBeInTheDocument();
     expect(screen.getByTestId("carousel-bottom")).toBeInTheDocument();
+  });
+
+  it("places the favorites filter in the action bar", async () => {
+    mockCloset.mockReturnValue({
+      data: [buildGarment("t1", "top"), buildGarment("b1", "bottom")],
+      isPending: false,
+    });
+    mockWeather.mockReturnValue({ data: null });
+    render(<ManualCarousels />);
+
+    const favoritesFilter = screen.getByRole("checkbox", { name: "filters.favorites" });
+    expect(screen.getByTestId("action-bar")).toContainElement(favoritesFilter);
+    expect(favoritesFilter.className).toContain("check--hide-label");
+    expect(favoritesFilter).toHaveAttribute("aria-checked", "false");
+    await userEvent.click(favoritesFilter);
+    expect(favoritesFilter).toHaveAttribute("aria-checked", "true");
+  });
+
+  it("returns from manual carousels to the generator start screen", async () => {
+    mockCloset.mockReturnValue({ data: [], isPending: false });
+    mockWeather.mockReturnValue({ data: null });
+    useGeneratorStore.getState().startManual();
+    render(<ManualCarousels />);
+
+    await userEvent.click(screen.getByRole("button", { name: "back" }));
+
+    expect(useGeneratorStore.getState().view).toBe("zero");
   });
 
   it("hides bottom carousel for one-piece tops", () => {

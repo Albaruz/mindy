@@ -275,7 +275,7 @@ function createRecommenderStream({
                 systemPrompt,
                 userPayload,
               );
-              let recoveredOptions = filterValidOutfitOptions(
+              const recoveredOptions = filterValidOutfitOptions(
                 parseOptions(recoveredContent, knownIds),
                 cappedPool,
                 lockedIds,
@@ -459,18 +459,24 @@ export async function POST(request: Request) {
       input.lockedGarmentIds ?? input.fixed_garments ?? input.fixedGarments,
     ),
   );
+  const forcedFavoriteIds = new Set(readIdList(input.forcedFavoritesIds));
+  const rainExemptionIds = new Set([
+    ...requestedLockedIds,
+    ...forcedFavoriteIds,
+  ]);
   // Day-based heat rule: if it will be hot at any point today, winter
-  // garments never reach the LLM, even on a mild morning.
+  // garments never reach the LLM unless the user selected one explicitly.
   const { kept: heatKept, excludedWinterCount } = applyHeatRule(
     candidates,
     dayHigh ?? temperatureC,
+    forcedFavoriteIds,
   );
-  // Rain-material rule: silk/suede never reach the LLM on wet days
-  // unless the user explicitly pinned them.
+  // Rain-material rule: silk/suede never reach the LLM on wet days unless
+  // the user explicitly pinned or selected them.
   const { kept, excludedRainCount } = applyRainMaterialRule(
     heatKept,
     isRainy,
-    requestedLockedIds,
+    rainExemptionIds,
   );
   if (kept.length === 0) {
     return NextResponse.json(
@@ -492,10 +498,14 @@ export async function POST(request: Request) {
   // Negative feedback ("change garment") plus hygiene: dirty or dismissed
   // garments never reach the LLM (locked ones always survive).
   const lockedIds = new Set(lockedCandidates.map((candidate) => candidate.id));
+  // Forced favorites (auto-select flow): user-selected favorite garment IDs
+  // that must be included in the generated look. They survive all filtering
+  // like locked pins and are passed to the LLM as hard constraints.
   const dismissedIds = new Set(readIdList(input.dismissedGarmentIds));
   const eligible = kept.filter(
     (candidate) =>
       lockedIds.has(candidate.id) ||
+      (forcedFavoriteIds.has(candidate.id) && !candidate.isDirty) ||
       (!dismissedIds.has(candidate.id) && !candidate.isDirty),
   );
   if (eligible.length === 0) {
@@ -513,14 +523,15 @@ export async function POST(request: Request) {
 
   // Strict style filtering (hard filter): non-locked candidates must match
   // the requested style, so the LLM can never pad a look with off-style
-  // garments by elimination. Locked garments are explicit user pins and
-  // always survive the filter.
+  // garments by elimination. Locked garments and forced favorites are explicit
+  // user pins and always survive the filter.
   const requestedStyle = readRequestedStyle(input.style);
   let pool = eligible;
   if (requestedStyle !== null) {
     pool = eligible.filter(
       (candidate) =>
         lockedIds.has(candidate.id) ||
+        forcedFavoriteIds.has(candidate.id) ||
         matchesRequestedStyle(candidate.styles, requestedStyle),
     );
     if (!canBuildLook(pool)) {
@@ -532,11 +543,21 @@ export async function POST(request: Request) {
       );
     }
   }
+  // Only IDs that survived candidate and style filtering become hard pins.
+  // Include favorites before the token cap so the selected garment cannot be
+  // dropped from a large closet.
+  const forcedFavoriteCandidates = pool.filter((candidate) =>
+    forcedFavoriteIds.has(candidate.id),
+  );
+  const allLockedIds = new Set([
+    ...lockedIds,
+    ...forcedFavoriteCandidates.map((candidate) => candidate.id),
+  ]);
+
   // Token-budget cap with category balance: a blind head-slice would
   // silently drop whole families (e.g. every shoe) when the closet is
-  // large. Locked pins always survive; the rest fills round-robin so each
-  // represented category keeps at least one candidate.
-  const cappedPool = capBalancedPool(pool, lockedIds);
+  // large. Explicit pins and selected favorites always survive.
+  const cappedPool = capBalancedPool(pool, allLockedIds);
   const knownIds = new Set(cappedPool.map((candidate) => candidate.id));
 
   // Hard outerwear rule: with rain or cold the model must dress an
@@ -551,6 +572,12 @@ export async function POST(request: Request) {
   const locale = readLocale(input.locale ?? input.language, request);
   const promptCandidates = toPromptCandidates(cappedPool);
 
+  // Forced favorites that survived filtering - include them as locked garments
+  // so the LLM knows they must be included.
+  const survivingForcedFavoriteCandidates = cappedPool.filter((candidate) =>
+    forcedFavoriteIds.has(candidate.id),
+  );
+
   const { systemPrompt, userPayload } = buildOutfitPrompt({
     profile: readStylistProfile(input.profile),
     climate: {
@@ -560,11 +587,18 @@ export async function POST(request: Request) {
       dayHigh,
       rainProbability,
     },
-    lockedGarments: lockedCandidates.map((candidate) => ({
-      id: candidate.id,
-      garmentType: candidate.garmentType,
-      color: candidate.color,
-    })),
+    lockedGarments: [
+      ...lockedCandidates.map((candidate) => ({
+        id: candidate.id,
+        garmentType: candidate.garmentType,
+        color: candidate.color,
+      })),
+      ...survivingForcedFavoriteCandidates.map((candidate) => ({
+        id: candidate.id,
+        garmentType: candidate.garmentType,
+        color: candidate.color,
+      })),
+    ],
     styleFilter:
       requestedStyle !== null ? STYLE_PROMPT_LABELS[requestedStyle] : null,
     requireOuterwear: outerwearRequired,
@@ -580,7 +614,7 @@ export async function POST(request: Request) {
       profile: input.profile,
       mood: readString(input.mood),
       style: requestedStyle,
-      lockedGarmentIds: [...lockedIds],
+      lockedGarmentIds: [...allLockedIds],
       candidates: promptCandidates,
       locale,
     },
@@ -596,7 +630,7 @@ export async function POST(request: Request) {
       userPayload,
       knownIds,
       cappedPool,
-      lockedIds,
+      lockedIds: allLockedIds,
       temperatureC,
       outerwearRequired,
       excludedWinterCount,
@@ -631,18 +665,18 @@ export async function POST(request: Request) {
      options = filterValidOutfitOptions(
        parseOptions(content, knownIds),
        cappedPool,
-       lockedIds,
+       allLockedIds,
        outerwearRequired,
       );
       // Enforce variety across options (no repeated tops/bottoms)
-      options = enforceVarietyAcrossOptions(options, cappedPool, lockedIds);
+      options = enforceVarietyAcrossOptions(options, cappedPool, allLockedIds);
       if (options.length === 0) {
         repairAttempted = true;
         const repairedContent = await repairOutfitRecommendation(userPayload, content);
        options = filterValidOutfitOptions(
          parseOptions(repairedContent, knownIds),
          cappedPool,
-         lockedIds,
+         allLockedIds,
          outerwearRequired,
        );
      }
@@ -681,12 +715,12 @@ export async function POST(request: Request) {
     try {
       options = generateFallbackLook(
         cappedPool,
-        lockedIds,
+        allLockedIds,
         temperatureC,
         outerwearRequired,
       );
       // Enforce variety across fallback options
-      options = enforceVarietyAcrossOptions(options, cappedPool, lockedIds);
+      options = enforceVarietyAcrossOptions(options, cappedPool, allLockedIds);
       isFallback = true;
     } catch (fallbackError) {
       const fallbackMessage =

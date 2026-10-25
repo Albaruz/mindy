@@ -12,6 +12,7 @@ import { SegmentedControl } from "@/components/SegmentedControl/SegmentedControl
 import { CelebrationBurst } from "@/components/BottomActionBar/BottomActionBar";
 import { SearchBar } from "@/components/SearchBar/SearchBar";
 import { FilterChips } from "@/components/FilterChips/FilterChips";
+import { FavoriteCheck } from "@/components/FavoriteCheck/FavoriteCheck";
 import { ConfirmDialog } from "@/components/ConfirmDialog/ConfirmDialog";
 import type { Garment } from "@/types/garment";
 import { useClosetQuery } from "@/features/closet/useClosetQuery";
@@ -30,6 +31,7 @@ import { UploadBatchPreview } from "@/features/closet/UploadBatchPreview";
 import { ProcessingOverlay } from "@/components/ProcessingOverlay/ProcessingOverlay";
 import { MAX_UPLOAD_BATCH_SIZE } from "@/constants/upload";
 import { useGarmentImageActions } from "@/features/closet/useGarmentImageActions";
+import { useToggleFavorite } from "@/features/closet/useToggleFavorite";
 import styles from "./page.module.scss";
 
 function toFormInput(garment: Garment): GarmentFormInput {
@@ -56,6 +58,7 @@ export default function ClosetPage() {
   const deletion = useGarmentDeletion();
   const updateGarment = useUpdateGarment();
   const imageActions = useGarmentImageActions();
+  const favoriteMutation = useToggleFavorite();
   const [editingGarment, setEditingGarment] = useState<Garment | null>(null);
   const [isSourceMenuOpen, setIsSourceMenuOpen] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
@@ -127,11 +130,22 @@ export default function ClosetPage() {
           </EmptyState>
         ) : (
           <>
-            <div className={styles.search}>
-              <SearchBar
-                value={inventory.searchQuery}
-                onChange={inventory.setSearchQuery}
-                placeholder={t("searchPlaceholder")}
+            <div className={styles.searchRow}>
+              <div className={styles.searchWrapper}>
+                <SearchBar
+                  value={inventory.searchQuery}
+                  onChange={inventory.setSearchQuery}
+                  placeholder={t("searchPlaceholder")}
+                />
+              </div>
+              <FavoriteCheck
+                selected={inventory.showFavorites}
+                label={t("filters.favorites")}
+                onClick={() => inventory.setShowFavorites(!inventory.showFavorites)}
+              />
+              <FilterChips
+                activeCategory={inventory.activeCategory}
+                onChange={inventory.setActiveCategory}
               />
             </div>
             <SegmentedControl
@@ -148,10 +162,6 @@ export default function ClosetPage() {
                   label: `${t("dirtyTab")} · ${inventory.dirtyGarments.length}`,
                 },
               ]}
-            />
-            <FilterChips
-              activeCategory={inventory.activeCategory}
-              onChange={inventory.setActiveCategory}
             />
             <p className={styles.count}>
               {t("count", {
@@ -205,10 +215,6 @@ export default function ClosetPage() {
                             key={garment.garmentId}
                             garment={garment}
                             onEdit={setEditingGarment}
-                            onDelete={deletion.requestDelete}
-                            isDeleting={
-                              deletion.deletingGarmentId === garment.garmentId
-                            }
                           />
                         ),
                       )}
@@ -272,7 +278,7 @@ export default function ClosetPage() {
             type="button"
             disabled={laundry.isWashingAll}
             onClick={() => laundry.washAll()}
-            className={styles["washAll"]}
+            className={styles["wash-all"]}
           >
             {laundry.isWashingAll ? t("washing") : t("washAll")}
           </Button>
@@ -309,22 +315,48 @@ export default function ClosetPage() {
           }
           isSaving={updateGarment.isPending}
           submitError={updateGarment.isError ? t("saveError") : null}
-           onClose={() => setEditingGarment(null)}
-           onSubmit={handleUpdate}
-           isImageProcessing={imageActions.isPending}
-           imageError={imageActions.isError ? t("imageUpdateError") : null}
-           onChangeImage={(file) =>
-             imageActions.mutate(
-               { garment: editingGarment, file },
-               { onSuccess: handleImageUpdated },
-             )
-           }
-           onRemoveBackground={() =>
-             imageActions.mutate(
-               { garment: editingGarment, removeBackground: true },
-               { onSuccess: handleImageUpdated },
-             )
-           }
+          onClose={() => setEditingGarment(null)}
+          onSubmit={handleUpdate}
+          isImageProcessing={imageActions.isPending}
+          imageError={imageActions.isError ? t("imageUpdateError") : null}
+          onChangeImage={(file) =>
+            imageActions.mutate(
+              { garment: editingGarment, file },
+              { onSuccess: handleImageUpdated },
+            )
+          }
+          onRemoveBackground={() =>
+            imageActions.mutate(
+              { garment: editingGarment, removeBackground: true },
+              { onSuccess: handleImageUpdated },
+            )
+          }
+          garmentId={editingGarment.garmentId}
+          isFavorite={editingGarment.isFavorite ?? false}
+          onToggleFavorite={(isFavorite) => {
+            const garment = editingGarment;
+            if (garment === null) return;
+            setEditingGarment({ ...garment, isFavorite });
+            favoriteMutation.mutate(
+              { garment, isFavorite },
+              {
+                onError: () =>
+                  setEditingGarment((current) =>
+                    current?.garmentId === garment.garmentId
+                      ? { ...current, isFavorite: garment.isFavorite }
+                      : current,
+                  ),
+              },
+            );
+          }}
+          isFavoritePending={favoriteMutation.isPending}
+          onDelete={() => {
+            deletion.requestDelete(editingGarment);
+            setEditingGarment(null);
+          }}
+          isDeleting={
+            deletion.deletingGarmentId === editingGarment.garmentId
+          }
           />
        ) : null}
        {imageActions.isRemovingBackground ? (

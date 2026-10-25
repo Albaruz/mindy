@@ -7,18 +7,21 @@ import {
 import { categorizeGarment } from "@/lib/garment/categorizeGarments";
 import { toClassifiableGarment } from "./request";
 import type { CandidateGarment } from "./types";
-// Strict business rule: above the heat threshold, winter garments never
-// reach the LLM. The filter runs on the already-minimized candidate list,
-// so excluded items are never serialized into the prompt.
+// Above the heat threshold, winter garments stay out of the LLM context
+// unless the user explicitly selected one as a favorite. The filter runs on
+// the minimized candidate list, so excluded items are never serialized.
 export function applyHeatRule(
   candidates: CandidateGarment[],
   temperatureC: number,
+  hardConstraintIds: Set<string> = new Set(),
 ): { kept: CandidateGarment[]; excludedWinterCount: number } {
   if (temperatureC <= HEAT_THRESHOLD_C) {
     return { kept: candidates, excludedWinterCount: 0 };
   }
   const kept = candidates.filter(
-    (candidate) => (candidate.season ?? "").toLowerCase() !== "winter",
+    (candidate) =>
+      hardConstraintIds.has(candidate.id) ||
+      (candidate.season ?? "").toLowerCase() !== "winter",
   );
   return { kept, excludedWinterCount: candidates.length - kept.length };
 }

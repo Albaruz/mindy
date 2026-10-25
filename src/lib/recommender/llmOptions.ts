@@ -225,6 +225,9 @@ export function filterValidOutfitOptions(
     const hasOnePiece = selected.some((candidate) =>
       isOnePieceGarment(toClassifiableGarment(candidate)),
     );
+    if (hasOnePiece && categories.has("bottom")) {
+      return false;
+    }
     if (!hasOnePiece && (!categories.has("top") || !categories.has("bottom"))) {
       return false;
     }

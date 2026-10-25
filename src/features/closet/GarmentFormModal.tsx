@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 import {
   Eraser,
   ImagePlus,
@@ -9,6 +10,9 @@ import {
   Leaf,
   Snowflake,
   Sun,
+  Trash2,
+  Heart,
+  HeartCrack,
 } from "lucide-react";
 import { useGarmentTranslator } from "@/lib/translateGarment";
 import type {
@@ -59,6 +63,13 @@ interface GarmentFormModalProps {
   onSubmit: (input: GarmentFormInput) => void;
   onChangeImage?: (file: File) => void;
   onRemoveBackground?: () => void;
+  // Edit-only props
+  garmentId?: string;
+  isFavorite?: boolean;
+  onToggleFavorite?: (isFavorite: boolean) => void;
+  onDelete?: () => void;
+  isDeleting?: boolean;
+  isFavoritePending?: boolean;
 }
 
 const SEASON_ICONS: Record<GarmentSeason, typeof Sun> = {
@@ -87,6 +98,12 @@ export function GarmentFormModal({
   onSubmit,
   onChangeImage,
   onRemoveBackground,
+  garmentId,
+  isFavorite = false,
+  onToggleFavorite,
+  onDelete,
+  isDeleting = false,
+  isFavoritePending = false,
 }: GarmentFormModalProps) {
   const errorRef = useRef<HTMLParagraphElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
@@ -170,7 +187,7 @@ export function GarmentFormModal({
             // eslint-disable-next-line @next/next/no-img-element
             <img src={previewUrl} alt={previewAlt} className={styles["garment-form-modal__preview"]} />
           ) : null}
-          {onChangeImage !== undefined || onRemoveBackground !== undefined ? (
+          {onChangeImage !== undefined || onRemoveBackground !== undefined || garmentId ? (
             <div className={styles["garment-form-modal__image-actions"]}>
               {onChangeImage !== undefined ? (
                 <>
@@ -213,6 +230,44 @@ export function GarmentFormModal({
                   <Eraser aria-hidden="true" size={20} />
                 </Button>
               ) : null}
+              {garmentId && (
+                <>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    iconOnly
+                    aria-label={isFavorite ? t("form.removeFromFavorites") : t("form.addToFavorites")}
+                    aria-pressed={isFavorite}
+                    disabled={isSaving || isFavoritePending}
+                    onClick={() => onToggleFavorite?.(!isFavorite)}
+                    className={cn(
+                      styles["garment-form-modal__image-action"],
+                      isFavorite ? styles["garment-form-modal__image-action--favorited"] : styles["garment-form-modal__image-action--favorite"]
+                    )}
+                  >
+                    {isFavorite ? (
+                      <HeartCrack aria-hidden="true" size={20} strokeWidth={2} />
+                    ) : (
+                      <Heart aria-hidden="true" size={20} strokeWidth={2} />
+                    )}
+                  </Button>
+                  {onDelete && (
+                    <Button
+                      type="button"
+                      variant="danger"
+                      size="sm"
+                      iconOnly
+                      aria-label={t("form.deleteGarment")}
+                      disabled={isSaving || isDeleting}
+                      onClick={() => onDelete?.()}
+                      className={styles["garment-form-modal__image-action"]}
+                    >
+                      <Trash2 aria-hidden="true" size={20} />
+                    </Button>
+                  )}
+                </>
+              )}
             </div>
           ) : null}
           {imageError !== null ? (
@@ -316,6 +371,7 @@ export function GarmentFormModal({
               {submitError}
             </p>
           ) : null}
+
           <DialogActions className={styles["garment-form-modal__actions"]}>
             <Button
               type="button"
@@ -331,6 +387,7 @@ export function GarmentFormModal({
           </DialogActions>
           </form>
       </DialogBody>
+
     </Dialog>
   );
 }

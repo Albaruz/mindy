@@ -1,0 +1,108 @@
+// GarmentCard Component Styles (CSS Module)
+// Shared garment tile for closet and generator. Uses global design tokens
+// via CSS custom properties. Pure CSS with BEM naming - no @use imports.
+
+.garment-card {
+  position: relative;
+  min-width: 0;
+  max-width: 100%;
+  background: var(--garmentcard-bg);
+  border-radius: var(--garmentcard-radius);
+  overflow: hidden;
+
+  &__image,
+  &__placeholder {
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--garmentcard-image-bg);
+  }
+
+  &__image {
+    display: block;
+    object-fit: contain;
+  }
+
+  &__action {
+    position: absolute;
+    top: var(--space-2);
+    z-index: 2;
+    display: flex;
+    gap: var(--space-2);
+
+    &--leading {
+      inset-inline-start: var(--space-2);
+    }
+
+    &--trailing {
+      inset-inline-end: var(--space-2);
+    }
+  }
+
+  &__select {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: inherit;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: none;
+    }
+  }
+
+  &__body {
+    min-width: 0;
+    padding: var(--garmentcard-body-padding);
+  }
+
+  &__title {
+    margin: 0;
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-base);
+    color: var(--color-foreground);
+    overflow-wrap: anywhere;
+  }
+
+  &__meta {
+    margin: var(--space-1) 0 0;
+    font-size: var(--font-size-xs);
+    line-height: var(--line-height-base);
+    color: var(--color-muted);
+    overflow-wrap: anywhere;
+  }
+
+  &--selectable {
+    transition:
+      transform var(--duration-fast),
+      box-shadow var(--duration-fast);
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    // The overlay button receives focus; paint the ring on the card so it is
+    // not clipped by the card's overflow.
+    &:has(.garment-card__select:focus-visible) {
+      outline: var(--focus-ring-width) solid var(--focus-ring-color);
+      outline-offset: var(--focus-ring-offset);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &--selectable {
+      transition: none;
+
+      &:hover {
+        transform: none;
+      }
+    }
+  }
+}

@@ -8,6 +8,7 @@ export const QUERY_KEYS = {
   laundryBasket: ["laundry-basket"],
   history: ["outfit-history"],
   weather: ["weather"],
+  favorites: ["favorites"],
 } as const;
 
 export type QueryKeyName = keyof typeof QUERY_KEYS;

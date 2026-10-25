@@ -12,3 +12,6 @@ export type CategoryFilter =
   | "bottoms"
   | "shoes"
   | "outerwear";
+
+// Independent toggle: show only favorites. Combines with category + view.
+export type FavoritesFilter = boolean;

@@ -110,7 +110,15 @@
     "cityFallback": "Tu ubicación",
     "rainToday": "Lluvia hoy: {pct}%",
     "rainUnknown": "Lluvia hoy: —",
-    "umbrella": " · lleva paraguas"
+    "umbrella": " · lleva paraguas",
+    "filters": {
+      "favorites": "Favoritos"
+    },
+    "styleStepSelectFavorite": "Elige tu prenda estrella",
+    "favoritesPickerEmpty": "Las favoritas necesitan su primer plano. Sácales una foto en el armario.",
+    "favoritesPickerGoToCloset": "Ir al armario a darles foto",
+    "favoritesSelectionTitle": "Hora de elegir la prenda estrella",
+    "favoritesSelectionSubtitle": "Elige tu prenda incondicional para este look {style}."
   },
   "Closet": {
     "title": "Mi armario",
@@ -144,7 +152,8 @@
       "tops": "Partes de arriba",
       "bottoms": "Partes de abajo",
       "shoes": "Zapatos",
-      "outerwear": "Abrigos"
+      "outerwear": "Abrigos",
+      "favorites": "Favoritos"
     },
     "editTitle": "Editar prenda",
     "saveChanges": "Guardar cambios",
@@ -152,7 +161,6 @@
     "saveError": "No se pudieron guardar los cambios. Inténtalo de nuevo.",
     "imageChooseNew": "Cambiar imagen",
     "imageRemoveBackground": "Quitar fondo",
-    "imageRemovingBackground": "Quitando fondo…",
     "imageRemovingBackgroundOverlay": "Fuera fondo, hola prenda protagonista…",
     "imageUpdateError": "No se pudo actualizar la imagen.",
     "deleteTitle": "¿Eliminar {name}?",
@@ -181,7 +189,6 @@
       "color": "Color",
       "material": "Material",
       "style": "Estilo",
-      "stylePlaceholder": "Elige un estilo",
       "cut": "Corte / largo",
       "validation": "Elige qué tipo de prenda es.",
       "extraTags": "Etiquetas extra",
@@ -189,7 +196,10 @@
       "tagKeyPh": "p. ej. color_base",
       "tagValuePh": "p. ej. teja",
       "tagHintEmpty": "Escribe clave y valor para añadir una etiqueta.",
-      "tagHintDuplicate": "«{key}» ya existe. Quítala primero para reemplazarla."
+      "tagHintDuplicate": "«{key}» ya existe. Quítala primero para reemplazarla.",
+      "addToFavorites": "Añadir a favoritos",
+      "removeFromFavorites": "Quitar de favoritos",
+      "deleteGarment": "Decir adiós"
     }
   },
   "Profile": {
@@ -406,6 +416,9 @@
     "outfitPlanned": "Look guardado para mañana. Puedes sustituirlo cuando quieras.",
     "wearFailed": "No he podido ficharlo. Prueba otra vez, anda.",
     "stylistUnavailable": "Ups, mi cerebro fashionista ha cortocircuitado. Dame un segundo que me recompongo.",
+    "addedToFavorites": "Corazón fichado. Ya es favorita.",
+    "removedFromFavorites": "Fuera de la zona VIP. Sin rencor.",
+    "favoriteFailed": "Se me ha ido el corazón un segundo. Prueba otra vez.",
     "errors": {
       "NO_GARMENTS": "Añade prendas a tu armario primero.",
       "STYLIST_UNAVAILABLE": "El estilista no está disponible ahora. Inténtalo de nuevo.",
@@ -454,6 +467,9 @@
     "deleteGarment": "Eliminar {name}",
     "washGarment": "Lavar {name}",
     "editGarment": "Editar {name}",
+    "addToFavorites": "Añadir {name} a favoritos",
+    "removeFromFavorites": "Quitar {name} de favoritos",
+    "selectGarment": "Usar {name} para este look",
     "removeTag": "Quitar etiqueta {key}",
     "addTag": "Añadir etiqueta",
     "carousel": "Carrusel de {title}",
@@ -481,6 +497,7 @@
     "measureValue": "{value} centímetros",
     "vetoColor": "Vetar {color}",
     "weatherCard": "Tiempo en {city}: {label}, {temp} grados",
+    "back": "Volver",
     "skipToContent": "Saltar al contenido"
   },
   "Garments": {

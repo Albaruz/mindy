@@ -38,6 +38,9 @@
   // Semantic
   --color-error: #eba9a2;
   --color-error-hover: #f0c0b8;
+  --color-favorite: #c77f83;
+  --color-favorite-hover: #b36f73;
+  --color-favorite-hover-bg: color-mix(in srgb, var(--color-favorite) 8%, var(--color-surface));
   --color-success: #66bb6a;
   --color-warning: #ffcc00;
 
@@ -98,6 +101,11 @@
   --button-border-danger: var(--color-error);
   --button-bg-danger-hover: var(--color-error);
   --button-text-danger-hover: var(--color-oat);
+
+  // --- Favorite Button ---
+  --color-favorite: #c77f83;
+  --color-favorite-hover: #b36f73;
+  --color-favorite-hover-bg: color-mix(in srgb, var(--color-favorite) 8%, var(--color-surface));
 
   // --- Card ---
   --card-bg: var(--color-surface);
@@ -178,13 +186,10 @@
   --confirmdialog-title-size: var(--font-size-2xl);
   --confirmdialog-message-size: var(--font-size-base);
 
-  // --- Garment Card (closet) ---
+  // --- Garment Card (closet + generator) ---
   --garmentcard-bg: var(--color-oat);
   --garmentcard-radius: var(--radius-xl);
   --garmentcard-image-bg: var(--color-border);
-  --garmentcard-action-bg: var(--color-surface);
-  --garmentcard-action-border: var(--color-border);
-  --garmentcard-action-color: var(--color-tab-inactive);
   --garmentcard-body-padding: var(--space-3);
 
   // --- Showcase Card (generator) ---

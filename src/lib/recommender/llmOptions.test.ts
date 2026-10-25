@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   classifyAiFallbackReason,
   extractCompletedOptionObjects,
+  filterValidOutfitOptions,
   parseCompletedOption,
   parseOptions,
 } from "./llmOptions";
+import type { CandidateGarment } from "./types";
 
 describe("recommender fallback telemetry", () => {
   it("classifies Groq JSON stream validation failures", () => {
@@ -59,5 +61,51 @@ describe("streamed recommender option parsing", () => {
         reason: "Ready",
       },
     ]);
+  });
+});
+
+describe("recommender option constraints", () => {
+  it("rejects a one-piece look that would hide a selected bottom garment", () => {
+    const candidates: CandidateGarment[] = [
+      {
+        id: "dress",
+        garmentType: "dress",
+        color: "black",
+        colorBase: null,
+        material: "cotton",
+        materialDetail: null,
+        season: "all",
+        style: "casual",
+        styles: ["casual"],
+        isDirty: false,
+      },
+      {
+        id: "favorite-bottom",
+        garmentType: "bottom",
+        color: "black",
+        colorBase: null,
+        material: "cotton",
+        materialDetail: null,
+        season: "all",
+        style: "casual",
+        styles: ["casual"],
+        isDirty: false,
+      },
+    ];
+
+    expect(
+      filterValidOutfitOptions(
+        [
+          {
+            garmentIds: ["dress", "favorite-bottom"],
+            suitabilityRatio: 80,
+            reason: "",
+          },
+        ],
+        candidates,
+        new Set(["favorite-bottom"]),
+        false,
+      ),
+    ).toEqual([]);
   });
 });

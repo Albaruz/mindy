@@ -18,7 +18,10 @@ interface FilterChipsProps {
 
 // Quick category filters for the closet view. State lives in the parent so
 // the active category composes with the text search filtering.
-export function FilterChips({ activeCategory, onChange }: FilterChipsProps) {
+export function FilterChips({
+  activeCategory,
+  onChange,
+}: FilterChipsProps) {
   const t = useTranslations("Closet");
   const ta = useTranslations("Accessibility");
   return (

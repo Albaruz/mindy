@@ -47,6 +47,7 @@ export function useDeleteGarment() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments });
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.laundryBasket });
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.favorites });
       useNotificationStore
         .getState()
         .addNotification("success", t("deleted"));

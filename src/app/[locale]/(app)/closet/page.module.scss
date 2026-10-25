@@ -10,9 +10,17 @@
   gap: 1rem;
 }
 
-.search {
+.searchRow {
   display: flex;
-  width: 100%;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: stretch;
+}
+
+.searchWrapper {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
 }
 
 .count {
@@ -27,13 +35,13 @@
   justify-content: center;
   gap: 1rem;
   margin-block: 0.5rem 1rem;
-}
 
-.pagination > span {
-  min-width: 5rem;
-  text-align: center;
-  color: var(--color-muted);
-  font-size: var(--font-size-base);
+  > span {
+    min-width: 5rem;
+    text-align: center;
+    color: var(--color-muted);
+    font-size: var(--font-size-base);
+  }
 }
 
 // Floating global wash action, pinned above the safe area while the
@@ -49,6 +57,5 @@
 }
 
 .wash-all {
-  pointer-events: auto;
   box-shadow: 0 6px 20px rgb(0 0 0 / 0.18);
 }

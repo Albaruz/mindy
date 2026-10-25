@@ -78,6 +78,7 @@ export interface Garment {
   isExternalGarment: boolean;
   extraTags: GarmentExtraTags;
   createdAt: string;
+  isFavorite: boolean;
 }
 
 // Generator slot / carousel category: the macro group a garment belongs to

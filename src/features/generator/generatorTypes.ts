@@ -27,6 +27,7 @@ export interface GenerateLooksInput {
   garments: Garment[];
   profile: RecommenderProfile | null;
   style: LookStyle;
+  forcedFavoritesIds?: string[];
 }
 
 export interface GenerateLooksResult {

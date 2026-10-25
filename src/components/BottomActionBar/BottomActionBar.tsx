@@ -24,6 +24,7 @@ interface BottomActionBarProps {
   left: ActionSide;
   right: ActionSide;
   extraRight?: ActionSide;
+  extraRightControl?: ReactNode;
   animationSrc?: string | object;
 }
 
@@ -36,6 +37,7 @@ export function BottomActionBar({
   left,
   right,
   extraRight,
+  extraRightControl,
   animationSrc,
 }: BottomActionBarProps) {
   const [burstKey, setBurstKey] = useState(0);
@@ -88,7 +90,11 @@ export function BottomActionBar({
           />
         </div>
         <div className={styles["action-bar__edge-end"]}>
-          {extraRight !== undefined ? (
+          {extraRightControl !== undefined ? (
+            <div className={styles["action-bar__control"]}>
+              {extraRightControl}
+            </div>
+          ) : extraRight !== undefined ? (
             <SideButton
               {...extraRight}
               className={cn(styles["action-bar__side"], styles["action-bar__side--right"])}

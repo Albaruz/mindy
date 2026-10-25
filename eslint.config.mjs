@@ -9,6 +9,7 @@ import nextTs from "eslint-config-next/typescript";
 const FEATURES = ["closet", "generator", "history", "onboarding", "profile", "settings"];
 const SHARED_DATA_HOOKS = [
   "@/features/closet/useClosetQuery",
+  "@/features/closet/useFavoritesQuery",
   "@/features/profile/useProfileQuery",
   "@/features/profile/useDoLaundry",
 ];

@@ -28,7 +28,30 @@ export interface GarmentRow {
   is_external_garment: boolean;
   extra_tags: Record<string, unknown> | null;
   created_at: string;
+  is_favorite: boolean;
 }
+
+// Keep every database-to-Garment query aligned with the row mapper contract.
+export const GARMENT_ROW_COLUMNS = `
+  garment_id,
+  user_id,
+  image_url,
+  original_image_url,
+  garment_type,
+  style,
+  cut_length,
+  styles,
+  cut_lengths,
+  color,
+  material,
+  season,
+  is_dirty,
+  last_worn_date,
+  is_external_garment,
+  extra_tags,
+  created_at,
+  is_favorite
+`.trim();
 
 export function toGarment(row: GarmentRow): Garment {
   return {
@@ -49,6 +72,7 @@ export function toGarment(row: GarmentRow): Garment {
     isExternalGarment: row.is_external_garment,
     extraTags: row.extra_tags ?? {},
     createdAt: row.created_at,
+    isFavorite: row.is_favorite,
   };
 }
 

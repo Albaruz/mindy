@@ -13,11 +13,17 @@ export function buildCandidates(
   garments: Garment[],
   lockedIds: Set<string>,
   dismissedIds: Set<string>,
+  forcedFavoriteIds: Set<string> = new Set(),
 ): Garment[] {
-  return garments.filter(
-    (garment) =>
-      (!dismissedIds.has(garment.garmentId) &&
-        isWearableGarment(garment)) ||
-      lockedIds.has(garment.garmentId),
-  );
+  return garments.filter((garment) => {
+    if (lockedIds.has(garment.garmentId)) {
+      return true;
+    }
+    const isAvailable = isWearableGarment(garment);
+    return (
+      isAvailable &&
+      (forcedFavoriteIds.has(garment.garmentId) ||
+        !dismissedIds.has(garment.garmentId))
+    );
+  });
 }

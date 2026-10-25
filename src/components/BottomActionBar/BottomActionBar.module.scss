@@ -29,6 +29,10 @@
     justify-content: flex-end;
   }
 
+  &__control {
+    pointer-events: auto;
+  }
+
   &__side,
   &__primary {
     display: flex;

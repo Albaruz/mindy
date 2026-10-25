@@ -1,8 +1,18 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { GarmentCard } from "./GarmentCard";
 import type { Garment } from "@/types/garment";
+
+const {
+  mockTranslate,
+  mockTranslateDetail,
+  mockMutateFavorite,
+} = vi.hoisted(() => ({
+  mockTranslate: vi.fn(),
+  mockTranslateDetail: vi.fn(),
+  mockMutateFavorite: vi.fn(),
+}));
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
@@ -10,8 +20,15 @@ vi.mock("next-intl", () => ({
 
 vi.mock("@/lib/translateGarment", () => ({
   useGarmentTranslator: () => ({
-    translate: (value: string | null) => value,
-    translateDetail: (value: string | null) => value,
+    translate: mockTranslate,
+    translateDetail: mockTranslateDetail,
+  }),
+}));
+
+vi.mock("./useToggleFavorite", () => ({
+  useToggleFavorite: () => ({
+    isPending: false,
+    mutate: mockMutateFavorite,
   }),
 }));
 
@@ -31,9 +48,19 @@ function buildGarment(overrides: Partial<Garment> = {}): Garment {
     isExternalGarment: false,
     extraTags: {},
     createdAt: "",
+    styles: ["casual"],
+    cuts: [],
+    isFavorite: false,
     ...overrides,
   };
 }
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  mockTranslate.mockImplementation((value: string | null) => value);
+  mockTranslateDetail.mockImplementation((value: string | null) => value);
+  mockMutateFavorite.mockReset();
+});
 
 describe("GarmentCard", () => {
   it("renders type title with descriptive image alt", () => {
@@ -47,34 +74,56 @@ describe("GarmentCard", () => {
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
   });
 
-  it("calls edit and delete handlers", async () => {
+  it("calls edit handler", async () => {
     const onEdit = vi.fn();
-    const onDelete = vi.fn();
     render(
       <GarmentCard
         garment={buildGarment()}
         onEdit={onEdit}
-        onDelete={onDelete}
       />,
     );
     await userEvent.click(screen.getByRole("button", { name: "editGarment" }));
-    await userEvent.click(
-      screen.getByRole("button", { name: "deleteGarment" }),
-    );
     expect(onEdit).toHaveBeenCalledTimes(1);
-    expect(onDelete).toHaveBeenCalledTimes(1);
   });
 
-  it("disables delete while deleting", () => {
+  it("renders the favorite toggle as a pressed button", () => {
+    render(<GarmentCard garment={buildGarment()} />);
+    expect(
+      screen.getByRole("button", { name: "addToFavorites" }),
+    ).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("shows the remove-from-favorites state when the garment is favorite", () => {
+    render(<GarmentCard garment={buildGarment({ isFavorite: true })} />);
+    expect(
+      screen.getByRole("button", { name: "removeFromFavorites" }),
+    ).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("requests the inverse favorite state", async () => {
+    const garment = buildGarment();
+    render(<GarmentCard garment={garment} />);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "addToFavorites" }),
+    );
+
+    expect(mockMutateFavorite).toHaveBeenCalledWith({
+      garment,
+      isFavorite: true,
+    });
+  });
+
+  it("disables wash while washing", () => {
     render(
       <GarmentCard
         garment={buildGarment()}
-        onDelete={() => {}}
-        isDeleting
+        onWash={() => {}}
+        isWashing
       />,
     );
     expect(
-      screen.getByRole("button", { name: "deleteGarment" }),
+      screen.getByRole("button", { name: "washGarment" }),
     ).toBeDisabled();
   });
 });

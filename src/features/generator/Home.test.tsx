@@ -63,6 +63,10 @@ vi.mock("@/features/closet/useClosetQuery", () => ({
   useClosetQuery: () => ({ data: mockClosetData() }),
 }));
 
+vi.mock("@/features/closet/useFavoritesQuery", () => ({
+  useFavoritesQuery: () => ({ data: [] }),
+}));
+
 vi.mock("@/features/profile/useProfileQuery", () => ({
   useProfileQuery: () => ({ data: mockProfileData() }),
 }));
@@ -492,6 +496,16 @@ describe("Home interactions", () => {
     expect(mockWearMutate).toHaveBeenCalledTimes(1);
     await userEvent.click(screen.getByTestId("showcase-discard"));
     expect(useGeneratorStore.getState().discardCount).toBe(1);
+  });
+
+  it("returns from an automatic look to the generator start screen", async () => {
+    useGeneratorStore.getState().setAiLooks([buildLook()]);
+    render(<Home />);
+
+    await userEvent.click(screen.getByTestId("bar-left"));
+
+    expect(useGeneratorStore.getState().view).toBe("zero");
+    expect(useGeneratorStore.getState().aiLooks).toHaveLength(1);
   });
 
   it("skips wearing while a wear is pending", async () => {

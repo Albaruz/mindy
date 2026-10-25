@@ -186,5 +186,6 @@ export function toClassifiableGarment(candidate: CandidateGarment): Garment {
     isExternalGarment: false,
     extraTags: { styles: candidate.styles },
     createdAt: "",
+    isFavorite: false,
   };
 }

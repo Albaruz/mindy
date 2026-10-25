@@ -25,6 +25,8 @@ export interface RecommenderRequest {
   dismissedGarmentIds: string[];
   // Wizard alias for hard constraints (manual flow).
   fixed_garments?: string[];
+  // Auto-select: force-include these favorite garment IDs in the generated look.
+  forcedFavoritesIds?: string[];
 }
 
 export interface RecommenderOption {
