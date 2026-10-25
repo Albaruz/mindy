@@ -179,6 +179,54 @@ describe("POST /api/recommender", () => {
     });
   });
 
+  it("applies the optional favorite chance to the completed streamed looks", async () => {
+    const random = vi.spyOn(Math, "random").mockReturnValue(0);
+    try {
+      const garments = [
+        buildGarment("top", "top"),
+        buildGarment("favorite-top", "top"),
+        buildGarment("bottom", "bottom"),
+      ];
+      const content =
+        '{"options":[{"garmentIds":["top","bottom"],"suitabilityRatio":85,"reason":"Nice"}]}';
+      mockGenerateStream.mockImplementation(
+        async (
+          _systemPrompt: string,
+          _payload: unknown,
+          onContent: (chunk: string) => void,
+        ) => {
+          onContent(content);
+          return content;
+        },
+      );
+
+      const response = await POST(
+        buildRequest(
+          {
+            garments,
+            temperatureC: 20,
+            suggestedFavoriteIds: ["favorite-top"],
+          },
+          true,
+        ),
+      );
+      const events = (await response.text())
+        .trim()
+        .split("\n\n")
+        .map((frame) => JSON.parse(frame.slice("data: ".length)) as Record<string, unknown>);
+      const complete = events.find((event) => event.type === "complete");
+      const payload = complete?.payload as {
+        options: Array<{ garmentIds: string[] }>;
+      };
+
+      expect(response.status).toBe(200);
+      expect(payload.options[0]?.garmentIds).toContain("favorite-top");
+      expect(payload.options[0]?.garmentIds).not.toContain("top");
+    } finally {
+      random.mockRestore();
+    }
+  });
+
   it("resets streamed previews before delivering the local fallback", async () => {
     const garments = [buildGarment("a", "top"), buildGarment("b", "bottom")];
     mockGenerateStream.mockImplementation(
@@ -1115,6 +1163,105 @@ describe("POST /api/recommender residual coverage", () => {
 
     expect(response.status).toBe(200);
     expect(body.options[0].garmentIds).toContain("favorite-top");
+  });
+
+  it("may include a compatible suggested favorite without treating it as locked", async () => {
+    const random = vi.spyOn(Math, "random").mockReturnValue(0);
+    try {
+      const garments = [
+        buildGarment("top", "top"),
+        buildGarment("favorite-top", "top"),
+        buildGarment("bottom", "bottom"),
+      ];
+      mockGenerate.mockImplementation(async (_system, payload) => {
+        const requestPayload = payload as {
+          candidates: Array<{ id: string }>;
+          lockedGarmentIds: string[];
+        };
+        expect(requestPayload.candidates.map(({ id }) => id)).toContain(
+          "favorite-top",
+        );
+        expect(requestPayload.lockedGarmentIds).not.toContain("favorite-top");
+        return okOptions(["top", "bottom"]);
+      });
+
+      const response = await POST(
+        buildRequest({
+          garments,
+          temperatureC: 20,
+          suggestedFavoriteIds: ["favorite-top"],
+        }),
+      );
+      const body = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(body.options[0].garmentIds).toContain("favorite-top");
+      expect(body.options[0].garmentIds).not.toContain("top");
+    } finally {
+      random.mockRestore();
+    }
+  });
+
+  it("does not include a suggested favorite when its per-look probability misses", async () => {
+    const random = vi.spyOn(Math, "random").mockReturnValue(0.99);
+    try {
+      mockGenerate.mockResolvedValue(okOptions(["top", "bottom"]));
+      const response = await POST(
+        buildRequest({
+          garments: [
+            buildGarment("top", "top"),
+            buildGarment("favorite-top", "top"),
+            buildGarment("bottom", "bottom"),
+          ],
+          temperatureC: 20,
+          suggestedFavoriteIds: ["favorite-top"],
+        }),
+      );
+      const body = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(body.options[0].garmentIds).toEqual(["top", "bottom"]);
+    } finally {
+      random.mockRestore();
+    }
+  });
+
+  it("keeps a suggested favorite in the candidate cap without pinning it", async () => {
+    const random = vi.spyOn(Math, "random").mockReturnValue(0);
+    try {
+      const garments: unknown[] = [];
+      for (let index = 0; index < 40; index += 1) {
+        garments.push(buildGarment(`top-${index}`, "top"));
+      }
+      for (let index = 0; index < 10; index += 1) {
+        garments.push(buildGarment(`bottom-${index}`, "bottom"));
+      }
+      mockGenerate.mockImplementation(async (_system, payload) => {
+        const requestPayload = payload as {
+          candidates: Array<{ id: string }>;
+          lockedGarmentIds: string[];
+        };
+        expect(requestPayload.candidates.map(({ id }) => id)).toContain(
+          "top-39",
+        );
+        expect(requestPayload.lockedGarmentIds).not.toContain("top-39");
+        return okOptions(["top-0", "bottom-0"]);
+      });
+
+      const response = await POST(
+        buildRequest({
+          garments,
+          temperatureC: 20,
+          suggestedFavoriteIds: ["top-39"],
+        }),
+      );
+      const body = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(body.options[0].garmentIds).toContain("top-39");
+    } finally {
+      random.mockRestore();
+    }
   });
 
   it("does not treat a dirty favorite as an available forced candidate", async () => {

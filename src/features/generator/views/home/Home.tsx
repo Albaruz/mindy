@@ -199,6 +199,10 @@ export function Home() {
       profile: recommenderProfile,
       style: useGeneratorStore.getState().lookStyle,
       forcedFavoritesIds,
+      suggestedFavoriteIds:
+        forcedFavoritesIds.length === 0
+          ? availableFavorites.map((garment) => garment.garmentId)
+          : [],
     });
   };
 

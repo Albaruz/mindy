@@ -203,6 +203,7 @@ Las tablas principales son `profiles`, `garments`, `outfit_history` y `garment_f
 ### 3. 🤖 Generador de conjuntos con IA
 
 - Recomendaciones basadas en las prendas limpias disponibles, el estilo elegido, el perfil de la persona y la situación meteorológica.
+- Inclusión opcional de prendas favoritas limpias y compatibles en alrededor de **uno de cada cuatro looks**, sin fijarlas en todas las propuestas.
 - Flujo guiado: **estado inicial → selección automática → carga → propuesta visual → edición manual**.
 - Gestos de deslizamiento para aceptar o descartar propuestas, opción de fijar prendas y recombinación del resto del look.
 - Modo manual con carruseles para las categorías superiores, inferiores, calzado y abrigo.

@@ -16,6 +16,9 @@ import type { CandidateGarment } from "./types";
 // output) degrade to the local fallback: 502 only when the fallback
 // itself cannot build a look. Anything else is a server bug: 500.
 export function isUpstreamFailure(error: unknown): boolean {
+  if (error === null || error === undefined) {
+    return false;
+  }
   if (
     typeof error === "object" &&
     error !== null &&

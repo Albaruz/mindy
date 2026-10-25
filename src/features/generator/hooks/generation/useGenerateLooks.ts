@@ -187,6 +187,10 @@ export function useGenerateLooks() {
         weather,
         useGeneratorStore.getState().outfitDay,
       );
+      const candidateIds = new Set(candidates.map((garment) => garment.garmentId));
+      const suggestedFavoriteIds = (input.suggestedFavoriteIds ?? []).filter(
+        (id) => candidateIds.has(id) && !forcedFavoriteIds.has(id),
+      );
       const apiGarments = buildRecommenderGarments(candidates);
       const request: RecommenderRequest = {
         garments: apiGarments,
@@ -202,6 +206,7 @@ export function useGenerateLooks() {
         lockedGarmentIds: [...lockedIds],
         dismissedGarmentIds: [...dismissed],
         forcedFavoritesIds: input.forcedFavoritesIds ?? [],
+        suggestedFavoriteIds,
       };
       const byId = new Map(
         input.garments.map((garment) => [garment.garmentId, garment] as const),

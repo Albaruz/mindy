@@ -39,14 +39,28 @@ function candidateQualityScore(candidate: CandidateGarment): number {
 export function capBalancedPool(
   pool: CandidateGarment[],
   lockedIds: Set<string>,
+  priorityIds: Set<string> = new Set(),
 ): CandidateGarment[] {
   if (pool.length <= RECOMMENDER_MAX_GARMENTS) {
     return pool;
   }
   const locked = pool.filter((candidate) => lockedIds.has(candidate.id));
+  const lockedCandidateIds = new Set(locked.map((candidate) => candidate.id));
+  const priority = pool.filter(
+    (candidate) =>
+      priorityIds.has(candidate.id) && !lockedCandidateIds.has(candidate.id),
+  );
+  const priorityCapacity = Math.max(0, RECOMMENDER_MAX_GARMENTS - locked.length);
+  const retainedPriority = priority.slice(0, priorityCapacity);
+  const retainedPriorityIds = new Set(
+    retainedPriority.map((candidate) => candidate.id),
+  );
   const groups = new Map<string, CandidateGarment[]>();
   for (const candidate of pool) {
-    if (lockedIds.has(candidate.id)) {
+    if (
+      lockedCandidateIds.has(candidate.id) ||
+      retainedPriorityIds.has(candidate.id)
+    ) {
       continue;
     }
     const category =
@@ -69,9 +83,14 @@ export function capBalancedPool(
   // Round-robin across categories so every represented family keeps
   // candidates; per-category soft cap keeps one family from eating the
   // whole budget.
-  const capped: CandidateGarment[] = [...locked];
+  const capped: CandidateGarment[] = [...locked, ...retainedPriority];
   const cappedIds = new Set(capped.map((candidate) => candidate.id));
   const taken = new Map<string, number>();
+  for (const candidate of retainedPriority) {
+    const category =
+      categorizeGarment(toClassifiableGarment(candidate)) ?? "other";
+    taken.set(category, (taken.get(category) ?? 0) + 1);
+  }
   let progress = true;
   while (capped.length < RECOMMENDER_MAX_GARMENTS && progress) {
     progress = false;

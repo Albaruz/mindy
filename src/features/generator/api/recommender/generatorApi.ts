@@ -27,6 +27,8 @@ export interface RecommenderRequest {
   fixed_garments?: string[];
   // Auto-select: force-include these favorite garment IDs in the generated look.
   forcedFavoritesIds?: string[];
+  // Optional favorites eligible for probabilistic inclusion by the server.
+  suggestedFavoriteIds?: string[];
 }
 
 export interface RecommenderOption {

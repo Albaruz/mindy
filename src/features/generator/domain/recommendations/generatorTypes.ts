@@ -28,6 +28,7 @@ export interface GenerateLooksInput {
   profile: RecommenderProfile | null;
   style: LookStyle;
   forcedFavoritesIds?: string[];
+  suggestedFavoriteIds?: string[];
 }
 
 export interface GenerateLooksResult {

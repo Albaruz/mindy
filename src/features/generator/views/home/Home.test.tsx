@@ -64,7 +64,7 @@ vi.mock("@/features/closet/hooks/queries/useClosetQuery", () => ({
 }));
 
 vi.mock("@/features/closet/hooks/queries/useFavoritesQuery", () => ({
-  useFavoritesQuery: () => ({ data: [] }),
+  useFavoritesQuery: () => ({ data: mockFavoritesData() }),
 }));
 
 vi.mock("@/features/profile/hooks/profile/useProfileQuery", () => ({
@@ -92,6 +92,7 @@ const {
   mockWeatherData,
   mockProfileData,
   mockClosetData,
+  mockFavoritesData,
   mockRouterPush,
   mockDoLaundry,
 } = vi.hoisted(() => ({
@@ -101,6 +102,7 @@ const {
   mockWeatherData: vi.fn<() => WeatherInfo | null>(() => null),
   mockProfileData: vi.fn<() => UserProfile | null>(() => null),
   mockClosetData: vi.fn<() => Garment[]>(() => []),
+  mockFavoritesData: vi.fn<() => Garment[]>(() => []),
   mockRouterPush: vi.fn(),
   mockDoLaundry: vi.fn(),
 }));
@@ -148,12 +150,18 @@ vi.mock("../../components/flow/style-step/StyleStep", () => ({
     onChange,
     onConfirm,
     onBack,
+    hasFavorites,
+    useFavorite,
+    onToggleFavorite,
   }: {
     value: string;
     isPending: boolean;
     onChange: (style: "casual" | "formal") => void;
     onConfirm: () => void;
     onBack: () => void;
+    hasFavorites: boolean;
+    useFavorite: boolean;
+    onToggleFavorite: (value: boolean) => void;
   }) => (
     <div data-testid="style-step" data-value={value} data-pending={isPending}>
       <button
@@ -163,7 +171,25 @@ vi.mock("../../components/flow/style-step/StyleStep", () => ({
       />
       <button type="button" data-testid="style-confirm" onClick={onConfirm} />
       <button type="button" data-testid="style-back" onClick={onBack} />
+      {hasFavorites ? (
+        <button
+          type="button"
+          data-testid="toggle-favorite-selection"
+          aria-pressed={useFavorite}
+          onClick={() => onToggleFavorite(!useFavorite)}
+        />
+      ) : null}
     </div>
+  ),
+}));
+
+vi.mock("../../components/flow/favorites-selection-step/FavoritesSelectionStep", () => ({
+  FavoritesSelectionStep: ({ onSelect }: { onSelect: (id: string) => void }) => (
+    <button
+      type="button"
+      data-testid="select-explicit-favorite"
+      onClick={() => onSelect("favorite-top")}
+    />
   ),
 }));
 
@@ -430,6 +456,7 @@ describe("Home interactions", () => {
     mockWeatherData.mockImplementation(() => null);
     mockProfileData.mockImplementation(() => null);
     mockClosetData.mockImplementation(() => READY_CLOSET);
+    mockFavoritesData.mockImplementation(() => []);
   });
 
   it("navigates from zero state via auto and manual", async () => {
@@ -478,6 +505,43 @@ describe("Home interactions", () => {
       preferredFit: "regular",
       lifestyle: "casual_daily",
     });
+  });
+
+  it("passes available favorites as optional candidates during automatic generation", async () => {
+    mockFavoritesData.mockImplementation(() => [
+      { ...buildGarment("favorite-top", "top"), isFavorite: true },
+    ]);
+    useGeneratorStore.getState().startAutoSelect();
+    render(<Home />);
+
+    await userEvent.click(screen.getByTestId("style-confirm"));
+
+    expect(mockGenerateMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        forcedFavoritesIds: [],
+        suggestedFavoriteIds: ["favorite-top"],
+      }),
+    );
+  });
+
+  it("keeps the explicit favorite-selection flow forced and separate", async () => {
+    mockFavoritesData.mockImplementation(() => [
+      { ...buildGarment("favorite-top", "top"), isFavorite: true },
+    ]);
+    useGeneratorStore.getState().startAutoSelect();
+    render(<Home />);
+
+    await userEvent.click(screen.getByTestId("toggle-favorite-selection"));
+    await userEvent.click(screen.getByTestId("style-confirm"));
+    expect(useGeneratorStore.getState().view).toBe("favorites-selection");
+    await userEvent.click(screen.getByTestId("select-explicit-favorite"));
+
+    expect(mockGenerateMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        forcedFavoritesIds: ["favorite-top"],
+        suggestedFavoriteIds: [],
+      }),
+    );
   });
 
   it("goes back from style selection", async () => {

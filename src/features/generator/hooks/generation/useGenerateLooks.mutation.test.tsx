@@ -118,6 +118,120 @@ describe("useGenerateLooks mutation", () => {
     );
     expect(request.forcedFavoritesIds).toContain("favorite-top");
   });
+
+  it("sends optional favorites separately from explicit forced favorites", async () => {
+    const favoriteTop = {
+      garmentId: "favorite-top",
+      userId: "user-1",
+      imageUrl: null,
+      garmentType: "top",
+      style: "casual",
+      cutLength: null,
+      styles: ["casual"],
+      cuts: [],
+      color: "black",
+      material: "cotton",
+      season: "all",
+      isDirty: false,
+      lastWornDate: null,
+      isExternalGarment: false,
+      extraTags: {},
+      createdAt: "2026-01-01T00:00:00.000Z",
+      isFavorite: true,
+    } as Garment;
+    const bottom = {
+      ...favoriteTop,
+      garmentId: "bottom",
+      garmentType: "bottom",
+      isFavorite: false,
+    } as Garment;
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockResolvedValue(
+      new Response(
+        `data: ${JSON.stringify({
+          type: "complete",
+          payload: {
+            options: [{ garmentIds: ["favorite-top", "bottom"] }],
+            _isFallback: false,
+          },
+        })}\n\n`,
+        { headers: { "Content-Type": "text/event-stream" } },
+      ),
+    );
+    const { result } = renderHook(() => useGenerateLooks(), {
+      wrapper: createWrapper(),
+    });
+
+    result.current.mutate({
+      garments: [favoriteTop, bottom],
+      profile: null,
+      style: "casual",
+      suggestedFavoriteIds: ["favorite-top", "not-in-closet"],
+    });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    const request = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body)) as {
+      forcedFavoritesIds: string[];
+      suggestedFavoriteIds: string[];
+    };
+    expect(request.forcedFavoritesIds).toEqual([]);
+    expect(request.suggestedFavoriteIds).toEqual(["favorite-top"]);
+  });
+
+  it("does not send an explicit favorite as an optional suggestion too", async () => {
+    const favoriteTop = {
+      garmentId: "favorite-top",
+      userId: "user-1",
+      imageUrl: null,
+      garmentType: "top",
+      style: "casual",
+      cutLength: null,
+      styles: ["casual"],
+      cuts: [],
+      color: "black",
+      material: "cotton",
+      season: "all",
+      isDirty: false,
+      lastWornDate: null,
+      isExternalGarment: false,
+      extraTags: {},
+      createdAt: "2026-01-01T00:00:00.000Z",
+      isFavorite: true,
+    } as Garment;
+    const bottom = { ...favoriteTop, garmentId: "bottom", garmentType: "bottom" } as Garment;
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockResolvedValue(
+      new Response(
+        `data: ${JSON.stringify({
+          type: "complete",
+          payload: {
+            options: [{ garmentIds: ["favorite-top", "bottom"] }],
+            _isFallback: false,
+          },
+        })}\n\n`,
+        { headers: { "Content-Type": "text/event-stream" } },
+      ),
+    );
+    const { result } = renderHook(() => useGenerateLooks(), {
+      wrapper: createWrapper(),
+    });
+
+    result.current.mutate({
+      garments: [favoriteTop, bottom],
+      profile: null,
+      style: "casual",
+      forcedFavoritesIds: ["favorite-top"],
+      suggestedFavoriteIds: ["favorite-top"],
+    });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    const request = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body)) as {
+      forcedFavoritesIds: string[];
+      suggestedFavoriteIds: string[];
+    };
+    expect(request.forcedFavoritesIds).toEqual(["favorite-top"]);
+    expect(request.suggestedFavoriteIds).toEqual([]);
+  });
 });
 
 describe("resolveCachedClimate", () => {

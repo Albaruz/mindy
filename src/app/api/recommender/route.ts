@@ -23,6 +23,10 @@ import {
 } from "@/lib/ai/engine";
 import { generateFallbackLook } from "@/lib/recommender/fallback";
 import {
+  applyFavoriteInclusionChance,
+  selectSuggestedFavoriteIds,
+} from "@/lib/recommender/favoriteInclusion";
+import {
   extractCompletedOptionObjects,
   classifyAiFallbackReason,
   isUpstreamFailure,
@@ -64,6 +68,7 @@ interface RecommenderStreamContext {
   knownIds: Set<string>;
   cappedPool: CandidateGarment[];
   lockedIds: Set<string>;
+  suggestedFavoriteIds: Set<string>;
   temperatureC: number;
   outerwearRequired: boolean;
   excludedWinterCount: number;
@@ -97,6 +102,7 @@ function createRecommenderStream({
   knownIds,
   cappedPool,
   lockedIds,
+  suggestedFavoriteIds,
   temperatureC,
   outerwearRequired,
   excludedWinterCount,
@@ -126,11 +132,18 @@ function createRecommenderStream({
     isFallback: boolean,
     fallbackReason: ReturnType<typeof classifyAiFallbackReason> | null = null,
   ) => {
+    const finalOptions = applyFavoriteInclusionChance(
+      options,
+      cappedPool,
+      lockedIds,
+      suggestedFavoriteIds,
+      outerwearRequired,
+    );
     const model = isFallback ? "local-fallback" : getEngineModel();
     logger.requestComplete("recommender", requestId, 200, Date.now() - startTime, {
       userId,
       isFallback,
-      optionsCount: options.length,
+      optionsCount: finalOptions.length,
       model,
       repairAttempted,
       fallbackReason,
@@ -147,7 +160,7 @@ function createRecommenderStream({
     send({
       type: "complete",
       payload: {
-        options,
+        options: finalOptions,
         temperatureC,
         requiredOuterwear: outerwearRequired,
         _isFallback: isFallback,
@@ -460,6 +473,11 @@ export async function POST(request: Request) {
     ),
   );
   const forcedFavoriteIds = new Set(readIdList(input.forcedFavoritesIds));
+  const requestedSuggestedFavoriteIds = new Set(
+    readIdList(input.suggestedFavoriteIds).filter(
+      (id) => !forcedFavoriteIds.has(id),
+    ),
+  );
   const rainExemptionIds = new Set([
     ...requestedLockedIds,
     ...forcedFavoriteIds,
@@ -553,11 +571,16 @@ export async function POST(request: Request) {
     ...lockedIds,
     ...forcedFavoriteCandidates.map((candidate) => candidate.id),
   ]);
+  const suggestedFavoriteIds = selectSuggestedFavoriteIds(
+    pool,
+    requestedSuggestedFavoriteIds,
+    allLockedIds,
+  );
 
   // Token-budget cap with category balance: a blind head-slice would
   // silently drop whole families (e.g. every shoe) when the closet is
   // large. Explicit pins and selected favorites always survive.
-  const cappedPool = capBalancedPool(pool, allLockedIds);
+  const cappedPool = capBalancedPool(pool, allLockedIds, suggestedFavoriteIds);
   const knownIds = new Set(cappedPool.map((candidate) => candidate.id));
 
   // Hard outerwear rule: with rain or cold the model must dress an
@@ -631,6 +654,7 @@ export async function POST(request: Request) {
       knownIds,
       cappedPool,
       lockedIds: allLockedIds,
+      suggestedFavoriteIds,
       temperatureC,
       outerwearRequired,
       excludedWinterCount,
@@ -734,6 +758,13 @@ export async function POST(request: Request) {
       );
     }
   }
+  options = applyFavoriteInclusionChance(
+    options,
+    cappedPool,
+    allLockedIds,
+    suggestedFavoriteIds,
+    outerwearRequired,
+  );
   const durationMs = Date.now() - startTime;
   logger.requestComplete('recommender', requestId, 200, durationMs, {
     userId: user.id,

@@ -65,6 +65,16 @@ describe("getGeneratorReadiness", () => {
     ).toEqual({ status: "laundry" });
   });
 
+  it("offers laundry when dirty garments complete an otherwise complete closet", () => {
+    expect(
+      getGeneratorReadiness([
+        garment("top", "top"),
+        garment("bottom", "bottom", true),
+        garment("shoes", "footwear"),
+      ]),
+    ).toEqual({ status: "laundry" });
+  });
+
   it("stays blocked for missing categories even if existing clothes are dirty", () => {
     expect(
       getGeneratorReadiness([

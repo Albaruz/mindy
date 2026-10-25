@@ -87,7 +87,7 @@ src/
 │   ├── ai.ts                   # AI-related (prompts config, timeouts)
 │   ├── api.ts                  # API rate limits, timeouts
 │   ├── weather.ts              # Weather thresholds (HEAT, COLD, RAIN)
-│   ├── generator.ts            # Generator constants (MAX_DISCARD_COUNT, etc)
+│   ├── generator.ts            # Generator constants (MAX_DISCARD_COUNT, FAVORITE_LOOK_INCLUSION_PROBABILITY, etc)
 │   ├── garment.ts              # Garment tag vocabularies (GARMENT_*_VALUES, *_ALIASES, TYPE_CATEGORIES, ONE_PIECE_KEYWORDS)
 │   ├── profile.ts              # Profile enums (COLORIMETRIES, MORPHOLOGIES, ...) + inference
 │   ├── ui-config.ts            # UI constants (SHOP_SECTIONS, STYLE_TRIBES, TOTAL_STEPS, ...)

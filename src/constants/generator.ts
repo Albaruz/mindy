@@ -6,6 +6,10 @@
 // response identically; the client re-caps defensively.
 export const MAX_LOOK_OPTIONS = 3;
 
+// Chance per generated look to substitute a compatible garment with one of
+// the user's optional favorites. Explicitly selected favorites remain forced.
+export const FAVORITE_LOOK_INCLUSION_PROBABILITY = 0.25;
+
 // Auto-mode rejection budget: at most 4 left-swipes per generation
 // before the limit empty state takes over.
 export const MAX_DISCARD_COUNT = 4;

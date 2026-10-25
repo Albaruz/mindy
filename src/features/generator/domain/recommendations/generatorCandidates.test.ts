@@ -25,6 +25,18 @@ function garment(garmentId: string, isDirty: boolean): Garment {
 }
 
 describe("buildCandidates", () => {
+  it("keeps locked garments even when dirty or dismissed", () => {
+    const lockedGarment = garment("locked-top", true);
+
+    const candidates = buildCandidates(
+      [lockedGarment],
+      new Set(["locked-top"]),
+      new Set(["locked-top"]),
+    );
+
+    expect(candidates).toEqual([lockedGarment]);
+  });
+
   it("does not keep a dirty favorite just because it was selected", () => {
     const selectedFavorite = garment("favorite-top", true);
     const dismissedGarment = garment("dismissed-top", false);

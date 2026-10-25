@@ -136,64 +136,59 @@ POST /api/recommender
 
 ```json
 {
-  "outfit_slots": {
-    "top": ["id1", "id2", "id3"],
-    "bottom": ["id4", "id5"],
-    "footwear": ["id6", "id7"],
-    "outerwear": ["id8"]
+  "garments": [
+    { "garmentId": "top-1", "garmentType": "top", "styles": ["casual"], "isDirty": false },
+    { "garmentId": "bottom-1", "garmentType": "bottom", "styles": ["casual"], "isDirty": false }
+  ],
+  "temperatureC": 22,
+  "condition": "Clear",
+  "dayLow": 17,
+  "dayHigh": 25,
+  "rainProbability": 0,
+  "profile": {
+    "preferredFit": "regular",
+    "lifestyle": "casual_daily",
+    "colorimetry": "autumn",
+    "morphology": "rectangle"
   },
-  "user_profile": {
-    "preferred_fit": "slim",
-    "lifestyle": "casual",
-    "colorimetry": "autumn"
-  },
+  "mood": "relaxed",
   "style": "casual",
-  "weather": {
-    "temp": 22,
-    "condition": "partly_cloudy",
-    "rainProb": 0
-  },
-  "locked_garments": ["id1"],
-  "dismissed_ids": ["id4"]
+  "locale": "en",
+  "lockedGarmentIds": [],
+  "dismissedGarmentIds": [],
+  "forcedFavoritesIds": [],
+  "suggestedFavoriteIds": ["top-1"]
 }
 ```
+
+`garments` is required and must contain 1–200 items. `forcedFavoritesIds` are
+hard constraints: surviving IDs are included in every generated option, like
+locked garments. `suggestedFavoriteIds` are optional preferences for automatic
+generation, not constraints. The server selects only compatible, eligible
+favorites, preserves them through the candidate cap, and independently gives
+each look a 25% chance to use a favorite in place of a garment from the same
+category. Dirty, dismissed, weather-incompatible, and style-incompatible
+garments are not used as suggestions.
 
 ### Response
 
 ```json
 {
-  "outfits": [
+  "options": [
     {
-      "top_id": "uuid1",
-      "bottom_id": "uuid2",
-      "footwear_id": "uuid3",
-      "outerwear_id": "uuid4",
-      "reason": "Perfect match for casual autumn style",
-      "suitability_ratio": 92
-    },
-    {
-      "top_id": "uuid5",
-      "bottom_id": "uuid6",
-      "footwear_id": "uuid3",
-      "outerwear_id": null,
-      "reason": "Comfortable everyday look",
-      "suitability_ratio": 85
-    },
-    {
-      "top_id": "uuid7",
-      "bottom_id": "uuid8",
-      "footwear_id": "uuid7",
-      "outerwear_id": "uuid4",
-      "reason": "Versatile combination",
-      "suitability_ratio": 78
+      "garmentIds": ["top-1", "bottom-1"],
+      "reason": "A versatile casual look",
+      "suitabilityRatio": 92
     }
   ],
-  "metadata": {
-    "model": "openai/gpt-oss-20b",
-    "fallback": false,
-    "options_count": 3,
-    "processing_time_ms": 1240
-  }
+  "temperatureC": 22,
+  "requiredOuterwear": false,
+  "_isFallback": false,
+  "excludedWinterGarments": 0,
+  "excludedRainMaterials": 0,
+  "excludedDismissedGarments": 0,
+  "model": "openai/gpt-oss-20b",
+  "fallbackReason": null
 }
 ```
 
@@ -206,36 +201,38 @@ POST /api/recommender
 ### Timeout
 
 ```
-30000ms
-Retries: 3 (exponential backoff)
+15000ms per AI model call (configured by AI_TIMEOUT_MS)
 ```
 
 ### Error Responses
 
 | Status | Body | Reason |
 |---|---|---|
-| `200` | outfits array | Success |
-| `400` | `{error: "Invalid outfit slots"}` | Malformed request |
+| `200` | `{ options, _isFallback, ... }` | Success; `_isFallback` reports rule-based recovery |
+| `400` | `{error: "..."}` | Malformed request or no eligible/buildable candidates |
 | `401` | `{error: "Unauthorized"}` | Not authenticated |
+| `413` | `{error: "Too many garments in a single request."}` | More than 200 garments |
 | `422` | `{error: "INSUFFICIENT_STYLE_GARMENTS"}` | Not enough clean garments for style |
-| `429` | `{error: "Rate limit exceeded", "retry_after": 12}` | Rate limited |
-| `500` | `{fallback: true, outfits: [fallback_arrays]}` | LLM error (rule-based fallback) |
+| `429` | `{error: "Rate limit exceeded"}` | Rate limited; retry delay is in the `Retry-After` header |
+| `500` | `{error: "Unexpected recommender error."}` | Unexpected internal error |
+| `502` | `{error: "AI service request failed. Try again."}` | Upstream and local fallback both failed |
+| `503` | `{error: "AI service is not configured ..."}` | Missing `GROQ_API_KEY` |
 
 ### Fallback Behavior
 
-If Groq API fails or is rate-limited, returns rule-based combinations with static suitability ratios:
+If Groq API fails or is rate-limited, the endpoint returns rule-based combinations
+with static suitability ratios and `_isFallback: true`. The response still uses
+the same `options` contract:
 
 ```json
 {
-  "outfits": [
-    { "top_id": "...", ..., "suitability_ratio": 60 },
-    { "top_id": "...", ..., "suitability_ratio": 55 },
-    { "top_id": "...", ..., "suitability_ratio": 50 }
+  "options": [
+    { "garmentIds": ["..."], "suitabilityRatio": 60 },
+    { "garmentIds": ["..."], "suitabilityRatio": 55 },
+    { "garmentIds": ["..."], "suitabilityRatio": 50 }
   ],
-  "metadata": {
-    "fallback": true,
-    "model": "rule-based"
-  }
+  "_isFallback": true,
+  "model": "local-fallback"
 }
 ```
 
@@ -243,20 +240,27 @@ If Groq API fails or is rate-limited, returns rule-based combinations with stati
 
 ```typescript
 async function generateOutfits(
-  slots: OutfitSlots,
-  profile: UserProfile,
-  style: string
+  garments: Garment[],
+  profile: RecommenderProfile | null,
+  style: string,
+  suggestedFavoriteIds: string[] = [],
 ) {
   const res = await fetch('/api/recommender', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      outfit_slots: slots,
-      user_profile: profile,
+      garments,
+      profile,
       style,
-      weather: currentWeather,
-      locked_garments: [],
-      dismissed_ids: [],
+      temperatureC: currentWeather.temperatureC,
+      condition: currentWeather.condition,
+      dayLow: currentWeather.dayLow,
+      dayHigh: currentWeather.dayHigh,
+      rainProbability: currentWeather.rainProbability,
+      lockedGarmentIds: [],
+      dismissedGarmentIds: [],
+      forcedFavoritesIds: [],
+      suggestedFavoriteIds,
     }),
   });
 
@@ -267,10 +271,14 @@ async function generateOutfits(
     throw new Error(`Recommender failed: ${res.statusText}`);
   }
 
-  const { outfits, metadata } = await res.json();
-  return { outfits, metadata };
+  const { options, _isFallback } = await res.json();
+  return { options, isFallback: _isFallback };
 }
 ```
+
+Clients may request server-sent streaming by adding
+`Accept: text/event-stream`. The stream emits `progress`, `preview`, `reset`,
+and `complete` events; the completed event contains the same response payload.
 
 ---
 
