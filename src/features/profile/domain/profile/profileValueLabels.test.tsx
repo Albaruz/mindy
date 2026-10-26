@@ -47,7 +47,7 @@ describe("useProfileValueLabel", () => {
     ).toBe("Triángulo invertido");
     expect(
       renderLabel("es", esMessages, "lifestyle", "corporate_office"),
-    ).toBe("Oficina o corporativo");
+    ).toBe("Oficina");
     expect(renderLabel("es", esMessages, "colorimetry", "winter")).toBe(
       "Invierno",
     );
@@ -59,7 +59,7 @@ describe("useProfileValueLabel", () => {
       "Hourglass",
     );
     expect(renderLabel("en", enMessages, "lifestyle", "home_remote")).toBe(
-      "Remote work",
+      "Homebody",
     );
     expect(renderLabel("en", enMessages, "colorimetry", "spring")).toBe("Spring");
     expect(renderLabel("en", enMessages, "fit", "mixed")).toBe("Mixed");

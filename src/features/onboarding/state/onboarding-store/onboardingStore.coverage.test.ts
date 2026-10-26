@@ -36,6 +36,13 @@ describe("onboardingStore branch coverage", () => {
     expect(useOnboardingStore.getState().fit).toBe("regular");
   });
 
+  it("prefills the saved lifestyle", () => {
+    useOnboardingStore.getState().prefillFromProfile(
+      buildProfile({ lifestyle: "active_sports" }),
+    );
+    expect(useOnboardingStore.getState().lifestyle).toBe("active_sports");
+  });
+
   it("prefills silver jewelry", () => {
     useOnboardingStore.getState().prefillFromProfile(
       buildProfile({ extraPreferences: { jewelry: "silver" } }),

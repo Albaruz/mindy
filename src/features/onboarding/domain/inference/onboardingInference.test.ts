@@ -6,6 +6,7 @@ function buildAnswers(overrides: Partial<WizardAnswers> = {}): WizardAnswers {
     displayName: "  Ada  ",
     section: "women",
     style: "minimalist",
+    lifestyle: "corporate_office",
     skinTone: "brown",
     eyeColor: "brown",
     chestCm: 90.4,
@@ -28,10 +29,10 @@ describe("buildWizardPayload", () => {
     expect(payload.extraPreferences.thermostat).toBe(2);
   });
 
-  it("infers autumn colorimetry and lifestyle for gold plus deep skin", () => {
+  it("infers colorimetry but preserves the independently selected lifestyle", () => {
     const payload = buildWizardPayload(buildAnswers());
     expect(payload.colorimetry).toBe("autumn");
-    expect(payload.lifestyle).toBe("casual_daily");
+    expect(payload.lifestyle).toBe("corporate_office");
     expect(payload.preferredFit).toBe("regular");
   });
 

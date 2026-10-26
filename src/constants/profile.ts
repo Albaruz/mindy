@@ -12,7 +12,7 @@
 // They MUST be kept in sync with the CSS custom properties in src/styles/core/_tokens.scss.
 // Consider using the CSS variable helpers (skinToneToCssVar, etc.) for new code.
 
-import type { FitChoice, JewelryPick, StyleTribe } from "./ui-config";
+import type { FitChoice, JewelryPick } from "./ui-config";
 
 // ============================================================================
 // Enums / Option Sets (mirror database CHECK constraints)
@@ -182,7 +182,7 @@ export function getSeasonSwatches(season: ColorimetryValue): string[] {
 
 // ============================================================================
 // Onboarding Inference Logic (pure functions)
-// Maps indirect wizard answers → profile contract (colorimetry, morphology, fit, lifestyle)
+// Maps indirect wizard answers → profile contract (colorimetry, morphology, fit)
 // ============================================================================
 
 // Types re-exported from ui-config for backward compatibility
@@ -230,20 +230,6 @@ export function inferMorphology(
     return "oval";
   }
   return "rectangle";
-}
-
-/** Maps StyleTribe (wizard) → Lifestyle (profile) */
-export function mapStyleToLifestyle(style: StyleTribe): LifestyleValue {
-  switch (style) {
-    case "minimalist":
-      return "casual_daily";
-    case "classic":
-      return "corporate_office";
-    case "streetwear":
-      return "social_events";
-    case "boho":
-      return "home_remote";
-  }
 }
 
 /** Maps FitChoice (wizard) → PreferredFit (profile) */

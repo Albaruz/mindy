@@ -233,11 +233,11 @@
       "mixed": "Mixed"
     },
     "lifestyles": {
-      "casual_daily": "Everyday casual",
-      "corporate_office": "Corporate office",
-      "active_sports": "Active sports",
-      "home_remote": "Remote work",
-      "social_events": "Social events"
+      "casual_daily": "Casual",
+      "corporate_office": "Office",
+      "active_sports": "Sport",
+      "home_remote": "Homebody",
+      "social_events": "Events and social life"
     },
     "notSet": "Not set",
     "fitCaption": "How you like to wear it",
@@ -313,14 +313,15 @@
     "counter": "Step {step} of {total}",
     "nameKeyword": "Your name",
     "styleKeyword": "Your style",
+    "lifestyleKeyword": "Your routine",
     "measuresKeyword": "Your measurements",
     "colorsKeyword": "Your colors",
     "quirksKeyword": "Your quirks",
     "welcomeTitle": "I'm Mindy, your new smart closet. What should I call you?",
     "nameLabel": "Your name",
     "namePlaceholder": "e.g. Alex",
-    "identityTitle": "Which section do you shop in, and what's your style?",
-    "identityTitleNamed": "Nice to meet you, {name}. Which section do you shop in, and what's your style?",
+    "identityTitle": "Hey! Tell me: which section and style feel like you?",
+    "identityTitleNamed": "Hey, {name}! Tell me: which section and style feel like you?",
     "sectionLabel": "Shopping section",
     "sections": {
       "women": "Women",
@@ -335,10 +336,27 @@
       "boho": "Boho"
     },
     "styleHints": {
-      "minimalist": "Clean lines, few colors",
-      "streetwear": "Sneakers and attitude",
-      "classic": "Timeless basics",
-      "boho": "Flowy and relaxed"
+      "minimalist": "Less fuss, more style",
+      "streetwear": "Urban, comfy, full of personality",
+      "classic": "Timeless elegance",
+      "boho": "Layers, movement, free spirit"
+    },
+    "lifestyleTitle": "What does a normal day look like for you?",
+    "lifestyleSubtitle": "Choose your usual routine, independently of how you like to dress.",
+    "lifestyleLabel": "My day-to-day is usually...",
+    "lifestyles": {
+      "casual_daily": "Casual",
+      "corporate_office": "Office",
+      "active_sports": "Sport",
+      "home_remote": "Homebody",
+      "social_events": "Events and social life"
+    },
+    "lifestyleHints": {
+      "casual_daily": "Ready for anything, no fuss",
+      "corporate_office": "Clocking in, Monday to Friday",
+      "active_sports": "Sneakers ready for action",
+      "home_remote": "Home is base camp (and the fridge is close)",
+      "social_events": "My social calendar gets a say in the outfit"
     },
     "measuresTitle": "Real measurements. Zero drama.",
     "measuresSubtitle": "Use the sliders to nail your size.",

@@ -58,6 +58,9 @@ vi.mock("../../components/steps/step-welcome/StepWelcome", () => ({
 vi.mock("../../components/steps/step-identity/StepIdentity", () => ({
   StepIdentity: () => <div data-testid="mock-step-identity" />,
 }));
+vi.mock("../../components/steps/step-lifestyle/StepLifestyle", () => ({
+  StepLifestyle: () => <div data-testid="mock-step-lifestyle" />,
+}));
 vi.mock("../../components/steps/step-morphology/StepMorphology", () => ({
   StepMorphology: () => <div data-testid="mock-step-morphology" />,
 }));
@@ -87,6 +90,7 @@ function fillStoreForSubmit() {
   store.setDisplayName("Ada Lovelace");
   store.setSection("women");
   store.setStyle("minimalist");
+  store.setLifestyle("corporate_office");
   store.setFit("regular");
   store.setSkinTone("medium");
   store.setEyeColor("brown");
@@ -170,6 +174,23 @@ describe("OnboardingWizard", () => {
     expect(screen.getByRole("button", { name: "continue" })).toBeEnabled();
   });
 
+  it("requires a separate lifestyle answer after the style step", async () => {
+    const user = userEvent.setup();
+    const store = useOnboardingStore.getState();
+    store.setDisplayName("Ada Lovelace");
+    store.setSection("women");
+    store.setStyle("minimalist");
+    render(<OnboardingWizard />);
+    await user.click(screen.getByRole("button", { name: "continue" }));
+    await user.click(screen.getByRole("button", { name: "continue" }));
+
+    expect(screen.getByTestId("mock-step-lifestyle")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "continue" })).toBeDisabled();
+
+    act(() => useOnboardingStore.getState().setLifestyle("home_remote"));
+    expect(screen.getByRole("button", { name: "continue" })).toBeEnabled();
+  });
+
   it("submits on the final step and shows the success screen", async () => {
     const user = userEvent.setup();
     await goToFinalStep(user);
@@ -180,6 +201,9 @@ describe("OnboardingWizard", () => {
     expect(
       await screen.findByRole("button", { name: "successCta" }),
     ).toBeInTheDocument();
+    expect(saveMock).toHaveBeenCalledWith(
+      expect.objectContaining({ lifestyle: "corporate_office" }),
+    );
     expect(invalidateProfileQueryMock).toHaveBeenCalledWith({
       queryKey: QUERY_KEYS.profile,
     });
@@ -201,6 +225,7 @@ describe("OnboardingWizard", () => {
     store.setSection("women");
     store.setStyle("minimalist");
     store.setFit("regular");
+    store.setLifestyle("casual_daily");
     store.setSkinTone("medium");
     store.setEyeColor("brown");
     render(<OnboardingWizard />);
@@ -245,7 +270,7 @@ describe("OnboardingWizard", () => {
           colorimetry: "summer",
           morphology: "rectangle",
           preferredFit: "regular",
-          lifestyle: "casual_daily",
+          lifestyle: "corporate_office",
           extraPreferences: {
             displayName: "Ada",
             section: "women",
@@ -258,5 +283,6 @@ describe("OnboardingWizard", () => {
     );
     expect(useOnboardingStore.getState().displayName).toBe("Ada");
     expect(useOnboardingStore.getState().skinTone).toBe("medium");
+    expect(useOnboardingStore.getState().lifestyle).toBe("corporate_office");
   });
 });

@@ -21,7 +21,7 @@ describe("ui-config constants", () => {
     expect(MEASURE_MAX_CM).toBe(140);
     expect(THERMAL_MIN).toBe(1);
     expect(THERMAL_MAX).toBe(5);
-    expect(TOTAL_STEPS).toBe(5);
+    expect(TOTAL_STEPS).toBe(6);
   });
 
   it("clamps measurements into range and rounds", () => {
@@ -63,5 +63,6 @@ describe("ui-config constants", () => {
     expect(ONBOARDING_DEFAULTS.thermal).toBeGreaterThanOrEqual(THERMAL_MIN);
     expect(ONBOARDING_DEFAULTS.thermal).toBeLessThanOrEqual(THERMAL_MAX);
     expect(ONBOARDING_DEFAULTS.forbiddenColors).toEqual([]);
+    expect(ONBOARDING_DEFAULTS.lifestyle).toBe("");
   });
 });

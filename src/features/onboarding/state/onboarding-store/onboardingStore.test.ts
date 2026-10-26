@@ -31,6 +31,7 @@ describe("onboardingStore", () => {
     store.setDisplayName("Ada");
     store.setSection("women");
     store.setStyle("minimalist");
+    store.setLifestyle("corporate_office");
     store.setFit("fitted");
     store.setSkinTone("light");
     store.setEyeColor("brown");
@@ -39,6 +40,7 @@ describe("onboardingStore", () => {
     expect(state.displayName).toBe("Ada");
     expect(state.section).toBe("women");
     expect(state.style).toBe("minimalist");
+    expect(state.lifestyle).toBe("corporate_office");
     expect(state.fit).toBe("fitted");
     expect(state.jewelry).toBe("gold");
   });
@@ -71,6 +73,7 @@ describe("onboardingStore", () => {
   it("prefills reversible answers from a profile", () => {
     useOnboardingStore.getState().prefillFromProfile(
       buildProfile({
+        lifestyle: "home_remote",
         extraPreferences: {
           displayName: "Ada",
           section: "women",
@@ -83,6 +86,7 @@ describe("onboardingStore", () => {
     const state = useOnboardingStore.getState();
     expect(state.displayName).toBe("Ada");
     expect(state.section).toBe("women");
+    expect(state.lifestyle).toBe("home_remote");
     expect(state.fit).toBe("fitted");
     expect(state.thermal).toBe(2);
     expect(state.forbiddenColors).toEqual(["#1a1a1a"]);
@@ -99,6 +103,7 @@ describe("onboardingStore", () => {
     const state = useOnboardingStore.getState();
     expect(state.section).toBe("");
     expect(state.style).toBe("");
+    expect(state.lifestyle).toBe("");
     expect(state.fit).toBe("");
   });
 

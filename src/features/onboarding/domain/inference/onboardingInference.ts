@@ -1,24 +1,20 @@
 import type { SaveProfileInput } from "@/constants/profileValidation";
-import type {
-  FitChoice,
-  JewelryPick,
-  StyleTribe,
-} from "@/constants/ui-config";
+import type { FitChoice, JewelryPick, StyleTribe } from "@/constants/ui-config";
 import {
   inferColorimetry,
   inferMorphology,
-  mapStyleToLifestyle,
   mapFitToPreferredFit,
 } from "@/constants/profile";
+import type { Lifestyle } from "@/types/user";
 
-// Pure mapping from indirect wizard answers to the profiles contract.
+// Packs wizard answers into the profiles contract. Only colorimetry,
+// morphology and fit are inferred; lifestyle is selected directly.
 // Morphology thresholds mirror inferProfile so both paths agree.
 // Re-exported from centralized constants for backward compatibility.
 
 export {
   inferColorimetry,
   inferMorphology,
-  mapStyleToLifestyle,
   mapFitToPreferredFit,
 };
 
@@ -30,6 +26,7 @@ export interface WizardAnswers {
   displayName: string;
   section: string;
   style: StyleTribe;
+  lifestyle: Lifestyle;
   skinTone: string;
   eyeColor: string;
   chestCm: number;
@@ -57,7 +54,7 @@ export function buildWizardPayload(answers: WizardAnswers): WizardPayload {
       answers.hipCm,
     ),
     preferredFit: mapFitToPreferredFit(answers.fit),
-    lifestyle: mapStyleToLifestyle(answers.style),
+    lifestyle: answers.lifestyle,
     extraPreferences: {
       displayName: answers.displayName.trim(),
       section: answers.section,

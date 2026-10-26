@@ -3,7 +3,6 @@ import {
   inferColorimetry,
   inferMorphology,
   mapFitToPreferredFit,
-  mapStyleToLifestyle,
 } from "@/constants/profile";
 
 describe("inferColorimetry", () => {
@@ -37,15 +36,6 @@ describe("inferMorphology", () => {
     expect(inferMorphology(90, 70, 90)).toBe("hourglass");
     expect(inferMorphology(100, 102, 100)).toBe("oval");
     expect(inferMorphology(90, 82, 91)).toBe("rectangle");
-  });
-});
-
-describe("mapStyleToLifestyle", () => {
-  it("maps wizard tribes to lifestyles", () => {
-    expect(mapStyleToLifestyle("minimalist")).toBe("casual_daily");
-    expect(mapStyleToLifestyle("classic")).toBe("corporate_office");
-    expect(mapStyleToLifestyle("streetwear")).toBe("social_events");
-    expect(mapStyleToLifestyle("boho")).toBe("home_remote");
   });
 });
 

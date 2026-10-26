@@ -233,11 +233,11 @@
       "mixed": "Mixto"
     },
     "lifestyles": {
-      "casual_daily": "Casual a diario",
-      "corporate_office": "Oficina o corporativo",
-      "active_sports": "Deportivo activo",
-      "home_remote": "Teletrabajo",
-      "social_events": "Eventos sociales"
+      "casual_daily": "Casual",
+      "corporate_office": "Oficina",
+      "active_sports": "Deporte",
+      "home_remote": "Casero",
+      "social_events": "Eventos y vida social"
     },
     "notSet": "Sin definir",
     "fitCaption": "Cómo te gusta llevarlo",
@@ -313,14 +313,15 @@
     "counter": "Paso {step} de {total}",
     "nameKeyword": "Tu nombre",
     "styleKeyword": "Tu estilo",
+    "lifestyleKeyword": "Tu rutina",
     "measuresKeyword": "Tus medidas",
     "colorsKeyword": "Tus colores",
     "quirksKeyword": "Tus manías",
     "welcomeTitle": "Soy Mindy, tu nuevo armario inteligente. ¿Cómo te llamo?",
     "nameLabel": "Tu nombre",
     "namePlaceholder": "p. ej. Alex",
-    "identityTitle": "¿En qué sección compras y cuál es tu estilo?",
-    "identityTitleNamed": "Encantada, {name}. ¿En qué sección compras y cuál es tu estilo?",
+    "identityTitle": "¡Hola! Cuéntame: ¿qué sección y estilo van contigo?",
+    "identityTitleNamed": "¡Hola, {name}! Cuéntame: ¿qué sección y estilo van contigo?",
     "sectionLabel": "Sección de compra",
     "sections": {
       "women": "Mujer",
@@ -335,10 +336,27 @@
       "boho": "Boho"
     },
     "styleHints": {
-      "minimalist": "Líneas limpias, pocos colores",
-      "streetwear": "Zapas y actitud",
-      "classic": "Básicos atemporales",
-      "boho": "Fluido y relajado"
+      "minimalist": "Menos ruido, más estilazo",
+      "streetwear": "Urbano, cómodo y con rollazo",
+      "classic": "Elegancia sin fecha de caducidad",
+      "boho": "Capas, movimiento y espíritu libre"
+    },
+    "lifestyleTitle": "¿Cómo es un día normal para ti?",
+    "lifestyleSubtitle": "Elige tu rutina habitual, independientemente de tu estilo al vestir.",
+    "lifestyleLabel": "Mi día a día suele ser...",
+    "lifestyles": {
+      "casual_daily": "Casual",
+      "corporate_office": "Oficina",
+      "active_sports": "Deporte",
+      "home_remote": "Casero",
+      "social_events": "Eventos y vida social"
+    },
+    "lifestyleHints": {
+      "casual_daily": "Lista para todo sin complicarme",
+      "corporate_office": "De lunes a viernes, toca fichar",
+      "active_sports": "Zapatillas listas para la acción",
+      "home_remote": "Mi base está en casa (y cerca de la nevera)",
+      "social_events": "Mi agenda social también elige look"
     },
     "measuresTitle": "Medidas reales. Cero dramas.",
     "measuresSubtitle": "Usa los deslizadores para clavar tu talla.",

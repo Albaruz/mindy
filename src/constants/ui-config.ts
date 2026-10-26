@@ -94,7 +94,7 @@ export type JewelryPick = "gold" | "silver";
 // ============================================================================
 
 /** Number of steps in the onboarding wizard (drives progress math). */
-export const TOTAL_STEPS = 5;
+export const TOTAL_STEPS = 6;
 
 // ============================================================================
 // Initial State Defaults (used by onboardingStore)
@@ -104,6 +104,7 @@ export const ONBOARDING_DEFAULTS = {
   displayName: "",
   section: "" as ShopSection | "",
   style: "" as StyleTribe | "",
+  lifestyle: "",
   chestCm: 92,
   waistCm: 76,
   hipCm: 98,

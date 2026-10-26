@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import type { UserProfile } from "@/types/user";
+import type { Lifestyle, UserProfile } from "@/types/user";
+import { LIFESTYLES } from "@/constants/profile";
 import {
   type ShopSection,
   type StyleTribe,
@@ -18,7 +19,7 @@ import {
   clampThermal,
 } from "@/constants/ui-config";
 
-// Wizard answers for the 5-step immersive onboarding (Stories style).
+// Wizard answers for the 6-step immersive onboarding (Stories style).
 // Identity and fine-tuning answers have no dedicated profile columns, so
 // they travel inside extra_preferences (see onboardingInference).
 // Types and constants re-exported from centralized config for backward compatibility.
@@ -38,6 +39,7 @@ interface OnboardingState {
   displayName: string;
   section: ShopSection | "";
   style: StyleTribe | "";
+  lifestyle: Lifestyle | "";
   chestCm: number;
   waistCm: number;
   hipCm: number;
@@ -50,6 +52,7 @@ interface OnboardingState {
   setDisplayName: (value: string) => void;
   setSection: (value: ShopSection) => void;
   setStyle: (value: StyleTribe) => void;
+  setLifestyle: (value: Lifestyle) => void;
   setMeasurement: (field: "chestCm" | "waistCm" | "hipCm", value: number) => void;
   setFit: (value: FitChoice) => void;
   setSkinTone: (value: string) => void;
@@ -71,6 +74,7 @@ export const useOnboardingStore = create<OnboardingState>()((set) => ({
   setDisplayName: (value) => set({ displayName: value }),
   setSection: (section) => set({ section }),
   setStyle: (style) => set({ style }),
+  setLifestyle: (lifestyle) => set({ lifestyle }),
 
   setMeasurement: (field, value) =>
     set({ [field]: clampMeasurement(value) } as Partial<OnboardingState>),
@@ -114,6 +118,10 @@ export const useOnboardingStore = create<OnboardingState>()((set) => ({
         style: STYLE_TRIBES.includes(extra.style as StyleTribe)
           ? (extra.style as StyleTribe)
           : "",
+        lifestyle:
+          profile.lifestyle !== null && LIFESTYLES.includes(profile.lifestyle)
+            ? profile.lifestyle
+            : "",
         chestCm:
           profile.chestMeasurementCm ?? ONBOARDING_DEFAULTS.chestCm,
         waistCm: profile.waistMeasurementCm ?? ONBOARDING_DEFAULTS.waistCm,

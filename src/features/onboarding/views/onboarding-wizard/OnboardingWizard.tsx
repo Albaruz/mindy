@@ -25,6 +25,7 @@ import { DISPLAY_NAME_MIN_LENGTH } from "@/constants/validation";
 import type { UserProfile } from "@/types/user";
 import { StepWelcome } from "../../components/steps/step-welcome/StepWelcome";
 import { StepIdentity } from "../../components/steps/step-identity/StepIdentity";
+import { StepLifestyle } from "../../components/steps/step-lifestyle/StepLifestyle";
 import { StepMorphology } from "../../components/steps/step-morphology/StepMorphology";
 import { StepColorimetry } from "../../components/steps/step-colorimetry/StepColorimetry";
 import { StepFineTuning } from "../../components/steps/step-fine-tuning/StepFineTuning";
@@ -37,6 +38,7 @@ function isStepComplete(
     displayName: string;
     section: string;
     style: string;
+    lifestyle: string;
     fit: string;
     skinTone: string;
     eyeColor: string;
@@ -49,11 +51,13 @@ function isStepComplete(
     case 2:
       return answers.section !== "" && answers.style !== "";
     case 3:
-      return answers.fit !== "";
+      return answers.lifestyle !== "";
     case 4:
+      return answers.fit !== "";
+    case 5:
       // Jewelry is optional: skin and eyes alone unlock Continue.
       return answers.skinTone !== "" && answers.eyeColor !== "";
-    case 5:
+    case 6:
       return true;
     default:
       return false;
@@ -80,6 +84,7 @@ export function OnboardingWizard({
   const displayName = useOnboardingStore((state) => state.displayName);
   const section = useOnboardingStore((state) => state.section);
   const style = useOnboardingStore((state) => state.style);
+  const lifestyle = useOnboardingStore((state) => state.lifestyle);
   const chestCm = useOnboardingStore((state) => state.chestCm);
   const waistCm = useOnboardingStore((state) => state.waistCm);
   const hipCm = useOnboardingStore((state) => state.hipCm);
@@ -117,6 +122,7 @@ export function OnboardingWizard({
     displayName,
     section,
     style,
+    lifestyle,
     fit,
     skinTone,
     eyeColor,
@@ -147,6 +153,7 @@ export function OnboardingWizard({
     if (
       section === "" ||
       style === "" ||
+      lifestyle === "" ||
       fit === "" ||
       skinTone === "" ||
       eyeColor === ""
@@ -161,6 +168,7 @@ export function OnboardingWizard({
       displayName,
       section,
       style,
+      lifestyle,
       skinTone,
       eyeColor,
       chestCm,
@@ -239,9 +247,10 @@ export function OnboardingWizard({
             >
               {step === 1 ? <StepWelcome /> : null}
               {step === 2 ? <StepIdentity /> : null}
-              {step === 3 ? <StepMorphology /> : null}
-              {step === 4 ? <StepColorimetry /> : null}
-              {step === 5 ? <StepFineTuning /> : null}
+              {step === 3 ? <StepLifestyle /> : null}
+              {step === 4 ? <StepMorphology /> : null}
+              {step === 5 ? <StepColorimetry /> : null}
+              {step === 6 ? <StepFineTuning /> : null}
             </motion.div>
           </AnimatePresence>
 
