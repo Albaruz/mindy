@@ -10,6 +10,7 @@ import {
 } from "react";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/Button/Button";
 import { saveProfileAction } from "@/actions/profileActions";
 import {
@@ -18,6 +19,7 @@ import {
 import { useOnboardingStore } from "@/features/onboarding/state/onboarding-store/onboardingStore";
 import { useRouter } from "@/i18n/navigation";
 import { TOTAL_STEPS } from "@/constants/ui-config";
+import { QUERY_KEYS } from "@/constants/query";
 import { SAVE_ARM_DELAY_MS } from "@/constants/animations";
 import { DISPLAY_NAME_MIN_LENGTH } from "@/constants/validation";
 import type { UserProfile } from "@/types/user";
@@ -66,6 +68,7 @@ export function OnboardingWizard({
   const t = useTranslations("Onboarding");
   const ta = useTranslations("Accessibility");
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [error, setError] = useState<string | null>(null);
@@ -189,6 +192,7 @@ export function OnboardingWizard({
       setIsSaving(false);
       return;
     }
+    void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profile });
     setSucceeded(true);
   };
 

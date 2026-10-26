@@ -30,6 +30,13 @@ vi.mock("framer-motion", () => ({
 
 const pushMock = vi.fn();
 const scrollToMock = vi.fn();
+const { invalidateProfileQueryMock } = vi.hoisted(() => ({
+  invalidateProfileQueryMock: vi.fn(),
+}));
+
+vi.mock("@tanstack/react-query", () => ({
+  useQueryClient: () => ({ invalidateQueries: invalidateProfileQueryMock }),
+}));
 
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
@@ -70,6 +77,7 @@ vi.mock("../../components/steps/onboarding-success/OnboardingSuccess", () => ({
 
 import { saveProfileAction } from "@/actions/profileActions";
 import { TOTAL_STEPS } from "@/constants/ui-config";
+import { QUERY_KEYS } from "@/constants/query";
 import { OnboardingWizard } from "./OnboardingWizard";
 
 const saveMock = vi.mocked(saveProfileAction);
@@ -104,6 +112,7 @@ beforeEach(() => {
   useOnboardingStore.getState().reset();
   saveMock.mockReset();
   saveMock.mockResolvedValue({ error: null });
+  invalidateProfileQueryMock.mockReset();
   pushMock.mockReset();
 });
 
@@ -171,6 +180,9 @@ describe("OnboardingWizard", () => {
     expect(
       await screen.findByRole("button", { name: "successCta" }),
     ).toBeInTheDocument();
+    expect(invalidateProfileQueryMock).toHaveBeenCalledWith({
+      queryKey: QUERY_KEYS.profile,
+    });
   });
 
   it("navigates to the closet from the success screen", async () => {
@@ -215,6 +227,7 @@ describe("OnboardingWizard", () => {
     await user.click(screen.getByRole("button", { name: "save" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Could not save");
     expect(screen.getByTestId("mock-step-finetuning")).toBeInTheDocument();
+    expect(invalidateProfileQueryMock).not.toHaveBeenCalled();
   });
 
   it("prefills the store from an initial profile", () => {
