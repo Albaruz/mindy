@@ -116,6 +116,12 @@ export const VISION_TEMPERATURE = 0;
 /** Vision response cap for tags, quality assessment, and garment description. */
 export const VISION_MAX_TOKENS = 700;
 
+/** Maximum lengths for free-text details returned by Vision. */
+export const VISION_TAG_DETAIL_MAX_LENGTH = 60;
+export const VISION_COLOR_DETAIL_MAX_LENGTH = 40;
+export const VISION_SECONDARY_COLOR_MAX_LENGTH = 40;
+export const VISION_PRINT_MAX_LENGTH = 30;
+
 /** Maximum length of Vision's user-facing photo-quality explanation. */
 export const VISION_QUALITY_NOTE_MAX_LENGTH = 140;
 

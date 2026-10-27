@@ -5,9 +5,14 @@ import { createClient } from "@/lib/supabase/client";
 import { useNotificationStore } from "@/stores/useNotificationStore";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { requireUser } from "@/lib/supabase/session";
+import type { Garment } from "@/types/garment";
 
-// Washes a single garment (is_dirty = false). The basket card animates
-// away optimistically at the call site; queries revalidate afterwards.
+interface WashContext {
+  garments: Garment[] | undefined;
+  basket: Garment[] | undefined;
+}
+
+// Washes one owned garment and optimistically removes it from dirty views.
 export function useWashGarment() {
   const queryClient = useQueryClient();
   const t = useTranslations("Notifications");
@@ -26,14 +31,40 @@ export function useWashGarment() {
         throw error;
       }
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments });
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.laundryBasket });
+    onMutate: async (garmentId): Promise<WashContext> => {
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: QUERY_KEYS.garments }),
+        queryClient.cancelQueries({ queryKey: QUERY_KEYS.laundryBasket }),
+      ]);
+      const context = {
+        garments: queryClient.getQueryData<Garment[]>(QUERY_KEYS.garments),
+        basket: queryClient.getQueryData<Garment[]>(QUERY_KEYS.laundryBasket),
+      };
+      queryClient.setQueryData<Garment[] | undefined>(
+        QUERY_KEYS.garments,
+        (current) =>
+          current?.map((garment) =>
+            garment.garmentId === garmentId
+              ? { ...garment, isDirty: false }
+              : garment,
+          ),
+      );
+      queryClient.setQueryData<Garment[] | undefined>(
+        QUERY_KEYS.laundryBasket,
+        (current) => current?.filter((garment) => garment.garmentId !== garmentId),
+      );
+      return context;
     },
-    onError: () => {
+    onError: (_error, _garmentId, context) => {
+      queryClient.setQueryData(QUERY_KEYS.garments, context?.garments);
+      queryClient.setQueryData(QUERY_KEYS.laundryBasket, context?.basket);
       useNotificationStore
         .getState()
         .addNotification("error", t("laundryFailed"));
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments });
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.laundryBasket });
     },
   });
 }

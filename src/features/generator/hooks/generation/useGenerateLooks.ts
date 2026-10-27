@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { getCurrentPosition } from "@/lib/geolocation";
@@ -161,9 +162,16 @@ function resolveLook(
 // Multi-option generation: resolves every LLM option into an AiLook and
 // pushes the array to the store, which flips the view to showcase.
 export function useGenerateLooks() {
+  const streamController = useRef<AbortController | null>(null);
   const t = useTranslations("Notifications");
   const locale = useLocale();
   const { data: weather } = useWeatherQuery();
+
+  useEffect(
+    () => () => streamController.current?.abort(),
+    [],
+  );
+
   return useMutation({
     mutationFn: async (input: GenerateLooksInput): Promise<GenerateLooksResult> => {
       const { dismissedIds, getLockedGarments } =
@@ -211,27 +219,38 @@ export function useGenerateLooks() {
       const byId = new Map(
         input.garments.map((garment) => [garment.garmentId, garment] as const),
       );
-      const response = await callRecommenderStream(
-        request,
-        (option) => {
-          const currentLooks = useGeneratorStore.getState().streamedLooks;
-          const look = resolveLook(
-            option.garmentIds,
-            byId,
-            currentLooks.length,
-            typeof option.reason === "string" ? option.reason : null,
-            typeof option.suitabilityRatio === "number"
-              ? option.suitabilityRatio
-              : 0,
-          );
-          if (look !== null) {
-            useGeneratorStore
-              .getState()
-              .setStreamedLooks([...currentLooks, look]);
-          }
-        },
-        () => useGeneratorStore.getState().setStreamedLooks([]),
-      );
+      streamController.current?.abort();
+      const controller = new AbortController();
+      streamController.current = controller;
+      let response: Response;
+      try {
+        response = await callRecommenderStream(
+          request,
+          (option) => {
+            const currentLooks = useGeneratorStore.getState().streamedLooks;
+            const look = resolveLook(
+              option.garmentIds,
+              byId,
+              currentLooks.length,
+              typeof option.reason === "string" ? option.reason : null,
+              typeof option.suitabilityRatio === "number"
+                ? option.suitabilityRatio
+                : 0,
+            );
+            if (look !== null) {
+              useGeneratorStore
+                .getState()
+                .setStreamedLooks([...currentLooks, look]);
+            }
+          },
+          () => useGeneratorStore.getState().setStreamedLooks([]),
+          controller.signal,
+        );
+      } finally {
+        if (streamController.current === controller) {
+          streamController.current = null;
+        }
+      }
       if (!response.ok) {
         const code = await readRecommenderError(response);
         if (

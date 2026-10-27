@@ -34,9 +34,18 @@ export async function createClient(options?: {
       cookieStore.get(REMEMBER_SINCE_COOKIE)?.value,
     );
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (
+    process.env.NODE_ENV === "production" &&
+    (!supabaseUrl || !supabaseAnonKey)
+  ) {
+    throw new Error("Supabase URL and publishable key must be configured.");
+  }
+
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || SUPABASE_URL_FALLBACK,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || SUPABASE_ANON_FALLBACK,
+    supabaseUrl || SUPABASE_URL_FALLBACK,
+    supabaseAnonKey || SUPABASE_ANON_FALLBACK,
     {
       cookies: {
         getAll() {

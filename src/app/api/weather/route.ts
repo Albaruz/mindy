@@ -59,7 +59,7 @@ function fallbackResponse(reason: string, requestId: string, userId: string, sta
   };
   return NextResponse.json(body, {
     headers: {
-      'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
+      "Cache-Control": "private, no-store",
     },
   });
 }
@@ -72,11 +72,15 @@ function parseCoordinate(
   if (value === null) {
     return null;
   }
-  const parsed = Number(value);
+  const trimmed = value.trim();
+  if (!/^-?\d+(?:\.\d+)?$/.test(trimmed)) {
+    return null;
+  }
+  const parsed = Number(trimmed);
   if (!Number.isFinite(parsed) || parsed < min || parsed > max) {
     return null;
   }
-  return parsed;
+  return Math.round(parsed * 100) / 100;
 }
 
 // GET /api/weather?lat=40.41&lon=-3.70
@@ -90,11 +94,12 @@ export async function GET(request: Request) {
   if (isGuardResponse(auth)) {
     return auth.response;
   }
-  const { user } = auth;
+  const { user, supabase } = auth;
 
   // Cheap call, but still third-party quota: cap per user.
-  if (rateLimitResponse("weather", user.id, requestId)) {
-    return fallbackResponse("rate limited", requestId, user.id, startTime);
+  const limited = await rateLimitResponse("weather", user.id, requestId, supabase);
+  if (limited !== null) {
+    return limited;
   }
 
   const { searchParams } = new URL(request.url);
@@ -112,7 +117,7 @@ export async function GET(request: Request) {
 
   try {
     const fetchStart = Date.now();
-    const [current, forecast] = await Promise.all([
+    const [currentResult, forecastResult] = await Promise.allSettled([
       fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${encodeURIComponent(apiKey)}`,
         {
@@ -128,14 +133,28 @@ export async function GET(request: Request) {
         },
       ),
     ]);
-    logger.externalCall('openweather', 'current+forecast', Date.now() - fetchStart, current.ok && forecast.ok, { route: 'weather', requestId, userId: user.id });
+    const current =
+      currentResult.status === "fulfilled" ? currentResult.value : null;
+    const forecast =
+      forecastResult.status === "fulfilled" ? forecastResult.value : null;
+    logger.externalCall(
+      "openweather",
+      "current+forecast",
+      Date.now() - fetchStart,
+      current?.ok === true && forecast?.ok === true,
+      { route: "weather", requestId, userId: user.id },
+    );
 
-    const upstream = current;
-    if (!upstream.ok) {
-      return fallbackResponse(`OpenWeather responded ${upstream.status}`, requestId, user.id, startTime);
+    if (current === null) {
+      throw currentResult.status === "rejected"
+        ? currentResult.reason
+        : new Error("OpenWeather current weather response is unavailable.");
+    }
+    if (!current.ok) {
+      return fallbackResponse(`OpenWeather responded ${current.status}`, requestId, user.id, startTime);
     }
 
-    const payload: unknown = await upstream.json();
+    const payload: unknown = await current.json();
     if (typeof payload !== "object" || payload === null) {
       return fallbackResponse("OpenWeather returned an unexpected payload", requestId, user.id, startTime);
     }
@@ -177,11 +196,14 @@ export async function GET(request: Request) {
       fallback: false,
     };
     const durationMs = Date.now() - startTime;
-    logger.requestComplete('weather', requestId, 200, durationMs, { userId: user.id, temperatureC, condition, city: body.city, fallback: false });
+    logger.requestComplete('weather', requestId, 200, durationMs, {
+      userId: user.id,
+      temperatureC,
+      condition,
+      fallback: false,
+    });
     return NextResponse.json(body, {
-      headers: {
-        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=60',
-      },
+      headers: { "Cache-Control": "private, no-store" },
     });
   } catch (error) {
     const durationMs = Date.now() - startTime;
@@ -245,10 +267,10 @@ function readSlotPop(entry: Record<string, unknown>): number | null {
 // Day aggregation in city-local time. Today's summary keeps the existing
 // late-night fallback; tomorrow is only valid when its own date has slots.
 async function readForecastDays(
-  forecastResponse: Response,
+  forecastResponse: Response | null,
 ): Promise<{ today: DaySummary; tomorrow: DaySummary | null }> {
   try {
-    if (!forecastResponse.ok) {
+    if (forecastResponse === null || !forecastResponse.ok) {
       return { today: EMPTY_DAY_SUMMARY, tomorrow: null };
     }
     const payload: unknown = await forecastResponse.json();

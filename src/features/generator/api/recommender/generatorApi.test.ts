@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { callRecommenderStream, type RecommenderRequest } from "./generatorApi";
+import {
+  callRecommender,
+  callRecommenderStream,
+  type RecommenderRequest,
+} from "./generatorApi";
 
 function eventFrame(value: unknown): string {
   return `data: ${JSON.stringify(value)}\r\n\r\n`;
@@ -81,5 +85,34 @@ describe("callRecommenderStream", () => {
     expect(onReset).toHaveBeenCalledTimes(1);
     expect(response.status).toBe(502);
     await expect(response.json()).resolves.toEqual({ error: "STYLIST_UNAVAILABLE" });
+  });
+
+  it("aborts an in-flight stream when its caller cancels", async () => {
+    const controller = new AbortController();
+    const fetchMock = vi.fn((_url: string, init?: RequestInit) =>
+      new Promise<Response>((_resolve, reject) => {
+        init?.signal?.addEventListener("abort", () => reject(new Error("aborted")), {
+          once: true,
+        });
+      }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const pending = callRecommenderStream(
+      {} as RecommenderRequest,
+      vi.fn(),
+      vi.fn(),
+      controller.signal,
+    );
+    controller.abort();
+    await expect(pending).rejects.toThrow("aborted");
+    expect(fetchMock.mock.calls[0]?.[1]?.signal).toBe(controller.signal);
+  });
+
+  it("passes the abort signal to non-streaming recommender requests", async () => {
+    const controller = new AbortController();
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
+    await callRecommender({} as RecommenderRequest, controller.signal);
+    expect(fetchMock.mock.calls[0]?.[1]?.signal).toBe(controller.signal);
   });
 });

@@ -49,8 +49,11 @@ describe("GET /api/weather", () => {
     const response = await GET(
       buildRequest("http://localhost/api/weather?lat=40&lon=-3"),
     );
-    const body = await response.json();
-    expect(body.fallback).toBe(true);
+    expect(response.status).toBe(429);
+    expect(response.headers.get("Retry-After")).toBe("60");
+    expect(await response.json()).toMatchObject({
+      error: "Too many requests. Try again later.",
+    });
   });
 
   it("serves fallback without api key", async () => {
@@ -192,6 +195,31 @@ describe("GET /api/weather extended coverage", () => {
     expect(body.dayHigh).toBeNull();
     expect(body.dayCondition).toBeNull();
     expect(body.rainProbability).toBeNull();
+  });
+
+  it("keeps current conditions when the forecast request rejects", async () => {
+    const currentResponse = new Response(
+      JSON.stringify({ main: { temp: 20 }, weather: [{ main: "Clear" }] }),
+      { status: 200 },
+    );
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        if (String(url).includes("/forecast?")) {
+          throw new Error("forecast unavailable");
+        }
+        return currentResponse;
+      }),
+    );
+    const { GET: handler } = await import("./route");
+    const response = await handler(
+      buildRequest("http://localhost/api/weather?lat=40&lon=-3"),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.fallback).toBe(false);
+    expect(body.temperatureC).toBe(20);
+    expect(body.dayLow).toBeNull();
   });
 
   it("returns null day summary on invalid forecast payload", async () => {

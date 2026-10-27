@@ -75,4 +75,4 @@ k6 run k6-recommender.js --vus 1 --duration 30s
 1. **Authenticated k6 tests** - Need login flow to get session cookie
 2. **Server stability under load** - Investigate connection refused
 3. **Groq streaming** - Implement SSE for TTFB < 3s
-4. **Rate limiting** - Move to distributed (Upstash Redis) if scaling
+4. **Rate limiting** - Shared Postgres RPC now keeps per-user quotas consistent across serverless instances; monitor counter-write load after deployment

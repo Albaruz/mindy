@@ -24,12 +24,13 @@ import { toDownscaledDataUrl } from "../../../services/images/garmentImage";
 import { suggestTags } from "../../../domain/garments/garmentAnalysis";
 import { persistGarment } from "../../../services/persistence/garmentPersistence";
 import { deleteUploadFile } from "@/lib/uploadQueueStorage";
+import { logger } from "@/lib/logger";
 import { PhotoQualityDialog } from "../photo-quality-dialog/PhotoQualityDialog";
 import type { InferredTags } from "@/types/garment";
 import type { UploadQueueItem } from "@/types/upload";
 import styles from "./UploadQueueManager.module.scss";
 
-let running = false;
+const activeQueueItems = new Set<string>();
 
 function blocksCompletion(status: UploadQueueItem["status"]): boolean {
   return status !== "completed" && status !== "cancelled" && status !== "failed";
@@ -95,6 +96,7 @@ function UploadQueuePanel({
   const [exitingIds, setExitingIds] = useState<string[]>([]);
   const knownStatuses = useRef(new Map<string, UploadQueueItem["status"]>());
   const hasMounted = useRef(false);
+  const completionTimers = useRef(new Map<string, number>());
 
   useEffect(() => {
     const completedNow = hasMounted.current
@@ -107,15 +109,28 @@ function UploadQueuePanel({
     if (completedNow.length > 0) {
       setExitingIds((ids) => [...new Set([...ids, ...completedNow.map((item) => item.id)])]);
       completedNow.forEach((item) => {
-        window.setTimeout(() => {
+        if (completionTimers.current.has(item.id)) {
+          return;
+        }
+        const timer = window.setTimeout(() => {
+          completionTimers.current.delete(item.id);
           setExitingIds((ids) => ids.filter((id) => id !== item.id));
           onCompletedItemExit(item.id);
         }, 650);
+        completionTimers.current.set(item.id, timer);
       });
     }
     knownStatuses.current = new Map(items.map((item) => [item.id, item.status]));
     hasMounted.current = true;
   }, [items, onCompletedItemExit]);
+
+  useEffect(
+    () => () => {
+      completionTimers.current.forEach((timer) => window.clearTimeout(timer));
+      completionTimers.current.clear();
+    },
+    [],
+  );
 
   const displayItems = items.filter(
     (item) => isUploadActive(item.status) || exitingIds.includes(item.id),
@@ -252,15 +267,18 @@ export function UploadQueueManager() {
   const addNotification = useNotificationStore((state) => state.addNotification);
   const items = useUploadQueueStore((state) => state.items);
   const hydrated = useUploadQueueStore((state) => state.hydrated);
+  const processingVersion = useUploadQueueStore((state) => state.processingVersion);
   const hydrate = useUploadQueueStore((state) => state.hydrate);
   const updateItem = useUploadQueueStore((state) => state.updateItem);
   const getFile = useUploadQueueStore((state) => state.getFile);
   const removeItem = useUploadQueueStore((state) => state.removeItem);
   const setReviewItem = useUploadQueueStore((state) => state.setReviewItem);
+  const bumpProcessingVersion = useUploadQueueStore(
+    (state) => state.bumpProcessingVersion,
+  );
   const reviewItemId = useUploadQueueStore((state) => state.reviewItemId);
   const reviewItem = items.find((item) => item.id === reviewItemId) ?? null;
   const [lastCompletionCount, setLastCompletionCount] = useState(0);
-  const [runVersion, setRunVersion] = useState(0);
   const previousActiveCount = useRef(0);
   const promptedReviewId = useRef<string | null>(null);
   const previousStatuses = useRef(new Map<string, UploadQueueItem["status"]>());
@@ -281,9 +299,20 @@ export function UploadQueueManager() {
         onProgress: () => undefined,
         progressResizing: t("uploadResizing"),
         progressUploading: t("uploadUploading"),
+        isCancelled: () =>
+          !useUploadQueueStore
+            .getState()
+            .items.some((item) => item.id === id && item.status === "saving"),
       });
-      await deleteUploadFile(id);
       updateItem(id, { status: "completed", stage: "done", progress: 100 });
+      // The garment row is committed. IDB cleanup is best-effort so a storage
+      // failure cannot requeue the item and insert a duplicate garment.
+      try {
+        await deleteUploadFile(id);
+      } catch (error) {
+        // The completed queue entry will be cleaned up by the normal exit flow.
+        logger.warn("Completed upload file cleanup failed", { uploadId: id, error });
+      }
     },
     [queryClient, t, updateItem],
   );
@@ -369,11 +398,14 @@ export function UploadQueueManager() {
   );
 
   useEffect(() => {
-    if (!hydrated || running) {
+    if (!hydrated) {
       return;
     }
     const next = items
-      .filter((item) => item.status === "queued")
+      .filter(
+        (item) =>
+          item.status === "queued" && !activeQueueItems.has(item.id),
+      )
       .slice(0, VISION_CONCURRENCY);
     if (next.length === 0) {
       const waiting = items.find((item) => item.status === "awaiting_review");
@@ -387,12 +419,20 @@ export function UploadQueueManager() {
       }
       return;
     }
-    running = true;
+    next.forEach((item) => activeQueueItems.add(item.id));
     void Promise.all(next.map((item) => processItem(item))).finally(() => {
-      running = false;
-      setRunVersion((version) => version + 1);
+      next.forEach((item) => activeQueueItems.delete(item.id));
+      bumpProcessingVersion();
     });
-  }, [hydrated, items, processItem, reviewItemId, runVersion, setReviewItem]);
+  }, [
+    bumpProcessingVersion,
+    hydrated,
+    items,
+    processItem,
+    processingVersion,
+    reviewItemId,
+    setReviewItem,
+  ]);
 
   useEffect(() => {
     const failedNow = items.filter(

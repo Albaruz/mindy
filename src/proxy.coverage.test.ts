@@ -24,7 +24,7 @@ vi.mock("next/server", () => ({
   },
 }));
 
-import proxy from "./proxy";
+import proxy, { config } from "./proxy";
 import { NextResponse } from "next/server";
 
 function makeRequest(path: string) {
@@ -107,11 +107,8 @@ describe("proxy branch coverage", () => {
     expect(appended.some((entry) => entry.includes("locale-a=es"))).toBe(true);
   });
 
-  it("lets the oauth callback through without a session", async () => {
-    const session = sessionResult(null, async () => ({ data: null }));
-    mockUpdateSession.mockResolvedValue(session);
-    const result = await proxy(makeRequest("/auth/callback") as never);
-    expect(result).toBe(session.response);
+  it("excludes the locale-free OAuth callback from the page proxy", () => {
+    expect(config.matcher[0]).toContain("api|auth");
   });
 
   it("sends signed-in users to onboarding when the profile check rejects", async () => {

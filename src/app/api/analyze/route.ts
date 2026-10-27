@@ -1,16 +1,21 @@
 import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
 import { buildAnalysisPrompt } from "@/lib/ai/prompts";
+import { getGroqClient } from "@/lib/ai/engine";
 import {
   AI_VISION_MODEL,
+  VISION_COLOR_DETAIL_MAX_LENGTH,
   VISION_MAX_TOKENS,
+  VISION_PRINT_MAX_LENGTH,
   VISION_QUALITY_NOTE_MAX_LENGTH,
+  VISION_SECONDARY_COLOR_MAX_LENGTH,
+  VISION_TAG_DETAIL_MAX_LENGTH,
   VISION_TEMPERATURE,
   VISION_TIMEOUT_MS,
   VISION_VISUAL_DESCRIPTION_MAX_LENGTH,
 } from "@/constants/ai";
 import {
-  IMAGE_DATA_URL_PREFIX,
+  MAX_IMAGE_DATA_BYTES,
   MAX_IMAGE_DATA_CHARS,
 } from "@/constants/validation";
 import {
@@ -24,17 +29,18 @@ import {
 } from "@/constants/garment";
 import { logger, generateRequestId } from "@/lib/logger";
 import { isRecord } from "@/lib/readers";
+import { readLocale } from "@/lib/recommender/request";
 import {
   isGuardResponse,
   rateLimitResponse,
-  readJsonBody,
+  readJsonObject,
   requireRouteUser,
 } from "@/lib/api/routeGuards";
 
 function readClosedText(
   value: unknown,
   allowed: readonly string[],
-  maxLength = 60,
+  maxLength = VISION_TAG_DETAIL_MAX_LENGTH,
 ): string | null {
   if (typeof value !== "string") {
     return null;
@@ -46,7 +52,7 @@ function readClosedText(
   return (allowed as readonly string[]).includes(trimmed) ? trimmed : null;
 }
 
-function readText(value: unknown, maxLength = 60): string | null {
+function readText(value: unknown, maxLength: number): string | null {
   if (typeof value !== "string") {
     return null;
   }
@@ -65,6 +71,43 @@ function readClosedList(value: unknown, allowed: readonly string[]): string[] {
   );
 }
 
+function isValidImageDataUrl(value: unknown): value is string {
+  if (typeof value !== "string" || value.length > MAX_IMAGE_DATA_CHARS) {
+    return false;
+  }
+  const match =
+    /^data:(image\/(?:jpeg|png|webp));base64,((?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=))$/.exec(
+      value,
+    );
+  if (!match) {
+    return false;
+  }
+
+  const mimeType = match[1];
+  const bytes = Buffer.from(match[2], "base64");
+  if (bytes.length === 0 || bytes.length > MAX_IMAGE_DATA_BYTES) {
+    return false;
+  }
+
+  if (mimeType === "image/png") {
+    return bytes.length >= 8 &&
+      bytes.subarray(0, 8).equals(
+        Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+      );
+  }
+  if (mimeType === "image/jpeg") {
+    return bytes.length >= 3 &&
+      bytes[0] === 0xff &&
+      bytes[1] === 0xd8 &&
+      bytes[2] === 0xff;
+  }
+  return (
+    bytes.length >= 12 &&
+    bytes.toString("ascii", 0, 4) === "RIFF" &&
+    bytes.toString("ascii", 8, 12) === "WEBP"
+  );
+}
+
 // POST /api/analyze — Body: { imageBase64: "data:image/png;base64,..." }
 // Without GROQ_API_KEY the client falls back to manual tagging.
 export async function POST(req: Request) {
@@ -77,10 +120,10 @@ export async function POST(req: Request) {
   if (isGuardResponse(auth)) {
     return auth.response;
   }
-  const { user } = auth;
+  const { user, supabase } = auth;
 
   // Vision calls are billed per image: cap uploads per user.
-  const limited = rateLimitResponse("analyze", user.id, requestId);
+  const limited = await rateLimitResponse("analyze", user.id, requestId, supabase);
   if (limited) {
     return limited;
   }
@@ -94,19 +137,13 @@ export async function POST(req: Request) {
     );
   }
 
-  const parsed = await readJsonBody(req);
+  const parsed = await readJsonObject(req);
   if (isGuardResponse(parsed)) {
     return parsed.response;
   }
-  const body = parsed.body;
-  const requestBody =
-    isRecord(body) ? body : null;
-  const imageBase64 = requestBody?.imageBase64;
-  if (
-    typeof imageBase64 !== "string" ||
-    !imageBase64.startsWith(IMAGE_DATA_URL_PREFIX) ||
-    imageBase64.length > MAX_IMAGE_DATA_CHARS
-  ) {
+  const requestBody = parsed.body;
+  const imageBase64 = requestBody.imageBase64;
+  if (!isValidImageDataUrl(imageBase64)) {
     return NextResponse.json(
       { error: "Provide a valid imageBase64 data URL." },
       { status: 400 },
@@ -114,8 +151,8 @@ export async function POST(req: Request) {
   }
 
   try {
-    const groq = new Groq({ apiKey });
-    const locale = requestBody?.locale === "es" ? "es" : "en";
+    const groq = getGroqClient();
+    const locale = readLocale(requestBody.locale, req);
     const { systemPrompt } = buildAnalysisPrompt(locale);
     const groqStart = Date.now();
     const response = await groq.chat.completions.create(
@@ -146,15 +183,15 @@ export async function POST(req: Request) {
         { status: 502 },
       );
     }
-    const parsed: unknown = JSON.parse(content);
-    if (typeof parsed !== "object" || parsed === null) {
+    const visionOutput: unknown = JSON.parse(content);
+    if (!isRecord(visionOutput)) {
       logger.error('Groq returned invalid JSON', { route: 'analyze', requestId, userId: user.id });
       return NextResponse.json(
         { error: "Vision processing failed." },
         { status: 502 },
       );
     }
-    const record = parsed as Record<string, unknown>;
+    const record = visionOutput;
     const durationMs = Date.now() - startTime;
     logger.requestComplete('analyze', requestId, 200, durationMs, { userId: user.id, model: AI_VISION_MODEL });
     return NextResponse.json({
@@ -166,17 +203,30 @@ export async function POST(req: Request) {
       ),
       // Free-text shade passthrough: the client normalizer maps it to the
       // closed base + extra_tags.colorShade (turquoise -> blue).
-      colorDetail: readText(record.colorDetail ?? record.shade, 40),
-      color: readClosedText(record.color, GARMENT_COLOR_VALUES, 40),
-      secondaryColor: readText(record.secondaryColor, 40),
-      print: readText(record.print, 30),
+      colorDetail: readText(
+        record.colorDetail ?? record.shade,
+        VISION_COLOR_DETAIL_MAX_LENGTH,
+      ),
+      color: readClosedText(
+        record.color,
+        GARMENT_COLOR_VALUES,
+        VISION_COLOR_DETAIL_MAX_LENGTH,
+      ),
+      secondaryColor: readText(
+        record.secondaryColor,
+        VISION_SECONDARY_COLOR_MAX_LENGTH,
+      ),
+      print: readText(record.print, VISION_PRINT_MAX_LENGTH),
       season: readClosedText(record.season, GARMENT_SEASON_VALUES),
       style: readClosedText(record.style, GARMENT_STYLE_VALUES),
       styles: readClosedList(record.styles, GARMENT_STYLE_VALUES),
       material: readClosedText(record.material, GARMENT_MATERIAL_VALUES),
       cutLength: readClosedText(record.cutLength, GARMENT_CUT_VALUES),
       cuts: readClosedList(record.cuts, GARMENT_CUT_VALUES),
-      typeDetail: readText(record.typeDetail ?? record.specificType, 60),
+      typeDetail: readText(
+        record.typeDetail ?? record.specificType,
+        VISION_TAG_DETAIL_MAX_LENGTH,
+      ),
       cutoutDifficulty: readClosedText(
         record.cutoutDifficulty,
         CUTOUT_DIFFICULTY_VALUES,
@@ -193,9 +243,24 @@ export async function POST(req: Request) {
   } catch (error) {
     const durationMs = Date.now() - startTime;
     logger.error('Vision processing failed', { route: 'analyze', requestId, userId: user.id, error, durationMs });
+    const isRateLimited =
+      typeof Groq.RateLimitError === "function" &&
+      error instanceof Groq.RateLimitError;
+    const isTimedOut =
+      typeof Groq.APIConnectionTimeoutError === "function" &&
+      error instanceof Groq.APIConnectionTimeoutError;
+    const headers =
+      typeof error === "object" && error !== null && "headers" in error
+        ? (error as { headers?: Headers }).headers
+        : undefined;
+    const retryAfter = isRateLimited ? headers?.get("retry-after") ?? null : null;
+    const status = isRateLimited ? 503 : isTimedOut ? 504 : 502;
     return NextResponse.json(
       { error: "Vision processing failed." },
-      { status: 502 },
+      {
+        status,
+        ...(retryAfter === null ? {} : { headers: { "Retry-After": retryAfter } }),
+      },
     );
   }
 }

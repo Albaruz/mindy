@@ -21,10 +21,12 @@ export function buildGarmentFavoriteUrl(garmentId: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Rate limits (in-memory sliding window, see lib/rateLimit.ts)
+// Per-user quotas enforced atomically by the Supabase consume_api_rate_limit RPC.
+// Keep limits aligned with the server-owned values in its database migration;
+// only the route key is sent to Postgres by the caller.
 // ---------------------------------------------------------------------------
 
-/** Per-route quota: key prefix, max requests, and window per user. */
+/** Per-route quota reference: key, maximum requests, and fixed window per user. */
 export const RATE_LIMITS = {
   weather: { key: "weather", limit: 30, windowMs: 60 * 60 * 1000 },
   recommender: { key: "recommender", limit: 5, windowMs: 60 * 1000 },
@@ -32,8 +34,8 @@ export const RATE_LIMITS = {
   favorite: { key: "favorite", limit: 60, windowMs: 60 * 1000 },
 } as const;
 
-/** Memory cap for tracked rate-limit keys (oldest evicted first). */
-export const RATE_LIMIT_MAX_KEYS = 5000;
-
 /** 429 response header carrying the retry delay in seconds. */
 export const RETRY_AFTER_HEADER = "Retry-After";
+
+/** Maximum UTF-8 bytes accepted by JSON Route Handler bodies. */
+export const MAX_JSON_BODY_BYTES = 10 * 1024 * 1024;

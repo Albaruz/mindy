@@ -1,7 +1,17 @@
 // Readers that turn the untrusted request body into the typed values the
 // recommender works with. Nothing here trusts client input.
 import { GARMENT_PRINT_VALUES } from "@/constants/garment";
-import { DEFAULT_TEMPERATURE_C } from "@/constants/weather";
+import {
+  COLORIMETRIES,
+  EYE_COLORS,
+  HAIR_COLORS,
+  LIFESTYLES,
+  MORPHOLOGIES,
+  PREFERRED_FITS,
+  SKIN_TONES,
+} from "@/constants/profile";
+import { OUTFIT_MOOD_VALUES, RECOMMENDER_MAX_REQUEST_GARMENTS } from "@/constants/generator";
+import { DEFAULT_TEMPERATURE_C, WEATHER_CONDITION_VALUES } from "@/constants/weather";
 import { type StylistProfile } from "@/lib/ai/prompts";
 import { resolvePreferredLocale } from "@/lib/negotiateLocale";
 import { routing, type AppLocale } from "@/i18n/routing";
@@ -13,6 +23,7 @@ import {
   normalizeGarmentType,
 } from "@/lib/garment/normalizers";
 import { readString } from "@/lib/readers";
+import { isRecord } from "@/lib/readers";
 import type {
   Garment,
   GarmentColor,
@@ -21,6 +32,9 @@ import type {
   GarmentStyle,
 } from "@/types/garment";
 import type { CandidateGarment } from "./types";
+
+const SAFE_GARMENT_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
+
 function readClosed<T extends string>(
   value: unknown,
   normalize: (raw: unknown) => { base: T | null },
@@ -85,14 +99,15 @@ function readExtraSecondaryColor(value: unknown): GarmentColor | null {
 }
 
 export function toCandidate(raw: unknown): CandidateGarment | null {
-  if (typeof raw !== "object" || raw === null) {
+  if (!isRecord(raw)) {
     return null;
   }
   const record = raw as Record<string, unknown>;
   const id = readString(
     record.garmentId ?? record.garment_id ?? record.id,
+    64,
   );
-  if (id === null) {
+  if (id === null || !SAFE_GARMENT_ID_PATTERN.test(id)) {
     return null;
   }
   const extraTags = record.extraTags ?? record.extra_tags;
@@ -130,21 +145,44 @@ export function toCandidate(raw: unknown): CandidateGarment | null {
 }
 
 export function readStylistProfile(value: unknown): StylistProfile | null {
-  if (typeof value !== "object" || value === null) {
+  if (!isRecord(value)) {
     return null;
   }
   const record = value as Record<string, unknown>;
-  return {
-    colorimetry: readString(record.colorimetry),
-    morphology: readString(record.morphology),
-    preferredFit: readString(
-      record.preferredFit ?? record.preferred_fit,
-    ),
-    lifestyle: readString(record.lifestyle),
-    skinTone: readString(record.skinTone ?? record.skin_tone),
-    eyeColor: readString(record.eyeColor ?? record.eye_color),
-    hairColor: readString(record.hairColor ?? record.hair_color),
+  const readAllowed = (candidate: unknown, allowed: readonly string[]) => {
+    const text = readString(candidate)?.toLowerCase() ?? null;
+    return text !== null && (allowed as readonly string[]).includes(text)
+      ? text
+      : null;
   };
+  return {
+    colorimetry: readAllowed(record.colorimetry, COLORIMETRIES),
+    morphology: readAllowed(record.morphology, MORPHOLOGIES),
+    preferredFit: readAllowed(
+      record.preferredFit ?? record.preferred_fit,
+      PREFERRED_FITS,
+    ),
+    lifestyle: readAllowed(record.lifestyle, LIFESTYLES),
+    skinTone: readAllowed(record.skinTone ?? record.skin_tone, SKIN_TONES),
+    eyeColor: readAllowed(record.eyeColor ?? record.eye_color, EYE_COLORS),
+    hairColor: readAllowed(record.hairColor ?? record.hair_color, HAIR_COLORS),
+  };
+}
+
+export function readWeatherCondition(value: unknown): string | null {
+  const text = readString(value, 20);
+  return text !== null &&
+    (WEATHER_CONDITION_VALUES as readonly string[]).includes(text)
+    ? text
+    : null;
+}
+
+export function readOutfitMood(value: unknown): string | null {
+  const text = readString(value, 20);
+  return text !== null &&
+    (OUTFIT_MOOD_VALUES as readonly string[]).includes(text)
+    ? text
+    : null;
 }
 
 export function readTemperatureCelsius(value: unknown): number {
@@ -160,13 +198,22 @@ export function readOptionalProbability(value: unknown): number | null {
   return Math.min(100, Math.max(0, Math.round(value)));
 }
 
-export function readIdList(value: unknown): string[] {
+export function readIdList(
+  value: unknown,
+  maxItems = RECOMMENDER_MAX_REQUEST_GARMENTS,
+): string[] {
   if (!Array.isArray(value)) {
     return [];
   }
-  return value.filter(
-    (entry): entry is string => typeof entry === "string" && entry !== "",
-  );
+  const ids: string[] = [];
+  for (const entry of value) {
+    const id = readString(entry, 64);
+    if (id !== null && SAFE_GARMENT_ID_PATTERN.test(id)) {
+      ids.push(id);
+      if (ids.length >= maxItems) break;
+    }
+  }
+  return ids;
 }
 
 // Client sends its active next-intl locale in the body (the URL locale is

@@ -18,6 +18,7 @@ import { Link } from "@/i18n/navigation";
 import { PERSISTED_CACHE_KEY } from "@/constants/storage";
 import { signOutAction } from "./actions";
 import { useUploadQueueStore } from "@/stores/useUploadQueueStore";
+import { useOnboardingStore } from "@/features/onboarding/state/onboarding-store/onboardingStore";
 import styles from "./page.module.scss";
 
 // Overlapping flat swatches for the colorimetry card.
@@ -50,24 +51,22 @@ export default function ProfilePage() {
   const queryClient = useQueryClient();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     if (isSigningOut) {
       return;
     }
     setIsSigningOut(true);
-    // Drop cached server state before killing the session so the next
+    // Drop queued files and cached server state before killing the session so the next
     // account never flashes this one's closet: memory cache plus the
     // persisted IndexedDB copy (wardrobe/history/profile stay on disk
     // otherwise). The action redirects to /.
+    await useUploadQueueStore.getState().clearAll().catch(() => undefined);
     queryClient.clear();
-    void useUploadQueueStore.getState().clearAll();
-    void del(PERSISTED_CACHE_KEY)
-      .catch(() => {
-        // Private mode may reject: memory is already cleared above.
-      })
-      .finally(() => {
-        void signOutAction();
-      });
+    await del(PERSISTED_CACHE_KEY).catch(() => {
+      // Private mode may reject: the in-memory cache is already cleared.
+    });
+    useOnboardingStore.getState().reset();
+    await signOutAction();
   };
 
   const displayName =

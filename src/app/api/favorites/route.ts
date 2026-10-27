@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { logger, generateRequestId } from "@/lib/logger";
-import { isGuardResponse, requireRouteUser } from "@/lib/api/routeGuards";
+import {
+  isGuardResponse,
+  rateLimitResponse,
+  requireRouteUser,
+} from "@/lib/api/routeGuards";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
-import { createClient } from "@/lib/supabase/server";
 import {
   GARMENT_ROW_COLUMNS,
   toGarment,
@@ -19,10 +22,14 @@ export async function GET() {
   if (isGuardResponse(auth)) {
     return auth.response;
   }
-  const { user } = auth;
+  const { user, supabase } = auth;
+
+  const limited = await rateLimitResponse("favorite", user.id, requestId, supabase);
+  if (limited !== null) {
+    return limited;
+  }
 
   try {
-    const supabase = await createClient();
     const { data, error } = await supabase
       .from(TABLES.garments)
       .select(GARMENT_ROW_COLUMNS)

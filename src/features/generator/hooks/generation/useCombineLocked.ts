@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import type { Category, Garment } from "@/types/garment";
@@ -23,8 +24,14 @@ import { AppError, isAppError } from "@/lib/errors";
 // suggestions ranked first. Locked IDs travel as both lockedGarmentIds
 // and the wizard alias fixed_garments (hard constraints).
 export function useCombineLocked() {
+  const requestController = useRef<AbortController | null>(null);
   const t = useTranslations("Notifications");
   const locale = useLocale();
+
+  useEffect(
+    () => () => requestController.current?.abort(),
+    [],
+  );
 
   return useMutation({
     mutationFn: async (
@@ -63,7 +70,17 @@ export function useCombineLocked() {
         fixed_garments: [...lockedIds],
         dismissedGarmentIds: [...dismissed],
       };
-      const response = await callRecommender(request);
+      requestController.current?.abort();
+      const controller = new AbortController();
+      requestController.current = controller;
+      let response: Response;
+      try {
+        response = await callRecommender(request, controller.signal);
+      } finally {
+        if (requestController.current === controller) {
+          requestController.current = null;
+        }
+      }
       if (!response.ok) {
         const code = await readRecommenderError(response);
         throw formatRecommenderError(response, code);

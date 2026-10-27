@@ -34,7 +34,7 @@ export function useLaundryActions() {
     }
     setWashingGarmentIds((current) => new Set(current).add(garment.garmentId));
     washGarment.mutate(garment.garmentId, {
-      onError: () => {
+      onSettled: () => {
         setWashingGarmentIds((current) => {
           const next = new Set(current);
           next.delete(garment.garmentId);

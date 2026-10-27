@@ -58,7 +58,7 @@ function stripLocale(pathname: string, request?: NextRequest): {
 // Composed proxy: locale negotiation first (Accept-Language default,
 // NEXT_LOCALE cookie persistence), then the Supabase session refresh and
 // the auth/onboarding guards on locale-aware paths. API and OAuth routes
-// stay locale-free and are guarded as before.
+// stay locale-free and enforce authentication in their own handlers.
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -92,20 +92,12 @@ export default async function proxy(request: NextRequest) {
   }
   const { locale, pathname: unprefixed } = stripLocale(pathname, request);
 
-  // API routes speak JSON, never redirects: guards apply to pages only.
-  if (pathname.startsWith("/api/")) {
-    return response;
-  }
-
-  // The OAuth callback carries no session yet: the code exchange inside
-  // the route creates it. Never bounce it to the auth gate.
-  // Recovery and reset pages are guest flows too: the email link lands
+  // Recovery and reset pages are guest flows: the email link lands
   // with a code that only becomes a session once the page renders.
   const isGuestAllowed =
     unprefixed === "/" ||
     unprefixed === "/forgot-password" ||
-    unprefixed === "/reset-password" ||
-    pathname === "/auth/callback";
+    unprefixed === "/reset-password";
   if (!user && !isGuestAllowed) {
     const url = request.nextUrl.clone();
     url.pathname = localizePath("/", locale);

@@ -9,7 +9,6 @@ import {
   withoutHiddenBottom,
 } from "@/lib/garment/categorizeGarments";
 import type { Garment } from "@/types/garment";
-import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { requireUser } from "@/lib/supabase/session";
 
 // Persists the current canvas as today's look: inserts an outfit_history row
@@ -25,35 +24,22 @@ export function useWearToday() {
       // hidden manual slot): sanitize before persisting or celebrating.
       const wornGarments = withoutHiddenBottom(garments);
       const supabase = createClient();
-      const user = await requireUser(supabase, "You must be signed in to save a look.");
+      await requireUser(supabase, "You must be signed in to save a look.");
 
       const garmentIds = wornGarments.map((garment) => garment.garmentId);
       const now = new Date().toISOString();
-
-      const { error: historyError } = await supabase
-        .from(TABLES.outfitHistory)
-        .insert({
-          user_id: user.id,
-          garment_ids: garmentIds,
-          worn_date: now,
-        });
-      if (historyError) {
-        throw historyError;
-      }
 
       // Only footwear and heavy outerwear are reusable; mid-layers are washable.
       const dirtyIds = wornGarments
         .filter(isWashableGarment)
         .map((garment) => garment.garmentId);
-      if (dirtyIds.length > 0) {
-        const { error: garmentsError } = await supabase
-          .from(TABLES.garments)
-          .update({ is_dirty: true, last_worn_date: now })
-          .in("garment_id", dirtyIds)
-          .eq(USER_ID_COLUMN, user.id);
-        if (garmentsError) {
-          throw garmentsError;
-        }
+      const { error } = await supabase.rpc("record_worn_outfit", {
+        p_garment_ids: garmentIds,
+        p_dirty_ids: dirtyIds,
+        p_worn_date: now,
+      });
+      if (error) {
+        throw error;
       }
       return wornGarments;
     },
@@ -62,6 +48,8 @@ export function useWearToday() {
       // invalidating it the new look only appears after a manual reload.
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments });
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.history });
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.favorites });
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.laundryBasket });
       // The full-screen celebration replaces the success toast.
       useGeneratorStore.getState().showCelebration(garments);
     },

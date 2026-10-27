@@ -70,11 +70,13 @@ function isRecommenderResponse(value: unknown): value is RecommenderResponse {
 
 export async function callRecommender(
   request: RecommenderRequest,
+  signal?: AbortSignal,
 ): Promise<Response> {
   return fetch(API_ROUTES.recommender, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(request),
+    ...(signal === undefined ? {} : { signal }),
   });
 }
 
@@ -82,6 +84,7 @@ export async function callRecommenderStream(
   request: RecommenderRequest,
   onOption: (option: RecommenderOption) => void,
   onReset: () => void,
+  signal?: AbortSignal,
 ): Promise<Response> {
   let response: Response;
   try {
@@ -92,8 +95,12 @@ export async function callRecommenderStream(
         Accept: "text/event-stream",
       },
       body: JSON.stringify(request),
+      ...(signal === undefined ? {} : { signal }),
     });
-  } catch {
+  } catch (error) {
+    if (signal?.aborted) {
+      throw error;
+    }
     return Response.json({ error: "STYLIST_UNAVAILABLE" }, { status: 502 });
   }
 
@@ -161,6 +168,9 @@ export async function callRecommenderStream(
     }
     if (buffer.trim() !== "") handleFrame(buffer);
   } catch {
+    if (signal?.aborted) {
+      throw signal.reason ?? new Error("Recommender request aborted.");
+    }
     onReset();
     return Response.json({ error: "STYLIST_UNAVAILABLE" }, { status: 502 });
   } finally {

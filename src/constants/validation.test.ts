@@ -5,6 +5,7 @@ import {
   DISPLAY_NAME_MIN_LENGTH,
   EMAIL_PATTERN,
   IMAGE_DATA_URL_PREFIX,
+  MAX_IMAGE_DATA_BYTES,
   MEASUREMENT_MAX_CM,
   MEASUREMENT_MIN_CM,
   MAX_IMAGE_DATA_CHARS,
@@ -40,7 +41,8 @@ describe("validation constants", () => {
   });
 
   it("exposes image upload guards", () => {
-    expect(MAX_IMAGE_DATA_CHARS).toBe(12_000_000);
+    expect(MAX_IMAGE_DATA_CHARS).toBe(9_500_000);
+    expect(MAX_IMAGE_DATA_BYTES).toBe(7 * 1024 * 1024);
     expect(IMAGE_DATA_URL_PREFIX).toBe("data:image/");
   });
 });

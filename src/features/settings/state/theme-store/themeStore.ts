@@ -55,11 +55,3 @@ export const useThemeStore = create<ThemeState>()((set) => ({
     }
   },
 }));
-
-// Apply theme on initial load (client-side only)
-if (typeof window !== "undefined") {
-  const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-  if (stored === "light" || stored === "dark") {
-    document.documentElement.setAttribute("data-theme", stored);
-  }
-}

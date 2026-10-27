@@ -10,6 +10,7 @@ import { resizeToWidth } from "../../services/images/garmentImage";
 import { GARMENT_STORAGE_BUCKET } from "../../services/persistence/garmentPersistence";
 import { GARMENT_UPLOAD_WIDTH_PX } from "@/constants/validation";
 import { useNotificationStore } from "@/stores/useNotificationStore";
+import { logger } from "@/lib/logger";
 
 function storagePath(url: string | null | undefined): string | null {
   if (!url) return null;
@@ -18,7 +19,11 @@ function storagePath(url: string | null | undefined): string | null {
   return index === -1 ? null : url.slice(index + marker.length).split("?")[0] || null;
 }
 
-async function uploadImage(client: ReturnType<typeof createClient>, userId: string, source: Blob) {
+async function uploadImage(
+  client: ReturnType<typeof createClient>,
+  userId: string,
+  source: Blob,
+): Promise<{ imageUrl: string; path: string }> {
   const blob = await resizeToWidth(source, GARMENT_UPLOAD_WIDTH_PX);
   const path = `${userId}/${crypto.randomUUID()}.png`;
   const { error } = await client.storage.from(GARMENT_STORAGE_BUCKET).upload(path, blob, {
@@ -26,7 +31,27 @@ async function uploadImage(client: ReturnType<typeof createClient>, userId: stri
     upsert: false,
   });
   if (error) throw error;
-  return client.storage.from(GARMENT_STORAGE_BUCKET).getPublicUrl(path).data.publicUrl;
+  return {
+    imageUrl: client.storage.from(GARMENT_STORAGE_BUCKET).getPublicUrl(path).data.publicUrl,
+    path,
+  };
+}
+
+async function cleanupUploadedImage(
+  client: ReturnType<typeof createClient>,
+  path: string,
+  userId: string,
+): Promise<void> {
+  try {
+    const { error } = await client.storage
+      .from(GARMENT_STORAGE_BUCKET)
+      .remove([path]);
+    if (error) {
+      logger.warn("Replacement garment image cleanup failed", { userId, error });
+    }
+  } catch (error) {
+    logger.warn("Replacement garment image cleanup failed", { userId, error });
+  }
 }
 
 export function useGarmentImageActions() {
@@ -54,16 +79,25 @@ export function useGarmentImageActions() {
         source = file;
       }
 
-      const nextUrl = await uploadImage(client, user.id, source);
+      const uploaded = await uploadImage(client, user.id, source);
+      const nextUrl = uploaded.imageUrl;
       const update = removeBackground
         ? { image_url: nextUrl }
         : { image_url: nextUrl, original_image_url: nextUrl };
-      const { error } = await client
-        .from(TABLES.garments)
-        .update(update)
-        .eq("garment_id", garment.garmentId)
-        .eq(USER_ID_COLUMN, user.id);
-      if (error) throw error;
+      try {
+        const { data, error } = await client
+          .from(TABLES.garments)
+          .update(update)
+          .eq("garment_id", garment.garmentId)
+          .eq(USER_ID_COLUMN, user.id)
+          .select("garment_id")
+          .maybeSingle();
+        if (error) throw error;
+        if (data === null) throw new Error("Garment not found.");
+      } catch (error) {
+        await cleanupUploadedImage(client, uploaded.path, user.id);
+        throw error;
+      }
 
       const oldPaths = removeBackground
         ? garment.imageUrl !== (garment.originalImageUrl ?? garment.imageUrl)
@@ -83,7 +117,12 @@ export function useGarmentImageActions() {
          // The database now points at the new image. A cleanup failure should
          // not tell the user that replacing the image failed or roll back the
          // already persisted change.
-         if (cleanupError) console.warn("Could not remove the previous garment image.", cleanupError);
+          if (cleanupError) {
+            logger.warn("Could not remove the previous garment image", {
+              userId: user.id,
+              error: cleanupError,
+            });
+          }
        }
 
       return {

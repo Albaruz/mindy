@@ -35,7 +35,7 @@ describe("useLaundryActions", () => {
     act(() => result.current.wash(GARMENT));
     expect(washMutate).toHaveBeenCalledTimes(1);
 
-    act(() => washMutate.mock.calls[0][1].onError());
+    act(() => washMutate.mock.calls[0][1].onSettled());
     expect(result.current.washingGarmentIds.has("g1")).toBe(false);
   });
 

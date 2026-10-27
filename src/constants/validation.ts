@@ -45,7 +45,10 @@ export const MEASUREMENT_MIN_CM = 20;
 export const MEASUREMENT_MAX_CM = 300;
 
 /** Maximum image data-URL length accepted by the vision endpoint. */
-export const MAX_IMAGE_DATA_CHARS = 12_000_000;
+export const MAX_IMAGE_DATA_CHARS = 9_500_000;
+
+/** Maximum decoded image bytes accepted by the vision endpoint. */
+export const MAX_IMAGE_DATA_BYTES = 7 * 1024 * 1024;
 
 /** Cap expensive client-side image processing while preserving garment detail. */
 export const MAX_IMAGE_PROCESSING_DIMENSION_PX = 1536;
@@ -61,6 +64,10 @@ export const ANALYZE_TIMEOUT_MS = 30_000;
 
 /** Required data-URL prefix for uploaded images. */
 export const IMAGE_DATA_URL_PREFIX = "data:image/";
+
+/** UUID format used by Supabase-generated row identifiers. */
+export const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 /** Default max length for free-text fields read from untrusted payloads. */
 export const READ_STRING_MAX_LENGTH = 200;

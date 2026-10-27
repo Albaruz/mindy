@@ -7,6 +7,7 @@ const {
   mockGetUser,
   mockUpload,
   mockGetPublicUrl,
+  mockRemove,
   mockInsert,
   mockStorageFrom,
   mockFrom,
@@ -14,6 +15,7 @@ const {
   mockGetUser: vi.fn(),
   mockUpload: vi.fn(),
   mockGetPublicUrl: vi.fn(),
+  mockRemove: vi.fn(),
   mockInsert: vi.fn(),
   mockStorageFrom: vi.fn(),
   mockFrom: vi.fn(),
@@ -74,10 +76,12 @@ function setupSupabaseSuccess(insertError: Error | null = null) {
   mockGetPublicUrl.mockReturnValue({
     data: { publicUrl: "https://example.com/g1.png" },
   });
+  mockRemove.mockResolvedValue({ error: null });
   mockInsert.mockResolvedValue({ error: insertError });
   mockStorageFrom.mockReturnValue({
     upload: mockUpload,
     getPublicUrl: mockGetPublicUrl,
+    remove: mockRemove,
   });
   mockFrom.mockReturnValue({ insert: mockInsert });
 }

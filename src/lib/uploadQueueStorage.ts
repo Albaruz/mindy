@@ -8,6 +8,8 @@ import type {
   UploadQueueItem,
 } from "@/types/upload";
 
+let queueWrite: Promise<void> = Promise.resolve();
+
 function fileKey(id: string): string {
   return `${UPLOAD_FILE_STORAGE_PREFIX}:${id}`;
 }
@@ -22,7 +24,13 @@ export async function writeUploadQueue(items: UploadQueueItem[]): Promise<void> 
     delete copy.previewUrl;
     return copy;
   });
-  await set(UPLOAD_QUEUE_STORAGE_KEY, persisted);
+  // IDB writes may resolve out of order when the queue is updated rapidly.
+  // Serialize snapshots so an older progress write cannot overwrite a newer
+  // completed/removed queue state.
+  queueWrite = queueWrite
+    .catch(() => undefined)
+    .then(() => set(UPLOAD_QUEUE_STORAGE_KEY, persisted));
+  await queueWrite;
 }
 
 export async function saveUploadFile(id: string, file: File): Promise<void> {

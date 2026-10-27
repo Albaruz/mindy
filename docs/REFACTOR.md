@@ -203,3 +203,29 @@ Six hand-written choice pickers were compared. Result:
   semantics (radio vs `aria-pressed` buttons), layout (wrap vs stretch) and
   selected style (outline vs fill), so one component would need several
   variant props. Each stays small and documents when to use it.
+
+## Post-audit remediation (2026-10-27)
+
+| Phase | Scope | Status |
+|---|---|---|
+| 0 | Remove diagnostic preview routes; harden auth redirects and favorite IDs; prevent shared weather caching; align onboarding failure defaults; remove duplicate theme initialization. | ✓ Implemented; tracked root test/report artifacts retained |
+| 1 | Fix upload-queue hydration and duplicate-insert paths, worker readiness, wash state, storage cleanup, sign-out cleanup, and atomic outfit persistence. | ✓ Implemented |
+| 2 | Move rate limiting to an authenticated Postgres RPC; bound and validate API bodies/images; constrain LLM context; propagate cancellation; harden weather, session, and Supabase configuration. | ✓ Applied and manually validated in Supabase Mindy |
+
+- The phase-2 migrations add `private.api_rate_limit_buckets`, an authenticated
+  `consume_api_rate_limit(p_key)` RPC with server-owned quotas, and the atomic
+  `record_worn_outfit` RPC. SQL integration coverage is in
+  `supabase/tests/api_rate_limit_and_wear.sql`.
+- The private counter table has RLS enabled with no policies intentionally
+  (default deny); all direct table privileges are revoked, and only the
+  authenticated rate-limit helper can write it.
+- Both migrations were applied to the confirmed Supabase Mindy project. A
+  rollback-only SQL smoke test verified the quota boundary, garment-state
+  transaction, and cross-user rejection. The project does not have pgTAP, and
+  the local environment has no Supabase CLI/`psql`, so the repository pgTAP
+  file remains to be run against a local Supabase stack.
+- The existing CSP retains `unsafe-inline` and `unsafe-eval` because the
+  Next.js bootstrap/theme script and the on-demand background-removal runtime
+  currently depend on them. Nonce-based CSP migration remains a separate task.
+- Tracked root k6 scripts and generated reports were left in place rather than
+  moved or deleted during this remediation.

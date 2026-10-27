@@ -1,18 +1,24 @@
 // @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockFrom, mockOrder, mockFilters, mockRequireRouteUser } = vi.hoisted(
-  () => ({
+const {
+  mockFrom,
+  mockOrder,
+  mockFilters,
+  mockRequireRouteUser,
+  mockRateLimitResponse,
+} = vi.hoisted(() => ({
     mockFrom: vi.fn(),
     mockOrder: vi.fn(),
     mockFilters: vi.fn(),
     mockRequireRouteUser: vi.fn(),
-  }),
-);
+    mockRateLimitResponse: vi.fn(),
+  }));
 
 vi.mock("@/lib/api/routeGuards", () => ({
   isGuardResponse: (result: object) => "response" in result,
   requireRouteUser: mockRequireRouteUser,
+  rateLimitResponse: mockRateLimitResponse,
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -32,7 +38,11 @@ import { GET } from "./route";
 describe("GET /api/favorites", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockRequireRouteUser.mockResolvedValue({ user: { id: "user-1" } });
+    mockRequireRouteUser.mockResolvedValue({
+      user: { id: "user-1" },
+      supabase: { from: mockFrom },
+    });
+    mockRateLimitResponse.mockResolvedValue(null);
     const query = {
       select: vi.fn(),
       eq: vi.fn(),
@@ -55,6 +65,12 @@ describe("GET /api/favorites", () => {
       "favorite",
       "request-1",
       expect.any(Number),
+    );
+    expect(mockRateLimitResponse).toHaveBeenCalledWith(
+      "favorite",
+      "user-1",
+      "request-1",
+      { from: mockFrom },
     );
     expect(mockFrom).toHaveBeenCalledWith("garments");
     expect(mockFilters).toHaveBeenNthCalledWith(1, "user_id", "user-1");

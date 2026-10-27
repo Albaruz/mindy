@@ -2,6 +2,7 @@
   "extends": "./tsconfig.json",
   "exclude": [
     "node_modules",
+    ".next/dev",
     "**/*.test.ts",
     "**/*.test.tsx",
     "**/*.spec.ts",

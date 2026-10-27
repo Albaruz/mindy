@@ -76,7 +76,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Artefactos generados por next-pwa (código minificado de terceros):
+    // Generated artifacts from next-pwa (minified third-party code):
     "public/sw.js",
     "public/workbox-*.js",
   ]),

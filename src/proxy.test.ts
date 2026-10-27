@@ -25,7 +25,7 @@ vi.mock("next/server", () => ({
   },
 }));
 
-import proxy from "./proxy";
+import proxy, { config } from "./proxy";
 import { NextResponse } from "next/server";
 
 function makeRequest(path: string) {
@@ -85,11 +85,8 @@ describe("proxy", () => {
     expect(mockUpdateSession).not.toHaveBeenCalled();
   });
 
-  it("passes API routes through without auth redirects", async () => {
-    const session = sessionResult(null, false);
-    mockUpdateSession.mockResolvedValue(session);
-    const result = await proxy(makeRequest("/api/weather") as never);
-    expect(result).toBe(session.response);
+  it("excludes locale-free API and OAuth paths from the page proxy", () => {
+    expect(config.matcher[0]).toContain("api|auth");
   });
 
   it("redirects anonymous users away from guarded pages", async () => {

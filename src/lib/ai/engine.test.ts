@@ -81,6 +81,21 @@ describe("generateOutfitRecommendation", () => {
     }
   });
 
+  it("forwards abort signals and refuses work already cancelled", async () => {
+    mockCreate.mockResolvedValue({ choices: [{ message: { content: "ok" } }] });
+    const controller = new AbortController();
+    await generateOutfitRecommendation("system", {}, undefined, controller.signal);
+    expect(mockCreate.mock.calls[0]?.[1]).toMatchObject({
+      signal: controller.signal,
+    });
+
+    controller.abort();
+    await expect(
+      generateOutfitRecommendation("system", {}, undefined, controller.signal),
+    ).rejects.toThrow();
+    expect(mockCreate).toHaveBeenCalledTimes(1);
+  });
+
   it("throws without api key", async () => {
     delete process.env.GROQ_API_KEY;
     await expect(generateOutfitRecommendation("s", {})).rejects.toThrow();

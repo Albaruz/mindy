@@ -75,7 +75,7 @@ vi.mock("groq-sdk", () => ({
 }));
 
 describe("POST /api/analyze vision success and failures", () => {
-  const validImage = "data:image/png;base64,AAAA";
+  const validImage = "data:image/png;base64,iVBORw0KGgo=";
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -198,7 +198,7 @@ describe("POST /api/analyze vision success and failures", () => {
 });
 
 describe("POST /api/analyze residual validation", () => {
-  const validImage = "data:image/png;base64,AAAA";
+  const validImage = "data:image/png;base64,iVBORw0KGgo=";
 
   beforeEach(() => {
     vi.resetAllMocks();

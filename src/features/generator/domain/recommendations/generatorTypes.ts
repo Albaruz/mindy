@@ -1,19 +1,14 @@
 import type { Garment } from "@/types/garment";
 import type { UserProfile } from "@/types/user";
 import type { Category } from "@/types/garment";
+import { OUTFIT_MOOD_VALUES } from "@/constants/generator";
 import type { AiLook, LookStyle } from "../../state/generator-store/useGeneratorStore";
 
 // Generator domain types shared by the recommender hooks and views.
 // Category, LookStyle and AiLook keep a single definition in
 // useGeneratorStore; this module only composes them.
 
-export const MOODS = [
-  "relaxed",
-  "cheerful",
-  "professional",
-  "active",
-  "elegant",
-] as const;
+export const MOODS = OUTFIT_MOOD_VALUES;
 
 export type Mood = (typeof MOODS)[number];
 

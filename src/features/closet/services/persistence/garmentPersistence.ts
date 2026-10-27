@@ -1,9 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { GARMENT_UPLOAD_WIDTH_PX } from "@/constants/validation";
-import { STORAGE_BUCKETS, TABLES } from "@/constants/storage";
+import { STORAGE_BUCKETS, TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { resizeToWidth } from "../images/garmentImage";
 import { buildVisionExtraTags } from "@/lib/garment/garmentMappers";
 import type { InferredTags } from "../../domain/garments/garmentAnalysis";
+import { logger } from "@/lib/logger";
 
 // Storage bucket for garment photos. Re-exported from centralized
 // constants for backward compatibility.
@@ -16,6 +17,24 @@ export interface PersistGarmentDeps {
   onProgress: (note: string) => void;
   progressResizing: string;
   progressUploading: string;
+  isCancelled?: () => boolean;
+}
+
+async function removeUploadedImage(
+  client: SupabaseClient,
+  path: string,
+  userId: string,
+): Promise<void> {
+  try {
+    const { error } = await client.storage
+      .from(GARMENT_STORAGE_BUCKET)
+      .remove([path]);
+    if (error) {
+      logger.warn("Uploaded garment image cleanup failed", { userId, error });
+    }
+  } catch (error) {
+    logger.warn("Uploaded garment image cleanup failed", { userId, error });
+  }
 }
 
 // Resizes, uploads and inserts a garment row. Throws on auth, storage
@@ -27,6 +46,9 @@ export async function persistGarment(
 ): Promise<void> {
   deps.onProgress(deps.progressResizing);
   const uploadBlob = await resizeToWidth(source, GARMENT_UPLOAD_WIDTH_PX);
+  if (deps.isCancelled?.()) {
+    throw new Error("Upload was cancelled.");
+  }
 
   deps.onProgress(deps.progressUploading);
 
@@ -39,6 +61,10 @@ export async function persistGarment(
     });
   if (uploadError) {
     throw uploadError;
+  }
+  if (deps.isCancelled?.()) {
+    await removeUploadedImage(deps.client, path, deps.userId);
+    throw new Error("Upload was cancelled.");
   }
   const imageUrl = deps.client.storage
     .from(GARMENT_STORAGE_BUCKET)
@@ -69,8 +95,34 @@ export async function persistGarment(
       }),
     });
   if (insertError) {
+    await removeUploadedImage(deps.client, path, deps.userId);
     throw insertError;
   }
 
-  await deps.invalidateGarments();
+  if (deps.isCancelled?.()) {
+    const { error: deleteError } = await deps.client
+      .from(TABLES.garments)
+      .delete()
+      .eq(USER_ID_COLUMN, deps.userId)
+      .eq("image_url", imageUrl);
+    if (deleteError) {
+      logger.warn("Cancelled garment row cleanup failed", {
+        userId: deps.userId,
+        error: deleteError,
+      });
+    }
+    await removeUploadedImage(deps.client, path, deps.userId);
+    throw new Error("Upload was cancelled.");
+  }
+
+  try {
+    await deps.invalidateGarments();
+  } catch (error) {
+    // Cache invalidation happens after the database commit and must not make
+    // callers retry an insert that already succeeded.
+    logger.warn("Garment cache invalidation failed after save", {
+      userId: deps.userId,
+      error,
+    });
+  }
 }

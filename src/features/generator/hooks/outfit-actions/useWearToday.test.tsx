@@ -3,10 +3,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import React from "react";
 
-const { mockGetUser, mockInsert, mockUpdate } = vi.hoisted(() => ({
+const { mockGetUser, mockRpc } = vi.hoisted(() => ({
   mockGetUser: vi.fn(),
-  mockInsert: vi.fn(),
-  mockUpdate: vi.fn(),
+  mockRpc: vi.fn(),
 }));
 
 vi.mock("next-intl", () => ({
@@ -16,10 +15,7 @@ vi.mock("next-intl", () => ({
 vi.mock("@/lib/supabase/client", () => ({
   createClient: () => ({
     auth: { getUser: mockGetUser },
-    from: (table: string) => {
-      if (table === "outfit_history") return { insert: mockInsert };
-      return { update: () => ({ in: () => ({ eq: mockUpdate }) }) };
-    },
+    rpc: mockRpc,
   }),
 }));
 
@@ -59,6 +55,7 @@ describe("useWearToday", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     useGeneratorStore.getState().resetFlow();
+    mockRpc.mockResolvedValue({ error: null });
   });
 
   it("throws without session", async () => {
@@ -72,19 +69,22 @@ describe("useWearToday", () => {
 
   it("persists look and celebrates", async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: "u1" } } });
-    mockInsert.mockResolvedValue({ error: null });
-    mockUpdate.mockResolvedValue({ error: null });
     const { result } = renderHook(() => useWearToday(), {
       wrapper: createWrapper(),
     });
     result.current.mutate([
-      buildGarment("t1", "top"),
-      buildGarment("s1", "footwear"),
+      buildGarment("00000000-0000-4000-8000-000000000001", "top"),
+      buildGarment("00000000-0000-4000-8000-000000000002", "footwear"),
     ]);
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(mockInsert).toHaveBeenCalled();
-    // Only the top is marked dirty; footwear is exempt.
-    expect(mockUpdate).toHaveBeenCalled();
+    expect(mockRpc).toHaveBeenCalledWith("record_worn_outfit", {
+      p_garment_ids: [
+        "00000000-0000-4000-8000-000000000001",
+        "00000000-0000-4000-8000-000000000002",
+      ],
+      p_dirty_ids: ["00000000-0000-4000-8000-000000000001"],
+      p_worn_date: expect.any(String),
+    });
     expect(
       useGeneratorStore.getState().celebrationGarments,
     ).toHaveLength(2);
@@ -92,18 +92,29 @@ describe("useWearToday", () => {
 
   it("drops stale bottom under a one-piece dress", async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: "u1" } } });
-    mockInsert.mockResolvedValue({ error: null });
-    mockUpdate.mockResolvedValue({ error: null });
     const { result } = renderHook(() => useWearToday(), {
       wrapper: createWrapper(),
     });
     result.current.mutate([
-      buildGarment("d1", "dress"),
-      buildGarment("b1", "bottom"),
+      buildGarment("00000000-0000-4000-8000-000000000003", "dress"),
+      buildGarment("00000000-0000-4000-8000-000000000004", "bottom"),
     ]);
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data?.map((entry) => entry.garmentId)).toEqual([
-      "d1",
+      "00000000-0000-4000-8000-000000000003",
     ]);
+  });
+
+  it("does not celebrate if the atomic database operation fails", async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: "u1" } } });
+    mockRpc.mockResolvedValue({ error: new Error("transaction failed") });
+    const { result } = renderHook(() => useWearToday(), {
+      wrapper: createWrapper(),
+    });
+    result.current.mutate([
+      buildGarment("00000000-0000-4000-8000-000000000005", "top"),
+    ]);
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(useGeneratorStore.getState().celebrationGarments).toBeNull();
   });
 });

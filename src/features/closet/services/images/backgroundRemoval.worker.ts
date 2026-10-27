@@ -25,3 +25,5 @@ workerScope.onmessage = async ({ data }) => {
     });
   }
 };
+
+workerScope.postMessage({ ready: true });

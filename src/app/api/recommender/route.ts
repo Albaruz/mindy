@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { logger, generateRequestId } from "@/lib/logger";
-import { readFiniteNumber, readString } from "@/lib/readers";
+import { readFiniteNumber } from "@/lib/readers";
 import {
   isGuardResponse,
   rateLimitResponse,
-  readJsonBody,
+  readJsonObject,
   requireRouteUser,
 } from "@/lib/api/routeGuards";
 import {
@@ -12,7 +12,7 @@ import {
   MAX_LOOK_OPTIONS,
   RECOMMENDER_MAX_REQUEST_GARMENTS,
 } from "@/constants/generator";
-import { AI_TIMEOUT_MS } from "@/constants/ai";
+import { AI_MAX_TOKENS, AI_TIMEOUT_MS } from "@/constants/ai";
 import { COLD_THRESHOLD_C } from "@/constants/weather";
 import { buildOutfitPrompt } from "@/lib/ai/prompts";
 import {
@@ -44,8 +44,10 @@ import {
   readIdList,
   readLocale,
   readOptionalProbability,
+  readOutfitMood,
   readStylistProfile,
   readTemperatureCelsius,
+  readWeatherCondition,
   toCandidate,
 } from "@/lib/recommender/request";
 import {
@@ -297,7 +299,11 @@ function createRecommenderStream({
              repairAttempted = true;
              options = filterValidOutfitOptions(
                parseOptions(
-                 await repairOutfitRecommendation(userPayload, content),
+                  await repairOutfitRecommendation(
+                    userPayload,
+                    content,
+                    abortController.signal,
+                  ),
                  knownIds,
                ),
                cappedPool,
@@ -345,6 +351,7 @@ function createRecommenderStream({
               const recoveredContent = await generateStructuredOutfitRecommendation(
                 systemPrompt,
                 userPayload,
+                abortController.signal,
               );
               const recoveredOptions = filterValidOutfitOptions(
                 parseOptions(recoveredContent, knownIds),
@@ -465,10 +472,10 @@ export async function POST(request: Request) {
   if (isGuardResponse(auth)) {
     return auth.response;
   }
-  const { user } = auth;
+  const { user, supabase } = auth;
 
   // Authenticated users still share one Groq quota (see RATE_LIMITS).
-  const limited = rateLimitResponse("recommender", user.id, requestId);
+  const limited = await rateLimitResponse("recommender", user.id, requestId, supabase);
   if (limited) {
     return limited;
   }
@@ -481,18 +488,11 @@ export async function POST(request: Request) {
     );
   }
 
-  const parsed = await readJsonBody(request);
+  const parsed = await readJsonObject(request);
   if (isGuardResponse(parsed)) {
     return parsed.response;
   }
-  const { body } = parsed;
-  if (typeof body !== "object" || body === null) {
-    return NextResponse.json(
-      { error: "Request body must be a JSON object." },
-      { status: 400 },
-    );
-  }
-  const input = body as Record<string, unknown>;
+  const input = parsed.body;
 
   if (!Array.isArray(input.garments) || input.garments.length === 0) {
     return NextResponse.json(
@@ -520,7 +520,9 @@ export async function POST(request: Request) {
   const dayLow = readFiniteNumber(input.dayLow);
   const dayHigh = readFiniteNumber(input.dayHigh);
   const rainProbability = readOptionalProbability(input.rainProbability);
-  const condition = readString(input.condition);
+  const condition = readWeatherCondition(input.condition);
+  const stylistProfile = readStylistProfile(input.profile);
+  const mood = readOutfitMood(input.mood);
   const isRainy = isRainyWeather(condition, rainProbability);
   // Pinned IDs are read before weather filtering so the rain-material
   // rule can exempt explicit user pins (same hard-constraint contract
@@ -660,7 +662,7 @@ export async function POST(request: Request) {
   );
 
   const { systemPrompt, userPayload } = buildOutfitPrompt({
-    profile: readStylistProfile(input.profile),
+    profile: stylistProfile,
     climate: {
       temperatureC,
       condition,
@@ -692,8 +694,8 @@ export async function POST(request: Request) {
       rainProbability,
       requireOuterwear: outerwearRequired,
       requireRainSafeMaterials,
-      profile: input.profile,
-      mood: readString(input.mood),
+      profile: stylistProfile,
+      mood,
       style: requestedStyle,
       lockedGarmentIds: [...allLockedIds],
       candidates: promptCandidates,
@@ -730,12 +732,17 @@ export async function POST(request: Request) {
   let isFallback = false;
   let repairAttempted = false;
   let fallbackReason: AiFallbackReason | null = null;
+  const aiSignal = AbortSignal.any([
+    request.signal,
+    AbortSignal.timeout(AI_TIMEOUT_MS),
+  ]);
   try {
     let content: string;
     try {
       content = await generateStructuredOutfitRecommendation(
         systemPrompt,
         userPayload,
+        aiSignal,
       );
     } catch (structuredError) {
       logger.warn("Structured output failed, falling back to json_object", {
@@ -744,7 +751,12 @@ export async function POST(request: Request) {
         userId: user.id,
         error: structuredError,
       });
-      content = await generateOutfitRecommendation(systemPrompt, userPayload);
+      content = await generateOutfitRecommendation(
+        systemPrompt,
+        userPayload,
+        AI_MAX_TOKENS,
+        aiSignal,
+      );
     }
       options = filterValidOutfitOptions(
         parseOptions(content, knownIds),
@@ -763,6 +775,7 @@ export async function POST(request: Request) {
         const repairedContent = await repairOutfitRecommendation(
           userPayload,
           content,
+          aiSignal,
         );
         options = filterValidOutfitOptions(
           parseOptions(repairedContent, knownIds),
@@ -782,20 +795,26 @@ export async function POST(request: Request) {
         throw new Error("LLM options violate outfit constraints");
       }
   } catch (error) {
+    if (request.signal.aborted) {
+      return new Response(null, { status: 499 });
+    }
+    const aiTimedOut = aiSignal.aborted;
     // Log the real cause server-side: the client only gets a short
     // message, so without this the failure is impossible to diagnose.
     const message = error instanceof Error ? error.message : String(error);
     const status = (error as { status?: unknown }).status;
     const statusSuffix =
       typeof status === "number" ? ` (status ${status})` : "";
-    if (!isUpstreamFailure(error)) {
+    if (!aiTimedOut && !isUpstreamFailure(error)) {
       logger.error(`Request failed: ${message}${statusSuffix}`, { route: 'recommender', requestId, userId: user.id, error, status });
       return NextResponse.json(
         { error: "Unexpected recommender error." },
         { status: 500 },
       );
     }
-    fallbackReason = classifyAiFallbackReason(error, repairAttempted);
+    fallbackReason = aiTimedOut
+      ? "groq_timeout"
+      : classifyAiFallbackReason(error, repairAttempted);
     // Graceful degradation: the local cerebelo answers with the same
     // contract plus _isFallback so the client skips AI training.
      logger.warn(`LLM failed, using local fallback: ${message}${statusSuffix}`, {

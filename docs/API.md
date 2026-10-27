@@ -75,7 +75,8 @@ GET /api/weather?lat={latitude}&lon={longitude}
 ### Caching
 
 ```
-Revalidate: 10 minutes (automatic)
+OpenWeather upstream fetches: revalidate after 10 minutes
+HTTP response: private, no-store (weather data is user/location scoped)
 TanStack Query: staleTime 10min
 ```
 
@@ -86,7 +87,7 @@ TanStack Query: staleTime 10min
 | `200` | success object | Valid weather data |
 | `400` | `{error: "Missing lat/lon"}` | Invalid parameters |
 | `401` | `{error: "Unauthorized"}` | Not authenticated |
-| `429` | `{error: "Rate limit exceeded"}` | Rate limited |
+| `429` | `{error: "Too many requests. Try again later."}` | Rate limited |
 | `500` | `{fallback: true, temp: 20}` | API error (fallback) |
 
 ### Example Usage (Frontend)
@@ -213,7 +214,7 @@ garments are not used as suggestions.
 | `401` | `{error: "Unauthorized"}` | Not authenticated |
 | `413` | `{error: "Too many garments in a single request."}` | More than 200 garments |
 | `422` | `{error: "INSUFFICIENT_STYLE_GARMENTS"}` | Not enough clean garments for style |
-| `429` | `{error: "Rate limit exceeded"}` | Rate limited; retry delay is in the `Retry-After` header |
+| `429` | `{error: "Too many requests. Try again later."}` | Rate limited; retry delay is in the `Retry-After` header |
 | `500` | `{error: "Unexpected recommender error."}` | Unexpected internal error |
 | `502` | `{error: "AI service request failed. Try again."}` | Upstream and local fallback both failed |
 | `503` | `{error: "AI service is not configured ..."}` | Missing `GROQ_API_KEY` |
@@ -299,28 +300,34 @@ POST /api/analyze
 
 ```json
 {
-  "image_base64": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEA..."
+  "imageBase64": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEA...",
+  "locale": "en"
 }
 ```
 
 ### Constraints
 
-- **Max size:** 7,000,000 characters (base64)
-- **Format:** JPEG, PNG, WebP
-- **Recommended:** Max 5MB (≈3.7M base64 chars)
+- **JSON body:** 10 MiB maximum
+- **Image data URL:** 9,500,000 characters maximum; 7 MiB maximum after base64 decoding
+- **Format:** JPEG, PNG, WebP; MIME and file signature must agree
+- **Authentication:** Required before parsing or calling Groq
 
 ### Response
 
 ```json
 {
-  "garment_type": "top",
+  "skipped": false,
+  "category": "top",
+  "garmentType": "top",
   "style": "casual",
-  "cut_length": "short",
+  "cutLength": "regular",
   "color": "blue",
-  "color_detail": "sky blue",
+  "colorDetail": "sky blue",
   "material": "cotton",
   "season": "all",
-  "processing_time_ms": 523
+  "cutoutDifficulty": "easy",
+  "qualityNote": null,
+  "visualDescription": "A blue cotton top."
 }
 ```
 
@@ -328,13 +335,13 @@ POST /api/analyze
 
 | Field | Type | Possible Values |
 |---|---|---|
-| `garment_type` | string | top, bottom, footwear, outerwear, dress, jumpsuit, etc |
+| `category` / `garmentType` | string or null | top, bottom, footwear, outerwear, dress, mid_layer |
 | `style` | string | casual, formal, sport, elegant, streetwear, party |
-| `cut_length` | string | short, midi, long, cropped, oversized |
-| `color` | string | red, blue, green, neutral, etc (normalized) |
-| `color_detail` | string | sky blue, navy, pastel pink (specific shade) |
+| `cutLength` | string or null | slim, regular, relaxed, oversized, cropped, long |
+| `color` | string or null | closed base color vocabulary |
+| `colorDetail` | string or null | Free-text shade detail; normalized by the client |
 | `material` | string | cotton, silk, wool, polyester, denim, linen, etc |
-| `season` | string | spring, summer, autumn, winter, all, mid_season |
+| `season` | string or null | summer, winter, mid_season, all |
 
 ### Rate Limit
 
@@ -353,10 +360,12 @@ POST /api/analyze
 | Status | Body | Reason |
 |---|---|---|
 | `200` | garment object | Success |
-| `400` | `{error: "Image too large"}` | Base64 > 7M chars |
+| `400` | `{error: "Provide a valid imageBase64 data URL."}` | Invalid MIME, base64, or image signature |
 | `401` | `{error: "Unauthorized"}` | Not authenticated |
-| `429` | `{error: "Rate limit exceeded"}` | Rate limited |
-| `503` | `{error: "Vision API unavailable", "skipped": true}` | No API key configured |
+| `413` | `{error: "Request body is too large."}` | JSON body exceeds 10 MiB |
+| `429` | `{error: "Too many requests. Try again later."}` | Per-user rate limit; `Retry-After` header supplied |
+| `502` / `504` | `{error: "Vision processing failed."}` | Groq failure / timeout |
+| `503` | `{skipped: true, category: null, garmentType: null, color: null}` | Groq is not configured |
 
 ### Example Usage (Frontend)
 
@@ -365,7 +374,7 @@ async function analyzeGarment(imageBase64: string) {
   const res = await fetch('/api/analyze', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ image_base64: imageBase64 }),
+    body: JSON.stringify({ imageBase64, locale: 'en' }),
   });
 
   if (!res.ok) {
@@ -531,13 +540,10 @@ const weatherQuery = useQuery({
 
 ## Rate Limiting
 
-### Headers
-
-```
-X-RateLimit-Limit: 30
-X-RateLimit-Remaining: 29
-X-RateLimit-Reset: 1634567890
-```
+Quotas are enforced per user by a shared Supabase Postgres RPC, so limits are
+consistent across serverless instances. Windows are fixed and aligned to the
+configured interval. If the quota store is unavailable, protected requests
+fail closed with `503` rather than bypassing the limit.
 
 ### When Rate Limited (429)
 

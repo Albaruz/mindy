@@ -84,6 +84,25 @@ export const RAINY_CONDITIONS = [
   "snow",
 ] as const;
 
+/** Closed OpenWeather main-condition values accepted from request payloads. */
+export const WEATHER_CONDITION_VALUES = [
+  "Thunderstorm",
+  "Drizzle",
+  "Rain",
+  "Snow",
+  "Mist",
+  "Smoke",
+  "Haze",
+  "Dust",
+  "Fog",
+  "Sand",
+  "Ash",
+  "Squall",
+  "Tornado",
+  "Clear",
+  "Clouds",
+] as const;
+
 // Rain probability (0-100) at or above which rain is expected even when
 // current conditions still look dry (the current-weather endpoint lags).
 export const RAIN_EXPECTED_THRESHOLD = 50;

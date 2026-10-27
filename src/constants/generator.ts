@@ -33,6 +33,15 @@ export const REQUIRED_GENERATOR_CATEGORIES = ["top", "bottom", "footwear"] as co
 // Closed vocabulary for the weather context used by both generator modes.
 export const OUTFIT_DAY_VALUES = ["today", "tomorrow"] as const;
 
+/** Mood values supplied to the outfit recommender. */
+export const OUTFIT_MOOD_VALUES = [
+  "relaxed",
+  "cheerful",
+  "professional",
+  "active",
+  "elegant",
+] as const;
+
 // Recommender server limits (src/lib/recommender).
 // Token-budget cap for the garments sent to the LLM, with a soft cap per
 // category so one family cannot eat the whole budget.

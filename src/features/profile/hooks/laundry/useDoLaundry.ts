@@ -49,16 +49,11 @@ export function useDoLaundry() {
       queryClient.setQueryData<Garment[]>(QUERY_KEYS.laundryBasket, []);
       return context;
     },
-    onSuccess: () => {
+    // One invalidation pass covers both success and failure; the error path
+    // restores the optimistic snapshot before re-reading the server state.
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.laundryBasket });
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments });
-    },
-    // Invalidate marks the cache stale, but an explicit refetch also covers
-    // cached queries restored by the PWA persister and guarantees that the
-    // UI reflects the database result after the mutation settles.
-    onSettled: () => {
-      void queryClient.refetchQueries({ queryKey: QUERY_KEYS.laundryBasket });
-      void queryClient.refetchQueries({ queryKey: QUERY_KEYS.garments });
     },
     onError: (_error, _variables, context) => {
       queryClient.setQueryData(QUERY_KEYS.garments, context?.garments);

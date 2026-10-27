@@ -58,6 +58,7 @@ function mockExchange(result: {
 describe("auth callback route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "");
   });
 
   it("redirects home when the code is missing", async () => {
@@ -102,6 +103,18 @@ describe("auth callback route", () => {
     const response = await GET(
       new Request(
         "http://localhost:3000/auth/callback?code=ok&next=//evil.example",
+      ),
+    );
+    expect(response.headers.get("location")).toBe(
+      "http://localhost:3000/es/profile/onboarding",
+    );
+  });
+
+  it("rejects backslash-based redirect targets", async () => {
+    mockExchange({ user: { id: "user-1" }, profileComplete: false });
+    const response = await GET(
+      new Request(
+        "http://localhost:3000/auth/callback?code=ok&next=%2F%5Cevil.example",
       ),
     );
     expect(response.headers.get("location")).toBe(

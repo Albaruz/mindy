@@ -22,6 +22,15 @@ async function removeBackgroundInWorker(
       { type: "module" },
     );
     let ready = false;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    const cleanup = () => {
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      worker.terminate();
+    };
 
     worker.onmessage = (event) => {
       const data = event.data;
@@ -29,7 +38,7 @@ async function removeBackgroundInWorker(
       // Worker signals initialization failed
       if (data.ready === false) {
         reject(new Error(data.error || "Worker initialization failed"));
-        worker.terminate();
+        cleanup();
         return;
       }
 
@@ -46,7 +55,7 @@ async function removeBackgroundInWorker(
       } else {
         reject(new Error(error || "Unknown worker error"));
       }
-      worker.terminate();
+      cleanup();
     };
     worker.onerror = (err) => {
       // err is ErrorEvent: use err.message (empty string) or err.filename + err.lineno
@@ -54,14 +63,14 @@ async function removeBackgroundInWorker(
         err.message ||
         (err.filename ? `${err.filename}:${err.lineno}` : "Worker script error");
       reject(new Error(`Worker error: ${msg}`));
-      worker.terminate();
+      cleanup();
     };
 
     // Timeout in case worker never signals ready
-    setTimeout(() => {
+    timeoutId = setTimeout(() => {
       if (!ready) {
         reject(new Error("Worker failed to initialize (timeout)"));
-        worker.terminate();
+        cleanup();
       }
     }, 10000);
   });

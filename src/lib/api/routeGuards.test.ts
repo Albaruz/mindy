@@ -11,7 +11,12 @@ vi.mock("@/lib/rateLimit", () => ({
 }));
 
 vi.mock("@/lib/logger", () => ({
-  logger: { requestComplete: vi.fn(), requestStart: vi.fn(), warn: vi.fn() },
+  logger: {
+    error: vi.fn(),
+    requestComplete: vi.fn(),
+    requestStart: vi.fn(),
+    warn: vi.fn(),
+  },
 }));
 
 import {
@@ -20,6 +25,8 @@ import {
   readJsonBody,
   requireRouteUser,
 } from "./routeGuards";
+
+const rateLimitClient = { rpc: vi.fn() } as never;
 
 describe("routeGuards", () => {
   beforeEach(() => {
@@ -44,14 +51,34 @@ describe("routeGuards", () => {
     }
   });
 
-  it("rateLimitResponse is null under quota and 429 with Retry-After over it", () => {
+  it("rateLimitResponse is null under quota and 429 with Retry-After over it", async () => {
     checkRateLimit.mockReturnValueOnce({ limited: false });
-    expect(rateLimitResponse("weather", "u1", "req")).toBeNull();
+    expect(await rateLimitResponse("weather", "u1", "req", rateLimitClient)).toBeNull();
 
     checkRateLimit.mockReturnValueOnce({ limited: true, retryAfterSec: 7 });
-    const response = rateLimitResponse("weather", "u1", "req");
+    const response = await rateLimitResponse("weather", "u1", "req", rateLimitClient);
     expect(response?.status).toBe(429);
     expect(response?.headers.get("Retry-After")).toBe("7");
+  });
+
+  it("fails closed when the session lookup fails", async () => {
+    getUser.mockRejectedValueOnce(new Error("auth unavailable"));
+    const result = await requireRouteUser("analyze", "req", Date.now());
+    expect(isGuardResponse(result)).toBe(true);
+    if (isGuardResponse(result)) {
+      expect(result.response.status).toBe(503);
+    }
+  });
+
+  it("fails closed when the durable limiter is unavailable", async () => {
+    checkRateLimit.mockRejectedValueOnce(new Error("database unavailable"));
+    const response = await rateLimitResponse(
+      "weather",
+      "u1",
+      "req",
+      rateLimitClient,
+    );
+    expect(response?.status).toBe(503);
   });
 
   it("readJsonBody parses JSON and answers 400 for invalid JSON", async () => {
@@ -69,6 +96,19 @@ describe("routeGuards", () => {
     expect(isGuardResponse(bad)).toBe(true);
     if (isGuardResponse(bad)) {
       expect(bad.response.status).toBe(400);
+    }
+  });
+
+  it("rejects an oversized declared body before reading it", async () => {
+    const oversized = new Request("http://x", {
+      method: "POST",
+      headers: { "content-length": "10485761" },
+      body: "{}",
+    });
+    const result = await readJsonBody(oversized);
+    expect(isGuardResponse(result)).toBe(true);
+    if (isGuardResponse(result)) {
+      expect(result.response.status).toBe(413);
     }
   });
 });

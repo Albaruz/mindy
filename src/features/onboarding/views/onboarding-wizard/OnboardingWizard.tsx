@@ -180,28 +180,34 @@ export function OnboardingWizard({
       forbiddenColors,
     });
 
-    const result = await saveProfileAction({
-      skinTone: payload.skinTone,
-      eyeColor: payload.eyeColor,
-      chestMeasurementCm: payload.chestMeasurementCm,
-      waistMeasurementCm: payload.waistMeasurementCm,
-      hipMeasurementCm: payload.hipMeasurementCm,
-      colorimetry: payload.colorimetry,
-      morphology: payload.morphology,
-      preferredFit: payload.preferredFit,
-      lifestyle: payload.lifestyle,
-      extraPreferences: payload.extraPreferences,
-    });
+    try {
+      const result = await saveProfileAction({
+        skinTone: payload.skinTone,
+        eyeColor: payload.eyeColor,
+        chestMeasurementCm: payload.chestMeasurementCm,
+        waistMeasurementCm: payload.waistMeasurementCm,
+        hipMeasurementCm: payload.hipMeasurementCm,
+        colorimetry: payload.colorimetry,
+        morphology: payload.morphology,
+        preferredFit: payload.preferredFit,
+        lifestyle: payload.lifestyle,
+        extraPreferences: payload.extraPreferences,
+      });
 
-    // The server no longer redirects: success transitions to the
-    // celebration screen, which navigates to the closet.
-    if (result.error !== null) {
-      setError(result.error);
+      // The server no longer redirects: success transitions to the
+      // celebration screen, which navigates to the closet.
+      if (result.error !== null) {
+        setError(result.error);
+        return;
+      }
+      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profile });
+      useOnboardingStore.getState().reset();
+      setSucceeded(true);
+    } catch {
+      setError(t("saveError"));
+    } finally {
       setIsSaving(false);
-      return;
     }
-    void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.profile });
-    setSucceeded(true);
   };
 
   if (succeeded) {
