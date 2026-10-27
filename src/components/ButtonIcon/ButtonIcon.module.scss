@@ -56,6 +56,16 @@
   }
 
   &--favorite {
+    --button-icon-color: var(--color-favorite);
+    --button-icon-bg: var(--color-favorite-hover-bg);
+    --button-icon-border: transparent;
+
+    &:hover:not(:disabled) {
+      background: var(--color-favorite-hover-bg);
+    }
+  }
+
+  &--favorite-active {
     --button-icon-color: var(--color-oat);
     --button-icon-bg: var(--color-favorite);
     --button-icon-border: var(--color-favorite);
@@ -63,16 +73,6 @@
     &:hover:not(:disabled) {
       background: var(--color-favorite-hover);
       border-color: var(--color-favorite-hover);
-    }
-  }
-
-  &--favorite-active {
-    --button-icon-color: var(--color-favorite);
-    --button-icon-bg: var(--color-favorite-hover-bg);
-    --button-icon-border: transparent;
-
-    &:hover:not(:disabled) {
-      background: var(--color-favorite-hover-bg);
     }
   }
 }

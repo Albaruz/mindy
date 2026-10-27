@@ -45,7 +45,7 @@ export function GarmentCard({
               ? ta("removeFromFavorites", { name: title })
               : ta("addToFavorites", { name: title })
           }
-          icon={favorite ? <HeartCrack /> : <Heart />}
+          icon={<Heart />}
           variant={favorite ? "favorite-active" : "favorite"}
           pressed={favorite}
           disabled={favoriteMutation.isPending}
