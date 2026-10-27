@@ -8,6 +8,7 @@ import {
   requireRouteUser,
 } from "@/lib/api/routeGuards";
 import {
+  MID_LAYER_LOOK_INCLUSION_PROBABILITY,
   MAX_LOOK_OPTIONS,
   RECOMMENDER_MAX_REQUEST_GARMENTS,
 } from "@/constants/generator";
@@ -26,6 +27,8 @@ import {
   applyFavoriteInclusionChance,
   selectSuggestedFavoriteIds,
 } from "@/lib/recommender/favoriteInclusion";
+import { applyMidLayerInclusionChance } from "@/lib/recommender/midLayerInclusion";
+import { completeOutfitOptions } from "@/lib/recommender/outfitCompletion";
 import {
   extractCompletedOptionObjects,
   classifyAiFallbackReason,
@@ -54,6 +57,7 @@ import type { CandidateGarment, OutfitOption } from "@/lib/recommender/types";
 import {
   applyHeatRule,
   applyRainMaterialRule,
+  filterColdWeatherOutfitOptions,
   isRainyWeather,
   poolHasOuterwear,
 } from "@/lib/recommender/weatherRules";
@@ -70,6 +74,8 @@ interface RecommenderStreamContext {
   lockedIds: Set<string>;
   suggestedFavoriteIds: Set<string>;
   temperatureC: number;
+  coldestTemperatureC: number;
+  coldWeather: boolean;
   outerwearRequired: boolean;
   excludedWinterCount: number;
   excludedRainCount: number;
@@ -87,6 +93,8 @@ function toPromptCandidates(candidates: CandidateGarment[]) {
     id: candidate.id,
     garmentType: candidate.garmentType,
     color: candidate.color,
+    print: candidate.print ?? null,
+    secondaryColor: candidate.secondaryColor ?? null,
     material: candidate.material,
     season: candidate.season,
   }));
@@ -104,6 +112,8 @@ function createRecommenderStream({
   lockedIds,
   suggestedFavoriteIds,
   temperatureC,
+  coldestTemperatureC,
+  coldWeather,
   outerwearRequired,
   excludedWinterCount,
   excludedRainCount,
@@ -132,12 +142,51 @@ function createRecommenderStream({
     isFallback: boolean,
     fallbackReason: ReturnType<typeof classifyAiFallbackReason> | null = null,
   ) => {
-    const finalOptions = applyFavoriteInclusionChance(
+    const weatherValidOptions = filterColdWeatherOutfitOptions(
       options,
+      cappedPool,
+      lockedIds,
+      coldWeather,
+    );
+    const variedOptions = enforceVarietyAcrossOptions(
+      weatherValidOptions,
+      cappedPool,
+      lockedIds,
+    );
+    const completedOptions = completeOutfitOptions(
+      variedOptions,
+      cappedPool,
+      lockedIds,
+      outerwearRequired,
+      coldWeather,
+    );
+    const favoriteOptions = applyFavoriteInclusionChance(
+      completedOptions,
       cappedPool,
       lockedIds,
       suggestedFavoriteIds,
       outerwearRequired,
+    );
+    const weatherValidFavorites = filterColdWeatherOutfitOptions(
+      favoriteOptions,
+      cappedPool,
+      lockedIds,
+      coldWeather,
+    );
+    const refilledOptions = completeOutfitOptions(
+      weatherValidFavorites,
+      cappedPool,
+      lockedIds,
+      outerwearRequired,
+      coldWeather,
+    );
+    const finalOptions = applyMidLayerInclusionChance(
+      refilledOptions,
+      cappedPool,
+      lockedIds,
+      coldWeather ? 1 : MID_LAYER_LOOK_INCLUSION_PROBABILITY,
+      Math.random,
+      coldWeather,
     );
     const model = isFallback ? "local-fallback" : getEngineModel();
     logger.requestComplete("recommender", requestId, 200, Date.now() - startTime, {
@@ -214,8 +263,17 @@ function createRecommenderStream({
                     );
                     scannedObjectCount += 1;
                     if (option !== null) {
-                      previews.push(option);
-                      send({ type: "preview", option });
+                      const weatherValidPreview =
+                        filterColdWeatherOutfitOptions(
+                          [option],
+                          cappedPool,
+                          lockedIds,
+                          coldWeather,
+                        )[0];
+                      if (weatherValidPreview !== undefined) {
+                        previews.push(weatherValidPreview);
+                        send({ type: "preview", option: weatherValidPreview });
+                      }
                     }
                   }
                 },
@@ -337,7 +395,7 @@ function createRecommenderStream({
             const fallbackOptions = generateFallbackLook(
               cappedPool,
               lockedIds,
-              temperatureC,
+              coldestTemperatureC,
               outerwearRequired,
             );
             // Enforce variety across fallback options
@@ -585,9 +643,9 @@ export async function POST(request: Request) {
 
   // Hard outerwear rule: with rain or cold the model must dress an
   // available coat in every option (mirrors the client carousel logic).
-  const outerwearRequired =
-    poolHasOuterwear(cappedPool) &&
-    (isRainy || (dayLow ?? temperatureC) < COLD_THRESHOLD_C);
+  const coldestTemperatureC = Math.min(temperatureC, dayLow ?? temperatureC);
+  const coldWeather = coldestTemperatureC <= COLD_THRESHOLD_C;
+  const outerwearRequired = poolHasOuterwear(cappedPool) && (isRainy || coldWeather);
   // Rain-safe prompt rule: the pool is already filtered, but the mandate
   // stops the model from favoring vulnerable leftovers (locked pins).
   const requireRainSafeMaterials = isRainy;
@@ -656,6 +714,8 @@ export async function POST(request: Request) {
       lockedIds: allLockedIds,
       suggestedFavoriteIds,
       temperatureC,
+      coldestTemperatureC,
+      coldWeather,
       outerwearRequired,
       excludedWinterCount,
       excludedRainCount,
@@ -686,25 +746,41 @@ export async function POST(request: Request) {
       });
       content = await generateOutfitRecommendation(systemPrompt, userPayload);
     }
-     options = filterValidOutfitOptions(
-       parseOptions(content, knownIds),
-       cappedPool,
-       allLockedIds,
-       outerwearRequired,
+      options = filterValidOutfitOptions(
+        parseOptions(content, knownIds),
+        cappedPool,
+        allLockedIds,
+        outerwearRequired,
       );
-      // Enforce variety across options (no repeated tops/bottoms)
-      options = enforceVarietyAcrossOptions(options, cappedPool, allLockedIds);
+      options = filterColdWeatherOutfitOptions(
+        options,
+        cappedPool,
+        allLockedIds,
+        coldWeather,
+      );
       if (options.length === 0) {
         repairAttempted = true;
-        const repairedContent = await repairOutfitRecommendation(userPayload, content);
-       options = filterValidOutfitOptions(
-         parseOptions(repairedContent, knownIds),
-         cappedPool,
+        const repairedContent = await repairOutfitRecommendation(
+          userPayload,
+          content,
+        );
+        options = filterValidOutfitOptions(
+          parseOptions(repairedContent, knownIds),
+          cappedPool,
          allLockedIds,
-         outerwearRequired,
-       );
-     }
-     if (options.length === 0) throw new Error("LLM options violate outfit constraints");
+          outerwearRequired,
+        );
+        options = filterColdWeatherOutfitOptions(
+          options,
+          cappedPool,
+          allLockedIds,
+          coldWeather,
+        );
+      }
+      options = enforceVarietyAcrossOptions(options, cappedPool, allLockedIds);
+      if (options.length === 0) {
+        throw new Error("LLM options violate outfit constraints");
+      }
   } catch (error) {
     // Log the real cause server-side: the client only gets a short
     // message, so without this the failure is impossible to diagnose.
@@ -740,7 +816,7 @@ export async function POST(request: Request) {
       options = generateFallbackLook(
         cappedPool,
         allLockedIds,
-        temperatureC,
+        coldestTemperatureC,
         outerwearRequired,
       );
       // Enforce variety across fallback options
@@ -758,12 +834,40 @@ export async function POST(request: Request) {
       );
     }
   }
+  options = completeOutfitOptions(
+    options,
+    cappedPool,
+    allLockedIds,
+    outerwearRequired,
+    coldWeather,
+  );
   options = applyFavoriteInclusionChance(
     options,
     cappedPool,
     allLockedIds,
     suggestedFavoriteIds,
     outerwearRequired,
+  );
+  options = filterColdWeatherOutfitOptions(
+    options,
+    cappedPool,
+    allLockedIds,
+    coldWeather,
+  );
+  options = completeOutfitOptions(
+    options,
+    cappedPool,
+    allLockedIds,
+    outerwearRequired,
+    coldWeather,
+  );
+  options = applyMidLayerInclusionChance(
+    options,
+    cappedPool,
+    allLockedIds,
+    coldWeather ? 1 : MID_LAYER_LOOK_INCLUSION_PROBABILITY,
+    Math.random,
+    coldWeather,
   );
   const durationMs = Date.now() - startTime;
   logger.requestComplete('recommender', requestId, 200, durationMs, {

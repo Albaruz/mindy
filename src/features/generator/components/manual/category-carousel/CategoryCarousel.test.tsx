@@ -102,6 +102,24 @@ describe("CategoryCarousel", () => {
     expect(onToggleLock).toHaveBeenCalledWith("top");
   });
 
+  it("keeps the layer visibility toggle available while the carousel is collapsed", async () => {
+    const onToggle = vi.fn();
+    render(
+      <CategoryCarousel
+        {...baseProps}
+        category="mid_layer"
+        inclusionControl={{ state: "excluded", onToggle }}
+      />,
+    );
+
+    const showButton = screen.getByRole("button", { name: "showLayer" });
+    expect(showButton).toHaveAttribute("aria-pressed", "false");
+    expect(screen.queryByTestId("mock-swiper")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "lockGarment" })).not.toBeInTheDocument();
+    await userEvent.click(showButton);
+    expect(onToggle).toHaveBeenCalledTimes(1);
+  });
+
   it("shows the locked state and disables garment change", async () => {
     const onChangeGarment = vi.fn();
     render(

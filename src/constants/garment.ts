@@ -7,6 +7,7 @@ export const GARMENT_TYPE_VALUES = [
   "bottom",
   "dress",
   "outerwear",
+  "mid_layer",
   "footwear",
 ] as const;
 
@@ -58,6 +59,9 @@ export const GARMENT_MATERIAL_VALUES = [
   "corduroy",
   "knit",
 ] as const;
+
+/** Materials warm enough to skip an optional mid-layer around the cold threshold. */
+export const WARM_GARMENT_MATERIAL_VALUES = ["wool", "knit", "corduroy"] as const;
 
 export const GARMENT_PRINT_VALUES = [
   "stripes",
@@ -145,16 +149,29 @@ export const GARMENT_TYPE_ALIASES: Record<string, GarmentType> = {
   coat: "outerwear",
   blazer: "outerwear",
   parka: "outerwear",
-  vest: "outerwear",
+  vest: "mid_layer",
+  vests: "mid_layer",
+  waistcoat: "mid_layer",
+  "sweater vest": "mid_layer",
+  "sweater-vest": "mid_layer",
+  "knit vest": "mid_layer",
+  "knitted vest": "mid_layer",
   windbreaker: "outerwear",
-  cardigan: "outerwear",
+  cardigan: "mid_layer",
+  cardigans: "mid_layer",
+  "long cardigan": "mid_layer",
+  "open-front cardigan": "mid_layer",
   abrigo: "outerwear",
   chaqueta: "outerwear",
   cazadora: "outerwear",
   americana: "outerwear",
   gabardina: "outerwear",
-  chaleco: "outerwear",
-  rebeca: "outerwear",
+  chaleco: "mid_layer",
+  chalecos: "mid_layer",
+  "chaleco de punto": "mid_layer",
+  "floral vest": "mid_layer",
+  rebeca: "mid_layer",
+  rebecas: "mid_layer",
   shoes: "footwear",
   shoe: "footwear",
   sneakers: "footwear",
@@ -337,6 +354,7 @@ export const GARMENT_TYPE_CATEGORIES: Record<GarmentType, Category> = {
   bottom: "bottom",
   dress: "top",
   outerwear: "outerwear",
+  mid_layer: "mid_layer",
   footwear: "footwear",
 };
 

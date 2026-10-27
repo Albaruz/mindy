@@ -9,6 +9,8 @@ import {
   Lock,
   LockOpen,
   Shuffle,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import type { Garment } from "@/types/garment";
 import { cn } from "@/lib/utils";
@@ -29,6 +31,10 @@ interface CategoryCarouselProps {
   onSlideChange: (category: Category, index: number) => void;
   onToggleLock: (category: Category) => void;
   onChangeGarment: (category: Category) => void;
+  inclusionControl?: {
+    state: "included" | "excluded";
+    onToggle: () => void;
+  };
   // Lazy image strategy for slide photos. "lazy" (default) defers
   // offscreen slides via IntersectionObserver, "eager" loads all
   // immediately (useful for tiny closets or tests).
@@ -51,6 +57,7 @@ export function CategoryCarousel({
   onSlideChange,
   onToggleLock,
   onChangeGarment,
+  inclusionControl,
   imageLoading = "lazy",
   preloadAdjacent = 1,
   effect = "coverflow",
@@ -72,6 +79,8 @@ export function CategoryCarousel({
   const [activeIndex, setActiveIndex] = useState(initialSlide);
   const lazyEnabled = imageLoading === "lazy";
   const isCoverflow = effect === "coverflow";
+  const isExcluded = inclusionControl?.state === "excluded";
+  const VisibilityIcon = isExcluded ? EyeOff : Eye;
 
   // Reflect external picks (e.g. AI suggestions) in the visible slide.
   // The realIndex guard prevents feedback loops with onSlideChange. In loop
@@ -112,37 +121,62 @@ export function CategoryCarousel({
   };
 
   return (
-    <section aria-label={ta("carousel", { title })} className={styles["category-carousel"]}>
+    <section
+      aria-label={ta("carousel", { title })}
+      className={cn(
+        styles["category-carousel"],
+        isExcluded && styles["category-carousel--collapsed"],
+      )}
+    >
       <div className={styles["category-carousel__header"]}>
         <h2 className={styles["category-carousel__title"]}>{title}</h2>
         {garments.length > 0 && !isLoading ? (
           <div className={styles["category-carousel__header-actions"]}>
-            <button
-              type="button"
-              aria-pressed={isLocked}
-              aria-label={isLocked ? ta("unlockGarment", { title }) : ta("lockGarment", { title })}
-              title={isLocked ? ta("unlockGarment", { title }) : ta("lockGarment", { title })}
-              className={cn(styles["category-carousel__lock-button"], isLocked && styles["category-carousel__lock-button--locked"])}
-              onClick={() => onToggleLock(category)}
-            >
-              <LockIcon aria-hidden="true" size={20} />
-            </button>
-            <button
-              type="button"
-              aria-label={ta("changeGarment", { title })}
-              title={
-                isLocked ? ta("lockedGarment", { title }) : ta("changeGarment", { title })
-              }
-              className={styles["category-carousel__change-button"]}
-              disabled={isLocked}
-              onClick={() => onChangeGarment(category)}
-            >
-              <Shuffle aria-hidden="true" size={20} />
-            </button>
+            {!isExcluded ? (
+              <>
+                <button
+                  type="button"
+                  aria-pressed={isLocked}
+                  aria-label={isLocked ? ta("unlockGarment", { title }) : ta("lockGarment", { title })}
+                  title={isLocked ? ta("unlockGarment", { title }) : ta("lockGarment", { title })}
+                  className={cn(styles["category-carousel__lock-button"], isLocked && styles["category-carousel__lock-button--locked"])}
+                  onClick={() => onToggleLock(category)}
+                >
+                  <LockIcon aria-hidden="true" size={20} />
+                </button>
+                <button
+                  type="button"
+                  aria-label={ta("changeGarment", { title })}
+                  title={
+                    isLocked ? ta("lockedGarment", { title }) : ta("changeGarment", { title })
+                  }
+                  className={styles["category-carousel__change-button"]}
+                  disabled={isLocked}
+                  onClick={() => onChangeGarment(category)}
+                >
+                  <Shuffle aria-hidden="true" size={20} />
+                </button>
+              </>
+            ) : null}
+            {inclusionControl !== undefined ? (
+              <button
+                type="button"
+                aria-pressed={!isExcluded}
+                aria-label={isExcluded ? ta("showLayer", { title }) : ta("hideLayer", { title })}
+                title={isExcluded ? ta("showLayer", { title }) : ta("hideLayer", { title })}
+                className={cn(
+                  styles["category-carousel__visibility-button"],
+                  isExcluded && styles["category-carousel__visibility-button--hidden"],
+                )}
+                onClick={inclusionControl.onToggle}
+              >
+                <VisibilityIcon aria-hidden="true" size={20} />
+              </button>
+            ) : null}
           </div>
         ) : null}
       </div>
-      {isLoading ? (
+      {isExcluded ? null : isLoading ? (
         <SmartSkeleton
           variant={category}
           label={ta("carousel", { title })}

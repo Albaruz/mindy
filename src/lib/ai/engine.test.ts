@@ -46,6 +46,7 @@ vi.mock("groq-sdk", () => {
 import {
   generateOutfitRecommendation,
   generateOutfitRecommendationStream,
+  generateStructuredOutfitRecommendation,
   getEngineModel,
 } from "./engine";
 import { RateLimitError } from "groq-sdk";
@@ -69,6 +70,15 @@ describe("generateOutfitRecommendation", () => {
     const result = await generateOutfitRecommendation("system", { foo: 1 });
     expect(result).toBe('{"options":[]}');
     expect(mockCreate).toHaveBeenCalledTimes(1);
+    if (getEngineModel().startsWith("openai/gpt-oss-")) {
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reasoning_effort: "low",
+          include_reasoning: false,
+        }),
+        expect.anything(),
+      );
+    }
   });
 
   it("throws without api key", async () => {
@@ -145,7 +155,12 @@ describe("generateOutfitRecommendationStream", () => {
       "]}",
     ]);
     expect(mockCreate).toHaveBeenCalledWith(
-      expect.objectContaining({ stream: true }),
+      expect.objectContaining({
+        stream: true,
+        ...(getEngineModel().startsWith("openai/gpt-oss-")
+          ? { reasoning_effort: "low", include_reasoning: false }
+          : {}),
+      }),
       expect.objectContaining({ timeout: expect.any(Number) }),
     );
   });
@@ -170,5 +185,31 @@ describe("generateOutfitRecommendationStream", () => {
       generateOutfitRecommendationStream("system", {}, vi.fn()),
     ).rejects.toMatchObject({ __upstreamFailure: true });
     expect(mockCreate).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("generateStructuredOutfitRecommendation", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    process.env.GROQ_API_KEY = "test-key";
+  });
+
+  it("bounds GPT-OSS reasoning while requesting a structured response", async () => {
+    mockCreate.mockResolvedValue({
+      choices: [{ message: { content: '{"options":[]}' } }],
+    });
+
+    const result = await generateStructuredOutfitRecommendation("system", {});
+
+    expect(result).toBe('{"options":[]}');
+    if (getEngineModel().startsWith("openai/gpt-oss-")) {
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reasoning_effort: "low",
+          include_reasoning: false,
+        }),
+        expect.objectContaining({ timeout: expect.any(Number) }),
+      );
+    }
   });
 });

@@ -23,8 +23,13 @@ describe("useGarmentTranslator", () => {
 
   it("returns raw value outside spanish locale", () => {
     mockLocale.mockReturnValueOnce("en");
+    mockHas.mockImplementation((key: string) => key === "types.mid_layer");
+    mockGet.mockImplementation((key: string) => `t:${key}`);
     const { result } = renderHook(() => useGarmentTranslator());
     expect(result.current.translate("Top", "type")).toBe("Top");
+    expect(result.current.translate("mid_layer", "type")).toBe(
+      "t:types.mid_layer",
+    );
     expect(result.current.translateDetail("Silk")).toBe("Silk");
   });
 

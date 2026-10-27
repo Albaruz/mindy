@@ -9,6 +9,7 @@ import {
 } from "@/lib/garment/categorizeGarments";
 import type { GarmentSeason } from "@/types/garment";
 import { toClassifiableGarment } from "./request";
+import { requiresMidLayerForColdUpper } from "./seasonalRules";
 import type { CandidateGarment, OutfitOption } from "./types";
 // ---------------------------------------------------------------------------
 // Local emergency stylist (graceful degradation): when Groq fails after
@@ -35,7 +36,7 @@ function seasonFitScore(
   if (temperatureC >= HEAT_THRESHOLD_C) {
     return season === "summer" || season === "all" ? 0 : 1;
   }
-  if (temperatureC < COLD_THRESHOLD_C) {
+  if (temperatureC <= COLD_THRESHOLD_C) {
     return season === "winter" ||
       season === "mid_season" ||
       season === "all"
@@ -84,8 +85,27 @@ export function generateFallbackLook(
   temperatureC: number,
   requireOuterwear: boolean,
 ): OutfitOption[] {
+  const coldWeather = temperatureC <= COLD_THRESHOLD_C;
+  const hasMidLayer = pool.some(
+    (candidate) => categoryOf(candidate) === "mid_layer",
+  );
+  const seasonallyEligible = pool.filter((candidate) => {
+    if (!coldWeather || lockedIds.has(candidate.id)) {
+      return true;
+    }
+
+    const garment = toClassifiableGarment(candidate);
+    const category = categorizeGarment(garment);
+    if (category === "bottom" && candidate.season?.toLowerCase() === "summer") {
+      return false;
+    }
+    if (category === "top" || isOnePieceGarment(garment)) {
+      return !requiresMidLayerForColdUpper(candidate) || hasMidLayer;
+    }
+    return true;
+  });
   const byCategory = new Map<string, CandidateGarment[]>();
-  for (const candidate of pool) {
+  for (const candidate of seasonallyEligible) {
     const category = categoryOf(candidate);
     if (category === null) {
       continue;
@@ -147,6 +167,19 @@ export function generateFallbackLook(
     );
     if (footwear) {
       ids.push(footwear.id);
+    }
+    const lockedMidLayer = (byCategory.get("mid_layer") ?? []).some((candidate) =>
+      lockedIds.has(candidate.id),
+    );
+    if (lockedMidLayer || (coldWeather && requiresMidLayerForColdUpper(top))) {
+      const midLayer = pickCandidate(
+        byCategory.get("mid_layer") ?? [],
+        lockedIds,
+        temperatureC,
+      );
+      if (midLayer) {
+        ids.push(midLayer.id);
+      }
     }
     if (
       requireOuterwear ||

@@ -11,6 +11,7 @@ export type CategoryFilter =
   | "tops"
   | "bottoms"
   | "shoes"
+  | "mid_layer"
   | "outerwear";
 
 // Independent toggle: show only favorites. Combines with category + view.

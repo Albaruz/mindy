@@ -69,6 +69,8 @@ export interface GeneratorState {
   insufficientStyle: LookStyle | null;
   // Manual mode: show only favorites in carousels (independent filter)
   showFavorites: boolean;
+  // Manual mode: mid-layer is optional and excluded unless explicitly enabled.
+  midLayerIncluded: boolean;
   setView: (view: GeneratorView) => void;
   showCelebration: (garments: Garment[]) => void;
   dismissCelebration: () => void;
@@ -107,10 +109,12 @@ export interface GeneratorState {
   // Manual mode: toggle favorites filter
   setShowFavorites: (show: boolean) => void;
   toggleShowFavorites: () => void;
+  toggleMidLayerIncluded: () => void;
 }
 
 const CATEGORIES: readonly Category[] = [
   "top",
+  "mid_layer",
   "bottom",
   "footwear",
   "outerwear",
@@ -119,6 +123,7 @@ const CATEGORIES: readonly Category[] = [
 function createInitialSlots(): Record<Category, Slot> {
   return {
     top: { garment: null, isLocked: false },
+    mid_layer: { garment: null, isLocked: false },
     bottom: { garment: null, isLocked: false },
     footwear: { garment: null, isLocked: false },
     outerwear: { garment: null, isLocked: false },
@@ -140,6 +145,7 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
   activeLookIndex: 0,
   insufficientStyle: null,
   showFavorites: false,
+  midLayerIncluded: false,
 
   setView: (view) => {
     set({ view });
@@ -225,6 +231,7 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
       celebrationGarments: null,
       fallbackGarmentIds: [],
       insufficientStyle: null,
+      midLayerIncluded: false,
       slots: createInitialSlots(),
       dismissedIds: [],
       combineSuggestions: {},
@@ -275,6 +282,9 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
     const { slots } = get();
     return {
       top: slots.top.isLocked ? (slots.top.garment?.garmentId ?? null) : null,
+      mid_layer: slots.mid_layer.isLocked
+        ? (slots.mid_layer.garment?.garmentId ?? null)
+        : null,
       bottom:
         slots.bottom.isLocked
           ? (slots.bottom.garment?.garmentId ?? null)
@@ -335,6 +345,7 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
   resetCanvas: () => {
     set({
       slots: createInitialSlots(),
+      midLayerIncluded: false,
       dismissedIds: [],
       streamedLooks: [],
       fallbackGarmentIds: [],
@@ -359,5 +370,20 @@ export const useGeneratorStore = create<GeneratorState>()((set, get) => ({
   },
   toggleShowFavorites: () => {
     set((state) => ({ showFavorites: !state.showFavorites }));
+  },
+  toggleMidLayerIncluded: () => {
+    set((state) => {
+      const midLayerIncluded = !state.midLayerIncluded;
+      if (midLayerIncluded || !state.slots.mid_layer.isLocked) {
+        return { midLayerIncluded };
+      }
+      return {
+        midLayerIncluded,
+        slots: {
+          ...state.slots,
+          mid_layer: { ...state.slots.mid_layer, isLocked: false },
+        },
+      };
+    });
   },
 }));

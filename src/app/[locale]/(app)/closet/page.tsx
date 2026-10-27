@@ -32,6 +32,7 @@ import { ProcessingOverlay } from "@/components/ProcessingOverlay/ProcessingOver
 import { MAX_UPLOAD_BATCH_SIZE } from "@/constants/upload";
 import { useGarmentImageActions } from "@/features/closet/hooks/garment-actions/useGarmentImageActions";
 import { useToggleFavorite } from "@/features/closet/hooks/garment-actions/useToggleFavorite";
+import { CLOSET_EAGER_IMAGE_COUNT } from "@/constants/ui-config";
 import styles from "./page.module.scss";
 
 function toFormInput(garment: Garment): GarmentFormInput {
@@ -196,8 +197,8 @@ export default function ClosetPage() {
                         (garment) =>
                           !laundry.washingGarmentIds.has(garment.garmentId),
                       )
-                      .map((garment) =>
-                        inventory.inventoryView === "dirty" ? (
+                       .map((garment, index) =>
+                         inventory.inventoryView === "dirty" ? (
                           <motion.div
                             key={garment.garmentId}
                             layout
@@ -208,6 +209,7 @@ export default function ClosetPage() {
                               garment={garment}
                               onWash={laundry.wash}
                               isWashing={laundry.isWashing}
+                              imageLoading={index < CLOSET_EAGER_IMAGE_COUNT ? "eager" : "lazy"}
                             />
                           </motion.div>
                         ) : (
@@ -215,6 +217,7 @@ export default function ClosetPage() {
                             key={garment.garmentId}
                             garment={garment}
                             onEdit={setEditingGarment}
+                            imageLoading={index < CLOSET_EAGER_IMAGE_COUNT ? "eager" : "lazy"}
                           />
                         ),
                       )}

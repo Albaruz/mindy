@@ -231,16 +231,17 @@ describe("useGeneratorStore extended coverage", () => {
     ).toBe("b");
   });
 
-  it("getLockedGarmentIds reports all four slots", () => {
+  it("getLockedGarmentIds reports all five slots", () => {
     const ids = useGeneratorStore.getState().getLockedGarmentIds();
     expect(ids).toEqual({
       top: null,
+      mid_layer: null,
       bottom: null,
       footwear: null,
       outerwear: null,
     });
     (
-      ["top", "bottom", "footwear", "outerwear"] as const
+      ["top", "mid_layer", "bottom", "footwear", "outerwear"] as const
     ).forEach((category) => {
       useGeneratorStore
         .getState()
@@ -248,6 +249,7 @@ describe("useGeneratorStore extended coverage", () => {
     });
     expect(useGeneratorStore.getState().getLockedGarmentIds()).toEqual({
       top: "top-1",
+      mid_layer: "mid_layer-1",
       bottom: "bottom-1",
       footwear: "footwear-1",
       outerwear: "outerwear-1",
@@ -277,16 +279,31 @@ describe("useGeneratorStore residual coverage", () => {
 
   it("reports null ids for locks without a garment", () => {
     (
-      ["top", "bottom", "footwear", "outerwear"] as const
+      ["top", "mid_layer", "bottom", "footwear", "outerwear"] as const
     ).forEach((category) => {
       useGeneratorStore.getState().toggleLockGarment(category);
     });
     expect(useGeneratorStore.getState().getLockedGarmentIds()).toEqual({
       top: null,
+      mid_layer: null,
       bottom: null,
       footwear: null,
       outerwear: null,
     });
+  });
+
+  it("can exclude the optional mid-layer and unlock it without discarding the pick", () => {
+    const cardigan = buildGarment("cardigan", "mid_layer");
+    useGeneratorStore.getState().setGarment("mid_layer", cardigan);
+    useGeneratorStore.getState().toggleLockGarment("mid_layer", cardigan);
+    useGeneratorStore.getState().toggleMidLayerIncluded();
+
+    expect(useGeneratorStore.getState().midLayerIncluded).toBe(true);
+    useGeneratorStore.getState().toggleMidLayerIncluded();
+
+    expect(useGeneratorStore.getState().midLayerIncluded).toBe(false);
+    expect(useGeneratorStore.getState().slots.mid_layer.isLocked).toBe(false);
+    expect(useGeneratorStore.getState().slots.mid_layer.garment).toBe(cardigan);
   });
 
   it("dismissGarment on an empty slot keeps dismissedIds unchanged", () => {

@@ -7,6 +7,7 @@ export type SkeletonVariant =
   | "top"
   | "bottom"
   | "footwear"
+  | "mid_layer"
   | "outerwear"
   | "brand";
 
@@ -26,6 +27,9 @@ const THREAD_PATHS: Record<SkeletonVariant, string> = {
   // Sneaker side profile: sole, upper, collar, back to the heel.
   footwear:
     "M8 44 H56 C58 37 55 33 49 31 L42 29 L36 22 C34 19 30 19 28 22 L25 28 H16 C11 28 8 32 8 38 L8 44",
+  // Cardigan: open front, sleeves, and hip-length hem.
+  mid_layer:
+    "M22 56 V28 L14 24 L19 12 L28 18 L32 14 L36 18 L45 12 L50 24 L42 28 V56 H22 M32 18 V56",
   // Coat: long hem, sleeves, notched collar, back to the hem.
   outerwear:
     "M24 58 V30 L12 24 L18 12 L28 18 L32 14 L36 18 L46 12 L52 24 L40 30 V58 H24",

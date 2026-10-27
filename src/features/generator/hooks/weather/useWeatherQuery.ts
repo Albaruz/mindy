@@ -180,9 +180,9 @@ export function shouldShowOuterwear(
   if (!weather || weather.fallback) {
     return ownedCount > 0;
   }
-  const coldest = weather.dayLow ?? weather.temperatureC;
+  const coldest = Math.min(weather.temperatureC, weather.dayLow ?? weather.temperatureC);
   return (
-    coldest < COLD_THRESHOLD_C ||
+    coldest <= COLD_THRESHOLD_C ||
     isRainyCondition(weather.condition) ||
     isRainyCondition(weather.dayCondition) ||
     isRainExpected(weather.rainProbability)

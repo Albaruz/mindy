@@ -5,7 +5,7 @@ import styles from "./GarmentCard.module.scss";
 
 interface GarmentCardBaseProps {
   /** Garment photo and its descriptive alternative. */
-  image: { src: string | null; alt: string };
+  image: { src: string | null; alt: string; loading?: "lazy" | "eager" };
   title: string;
   subtitle?: string;
   /** Overlay action aligned to the inline start (e.g. favorite). */
@@ -48,6 +48,7 @@ export function GarmentCard({
       <GarmentImage
         src={image.src}
         alt={image.alt}
+        loading={image.loading}
         className={styles["garment-card__image"]}
         placeholderClassName={styles["garment-card__placeholder"]}
       />

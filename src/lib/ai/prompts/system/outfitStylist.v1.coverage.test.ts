@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { buildOutfitSystemPrompt } from "./outfitStylist.v1";
+import { buildOutfitSystemPromptV1 } from "./outfitStylist.v1";
 import type { ClimateInput } from "../types";
 
 const baseClimate: ClimateInput = { temperatureC: 21 };
 
-describe("buildOutfitSystemPrompt branch coverage", () => {
+describe("buildOutfitSystemPromptV1 branch coverage", () => {
   it("lists personal traits when the profile includes them", () => {
-    const prompt = buildOutfitSystemPrompt(
+    const prompt = buildOutfitSystemPromptV1(
       {
         colorimetry: null,
         morphology: null,
@@ -27,7 +27,7 @@ describe("buildOutfitSystemPrompt branch coverage", () => {
   });
 
   it("omits the traits section when the profile has none", () => {
-    const prompt = buildOutfitSystemPrompt(
+    const prompt = buildOutfitSystemPromptV1(
       {
         colorimetry: "winter",
         morphology: "rectangle",
@@ -44,7 +44,7 @@ describe("buildOutfitSystemPrompt branch coverage", () => {
   });
 
   it("labels locked garments with unknown attributes", () => {
-    const prompt = buildOutfitSystemPrompt(
+    const prompt = buildOutfitSystemPromptV1(
       null,
       baseClimate,
       [{ id: "g9", garmentType: null, color: null }],
@@ -57,7 +57,7 @@ describe("buildOutfitSystemPrompt branch coverage", () => {
   });
 
   it("mentions only the day range when rain data is absent", () => {
-    const prompt = buildOutfitSystemPrompt(
+    const prompt = buildOutfitSystemPromptV1(
       null,
       { temperatureC: 16, dayLow: 10, dayHigh: 18 },
       [],
@@ -69,7 +69,7 @@ describe("buildOutfitSystemPrompt branch coverage", () => {
   });
 
   it("mentions only rain probability when the day range is partial", () => {
-    const prompt = buildOutfitSystemPrompt(
+    const prompt = buildOutfitSystemPromptV1(
       null,
       { temperatureC: 16, dayLow: 10, rainProbability: 40 },
       [],

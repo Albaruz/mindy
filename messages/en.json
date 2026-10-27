@@ -92,6 +92,7 @@
     "garmentFallback": "Garment",
     "carousels": {
       "top": "Top",
+      "mid_layer": "Mid-layer",
       "bottom": "Bottom",
       "footwear": "Footwear",
       "outerwear": "Outerwear"
@@ -152,6 +153,7 @@
       "tops": "Tops",
       "bottoms": "Bottoms",
       "shoes": "Shoes",
+      "mid_layer": "Mid-layers",
       "outerwear": "Outerwear",
       "favorites": "Favorites"
     },
@@ -495,6 +497,8 @@
     "lockedGarment": "{title} is locked",
     "unlockGarment": "Unlock {title}",
     "changeGarment": "Change {title}",
+    "showLayer": "Show and include {title}",
+    "hideLayer": "Hide and exclude {title}",
     "combineLocked": "Combine locked garments",
     "resetLocks": "Unlock all and reset",
     "previousGarment": "Previous {title}",
@@ -518,7 +522,11 @@
     "back": "Go back",
     "skipToContent": "Skip to content"
   },
-  "Garments": {},
+  "Garments": {
+    "types": {
+      "mid_layer": "Mid-layer"
+    }
+  },
   "Errors": {
     "title": "Something went wrong",
     "message": "This section could not be loaded. Try again or go back to the generator.",

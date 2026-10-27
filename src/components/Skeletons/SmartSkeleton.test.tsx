@@ -12,6 +12,7 @@ const VARIANTS: SkeletonVariant[] = [
   "top",
   "bottom",
   "footwear",
+  "mid_layer",
   "outerwear",
   "brand",
 ];

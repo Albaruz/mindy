@@ -11,6 +11,9 @@
 /** Number of garment cards rendered per closet page. */
 export const CLOSET_PAGE_SIZE = 24;
 
+/** Load a few initial closet photos eagerly so visible cards paint immediately. */
+export const CLOSET_EAGER_IMAGE_COUNT = 4;
+
 /** Minimum body measurement accepted in onboarding (cm) */
 export const MEASURE_MIN_CM = 70;
 

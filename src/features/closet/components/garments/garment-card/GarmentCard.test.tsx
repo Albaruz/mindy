@@ -69,6 +69,11 @@ describe("GarmentCard", () => {
     expect(screen.getByRole("img")).toHaveAttribute("alt", "top (black · all)");
   });
 
+  it("can eagerly load an above-the-fold closet photo", () => {
+    render(<GarmentCard garment={buildGarment()} imageLoading="eager" />);
+    expect(screen.getByRole("img")).toHaveAttribute("loading", "eager");
+  });
+
   it("renders placeholder without image", () => {
     render(<GarmentCard garment={buildGarment({ imageUrl: null })} />);
     expect(screen.queryByRole("img")).not.toBeInTheDocument();

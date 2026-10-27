@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { AnimatePresence } from "framer-motion";
 import { X, ChevronLeft } from "lucide-react";
 import { SmartSkeleton } from "@/components/Skeletons/SmartSkeleton";
+import type { SkeletonVariant } from "@/components/Skeletons/SmartSkeleton";
 import { EmptyState } from "@/components/EmptyState/EmptyState";
 import { BottomActionBar } from "@/components/BottomActionBar/BottomActionBar";
 import { Button } from "@/components/Button/Button";
@@ -69,15 +70,21 @@ const ignoreLookAction = () => undefined;
 
 function LoadingLooks({
   showOuterwear,
+  showMidLayer,
   preview,
 }: {
   showOuterwear: boolean;
+  showMidLayer: boolean;
   preview: AiLook | null;
 }) {
   const t = useTranslations("Generator");
-  const variants = (
-    showOuterwear ? ["outerwear", "top", "bottom", "footwear"] : ["top", "bottom", "footwear"]
-  ) as ("outerwear" | "top" | "bottom" | "footwear")[];
+  const variants: SkeletonVariant[] = [
+    ...(showOuterwear ? (["outerwear"] as const) : []),
+    ...(showMidLayer ? (["mid_layer"] as const) : []),
+    "top",
+    "bottom",
+    "footwear",
+  ];
   return (
     <div
       role="status"
@@ -162,6 +169,7 @@ export function Home() {
       : { ...weather, ...selectedWeather },
     byCategory.outerwear.length,
   );
+  const showMidLayer = byCategory.mid_layer.length > 0;
   const readiness = getGeneratorReadiness(garments);
 
   const recommenderProfile: RecommenderProfile | null =
@@ -322,6 +330,7 @@ export function Home() {
       {view === "loading" || generateLooks.isPending ? (
         <LoadingLooks
           showOuterwear={showOuterwear}
+          showMidLayer={showMidLayer}
           preview={streamedLooks[0] ?? null}
         />
       ) : null}

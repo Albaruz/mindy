@@ -4,9 +4,13 @@ import {
   RAINY_CONDITIONS,
   isRainVulnerableMaterial,
 } from "@/constants/weather";
-import { categorizeGarment } from "@/lib/garment/categorizeGarments";
+import {
+  categorizeGarment,
+  isOnePieceGarment,
+} from "@/lib/garment/categorizeGarments";
 import { toClassifiableGarment } from "./request";
-import type { CandidateGarment } from "./types";
+import { requiresMidLayerForColdUpper } from "./seasonalRules";
+import type { CandidateGarment, OutfitOption } from "./types";
 // Above the heat threshold, winter garments stay out of the LLM context
 // unless the user explicitly selected one as a favorite. The filter runs on
 // the minimized candidate list, so excluded items are never serialized.
@@ -70,4 +74,46 @@ export function poolHasOuterwear(pool: CandidateGarment[]): boolean {
     (candidate) =>
       categorizeGarment(toClassifiableGarment(candidate)) === "outerwear",
   );
+}
+
+/** Enforces the cold-weather contract for summer garments in generated looks. */
+export function filterColdWeatherOutfitOptions(
+  options: OutfitOption[],
+  candidates: CandidateGarment[],
+  lockedIds: Set<string>,
+  coldWeather: boolean,
+): OutfitOption[] {
+  if (!coldWeather) {
+    return options;
+  }
+
+  const byId = new Map(candidates.map((candidate) => [candidate.id, candidate]));
+  return options.filter((option) => {
+    const selected = option.garmentIds
+      .map((id) => byId.get(id))
+      .filter((candidate): candidate is CandidateGarment => candidate !== undefined);
+    const hasMidLayer = selected.some(
+      (candidate) =>
+        categorizeGarment(toClassifiableGarment(candidate)) === "mid_layer",
+    );
+
+    return selected.every((candidate) => {
+      if (lockedIds.has(candidate.id)) {
+        return true;
+      }
+
+      const garment = toClassifiableGarment(candidate);
+      const category = categorizeGarment(garment);
+      if (category === "bottom" && candidate.season?.toLowerCase() === "summer") {
+        return false;
+      }
+      if (
+        category !== "top" &&
+        !isOnePieceGarment(garment)
+      ) {
+        return true;
+      }
+      return !requiresMidLayerForColdUpper(candidate) || hasMidLayer;
+    });
+  });
 }

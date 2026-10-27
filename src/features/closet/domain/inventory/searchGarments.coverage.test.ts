@@ -142,6 +142,12 @@ describe("matchesGarmentCategory branches", () => {
     ).toBe(true);
     expect(
       matchesGarmentCategory(
+        buildGarment({ garmentType: "mid_layer" }),
+        "mid_layer",
+      ),
+    ).toBe(true);
+    expect(
+      matchesGarmentCategory(
         buildGarment({ garmentType: "footwear" }),
         "outerwear",
       ),

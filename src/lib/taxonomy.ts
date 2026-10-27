@@ -14,6 +14,10 @@ export const garmentTaxonomy: Record<string, string[]> = {
   calzado: ["footwear", "shoes", "sneakers", "boots", "flats", "heels", "sandals", "zapatos", "zapatillas", "botas", "tacones", "sandalias"],
   // Macro: outerwear.
   abrigo: ["outerwear", "jacket", "coat", "blazer", "chaqueta", "cazadora", "americana"],
+  // Mid-layers sit between a base top and a coat and are washable.
+  "capa intermedia": ["mid_layer", "cardigan", "rebeca", "chaleco", "vest", "waistcoat"],
+  sobrecamisa: ["mid_layer", "overshirt", "cardigan", "rebeca", "chaleco"],
+  "mid layer": ["mid_layer", "cardigan", "rebeca", "chaleco", "vest"],
   // General apparel, Spanish to English.
   zapatos: ["footwear", "shoes", "sneakers", "boots", "flats", "heels", "sandals", "zapatos", "zapatillas", "botas"],
   zapato: ["footwear", "shoes", "sneakers", "boots", "flats", "zapatos", "zapatillas"],

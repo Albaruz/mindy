@@ -25,15 +25,14 @@ function normalize(value: string): string {
 }
 
 // Client hook: curried translator bound to the active next-intl locale.
-// Spanish maps stored values through the Garments dictionaries (specific
-// AI details via "specifics"); English or unknown values return the
-// original untouched. Nullish input stays nullish.
+// Stored values resolve through the Garments dictionaries; unknown values
+// (including specific AI details) return the original untouched.
 export function useGarmentTranslator() {
   const locale = useLocale();
   const t = useTranslations("Garments");
 
   const lookup = (key: string): string | null =>
-    locale === "es" && t.has(key) ? t(key) : null;
+    typeof t.has === "function" && t.has(key) ? t(key) : null;
 
   return {
     locale,
@@ -43,9 +42,6 @@ export function useGarmentTranslator() {
     ): string | null => {
       if (value === null || value === undefined || value === "") {
         return null;
-      }
-      if (locale !== "es") {
-        return value;
       }
       const key = normalize(value);
       return (

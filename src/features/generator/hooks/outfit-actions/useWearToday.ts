@@ -13,8 +13,8 @@ import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { requireUser } from "@/lib/supabase/session";
 
 // Persists the current canvas as today's look: inserts an outfit_history row
-// with the full look (footwear and outerwear included) but only marks tops
-// and bottoms as dirty. Shoes and outerwear are reusable across wears.
+// with the full look (footwear and both layers included) but only marks
+// washable garments as dirty. Shoes and heavy outerwear are reusable.
 export function useWearToday() {
   const queryClient = useQueryClient();
   const t = useTranslations("Notifications");
@@ -41,7 +41,7 @@ export function useWearToday() {
         throw historyError;
       }
 
-      // Reusable garments (footwear, outerwear) never count as dirty.
+      // Only footwear and heavy outerwear are reusable; mid-layers are washable.
       const dirtyIds = wornGarments
         .filter(isWashableGarment)
         .map((garment) => garment.garmentId);

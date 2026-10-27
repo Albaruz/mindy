@@ -27,8 +27,8 @@ async function fetchDirtyGarments(): Promise<Garment[]> {
   if (error) {
     throw error;
   }
-  // Shoes and outerwear never belong in the basket, even when older rows
-  // still carry is_dirty from before the exemption.
+  // Footwear and heavy outerwear never belong in the basket, even when older
+  // rows still carry is_dirty from before the exemption. Mid-layers are washable.
   return (data as unknown as GarmentRow[])
     .map(toGarment)
     .filter(isWashableGarment);

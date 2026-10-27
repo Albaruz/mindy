@@ -42,6 +42,28 @@ describe("categorizeGarment", () => {
     expect(categorizeGarment(buildGarment({ garmentType: "outerwear" }))).toBe(
       "outerwear",
     );
+    expect(categorizeGarment(buildGarment({ garmentType: "mid_layer" }))).toBe(
+      "mid_layer",
+    );
+  });
+
+  it("recognizes un-migrated mid-layers from their preserved specific type", () => {
+    expect(
+      categorizeGarment(
+        buildGarment({
+          garmentType: "outerwear",
+          extraTags: { specificType: "Cardigan", aiCategory: "outerwear" },
+        }),
+      ),
+    ).toBe("mid_layer");
+    expect(
+      categorizeGarment(
+        buildGarment({
+          garmentType: "top",
+          extraTags: { specificType: "open-front cardigan", aiCategory: "top" },
+        }),
+      ),
+    ).toBe("mid_layer");
   });
 
   it("maps dress to top slot", () => {
@@ -90,13 +112,24 @@ describe("isOnePieceGarment", () => {
 });
 
 describe("isLaundryExemptGarment", () => {
-  it("exempts footwear and outerwear only", () => {
+  it("exempts footwear and heavy outerwear but not mid-layers", () => {
     expect(
       isLaundryExemptGarment(buildGarment({ garmentType: "footwear" })),
     ).toBe(true);
     expect(
       isLaundryExemptGarment(buildGarment({ garmentType: "outerwear" })),
     ).toBe(true);
+    expect(
+      isLaundryExemptGarment(buildGarment({ garmentType: "mid_layer" })),
+    ).toBe(false);
+    expect(
+      isLaundryExemptGarment(
+        buildGarment({
+          garmentType: "outerwear",
+          extraTags: { specificType: "rebeca" },
+        }),
+      ),
+    ).toBe(false);
     expect(isLaundryExemptGarment(buildGarment({ garmentType: "top" }))).toBe(
       false,
     );

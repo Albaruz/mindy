@@ -10,6 +10,7 @@ import type {
   GARMENT_COLOR_VALUES,
   GARMENT_CUT_VALUES,
   GARMENT_MATERIAL_VALUES,
+  GARMENT_PRINT_VALUES,
   GARMENT_SEASON_VALUES,
   GARMENT_STYLE_VALUES,
   GARMENT_TYPE_VALUES,
@@ -20,6 +21,7 @@ export type GarmentStyle = (typeof GARMENT_STYLE_VALUES)[number];
 export type GarmentCut = (typeof GARMENT_CUT_VALUES)[number];
 export type GarmentColor = (typeof GARMENT_COLOR_VALUES)[number];
 export type GarmentMaterial = (typeof GARMENT_MATERIAL_VALUES)[number];
+export type GarmentPrint = (typeof GARMENT_PRINT_VALUES)[number];
 export type GarmentSeason = (typeof GARMENT_SEASON_VALUES)[number];
 /** Vision's assessment of how difficult a clean garment cutout will be. */
 export type CutoutDifficulty = (typeof CUTOUT_DIFFICULTY_VALUES)[number];
@@ -83,4 +85,4 @@ export interface Garment {
 
 // Generator slot / carousel category: the macro group a garment belongs to
 // (a dress covers top + bottom, see lib/garment/categorizeGarments).
-export type Category = "top" | "bottom" | "footwear" | "outerwear";
+export type Category = "top" | "bottom" | "footwear" | "mid_layer" | "outerwear";
