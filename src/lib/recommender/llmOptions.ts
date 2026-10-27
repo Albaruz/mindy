@@ -222,9 +222,18 @@ export function filterValidOutfitOptions(
     const selected = option.garmentIds
       .map((id) => byId.get(id))
       .filter((candidate): candidate is CandidateGarment => candidate !== undefined);
-    const categories = new Set(
-      selected.map((candidate) => categorizeGarment(toClassifiableGarment(candidate))),
+    const selectedCategories = selected.map((candidate) =>
+      categorizeGarment(toClassifiableGarment(candidate)),
     );
+    const categories = new Set(
+      selectedCategories,
+    );
+    if (
+      selectedCategories.filter((category) => category === "mid_layer").length > 1 ||
+      selectedCategories.filter((category) => category === "outerwear").length > 1
+    ) {
+      return false;
+    }
     const hasOnePiece = selected.some((candidate) =>
       isOnePieceGarment(toClassifiableGarment(candidate)),
     );
@@ -243,7 +252,7 @@ export function filterValidOutfitOptions(
  * - No repeated tops across options
  * - No repeated bottoms across options
  * - Locked garments are exempt (must appear in all options)
- * - Footwear and outerwear may repeat
+ * - Footwear, mid-layers and outerwear may repeat
  * Keeps the highest-suitability option when conflicts occur.
  */
 export function enforceVarietyAcrossOptions(

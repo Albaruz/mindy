@@ -13,6 +13,7 @@ interface GarmentCardProps {
   onEdit?: (garment: Garment) => void;
   onWash?: (garment: Garment) => void;
   isWashing?: boolean;
+  imageLoading?: "lazy" | "eager";
 }
 
 /**
@@ -24,6 +25,7 @@ export function GarmentCard({
   onEdit,
   onWash,
   isWashing = false,
+  imageLoading = "lazy",
 }: GarmentCardProps) {
   const { title, subtitle, imageAlt } = useGarmentCardContent(garment);
   const ta = useTranslations("Accessibility");
@@ -33,7 +35,7 @@ export function GarmentCard({
 
   return (
     <GarmentCardBase
-      image={{ src: garment.imageUrl, alt: imageAlt }}
+      image={{ src: garment.imageUrl, alt: imageAlt, loading: imageLoading }}
       title={title}
       subtitle={subtitle}
       leadingAction={

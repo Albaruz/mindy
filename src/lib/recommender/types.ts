@@ -1,6 +1,7 @@
 import type {
   GarmentColor,
   GarmentMaterial,
+  GarmentPrint,
   GarmentSeason,
   GarmentStyle,
   GarmentType,
@@ -18,6 +19,9 @@ export interface CandidateGarment {
   // Free-text material detail (suede/gamuza/ante) for the rain rule: suede
   // has no closed value, so the closed material column cannot catch it.
   materialDetail: string | null;
+  /** Closed pattern tag and normalized secondary hue read from extra_tags. */
+  print?: GarmentPrint | null;
+  secondaryColor?: GarmentColor | null;
   typeDetail?: string | null;
   visualDescription?: string | null;
   season: GarmentSeason | null;

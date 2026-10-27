@@ -15,10 +15,17 @@ import {
 import type { Category, Garment } from "@/types/garment";
 import styles from "./FavoritesSelectionStep.module.scss";
 
-const CATEGORIES_ORDER: Category[] = ["top", "bottom", "footwear", "outerwear"];
+const CATEGORIES_ORDER: Category[] = [
+  "top",
+  "mid_layer",
+  "bottom",
+  "footwear",
+  "outerwear",
+];
 
 const CATEGORY_LABELS: Record<Category, string> = {
   top: "carousels.top",
+  mid_layer: "carousels.mid_layer",
   bottom: "carousels.bottom",
   footwear: "carousels.footwear",
   outerwear: "carousels.outerwear",

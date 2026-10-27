@@ -6,9 +6,18 @@
 // response identically; the client re-caps defensively.
 export const MAX_LOOK_OPTIONS = 3;
 
+// Outfit schemas allow a top, bottom, footwear, mid-layer, and outerwear.
+export const MAX_GARMENTS_PER_OPTION = 5;
+
+// Outfit schemas require at least one garment per option.
+export const MIN_GARMENTS_PER_OPTION = 1;
+
 // Chance per generated look to substitute a compatible garment with one of
 // the user's optional favorites. Explicitly selected favorites remain forced.
 export const FAVORITE_LOOK_INCLUSION_PROBABILITY = 0.25;
+
+/** Chance that an automatically generated look includes a mid-layer when available. */
+export const MID_LAYER_LOOK_INCLUSION_PROBABILITY = 0.35;
 
 // Auto-mode rejection budget: at most 4 left-swipes per generation
 // before the limit empty state takes over.

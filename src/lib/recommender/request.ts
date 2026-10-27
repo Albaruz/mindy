@@ -1,5 +1,6 @@
 // Readers that turn the untrusted request body into the typed values the
 // recommender works with. Nothing here trusts client input.
+import { GARMENT_PRINT_VALUES } from "@/constants/garment";
 import { DEFAULT_TEMPERATURE_C } from "@/constants/weather";
 import { type StylistProfile } from "@/lib/ai/prompts";
 import { resolvePreferredLocale } from "@/lib/negotiateLocale";
@@ -12,7 +13,13 @@ import {
   normalizeGarmentType,
 } from "@/lib/garment/normalizers";
 import { readString } from "@/lib/readers";
-import type { Garment, GarmentSeason, GarmentStyle } from "@/types/garment";
+import type {
+  Garment,
+  GarmentColor,
+  GarmentPrint,
+  GarmentSeason,
+  GarmentStyle,
+} from "@/types/garment";
 import type { CandidateGarment } from "./types";
 function readClosed<T extends string>(
   value: unknown,
@@ -61,6 +68,22 @@ function readExtraText(value: unknown, ...keys: string[]): string | null {
   return null;
 }
 
+function readExtraPrint(value: unknown): GarmentPrint | null {
+  const raw = readExtraText(value, "print");
+  if (raw === null) return null;
+  const normalized = raw.toLowerCase().replace(/[\s-]+/g, "_");
+  return (GARMENT_PRINT_VALUES as readonly string[]).includes(normalized)
+    ? (normalized as GarmentPrint)
+    : null;
+}
+
+function readExtraSecondaryColor(value: unknown): GarmentColor | null {
+  return readClosed(
+    readExtraText(value, "secondary_color", "secondaryColor"),
+    normalizeGarmentColor,
+  );
+}
+
 export function toCandidate(raw: unknown): CandidateGarment | null {
   if (typeof raw !== "object" || raw === null) {
     return null;
@@ -87,6 +110,8 @@ export function toCandidate(raw: unknown): CandidateGarment | null {
     materialDetail: readMaterialDetail(
       extraTags,
     ),
+    print: readExtraPrint(extraTags),
+    secondaryColor: readExtraSecondaryColor(extraTags),
     typeDetail: readExtraText(extraTags, "specificType", "typeDetail"),
     visualDescription: readExtraText(extraTags, "visualDescription"),
     season: readClosed(record.season, normalizeGarmentSeason),
@@ -184,7 +209,10 @@ export function toClassifiableGarment(candidate: CandidateGarment): Garment {
     isDirty: candidate.isDirty,
     lastWornDate: null,
     isExternalGarment: false,
-    extraTags: { styles: candidate.styles },
+    extraTags: {
+      styles: candidate.styles,
+      ...(candidate.typeDetail ? { specificType: candidate.typeDetail } : {}),
+    },
     createdAt: "",
     isFavorite: false,
   };

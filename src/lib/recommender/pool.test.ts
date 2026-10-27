@@ -85,6 +85,31 @@ describe("capBalancedPool", () => {
     expect(capped.slice(0, 16).map((item) => item.id)).toEqual(
       priority.map((item) => item.id),
     );
-    expect(capped.some((item) => item.id === "bottom-0")).toBe(true);
+    expect(capped.some((item) => item.garmentType === "bottom")).toBe(true);
+  });
+
+  it("samples different equal-quality garments across generations", () => {
+    const pool = [
+      ...Array.from({ length: 16 }, (_, index) =>
+        candidate(`top-${index}`, "top"),
+      ),
+      ...Array.from({ length: 16 }, (_, index) =>
+        candidate(`bottom-${index}`, "bottom"),
+      ),
+    ];
+    const first = capBalancedPool(pool, new Set(), new Set(), () => 0);
+    const second = capBalancedPool(pool, new Set(), new Set(), () => 0.99);
+
+    expect(first).toHaveLength(25);
+    expect(second).toHaveLength(25);
+    expect(
+      first
+        .filter((item) => item.garmentType === "top")
+        .map((item) => item.id),
+    ).not.toEqual(
+      second
+        .filter((item) => item.garmentType === "top")
+        .map((item) => item.id),
+    );
   });
 });

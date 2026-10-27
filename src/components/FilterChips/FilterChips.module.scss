@@ -5,10 +5,17 @@
   gap: 0.5rem;
   overflow-x: auto;
   padding-bottom: 0.25rem;
+  scroll-behavior: smooth;
   scrollbar-width: none;
 
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row {
+    scroll-behavior: auto;
   }
 }
 

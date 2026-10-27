@@ -7,6 +7,7 @@ import {
   AI_RETRY_DELAY_MS,
   AI_MAX_RETRY_DELAY_MS,
   AI_TEMPERATURE,
+  AI_REASONING_EFFORT,
   AI_MAX_TOKENS,
   AI_REPAIR_MAX_TOKENS,
   AI_RESPONSE_FORMAT,
@@ -29,6 +30,17 @@ function getClient(): Groq {
     client = new Groq({ apiKey });
   }
   return client;
+}
+
+function getModelReasoningOptions(model: string) {
+  if (!model.startsWith("openai/gpt-oss-")) {
+    return {};
+  }
+
+  return {
+    reasoning_effort: AI_REASONING_EFFORT,
+    include_reasoning: false,
+  };
 }
 
 function isJsonValidationError(error: unknown): boolean {
@@ -145,6 +157,7 @@ async function generateWithModel(
       model,
       temperature: AI_TEMPERATURE,
       max_completion_tokens: maxTokens,
+      ...getModelReasoningOptions(model),
       response_format: AI_RESPONSE_FORMAT,
       messages: [
         { role: "system", content: systemPrompt },
@@ -228,6 +241,7 @@ export async function generateOutfitRecommendationStream(
           model: modelToUse,
           temperature: AI_TEMPERATURE,
           max_completion_tokens: maxTokens,
+          ...getModelReasoningOptions(modelToUse),
           response_format: AI_RESPONSE_FORMAT,
           stream: true,
           messages: [
@@ -323,6 +337,7 @@ export async function generateStructuredOutfitRecommendation(
         model: AI_MODEL,
         temperature: AI_TEMPERATURE,
         max_completion_tokens: AI_MAX_TOKENS,
+        ...getModelReasoningOptions(AI_MODEL),
         response_format: AI_STRUCTURED_RESPONSE_FORMAT,
         messages: [
           { role: "system", content: systemPrompt },

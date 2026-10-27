@@ -35,6 +35,13 @@ describe("normalizeGarmentType", () => {
     });
   });
 
+  it("classifies cardigans and vests as mid-layers", () => {
+    expect(normalizeGarmentType("Cardigan").base).toBe("mid_layer");
+    expect(normalizeGarmentType("chaleco").base).toBe("mid_layer");
+    expect(normalizeGarmentType("waistcoat").base).toBe("mid_layer");
+    expect(normalizeGarmentType("chaqueta").base).toBe("outerwear");
+  });
+
   it("returns null base for unknown and non-string", () => {
     expect(normalizeGarmentType("spaceship")).toEqual({
       base: null,

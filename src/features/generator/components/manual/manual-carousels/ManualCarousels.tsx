@@ -66,6 +66,10 @@ export function ManualCarousels({
   const toggleLockGarment = useGeneratorStore(
     (state) => state.toggleLockGarment,
   );
+  const midLayerIncluded = useGeneratorStore((state) => state.midLayerIncluded);
+  const toggleMidLayerIncluded = useGeneratorStore(
+    (state) => state.toggleMidLayerIncluded,
+  );
   const setGarment = useGeneratorStore((state) => state.setGarment);
   const dismissGarment = useDismissGarment();
   const combineLocked = useCombineLocked();
@@ -94,6 +98,7 @@ export function ManualCarousels({
   const orderedByCategory = useMemo(() => {
     const ordered: Record<Category, Garment[]> = {
       top: [...byCategory.top],
+      mid_layer: [...byCategory.mid_layer],
       bottom: [...byCategory.bottom],
       footwear: [...byCategory.footwear],
       outerwear: [...byCategory.outerwear],
@@ -119,6 +124,7 @@ export function ManualCarousels({
       : { ...weather, ...selectedWeather },
     orderedByCategory.outerwear.length,
   );
+  const showMidLayer = orderedByCategory.mid_layer.length > 0;
   const topIsOnePiece = isOnePieceGarment(slots.top.garment);
 
   const recommenderProfile: RecommenderProfile | null =
@@ -143,12 +149,19 @@ export function ManualCarousels({
       }
     }
     if (
+      midLayerIncluded &&
+      current.mid_layer.garment === null &&
+      orderedByCategory.mid_layer.length > 0
+    ) {
+      assign("mid_layer", orderedByCategory.mid_layer[0]);
+    }
+    if (
       current.outerwear.garment === null &&
       orderedByCategory.outerwear.length > 0
     ) {
       assign("outerwear", orderedByCategory.outerwear[0]);
     }
-  }, [orderedByCategory]);
+  }, [orderedByCategory, midLayerIncluded]);
 
   const handleSlideChange = (category: Category, index: number) => {
     const garment = orderedByCategory[category][index];
@@ -176,9 +189,12 @@ export function ManualCarousels({
   const manualGarments = useMemo(
     () =>
       (Object.keys(slots) as (keyof typeof slots)[]).flatMap((category) =>
-        slots[category].garment !== null ? [slots[category].garment] : [],
+        slots[category].garment !== null &&
+        (category !== "mid_layer" || midLayerIncluded)
+          ? [slots[category].garment]
+          : [],
       ),
-    [slots],
+    [slots, midLayerIncluded],
   );
 
   const handleWearManual = () => {
@@ -198,6 +214,13 @@ export function ManualCarousels({
 
   const renderCarousel = (category: Category) => {
     const isLocked = slots[category].isLocked;
+    const inclusionControl =
+      category === "mid_layer"
+        ? {
+            state: midLayerIncluded ? ("included" as const) : ("excluded" as const),
+            onToggle: toggleMidLayerIncluded,
+          }
+        : undefined;
     return (
       <CategoryCarousel
         key={category}
@@ -209,6 +232,7 @@ export function ManualCarousels({
         // Locked carousels stay static during inference; unlocked ones
         // show skeletons until the suggestions land.
         isLoading={isPending || (combineLocked.isPending && !isLocked)}
+        inclusionControl={inclusionControl}
         onSlideChange={handleSlideChange}
         onToggleLock={handleToggleLock}
         onChangeGarment={handleChangeGarment}
@@ -223,9 +247,10 @@ export function ManualCarousels({
     <div className={styles["manual-carousels"]} data-testid="generator-manual">
       <div className={styles["manual-carousels__carousels"]}>
         {showOuterwear ? renderCarousel("outerwear") : null}
-        {BASE_CAROUSELS.filter(
-          ({ category }) => !(category === "bottom" && topIsOnePiece),
-        ).map(({ category }) => renderCarousel(category))}
+        {showMidLayer ? renderCarousel("mid_layer") : null}
+        {renderCarousel("top")}
+        {topIsOnePiece ? null : renderCarousel("bottom")}
+        {renderCarousel("footwear")}
       </div>
       <BottomActionBar
         label={ta("lookActions")}

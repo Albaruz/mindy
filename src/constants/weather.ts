@@ -72,7 +72,7 @@ export function getSeasonalFallbackWeather(
 // Above this, winter garments never reach the recommendation engine.
 export const HEAT_THRESHOLD_C = 25;
 
-// Below this, outerwear leads the stack.
+// At or below this, cold-weather layering and outerwear lead the stack.
 export const COLD_THRESHOLD_C = 15;
 
 // Outdoor conditions that call for an outerwear layer. Lowercase entries:

@@ -92,6 +92,7 @@
     "garmentFallback": "Prenda",
     "carousels": {
       "top": "Parte superior",
+      "mid_layer": "Capa intermedia",
       "bottom": "Parte inferior",
       "footwear": "Calzado",
       "outerwear": "Abrigo"
@@ -152,6 +153,7 @@
       "tops": "Partes de arriba",
       "bottoms": "Partes de abajo",
       "shoes": "Zapatos",
+      "mid_layer": "Capas intermedias",
       "outerwear": "Abrigos",
       "favorites": "Favoritos"
     },
@@ -477,6 +479,8 @@
     "lockedGarment": "{title} está bloqueado",
     "unlockGarment": "Desbloquear {title}",
     "changeGarment": "Cambiar {title}",
+    "showLayer": "Mostrar e incluir {title}",
+    "hideLayer": "Ocultar y excluir {title}",
     "combineLocked": "Combinar prendas bloqueadas",
     "resetLocks": "Desbloquear todo y reiniciar",
     "previousGarment": "Anterior {title}",
@@ -506,6 +510,7 @@
       "bottom": "Prenda inferior",
       "dress": "Vestido",
       "outerwear": "Abrigo",
+      "mid_layer": "Capa intermedia",
       "footwear": "Calzado"
     },
     "colors": {

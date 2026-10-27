@@ -22,7 +22,13 @@ export function canBuildLook(pool: CandidateGarment[]): boolean {
 }
 
 // Balance helper: stable category order for the token-budget cap.
-const POOL_CATEGORY_ORDER = ["top", "bottom", "footwear", "outerwear"];
+const POOL_CATEGORY_ORDER = [
+  "top",
+  "mid_layer",
+  "bottom",
+  "footwear",
+  "outerwear",
+];
 
 function candidateQualityScore(candidate: CandidateGarment): number {
   return [
@@ -36,10 +42,41 @@ function candidateQualityScore(candidate: CandidateGarment): number {
   ].filter((value) => typeof value === "string" && value !== "").length;
 }
 
+type RandomSource = () => number;
+
+function shuffle<T>(entries: T[], random: RandomSource): T[] {
+  const shuffled = [...entries];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const target = Math.floor(random() * (index + 1));
+    [shuffled[index], shuffled[target]] = [shuffled[target]!, shuffled[index]!];
+  }
+  return shuffled;
+}
+
+// Keep richer candidates first, but randomize equal-quality groups so repeated
+// generations do not always send the same items from a large closet to the LLM.
+function orderByQualityWithRandomTies(
+  entries: CandidateGarment[],
+  random: RandomSource,
+): CandidateGarment[] {
+  const byQuality = new Map<number, CandidateGarment[]>();
+  for (const candidate of entries) {
+    const score = candidateQualityScore(candidate);
+    const group = byQuality.get(score) ?? [];
+    group.push(candidate);
+    byQuality.set(score, group);
+  }
+
+  return [...byQuality.keys()]
+    .sort((a, b) => b - a)
+    .flatMap((score) => shuffle(byQuality.get(score) ?? [], random));
+}
+
 export function capBalancedPool(
   pool: CandidateGarment[],
   lockedIds: Set<string>,
   priorityIds: Set<string> = new Set(),
+  random: RandomSource = Math.random,
 ): CandidateGarment[] {
   if (pool.length <= RECOMMENDER_MAX_GARMENTS) {
     return pool;
@@ -69,8 +106,12 @@ export function capBalancedPool(
     list.push(candidate);
     groups.set(category, list);
   }
-  for (const list of groups.values()) {
-    list.sort((a, b) => candidateQualityScore(b) - candidateQualityScore(a));
+  for (const [category, list] of groups) {
+    if (POOL_CATEGORY_ORDER.includes(category)) {
+      groups.set(category, orderByQualityWithRandomTies(list, random));
+    } else {
+      list.sort((a, b) => candidateQualityScore(b) - candidateQualityScore(a));
+    }
   }
   const ordered = POOL_CATEGORY_ORDER.filter((category) =>
     groups.has(category),

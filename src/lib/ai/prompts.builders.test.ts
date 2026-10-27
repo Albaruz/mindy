@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { buildAnalysisPrompt, buildOutfitPrompt } from "./prompts/index";
-import { buildAnalysisSystemPrompt } from "./prompts/system/garmentAnalysis.v1";
+import { buildAnalysisSystemPromptV1 } from "./prompts/system/garmentAnalysis.v1";
 import { buildAnalysisSystemPromptV2 } from "./prompts/system/garmentAnalysis.v2";
-import { buildOutfitSystemPrompt } from "./prompts/system/outfitStylist.v1";
+import { buildOutfitSystemPromptV1 } from "./prompts/system/outfitStylist.v1";
 import { buildOutfitUserPayload } from "./prompts/user/outfitUserPayload";
 import type { ClimateInput, LockedGarmentSummary } from "./prompts/types";
 import { GARMENT_TYPE_VALUES } from "@/constants/garment";
@@ -19,9 +19,9 @@ const locked: LockedGarmentSummary[] = [
   { id: "g1", garmentType: "top", color: "blue" },
 ];
 
-describe("buildOutfitSystemPrompt", () => {
+describe("buildOutfitSystemPromptV1", () => {
   it("lists locked garments as mandatory", () => {
-    const prompt = buildOutfitSystemPrompt(
+    const prompt = buildOutfitSystemPromptV1(
       null,
       climate,
       locked,
@@ -35,13 +35,13 @@ describe("buildOutfitSystemPrompt", () => {
   });
 
   it("shows no locked garments when the list is empty", () => {
-    const prompt = buildOutfitSystemPrompt(null, climate, [], null, false);
+    const prompt = buildOutfitSystemPromptV1(null, climate, [], null, false);
     expect(prompt).toContain("None.");
     expect(prompt).not.toContain("g1");
   });
 
   it("adds the strict style rule only with a style filter", () => {
-    const withFilter = buildOutfitSystemPrompt(
+    const withFilter = buildOutfitSystemPromptV1(
       null,
       climate,
       [],
@@ -50,7 +50,7 @@ describe("buildOutfitSystemPrompt", () => {
     );
     expect(withFilter).toContain("Style filter (strict)");
     expect(withFilter).toContain("formal");
-    const withoutFilter = buildOutfitSystemPrompt(
+    const withoutFilter = buildOutfitSystemPromptV1(
       null,
       climate,
       [],
@@ -61,14 +61,21 @@ describe("buildOutfitSystemPrompt", () => {
   });
 
   it("adds the outerwear mandate only when required", () => {
-    const required = buildOutfitSystemPrompt(null, climate, [], null, true);
+    const required = buildOutfitSystemPromptV1(null, climate, [], null, true);
     expect(required).toContain("Outerwear (mandatory)");
-    const optional = buildOutfitSystemPrompt(null, climate, [], null, false);
+    const optional = buildOutfitSystemPromptV1(null, climate, [], null, false);
     expect(optional).not.toContain("Outerwear (mandatory)");
   });
 
+  it("allows mid-layers to coexist with outerwear without replacing it", () => {
+    const prompt = buildOutfitSystemPromptV1(null, climate, [], null, true);
+    expect(prompt).toContain("mid_layer");
+    expect(prompt).toContain("together with one outerwear garment");
+    expect(prompt).toContain("substitute for mandatory outerwear");
+  });
+
   it("adds the rain-safe material mandate only on wet days", () => {
-    const rainy = buildOutfitSystemPrompt(
+    const rainy = buildOutfitSystemPromptV1(
       null,
       climate,
       [],
@@ -78,17 +85,17 @@ describe("buildOutfitSystemPrompt", () => {
       true,
     );
     expect(rainy).toContain("Rain-safe materials");
-    const dry = buildOutfitSystemPrompt(null, climate, [], null, false);
+    const dry = buildOutfitSystemPromptV1(null, climate, [], null, false);
     expect(dry).not.toContain("Rain-safe materials");
   });
 
   it("embeds climate details conditionally", () => {
-    const prompt = buildOutfitSystemPrompt(null, climate, [], null, false);
+    const prompt = buildOutfitSystemPromptV1(null, climate, [], null, false);
     expect(prompt).toContain("18°C");
     expect(prompt).toContain("Rain");
     expect(prompt).toContain("Today's range: 12–19°C");
     expect(prompt).toContain("Rain probability today: 70%");
-    const bare = buildOutfitSystemPrompt(
+    const bare = buildOutfitSystemPromptV1(
       null,
       { temperatureC: 20 },
       [],
@@ -101,9 +108,9 @@ describe("buildOutfitSystemPrompt", () => {
   });
 
   it("describes the profile or its absence", () => {
-    const anonymous = buildOutfitSystemPrompt(null, climate, [], null, false);
+    const anonymous = buildOutfitSystemPromptV1(null, climate, [], null, false);
     expect(anonymous).toContain("No style profile available");
-    const profiled = buildOutfitSystemPrompt(
+    const profiled = buildOutfitSystemPromptV1(
       {
         colorimetry: "summer",
         morphology: "pear",
@@ -122,7 +129,7 @@ describe("buildOutfitSystemPrompt", () => {
   });
 
   it("always demands strict JSON with suitability ordering", () => {
-    const prompt = buildOutfitSystemPrompt(null, climate, [], null, false);
+    const prompt = buildOutfitSystemPromptV1(null, climate, [], null, false);
     expect(prompt).toContain("STRICT JSON only");
     expect(prompt).toContain("Suitability Ratio");
     expect(prompt).toContain("suitabilityRatio");
@@ -131,7 +138,7 @@ describe("buildOutfitSystemPrompt", () => {
 
 describe("buildAnalysisSystemPrompt", () => {
   it("embeds the closed vocabularies from the garment types", () => {
-    const prompt = buildAnalysisSystemPrompt();
+    const prompt = buildAnalysisSystemPromptV1();
     expect(prompt).toContain("STRICT JSON only");
     for (const value of GARMENT_TYPE_VALUES) {
       expect(prompt).toContain(value);
@@ -226,14 +233,15 @@ describe("prompts index composition", () => {
         candidates: [],
       },
     });
-    expect(result.version).toBeDefined();
+    expect(result.version).toBe("3.0.0");
+    expect(result.systemPrompt).toContain("Styling priorities, in order:");
     expect(result.systemPrompt.length).toBeGreaterThan(0);
     expect(result.userPayload.temperatureC).toBe(20);
   });
 
   it("builds a versioned vision prompt", () => {
     const result = buildAnalysisPrompt();
-    expect(result.version).toBeDefined();
+    expect(result.version).toBe("2.1.0");
     expect(result.systemPrompt.length).toBeGreaterThan(0);
   });
 });

@@ -180,6 +180,44 @@ describe("recommender option constraints", () => {
     ).toHaveLength(1);
   });
 
+  it("allows one mid-layer together with one outerwear and rejects duplicates", () => {
+    const candidates = [
+      candidate("top", "top"),
+      candidate("bottom", "bottom"),
+      candidate("cardigan", "mid_layer"),
+      candidate("coat", "outerwear"),
+      candidate("vest", "mid_layer"),
+    ];
+    expect(
+      filterValidOutfitOptions(
+        [
+          {
+            garmentIds: ["top", "bottom", "cardigan", "coat"],
+            suitabilityRatio: 90,
+            reason: "Layered outfit",
+          },
+        ],
+        candidates,
+        new Set(),
+        true,
+      ),
+    ).toHaveLength(1);
+    expect(
+      filterValidOutfitOptions(
+        [
+          {
+            garmentIds: ["top", "bottom", "cardigan", "vest", "coat"],
+            suitabilityRatio: 80,
+            reason: "Too many mid-layers",
+          },
+        ],
+        candidates,
+        new Set(),
+        false,
+      ),
+    ).toEqual([]);
+  });
+
   it("keeps the best varied options and allows locked repeated garments", () => {
     const candidates = [
       candidate("top", "top"),

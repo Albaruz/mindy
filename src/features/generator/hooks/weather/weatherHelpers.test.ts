@@ -49,6 +49,16 @@ describe("shouldShowOuterwear", () => {
 
   it("shows on cold days", () => {
     expect(shouldShowOuterwear(buildWeather({ dayLow: 5 }), 1)).toBe(true);
+    expect(shouldShowOuterwear(buildWeather({ dayLow: 15 }), 1)).toBe(true);
+    expect(
+      shouldShowOuterwear(buildWeather({ temperatureC: 15 }), 1),
+    ).toBe(true);
+    expect(
+      shouldShowOuterwear(
+        buildWeather({ temperatureC: 15, dayLow: 16 }),
+        1,
+      ),
+    ).toBe(true);
   });
 
   it("shows on rain", () => {

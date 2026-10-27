@@ -6,7 +6,8 @@ import { isWearableGarment } from "@/lib/garment/categorizeGarments";
  *
  * Rules (shared by auto and manual flows):
  * - Dismissed garments are always excluded.
- * - Dirty tops/bottoms are excluded unless laundry-exempt (footwear, outerwear).
+ * - Dirty washable garments (including mid-layers) are excluded; footwear and
+ *   outerwear remain eligible through the laundry exemption.
  * - Locked garments are always included (even if dirty or dismissed).
  */
 export function buildCandidates(

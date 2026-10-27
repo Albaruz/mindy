@@ -4,10 +4,11 @@ import userEvent from "@testing-library/user-event";
 import type { Garment } from "@/types/garment";
 import type { ReactNode } from "react";
 
-const { mockCloset, mockWeather, mockToggleLock } = vi.hoisted(() => ({
+const { mockCloset, mockWeather, mockToggleLock, mockWearTodayMutate } = vi.hoisted(() => ({
   mockCloset: vi.fn(),
   mockWeather: vi.fn(),
   mockToggleLock: vi.fn(),
+  mockWearTodayMutate: vi.fn(),
 }));
 
 vi.mock("next-intl", () => ({
@@ -39,7 +40,7 @@ vi.mock("../../../hooks/generation/useCombineLocked", () => ({
 }));
 
 vi.mock("../../../hooks/outfit-actions/useWearToday", () => ({
-  useWearToday: () => ({ isPending: false, mutate: vi.fn() }),
+  useWearToday: () => ({ isPending: false, mutate: mockWearTodayMutate }),
 }));
 
 vi.mock("../../../hooks/outfit-actions/usePlanTomorrow", () => ({
@@ -47,8 +48,25 @@ vi.mock("../../../hooks/outfit-actions/usePlanTomorrow", () => ({
 }));
 
 vi.mock("../category-carousel/CategoryCarousel", () => ({
-  CategoryCarousel: ({ category }: { category: string }) => (
-    <div data-testid={`carousel-${category}`} />
+  CategoryCarousel: ({
+    category,
+    inclusionControl,
+  }: {
+    category: string;
+    inclusionControl?: { state: string; onToggle: () => void };
+  }) => (
+    <div
+      data-testid={`carousel-${category}`}
+      data-inclusion-state={inclusionControl?.state}
+    >
+      {inclusionControl ? (
+        <button
+          type="button"
+          aria-label={inclusionControl.state === "excluded" ? "showLayer" : "hideLayer"}
+          onClick={inclusionControl.onToggle}
+        />
+      ) : null}
+    </div>
   ),
 }));
 
@@ -56,12 +74,24 @@ vi.mock("@/components/BottomActionBar/BottomActionBar", () => ({
   BottomActionBar: ({
     left,
     extraRightControl,
+    primaryLabel,
+    onPrimary,
+    primaryDisabled,
   }: {
     left: { label: string; onClick: () => void };
     extraRightControl?: ReactNode;
+    primaryLabel: string;
+    onPrimary: () => void;
+    primaryDisabled: boolean;
   }) => (
     <div data-testid="action-bar">
       <button type="button" aria-label={left.label} onClick={left.onClick} />
+      <button
+        type="button"
+        aria-label={primaryLabel}
+        disabled={primaryDisabled}
+        onClick={onPrimary}
+      />
       {extraRightControl}
     </div>
   ),
@@ -93,6 +123,7 @@ describe("ManualCarousels", () => {
   beforeEach(() => {
     useGeneratorStore.getState().resetFlow();
     mockToggleLock.mockClear();
+    mockWearTodayMutate.mockClear();
   });
 
   it("renders base carousels", () => {
@@ -105,6 +136,109 @@ describe("ManualCarousels", () => {
     expect(screen.getByTestId("generator-manual")).toBeInTheDocument();
     expect(screen.getByTestId("carousel-top")).toBeInTheDocument();
     expect(screen.getByTestId("carousel-bottom")).toBeInTheDocument();
+  });
+
+  it("shows a mid-layer carousel independently and alongside outerwear", () => {
+    useGeneratorStore.getState().toggleMidLayerIncluded();
+    mockCloset.mockReturnValue({
+      data: [
+        buildGarment("t1", "top"),
+        buildGarment("b1", "bottom"),
+        buildGarment("m1", "mid_layer"),
+        buildGarment("o1", "outerwear"),
+      ],
+      isPending: false,
+    });
+    mockWeather.mockReturnValue({ data: null });
+
+    render(<ManualCarousels />);
+
+    expect(screen.getByTestId("carousel-mid_layer")).toBeInTheDocument();
+    expect(screen.getByTestId("carousel-outerwear")).toBeInTheDocument();
+    expect(useGeneratorStore.getState().slots.mid_layer.garment?.garmentId).toBe(
+      "m1",
+    );
+    expect(useGeneratorStore.getState().slots.outerwear.garment?.garmentId).toBe(
+      "o1",
+    );
+  });
+
+  it("keeps the mid-layer excluded until the user enables it", async () => {
+    mockCloset.mockReturnValue({
+      data: [buildGarment("t1", "top"), buildGarment("m1", "mid_layer")],
+      isPending: false,
+    });
+    mockWeather.mockReturnValue({ data: null });
+    render(<ManualCarousels />);
+
+    expect(useGeneratorStore.getState().midLayerIncluded).toBe(false);
+    expect(screen.getByTestId("carousel-mid_layer")).toHaveAttribute(
+      "data-inclusion-state",
+      "excluded",
+    );
+    await userEvent.click(screen.getByRole("button", { name: "showLayer" }));
+
+    expect(useGeneratorStore.getState().midLayerIncluded).toBe(true);
+    expect(useGeneratorStore.getState().slots.mid_layer.garment?.garmentId).toBe(
+      "m1",
+    );
+  });
+
+  it("does not include an excluded mid-layer when wearing the manual look", async () => {
+    mockCloset.mockReturnValue({
+      data: [
+        buildGarment("t1", "top"),
+        buildGarment("b1", "bottom"),
+        buildGarment("m1", "mid_layer"),
+      ],
+      isPending: false,
+    });
+    mockWeather.mockReturnValue({ data: null });
+    render(<ManualCarousels />);
+
+    await userEvent.click(screen.getByRole("button", { name: "wear" }));
+
+    expect(mockWearTodayMutate).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ garmentId: "t1" }),
+        expect.objectContaining({ garmentId: "b1" }),
+      ]),
+    );
+    const wornGarments = mockWearTodayMutate.mock.calls[0]?.[0] as Garment[];
+    expect(wornGarments.some((garment) => garment.garmentId === "m1")).toBe(
+      false,
+    );
+  });
+
+  it("orders the layering carousels from outermost to base layer", () => {
+    mockCloset.mockReturnValue({
+      data: [
+        buildGarment("o1", "outerwear"),
+        buildGarment("m1", "mid_layer"),
+        buildGarment("t1", "top"),
+        buildGarment("b1", "bottom"),
+        buildGarment("f1", "footwear"),
+      ],
+      isPending: false,
+    });
+    mockWeather.mockReturnValue({ data: null });
+
+    render(<ManualCarousels />);
+
+    const carouselIds = ["outerwear", "mid_layer", "top", "bottom", "footwear"];
+    const carousels = carouselIds.map((category) =>
+      screen.getByTestId(`carousel-${category}`),
+    );
+    expect(
+      carousels.every(
+        (carousel, index) =>
+          index === 0 ||
+          Boolean(
+            carousels[index - 1]?.compareDocumentPosition(carousel) &
+              Node.DOCUMENT_POSITION_FOLLOWING,
+          ),
+      ),
+    ).toBe(true);
   });
 
   it("places the favorites filter in the action bar", async () => {

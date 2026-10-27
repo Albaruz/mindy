@@ -25,6 +25,7 @@ const KEYWORDS: Record<Category, string[]> = {
   top: [],
   bottom: [],
   footwear: [],
+  mid_layer: [],
   outerwear: [],
 };
 for (const [term, base] of Object.entries(GARMENT_TYPE_ALIASES)) {
@@ -39,7 +40,13 @@ function normalizeGarmentText(value: string | null | undefined): string {
   return value.toLowerCase().trim();
 }
 
-const CATEGORY_ORDER: Category[] = ["top", "bottom", "footwear", "outerwear"];
+const CATEGORY_ORDER: Category[] = [
+  "top",
+  "mid_layer",
+  "bottom",
+  "footwear",
+  "outerwear",
+];
 
 // Strict base for the closed garment_type. Dress is one-piece: it fills
 // the top slot (see isOnePieceGarment) and covers the bottom slot too.
@@ -51,6 +58,18 @@ function closedTypeCategory(garment: Garment): Category | null {
 }
 
 export function categorizeGarment(garment: Garment): Category | null {
+  // Before the data migration runs, existing cardigans and vests still have
+  // garment_type = outerwear. Their preserved specificType is authoritative.
+  const specificType = normalizeGarmentType(garment.extraTags?.specificType).base;
+  if (
+    specificType === "mid_layer" &&
+    (garment.garmentType === "outerwear" ||
+      garment.garmentType === "top" ||
+      garment.garmentType === null)
+  ) {
+    return "mid_layer";
+  }
+
   // Closed enum fast path: no keyword guessing needed.
   const strict = closedTypeCategory(garment);
   if (strict !== null) {
@@ -74,6 +93,7 @@ export function categorizeGarment(garment: Garment): Category | null {
     stored === "top" ||
     stored === "bottom" ||
     stored === "footwear" ||
+    stored === "mid_layer" ||
     stored === "outerwear"
   ) {
     return stored;
@@ -109,6 +129,7 @@ export function categorizeGarments(
     top: [],
     bottom: [],
     footwear: [],
+    mid_layer: [],
     outerwear: [],
   };
   for (const garment of garments) {
@@ -138,9 +159,8 @@ export function isOnePieceGarment(
   return ONE_PIECE_KEYWORDS.some((keyword) => haystack.includes(keyword));
 }
 
-// Footwear and outerwear are reusable across wears: wearing them never
-// marks them as dirty, so they stay out of the laundry basket and remain
-// eligible for recommendations even when flagged dirty (legacy rows).
+// Footwear and heavy outerwear are reusable across wears. Mid-layers are
+// washable, so they intentionally do not receive this exemption.
 export function isLaundryExemptGarment(
   garment: Garment | null | undefined,
 ): boolean {

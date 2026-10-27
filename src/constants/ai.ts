@@ -1,3 +1,5 @@
+import { MAX_GARMENTS_PER_OPTION, MIN_GARMENTS_PER_OPTION } from "@/constants/generator";
+
 // AI Engine Configuration
 // Centralized constants for the Groq/LLM integration.
 // Override via environment variables where noted.
@@ -23,8 +25,11 @@ export const AI_MAX_RETRY_DELAY_MS = 15_000;
 /** Temperature for outfit generation (0.0 - 1.0). Lower = more deterministic. */
 export const AI_TEMPERATURE = 0.3;
 
-/** Maximum tokens for outfit generation response. Reduced from 1500 to fit within TPM limits. */
-export const AI_MAX_TOKENS = 2000;
+/** Keep GPT-OSS reasoning bounded so it leaves room for the required JSON output. */
+export const AI_REASONING_EFFORT = "low" as const;
+
+/** Maximum completion tokens, including GPT-OSS reasoning tokens. */
+export const AI_MAX_TOKENS = 4096;
 
 /** Smaller response budget reserved for repairing invalid outfit options. */
 export const AI_REPAIR_MAX_TOKENS = 500;
@@ -54,8 +59,8 @@ export const AI_STRUCTURED_RESPONSE_FORMAT = {
             properties: {
               garmentIds: {
                 type: "array",
-                minItems: 2,
-                maxItems: 4,
+                minItems: MIN_GARMENTS_PER_OPTION,
+                maxItems: MAX_GARMENTS_PER_OPTION,
                 items: { type: "string" }
               },
               suitabilityRatio: { type: "integer", minimum: 0, maximum: 100 },

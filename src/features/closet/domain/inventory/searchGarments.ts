@@ -104,6 +104,7 @@ const CATEGORY_SLOT: Record<Exclude<CategoryFilter, "all">, Category> = {
   tops: "top",
   bottoms: "bottom",
   shoes: "footwear",
+  mid_layer: "mid_layer",
   outerwear: "outerwear",
 };
 

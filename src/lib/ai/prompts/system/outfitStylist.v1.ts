@@ -11,6 +11,10 @@ import type {
   PromptProfile,
 } from "../types";
 import { AI_REASON_LANGUAGES } from "@/constants/ai";
+import {
+  MAX_LOOK_OPTIONS,
+  MID_LAYER_LOOK_INCLUSION_PROBABILITY,
+} from "@/constants/generator";
 
 function describeProfile(profile: PromptProfile): string {
   if (profile === null) {
@@ -30,7 +34,7 @@ function describeProfile(profile: PromptProfile): string {
   return parts.join("; ");
 }
 
-export function buildOutfitSystemPrompt(
+export function buildOutfitSystemPromptV1(
   profile: PromptProfile,
   climate: ClimateInput,
   lockedGarments: LockedGarmentSummary[],
@@ -70,12 +74,14 @@ Shape:
 {"options":[{"garmentIds":["<garment-id>", "..."],"suitabilityRatio":87,"reason":"<one short sentence>"}]}
 
 Rules:
-- Return 2 or 3 outfit options, ordered by suitability (best first).
+- Return exactly ${MAX_LOOK_OPTIONS} outfit options when the candidate list can support them, ordered by suitability (best first).
 - Use ONLY garment IDs from the candidate list. Never invent IDs.
 - Never repeat a garment ID within one outfit option.
 - Do not return an option unless it satisfies every hard constraint and has the required garment categories.
 - Prefer explicit candidate metadata over assumptions. Never invent a material, color, style or garment detail.
 - Validate each option for weather, cleanliness, requested style and locked garments before returning it.
+- Write each reason in ${languageName}.
 - Every option needs at least a top and a bottom (plus footwear when available).${styleFilter !== null ? `\n- Style filter (strict): every outfit must be wearable for ${styleFilter}. Never mix in another style to fill a gap.` : ""}${requireOuterwear ? "\n- Outerwear (mandatory): it is raining or cold and the candidate list contains outerwear. Every outfit MUST include exactly one outerwear garment." : ""}${requireRainSafeMaterials ? "\n- Rain-safe materials: it is raining. Avoid silk, suede, and other water-sensitive materials unless the user locked them." : ""}
-- Variety across options: never reuse the same top or bottom garment in different options. Footwear and outerwear may repeat.`;
+- Layering: a mid_layer (such as a cardigan or vest) is optional and may be worn together with one outerwear garment. Only include it when it harmonizes with the rest of that option; do not force it into every option. Aim for roughly ${Math.round(MID_LAYER_LOOK_INCLUSION_PROBABILITY * 100)}% of options. Never use a mid_layer as a substitute for mandatory outerwear, and include no more than one mid_layer and one outerwear garment per option.
+- Variety across options: never reuse the same top or bottom garment in different options. When different mid-layers coordinate equally well, vary them across options rather than repeating the same one. Footwear and outerwear may repeat.`;
 }
