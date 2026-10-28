@@ -49,7 +49,6 @@ export function useWearToday() {
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments });
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.history });
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.favorites });
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.laundryBasket });
       // The full-screen celebration replaces the success toast.
       useGeneratorStore.getState().showCelebration(garments);
     },

@@ -21,3 +21,37 @@ export function readString(
 export function readFiniteNumber(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
+
+/** Reads a trimmed, lowercased string only when it belongs to a closed set. */
+export function readAllowedString(
+  value: unknown,
+  allowed: readonly string[],
+  maxLength = READ_STRING_MAX_LENGTH,
+): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (
+    normalized === "" ||
+    normalized.length > maxLength ||
+    !allowed.includes(normalized)
+  ) {
+    return null;
+  }
+  return normalized;
+}
+
+/** Keeps only exact values from a closed set in an untrusted array. */
+export function readAllowedStringList(
+  value: unknown,
+  allowed: readonly string[],
+): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.filter(
+    (item): item is string =>
+      typeof item === "string" && allowed.includes(item),
+  );
+}

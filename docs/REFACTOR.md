@@ -211,6 +211,7 @@ Six hand-written choice pickers were compared. Result:
 | 0 | Remove diagnostic preview routes; harden auth redirects and favorite IDs; prevent shared weather caching; align onboarding failure defaults; remove duplicate theme initialization. | ✓ Implemented; tracked root test/report artifacts retained |
 | 1 | Fix upload-queue hydration and duplicate-insert paths, worker readiness, wash state, storage cleanup, sign-out cleanup, and atomic outfit persistence. | ✓ Implemented |
 | 2 | Move rate limiting to an authenticated Postgres RPC; bound and validate API bodies/images; constrain LLM context; propagate cancellation; harden weather, session, and Supabase configuration. | ✓ Applied and manually validated in Supabase Mindy |
+| 3 | Consolidate recommender finalization/recovery, cached climate, garment Storage operations, and laundry mutations; remove duplicate laundry cache and feature-only type ownership. | ✓ Implemented and validated |
 
 - The phase-2 migrations add `private.api_rate_limit_buckets`, an authenticated
   `consume_api_rate_limit(p_key)` RPC with server-owned quotas, and the atomic
@@ -229,3 +230,28 @@ Six hand-written choice pickers were compared. Result:
   currently depend on them. Nonce-based CSP migration remains a separate task.
 - Tracked root k6 scripts and generated reports were left in place rather than
   moved or deleted during this remediation.
+
+### Phase 3 (post-audit remediation)
+- `lib/recommender/finalizeOptions.ts` is now the shared post-processing
+  pipeline for JSON and streamed recommendations, including local fallbacks.
+  `modelOptions.ts` centralizes model-option parsing, constraint validation,
+  cold-weather filtering and the single repair attempt.
+- `features/generator/domain/recommendations/climate.ts` owns day selection,
+  fallback climate and cached climate resolution. The manual locked-garment
+  flow now reuses the weather query rather than requesting location and weather
+  a second time.
+- `features/closet/services/persistence/garmentStorage.ts` centralizes image
+  upload, public-URL path extraction and best-effort cleanup. Garment creation,
+  replacement and deletion use the shared Storage operations. `GarmentFormInput`
+  moved to the closet garment domain; the feature card retains its existing
+  `GarmentCard` name and path, distinct from the shared UI card.
+- Laundry mutations now live in `lib/garment/useLaundryMutation.ts`; the old
+  feature-specific single-wash/all-wash hooks and unused laundry-basket query
+  and cache key were removed. The closet inventory remains the single source
+  of cached garment state. Profile save and sign-out actions remain separate:
+  they have distinct behavior and responsibilities.
+- The analyze route now shares the allowlisted string readers in
+  `lib/readers.ts` instead of maintaining local copies.
+- Validation passed: 172 test files / 1,024 tests; 90.15% branch coverage
+  (90% threshold), `pnpm typecheck`, and `pnpm build`. `pnpm lint` exits
+  successfully with two existing warnings in the root k6 scripts.

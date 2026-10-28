@@ -7,11 +7,9 @@ import { useLaundryActions } from "./useLaundryActions";
 const washMutate = vi.fn();
 const laundryMutate = vi.fn();
 let laundryPending = false;
-vi.mock("./useWashGarment", () => ({
+vi.mock("@/lib/garment/useLaundryMutation", () => ({
   useWashGarment: () => ({ mutate: washMutate, isPending: false }),
-}));
-vi.mock("@/features/profile/hooks/laundry/useDoLaundry", () => ({
-  useDoLaundry: () => ({ mutate: laundryMutate, isPending: laundryPending }),
+  useWashAllGarments: () => ({ mutate: laundryMutate, isPending: laundryPending }),
 }));
 
 const GARMENT = { garmentId: "g1" } as Garment;

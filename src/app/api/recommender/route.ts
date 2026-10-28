@@ -8,7 +8,6 @@ import {
   requireRouteUser,
 } from "@/lib/api/routeGuards";
 import {
-  MID_LAYER_LOOK_INCLUSION_PROBABILITY,
   MAX_LOOK_OPTIONS,
   RECOMMENDER_MAX_REQUEST_GARMENTS,
 } from "@/constants/generator";
@@ -19,25 +18,21 @@ import {
   generateOutfitRecommendation,
   generateOutfitRecommendationStream,
   generateStructuredOutfitRecommendation,
-  repairOutfitRecommendation,
   getEngineModel,
 } from "@/lib/ai/engine";
 import { generateFallbackLook } from "@/lib/recommender/fallback";
-import {
-  applyFavoriteInclusionChance,
-  selectSuggestedFavoriteIds,
-} from "@/lib/recommender/favoriteInclusion";
-import { applyMidLayerInclusionChance } from "@/lib/recommender/midLayerInclusion";
-import { completeOutfitOptions } from "@/lib/recommender/outfitCompletion";
+import { selectSuggestedFavoriteIds } from "@/lib/recommender/favoriteInclusion";
+import { finalizeOutfitOptions } from "@/lib/recommender/finalizeOptions";
 import {
   extractCompletedOptionObjects,
   classifyAiFallbackReason,
   isUpstreamFailure,
   parseCompletedOption,
-  parseOptions,
-  filterValidOutfitOptions,
-  enforceVarietyAcrossOptions,
 } from "@/lib/recommender/llmOptions";
+import {
+  readValidModelOptions,
+  repairModelOptionsIfNeeded,
+} from "@/lib/recommender/modelOptions";
 import type { AiFallbackReason } from "@/constants/ai";
 import { canBuildLook, capBalancedPool } from "@/lib/recommender/pool";
 import {
@@ -144,52 +139,14 @@ function createRecommenderStream({
     isFallback: boolean,
     fallbackReason: ReturnType<typeof classifyAiFallbackReason> | null = null,
   ) => {
-    const weatherValidOptions = filterColdWeatherOutfitOptions(
+    const finalOptions = finalizeOutfitOptions({
       options,
-      cappedPool,
-      lockedIds,
-      coldWeather,
-    );
-    const variedOptions = enforceVarietyAcrossOptions(
-      weatherValidOptions,
-      cappedPool,
-      lockedIds,
-    );
-    const completedOptions = completeOutfitOptions(
-      variedOptions,
-      cappedPool,
-      lockedIds,
-      outerwearRequired,
-      coldWeather,
-    );
-    const favoriteOptions = applyFavoriteInclusionChance(
-      completedOptions,
-      cappedPool,
+      candidates: cappedPool,
       lockedIds,
       suggestedFavoriteIds,
       outerwearRequired,
-    );
-    const weatherValidFavorites = filterColdWeatherOutfitOptions(
-      favoriteOptions,
-      cappedPool,
-      lockedIds,
       coldWeather,
-    );
-    const refilledOptions = completeOutfitOptions(
-      weatherValidFavorites,
-      cappedPool,
-      lockedIds,
-      outerwearRequired,
-      coldWeather,
-    );
-    const finalOptions = applyMidLayerInclusionChance(
-      refilledOptions,
-      cappedPool,
-      lockedIds,
-      coldWeather ? 1 : MID_LAYER_LOOK_INCLUSION_PROBABILITY,
-      Math.random,
-      coldWeather,
-    );
+    });
     const model = isFallback ? "local-fallback" : getEngineModel();
     logger.requestComplete("recommender", requestId, 200, Date.now() - startTime, {
       userId,
@@ -289,33 +246,23 @@ function createRecommenderStream({
             }
           }
 
-           let options = filterValidOutfitOptions(
-             parseOptions(content, knownIds),
-             cappedPool,
-             lockedIds,
-             outerwearRequired,
-           );
-           if (options.length === 0) {
-             repairAttempted = true;
-             options = filterValidOutfitOptions(
-               parseOptions(
-                  await repairOutfitRecommendation(
-                    userPayload,
-                    content,
-                    abortController.signal,
-                  ),
-                 knownIds,
-               ),
-               cappedPool,
-               lockedIds,
-               outerwearRequired,
-             );
-           }
-           if (options.length === 0) {
-             throw new Error("LLM options violate outfit constraints");
-           }
-            // Enforce variety across options (no repeated tops/bottoms)
-            options = enforceVarietyAcrossOptions(options, cappedPool, lockedIds);
+          const recovery = await repairModelOptionsIfNeeded(
+            userPayload,
+            content,
+            {
+              knownIds,
+              candidates: cappedPool,
+              lockedIds,
+              outerwearRequired,
+              coldWeather,
+            },
+            abortController.signal,
+          );
+          repairAttempted = recovery.attempted;
+          const options = recovery.options;
+          if (options.length === 0) {
+            throw new Error("LLM options violate outfit constraints");
+          }
           completeResponse(options, false);
         } catch (error) {
           if (request.signal.aborted || closed) {
@@ -353,12 +300,13 @@ function createRecommenderStream({
                 userPayload,
                 abortController.signal,
               );
-              const recoveredOptions = filterValidOutfitOptions(
-                parseOptions(recoveredContent, knownIds),
-                cappedPool,
+              const recoveredOptions = readValidModelOptions(recoveredContent, {
+                knownIds,
+                candidates: cappedPool,
                 lockedIds,
                 outerwearRequired,
-              );
+                coldWeather,
+              });
               if (recoveredOptions.length > 0) {
                 completeResponse(recoveredOptions, false);
                 return;
@@ -405,13 +353,7 @@ function createRecommenderStream({
               coldestTemperatureC,
               outerwearRequired,
             );
-            // Enforce variety across fallback options
-            const variedFallback = enforceVarietyAcrossOptions(
-              fallbackOptions,
-              cappedPool,
-              lockedIds,
-            );
-            completeResponse(variedFallback, true, fallbackReason);
+            completeResponse(fallbackOptions, true, fallbackReason);
           } catch (fallbackError) {
             logger.error("Local fallback failed for streamed request", {
               route: "recommender",
@@ -758,42 +700,23 @@ export async function POST(request: Request) {
         aiSignal,
       );
     }
-      options = filterValidOutfitOptions(
-        parseOptions(content, knownIds),
-        cappedPool,
-        allLockedIds,
+    const recovery = await repairModelOptionsIfNeeded(
+      userPayload,
+      content,
+      {
+        knownIds,
+        candidates: cappedPool,
+        lockedIds: allLockedIds,
         outerwearRequired,
-      );
-      options = filterColdWeatherOutfitOptions(
-        options,
-        cappedPool,
-        allLockedIds,
         coldWeather,
-      );
-      if (options.length === 0) {
-        repairAttempted = true;
-        const repairedContent = await repairOutfitRecommendation(
-          userPayload,
-          content,
-          aiSignal,
-        );
-        options = filterValidOutfitOptions(
-          parseOptions(repairedContent, knownIds),
-          cappedPool,
-         allLockedIds,
-          outerwearRequired,
-        );
-        options = filterColdWeatherOutfitOptions(
-          options,
-          cappedPool,
-          allLockedIds,
-          coldWeather,
-        );
-      }
-      options = enforceVarietyAcrossOptions(options, cappedPool, allLockedIds);
-      if (options.length === 0) {
-        throw new Error("LLM options violate outfit constraints");
-      }
+      },
+      aiSignal,
+    );
+    options = recovery.options;
+    repairAttempted = recovery.attempted;
+    if (options.length === 0) {
+      throw new Error("LLM options violate outfit constraints");
+    }
   } catch (error) {
     if (request.signal.aborted) {
       return new Response(null, { status: 499 });
@@ -838,8 +761,6 @@ export async function POST(request: Request) {
         coldestTemperatureC,
         outerwearRequired,
       );
-      // Enforce variety across fallback options
-      options = enforceVarietyAcrossOptions(options, cappedPool, allLockedIds);
       isFallback = true;
     } catch (fallbackError) {
       const fallbackMessage =
@@ -853,41 +774,14 @@ export async function POST(request: Request) {
       );
     }
   }
-  options = completeOutfitOptions(
+  options = finalizeOutfitOptions({
     options,
-    cappedPool,
-    allLockedIds,
-    outerwearRequired,
-    coldWeather,
-  );
-  options = applyFavoriteInclusionChance(
-    options,
-    cappedPool,
-    allLockedIds,
+    candidates: cappedPool,
+    lockedIds: allLockedIds,
     suggestedFavoriteIds,
     outerwearRequired,
-  );
-  options = filterColdWeatherOutfitOptions(
-    options,
-    cappedPool,
-    allLockedIds,
     coldWeather,
-  );
-  options = completeOutfitOptions(
-    options,
-    cappedPool,
-    allLockedIds,
-    outerwearRequired,
-    coldWeather,
-  );
-  options = applyMidLayerInclusionChance(
-    options,
-    cappedPool,
-    allLockedIds,
-    coldWeather ? 1 : MID_LAYER_LOOK_INCLUSION_PROBABILITY,
-    Math.random,
-    coldWeather,
-  );
+  });
   const durationMs = Date.now() - startTime;
   logger.requestComplete('recommender', requestId, 200, durationMs, {
     userId: user.id,

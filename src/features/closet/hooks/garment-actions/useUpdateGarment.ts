@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants/query";
 import { createClient } from "@/lib/supabase/client";
 import type { GarmentSeason } from "@/types/garment";
-import type { GarmentFormInput } from "../upload/useUploadGarment";
+import type { GarmentFormInput } from "../../domain/garments/garmentForm";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { requireUser } from "@/lib/supabase/session";
 
@@ -47,7 +47,6 @@ export function useUpdateGarment() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments });
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.laundryBasket });
     },
   });
 }

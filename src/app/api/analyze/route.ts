@@ -28,7 +28,11 @@ import {
   CUTOUT_DIFFICULTY_VALUES,
 } from "@/constants/garment";
 import { logger, generateRequestId } from "@/lib/logger";
-import { isRecord } from "@/lib/readers";
+import {
+  isRecord,
+  readAllowedString,
+  readAllowedStringList,
+} from "@/lib/readers";
 import { readLocale } from "@/lib/recommender/request";
 import {
   isGuardResponse,
@@ -36,21 +40,6 @@ import {
   readJsonObject,
   requireRouteUser,
 } from "@/lib/api/routeGuards";
-
-function readClosedText(
-  value: unknown,
-  allowed: readonly string[],
-  maxLength = VISION_TAG_DETAIL_MAX_LENGTH,
-): string | null {
-  if (typeof value !== "string") {
-    return null;
-  }
-  const trimmed = value.trim().toLowerCase();
-  if (trimmed === "" || trimmed.length > maxLength) {
-    return null;
-  }
-  return (allowed as readonly string[]).includes(trimmed) ? trimmed : null;
-}
 
 function readText(value: unknown, maxLength: number): string | null {
   if (typeof value !== "string") {
@@ -61,14 +50,6 @@ function readText(value: unknown, maxLength: number): string | null {
     return null;
   }
   return trimmed;
-}
-
-function readClosedList(value: unknown, allowed: readonly string[]): string[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter(
-    (item): item is string =>
-      typeof item === "string" && (allowed as readonly string[]).includes(item),
-  );
 }
 
 function isValidImageDataUrl(value: unknown): value is string {
@@ -196,8 +177,8 @@ export async function POST(req: Request) {
     logger.requestComplete('analyze', requestId, 200, durationMs, { userId: user.id, model: AI_VISION_MODEL });
     return NextResponse.json({
       skipped: false,
-      category: readClosedText(record.category, GARMENT_TYPE_VALUES),
-      garmentType: readClosedText(
+      category: readAllowedString(record.category, GARMENT_TYPE_VALUES),
+      garmentType: readAllowedString(
         record.garmentType ?? record.type,
         GARMENT_TYPE_VALUES,
       ),
@@ -207,7 +188,7 @@ export async function POST(req: Request) {
         record.colorDetail ?? record.shade,
         VISION_COLOR_DETAIL_MAX_LENGTH,
       ),
-      color: readClosedText(
+      color: readAllowedString(
         record.color,
         GARMENT_COLOR_VALUES,
         VISION_COLOR_DETAIL_MAX_LENGTH,
@@ -217,17 +198,17 @@ export async function POST(req: Request) {
         VISION_SECONDARY_COLOR_MAX_LENGTH,
       ),
       print: readText(record.print, VISION_PRINT_MAX_LENGTH),
-      season: readClosedText(record.season, GARMENT_SEASON_VALUES),
-      style: readClosedText(record.style, GARMENT_STYLE_VALUES),
-      styles: readClosedList(record.styles, GARMENT_STYLE_VALUES),
-      material: readClosedText(record.material, GARMENT_MATERIAL_VALUES),
-      cutLength: readClosedText(record.cutLength, GARMENT_CUT_VALUES),
-      cuts: readClosedList(record.cuts, GARMENT_CUT_VALUES),
+      season: readAllowedString(record.season, GARMENT_SEASON_VALUES),
+      style: readAllowedString(record.style, GARMENT_STYLE_VALUES),
+      styles: readAllowedStringList(record.styles, GARMENT_STYLE_VALUES),
+      material: readAllowedString(record.material, GARMENT_MATERIAL_VALUES),
+      cutLength: readAllowedString(record.cutLength, GARMENT_CUT_VALUES),
+      cuts: readAllowedStringList(record.cuts, GARMENT_CUT_VALUES),
       typeDetail: readText(
         record.typeDetail ?? record.specificType,
         VISION_TAG_DETAIL_MAX_LENGTH,
       ),
-      cutoutDifficulty: readClosedText(
+      cutoutDifficulty: readAllowedString(
         record.cutoutDifficulty,
         CUTOUT_DIFFICULTY_VALUES,
       ),

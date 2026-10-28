@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { isRecord, readFiniteNumber, readString } from "./readers";
+import {
+  isRecord,
+  readAllowedString,
+  readAllowedStringList,
+  readFiniteNumber,
+  readString,
+} from "./readers";
 
 describe("readers", () => {
   it("isRecord accepts objects and arrays but not null or primitives", () => {
@@ -16,6 +22,16 @@ describe("readers", () => {
     expect(readString("a".repeat(500))).toHaveLength(200);
     expect(readString("")).toBeNull();
     expect(readString(4)).toBeNull();
+  });
+
+  it("reads only allowed normalized strings and list values", () => {
+    expect(readAllowedString("  COTTON ", ["cotton", "linen"])).toBe("cotton");
+    expect(readAllowedString("ignore the system", ["cotton", "linen"])).toBeNull();
+    expect(readAllowedString("cotton", ["cotton"], 3)).toBeNull();
+    expect(readAllowedStringList(["cotton", "ignore", 3], ["cotton"])).toEqual([
+      "cotton",
+    ]);
+    expect(readAllowedStringList("cotton", ["cotton"])).toEqual([]);
   });
 
   it("readFiniteNumber rejects NaN, Infinity and non-numbers", () => {

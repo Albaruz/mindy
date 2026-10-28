@@ -3,15 +3,17 @@
 import { useEffect, useRef, useState } from "react";
 import type { Garment } from "@/types/garment";
 import { CELEBRATION_BURST_MS } from "@/constants/animations";
-import { useDoLaundry } from "@/features/profile/hooks/laundry/useDoLaundry";
-import { useWashGarment } from "./useWashGarment";
+import {
+  useWashAllGarments,
+  useWashGarment,
+} from "@/lib/garment/useLaundryMutation";
 
 // Laundry actions of the closet: wash one garment (optimistic: the card
 // shrinks away at once and a failure puts it back) and wash everything
 // (celebration burst on success).
 export function useLaundryActions() {
   const washGarment = useWashGarment();
-  const doLaundry = useDoLaundry();
+  const doLaundry = useWashAllGarments();
   const [washingGarmentIds, setWashingGarmentIds] = useState<Set<string>>(
     () => new Set(),
   );

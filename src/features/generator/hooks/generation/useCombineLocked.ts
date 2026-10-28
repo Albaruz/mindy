@@ -10,7 +10,8 @@ import {
 import { useNotificationStore } from "@/stores/useNotificationStore";
 import { MAX_LOOK_OPTIONS } from "@/constants/generator";
 import type { CombineLockedInput, CombineLockedResult } from "../../domain/recommendations/generatorTypes";
-import { resolveClimate } from "./useGenerateLooks";
+import { resolveCachedClimate } from "../../domain/recommendations/climate";
+import { useWeatherQuery } from "../weather/useWeatherQuery";
 import { buildCandidates } from "../../domain/recommendations/generatorCandidates";
 import { callRecommender, buildRecommenderGarments, type RecommenderRequest } from "../../api/recommender/generatorApi";
 import { readRecommenderError, formatRecommenderError, validateRecommenderResponse } from "../../domain/recommendations/generatorResponse";
@@ -27,6 +28,7 @@ export function useCombineLocked() {
   const requestController = useRef<AbortController | null>(null);
   const t = useTranslations("Notifications");
   const locale = useLocale();
+  const { data: weather } = useWeatherQuery();
 
   useEffect(
     () => () => requestController.current?.abort(),
@@ -50,7 +52,10 @@ export function useCombineLocked() {
         throw new AppError(ERROR_CODES.NO_GARMENTS);
       }
 
-      const climate = await resolveClimate();
+      const climate = resolveCachedClimate(
+        weather,
+        useGeneratorStore.getState().outfitDay,
+      );
       const apiGarments = buildRecommenderGarments(candidates);
       const request: RecommenderRequest = {
         garments: apiGarments,

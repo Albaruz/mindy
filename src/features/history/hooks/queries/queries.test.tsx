@@ -15,7 +15,6 @@ vi.mock("@/lib/supabase/client", () => ({
   }),
 }));
 
-import { useLaundryBasketQuery } from "@/features/profile/hooks/laundry/useLaundryBasketQuery";
 import { useHistoryQuery } from "@/features/history/hooks/queries/useHistoryQuery";
 
 function createWrapper() {
@@ -45,35 +44,6 @@ function garmentRow(id: string, type: string, dirty = true) {
     created_at: "2026-01-01",
   };
 }
-
-describe("useLaundryBasketQuery", () => {
-  beforeEach(() => {
-    vi.resetAllMocks();
-  });
-
-  it("excludes footwear from the basket", async () => {
-    mockGetUser.mockResolvedValue({ data: { user: { id: "u1" } } });
-    mockFrom.mockReturnValue({
-      select: () => ({
-        eq: () => ({
-          eq: () => ({
-            order: async () => ({
-              data: [garmentRow("t1", "top"), garmentRow("s1", "footwear")],
-              error: null,
-            }),
-          }),
-        }),
-      }),
-    });
-    const { result } = renderHook(() => useLaundryBasketQuery(), {
-      wrapper: createWrapper(),
-    });
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data?.map((entry) => entry.garmentId)).toEqual([
-      "t1",
-    ]);
-  });
-});
 
 describe("useHistoryQuery", () => {
   beforeEach(() => {

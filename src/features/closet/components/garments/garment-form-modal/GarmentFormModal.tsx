@@ -34,7 +34,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/Dialog/Dialog";
-import type { GarmentFormInput } from "../../../hooks/upload/useUploadGarment";
+import type { GarmentFormInput } from "../../../domain/garments/garmentForm";
 import { ExtraTagsEditor } from "../extra-tags-editor/ExtraTagsEditor";
 import {
   GARMENT_COLOR_SWATCHES,

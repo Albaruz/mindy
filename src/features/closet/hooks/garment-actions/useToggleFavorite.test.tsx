@@ -77,7 +77,6 @@ describe("useToggleFavorite", () => {
     const garment = buildGarment();
     const { queryClient, wrapper } = createHarness();
     queryClient.setQueryData(QUERY_KEYS.garments, [garment]);
-    queryClient.setQueryData(QUERY_KEYS.laundryBasket, [garment]);
     queryClient.setQueryData(QUERY_KEYS.favorites, []);
     const fetchMock = vi.fn().mockResolvedValue({ ok: true });
     vi.stubGlobal("fetch", fetchMock);
@@ -87,7 +86,6 @@ describe("useToggleFavorite", () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(queryClient.getQueryData<Garment[]>(QUERY_KEYS.garments)?.[0]?.isFavorite).toBe(true);
-    expect(queryClient.getQueryData<Garment[]>(QUERY_KEYS.laundryBasket)?.[0]?.isFavorite).toBe(true);
     expect(queryClient.getQueryData<Garment[]>(QUERY_KEYS.favorites)?.[0]?.isFavorite).toBe(true);
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/garments/g1/favorite",
@@ -108,7 +106,6 @@ describe("useToggleFavorite", () => {
     const garment = buildGarment();
     const { queryClient, wrapper } = createHarness();
     queryClient.setQueryData(QUERY_KEYS.garments, [garment]);
-    queryClient.setQueryData(QUERY_KEYS.laundryBasket, [garment]);
     queryClient.setQueryData(QUERY_KEYS.favorites, []);
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
 
@@ -117,7 +114,6 @@ describe("useToggleFavorite", () => {
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(queryClient.getQueryData<Garment[]>(QUERY_KEYS.garments)?.[0]?.isFavorite).toBe(false);
-    expect(queryClient.getQueryData<Garment[]>(QUERY_KEYS.laundryBasket)?.[0]?.isFavorite).toBe(false);
     expect(queryClient.getQueryData<Garment[]>(QUERY_KEYS.favorites)).toEqual([]);
     expect(mockAddNotification).toHaveBeenCalledWith(
       "error",

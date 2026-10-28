@@ -9,7 +9,8 @@ import {
 import { getCurrentPosition } from "@/lib/geolocation";
 import { buildWeatherUrl } from "@/constants/api";
 import type { WeatherDaySummary, WeatherInfo } from "@/types/weather";
-import type { OutfitDay } from "../../state/generator-store/useGeneratorStore";
+
+export { getWeatherForDay } from "../../domain/recommendations/climate";
 
 // Outdoor conditions that call for an outerwear layer.
 export function isRainyCondition(condition: string | null | undefined): boolean {
@@ -118,26 +119,6 @@ function clientFallbackWeather(): WeatherInfo {
     dayCondition: fallback.dayCondition,
     rainProbability: fallback.rainProbability,
     fallback: true,
-  };
-}
-
-export function getWeatherForDay(
-  weather: WeatherInfo | null | undefined,
-  day: OutfitDay,
-): WeatherDaySummary | null {
-  if (weather === null || weather === undefined || weather.fallback) {
-    return null;
-  }
-  if (day === "tomorrow") {
-    return weather.tomorrow ?? null;
-  }
-  return weather.today ?? {
-    temperatureC: weather.temperatureC,
-    condition: weather.condition,
-    dayLow: weather.dayLow,
-    dayHigh: weather.dayHigh,
-    dayCondition: weather.dayCondition,
-    rainProbability: weather.rainProbability,
   };
 }
 

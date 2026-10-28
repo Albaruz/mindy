@@ -5,19 +5,17 @@ import nextTs from "eslint-config-next/typescript";
 // Layering (see docs/ARCHITECTURE.md): features are isolated business
 // domains. Shared code lives in lib/, stores/, constants/ and types/. The only
 // cross-feature imports allowed are the data hooks below, which other
-// domains legitimately read or trigger (closet data, profile, laundry).
+// domains legitimately read (closet inventory, favorites, profile).
 const FEATURES = ["closet", "generator", "history", "onboarding", "profile", "settings"];
 const SHARED_DATA_HOOKS = [
   "@/features/closet/hooks/queries/useClosetQuery",
   "@/features/closet/hooks/queries/useFavoritesQuery",
   "@/features/profile/hooks/profile/useProfileQuery",
-  "@/features/profile/hooks/laundry/useDoLaundry",
 ];
 const SHARED_DATA_HOOK_DIRECTORIES = [
   "@/features/closet/hooks/",
   "@/features/closet/hooks/queries/",
   "@/features/profile/hooks/",
-  "@/features/profile/hooks/laundry/",
   "@/features/profile/hooks/profile/",
 ];
 
@@ -75,6 +73,8 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    // Generated reports must not be linted as application source.
+    "coverage/**",
     "next-env.d.ts",
     // Generated artifacts from next-pwa (minified third-party code):
     "public/sw.js",

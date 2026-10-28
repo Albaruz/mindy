@@ -16,10 +16,11 @@ vi.mock("../weather/useWeatherQuery", async (importOriginal) => {
   };
 });
 
+import { useGenerateLooks } from "./useGenerateLooks";
 import {
+  getWeatherForDay,
   resolveCachedClimate,
-  useGenerateLooks,
-} from "./useGenerateLooks";
+} from "../../domain/recommendations/climate";
 import { useGeneratorStore } from "../../state/generator-store/useGeneratorStore";
 import { ERROR_CODES } from "@/constants/errors";
 import { getSeasonalFallbackWeather } from "@/constants/weather";
@@ -269,5 +270,51 @@ describe("resolveCachedClimate", () => {
       dayHigh: 20,
       rainProbability: 0,
     });
+  });
+
+  it("falls back for a null or fallback weather result", () => {
+    expect(resolveCachedClimate(null, "today").temperatureC).toBe(
+      getSeasonalFallbackWeather().temperatureC,
+    );
+    expect(
+      getWeatherForDay(
+        {
+          temperatureC: 21,
+          condition: "Clear",
+          city: null,
+          dayLow: 12,
+          dayHigh: 24,
+          dayCondition: "Clear",
+          rainProbability: 0,
+          fallback: true,
+        },
+        "today",
+      ),
+    ).toBeNull();
+  });
+
+  it("selects tomorrow weather and handles a missing tomorrow summary", () => {
+    const tomorrow = {
+      temperatureC: 14,
+      condition: "Clouds",
+      dayLow: 10,
+      dayHigh: 17,
+      dayCondition: "Clouds",
+      rainProbability: 15,
+    };
+    const weather = {
+      temperatureC: 18,
+      condition: "Clear",
+      city: null,
+      dayLow: 12,
+      dayHigh: 22,
+      dayCondition: "Clear",
+      rainProbability: 0,
+      fallback: false,
+      tomorrow,
+    };
+
+    expect(getWeatherForDay(weather, "tomorrow")).toEqual(tomorrow);
+    expect(getWeatherForDay({ ...weather, tomorrow: null }, "tomorrow")).toBeNull();
   });
 });

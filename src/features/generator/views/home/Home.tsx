@@ -12,7 +12,7 @@ import { BottomActionBar } from "@/components/BottomActionBar/BottomActionBar";
 import { Button } from "@/components/Button/Button";
 import { useRouter } from "@/i18n/navigation";
 import { useClosetQuery } from "@/features/closet/hooks/queries/useClosetQuery";
-import { useDoLaundry } from "@/features/profile/hooks/laundry/useDoLaundry";
+import { useWashAllGarments } from "@/lib/garment/useLaundryMutation";
 import { useProfileQuery } from "@/features/profile/hooks/profile/useProfileQuery";
 import { useGeneratorStore } from "../../state/generator-store/useGeneratorStore";
 import { MAX_DISCARD_COUNT } from "@/constants/generator";
@@ -151,7 +151,7 @@ export function Home() {
   const generateLooks = useGenerateLooks();
   const wearToday = useWearToday();
   const planTomorrow = usePlanTomorrow();
-  const doLaundry = useDoLaundry();
+  const doLaundry = useWashAllGarments();
 
   const cleanGarments = useMemo(
     () =>

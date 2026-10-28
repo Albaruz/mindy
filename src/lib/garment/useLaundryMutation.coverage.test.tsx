@@ -21,7 +21,10 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-import { useDoLaundry } from "./useDoLaundry";
+import {
+  useWashAllGarments,
+  useWashGarment,
+} from "./useLaundryMutation";
 import { useNotificationStore } from "@/stores/useNotificationStore";
 import type { Garment } from "@/types/garment";
 
@@ -35,7 +38,7 @@ function createWrapper() {
   return Wrapper;
 }
 
-describe("useDoLaundry branch coverage", () => {
+describe("useWashAllGarments branch coverage", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     useNotificationStore.setState({ notifications: [] });
@@ -46,7 +49,7 @@ describe("useDoLaundry branch coverage", () => {
     mockEqDirty.mockResolvedValue({ error: null });
     mockEqUser.mockReturnValue({ eq: mockEqDirty });
     mockUpdate.mockReturnValue({ eq: mockEqUser });
-    const { result } = renderHook(() => useDoLaundry(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useWashAllGarments(), { wrapper: createWrapper() });
     result.current.mutate();
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(mockUpdate).toHaveBeenCalledWith({ is_dirty: false });
@@ -54,7 +57,7 @@ describe("useDoLaundry branch coverage", () => {
 
   it("rejects when no user is signed in", async () => {
     mockGetUser.mockResolvedValue({ data: { user: null } });
-    const { result } = renderHook(() => useDoLaundry(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useWashAllGarments(), { wrapper: createWrapper() });
     result.current.mutate();
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(String(result.current.error)).toContain("signed in");
@@ -65,7 +68,7 @@ describe("useDoLaundry branch coverage", () => {
     mockEqDirty.mockResolvedValue({ error: new Error("update failed") });
     mockEqUser.mockReturnValue({ eq: mockEqDirty });
     mockUpdate.mockReturnValue({ eq: mockEqUser });
-    const { result } = renderHook(() => useDoLaundry(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useWashAllGarments(), { wrapper: createWrapper() });
     result.current.mutate();
     await waitFor(() => expect(result.current.isError).toBe(true));
   });
@@ -75,7 +78,7 @@ describe("useDoLaundry branch coverage", () => {
     mockEqDirty.mockResolvedValue({ error: new Error("update failed") });
     mockEqUser.mockReturnValue({ eq: mockEqDirty });
     mockUpdate.mockReturnValue({ eq: mockEqUser });
-    const { result } = renderHook(() => useDoLaundry(), { wrapper: createWrapper() });
+    const { result } = renderHook(() => useWashAllGarments(), { wrapper: createWrapper() });
     result.current.mutate();
     await waitFor(() => expect(result.current.isError).toBe(true));
     await waitFor(() =>
@@ -83,7 +86,7 @@ describe("useDoLaundry branch coverage", () => {
     );
   });
 
-  it("updates cached garments and basket optimistically", async () => {
+  it("updates cached garments optimistically", async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: "user-one" } } });
     mockEqDirty.mockResolvedValue({ error: null });
     mockEqUser.mockReturnValue({ eq: mockEqDirty });
@@ -93,18 +96,16 @@ describe("useDoLaundry branch coverage", () => {
     });
     const garment = { garmentId: "g1", isDirty: true } as Garment;
     client.setQueryData(["garments"], [garment]);
-    client.setQueryData(["laundry-basket"], [garment]);
     function Wrapper({ children }: { children: React.ReactNode }) {
       return React.createElement(QueryClientProvider, { client }, children);
     }
-    const { result } = renderHook(() => useDoLaundry(), { wrapper: Wrapper });
+    const { result } = renderHook(() => useWashAllGarments(), { wrapper: Wrapper });
     result.current.mutate();
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(client.getQueryData<Garment[]>(["garments"])?.[0]?.isDirty).toBe(false);
-    expect(client.getQueryData<Garment[]>(["laundry-basket"])).toEqual([]);
   });
 
-  it("restores cached garments and basket after a failed update", async () => {
+  it("restores cached garments after a failed update", async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: "user-one" } } });
     mockEqDirty.mockResolvedValue({ error: new Error("update failed") });
     mockEqUser.mockReturnValue({ eq: mockEqDirty });
@@ -114,14 +115,42 @@ describe("useDoLaundry branch coverage", () => {
     });
     const garment = { garmentId: "g1", isDirty: true } as Garment;
     client.setQueryData(["garments"], [garment]);
-    client.setQueryData(["laundry-basket"], [garment]);
     function Wrapper({ children }: { children: React.ReactNode }) {
       return React.createElement(QueryClientProvider, { client }, children);
     }
-    const { result } = renderHook(() => useDoLaundry(), { wrapper: Wrapper });
+    const { result } = renderHook(() => useWashAllGarments(), { wrapper: Wrapper });
     result.current.mutate();
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(client.getQueryData<Garment[]>(["garments"])).toEqual([garment]);
-    expect(client.getQueryData<Garment[]>(["laundry-basket"])).toEqual([garment]);
+  });
+
+  it("only updates the selected garment in the optimistic cache", async () => {
+    mockGetUser.mockResolvedValue({ data: { user: { id: "user-one" } } });
+    mockEqDirty.mockReturnValue({
+      in: vi.fn().mockResolvedValue({ error: null }),
+    });
+    mockEqUser.mockReturnValue({ eq: mockEqDirty });
+    mockUpdate.mockReturnValue({
+      eq: mockEqUser,
+    });
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+    client.setQueryData<Garment[]>(["garments"], [
+      { garmentId: "g1", isDirty: true } as Garment,
+      { garmentId: "g2", isDirty: true } as Garment,
+    ]);
+    function Wrapper({ children }: { children: React.ReactNode }) {
+      return React.createElement(QueryClientProvider, { client }, children);
+    }
+
+    const { result } = renderHook(() => useWashGarment(), { wrapper: Wrapper });
+    result.current.mutate("g1");
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(client.getQueryData<Garment[]>(["garments"])?.map((item) => item.isDirty)).toEqual([
+      false,
+      true,
+    ]);
   });
 });

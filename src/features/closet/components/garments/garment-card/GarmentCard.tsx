@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, Sparkles, Heart, HeartCrack } from "lucide-react";
+import { Pencil, Sparkles, Heart } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { GarmentCard as GarmentCardBase } from "@/components/GarmentCard/GarmentCard";
 import { ButtonIcon } from "@/components/ButtonIcon/ButtonIcon";

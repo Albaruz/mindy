@@ -19,7 +19,7 @@ import { useClosetQuery } from "@/features/closet/hooks/queries/useClosetQuery";
 import { useClosetInventory } from "@/features/closet/hooks/inventory/useClosetInventory";
 import { useLaundryActions } from "@/features/closet/hooks/laundry/useLaundryActions";
 import { useGarmentDeletion } from "@/features/closet/hooks/garment-actions/useGarmentDeletion";
-import type { GarmentFormInput } from "@/features/closet/hooks/upload/useUploadGarment";
+import type { GarmentFormInput } from "@/features/closet/domain/garments/garmentForm";
 import { useUpdateGarment } from "@/features/closet/hooks/garment-actions/useUpdateGarment";
 import { toEditableTags } from "@/features/closet/components/garments/extra-tags-editor/ExtraTagsEditor";
 import { useGarmentTranslator } from "@/lib/translateGarment";

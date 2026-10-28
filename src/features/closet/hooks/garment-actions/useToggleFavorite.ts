@@ -12,13 +12,11 @@ interface ToggleFavoriteVariables {
 
 interface FavoriteSnapshots {
   garments: Garment[] | undefined;
-  laundryBasket: Garment[] | undefined;
   favorites: Garment[] | undefined;
 }
 
 const FAVORITE_QUERY_KEYS = [
   QUERY_KEYS.garments,
-  QUERY_KEYS.laundryBasket,
   QUERY_KEYS.favorites,
 ] as const;
 
@@ -63,16 +61,10 @@ export function useToggleFavorite() {
 
       const snapshots: FavoriteSnapshots = {
         garments: queryClient.getQueryData<Garment[]>(QUERY_KEYS.garments),
-        laundryBasket: queryClient.getQueryData<Garment[]>(
-          QUERY_KEYS.laundryBasket,
-        ),
         favorites: queryClient.getQueryData<Garment[]>(QUERY_KEYS.favorites),
       };
 
       queryClient.setQueryData<Garment[]>(QUERY_KEYS.garments, (current) =>
-        updateFavoriteInList(current, garment, isFavorite),
-      );
-      queryClient.setQueryData<Garment[]>(QUERY_KEYS.laundryBasket, (current) =>
         updateFavoriteInList(current, garment, isFavorite),
       );
       queryClient.setQueryData<Garment[]>(QUERY_KEYS.favorites, (current) => {
@@ -97,10 +89,6 @@ export function useToggleFavorite() {
     onError: (_error, _variables, snapshots) => {
       if (snapshots === undefined) return;
       queryClient.setQueryData(QUERY_KEYS.garments, snapshots.garments);
-      queryClient.setQueryData(
-        QUERY_KEYS.laundryBasket,
-        snapshots.laundryBasket,
-      );
       queryClient.setQueryData(QUERY_KEYS.favorites, snapshots.favorites);
       useNotificationStore
         .getState()

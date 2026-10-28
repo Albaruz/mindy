@@ -236,6 +236,49 @@ describe("POST /api/recommender", () => {
     });
   });
 
+  it("finalizes JSON and streaming recommendations with the same rules", async () => {
+    const random = vi.spyOn(Math, "random").mockReturnValue(0);
+    const garments = [
+      buildGarment("top-1", "top"),
+      buildGarment("bottom-1", "bottom"),
+      buildGarment("shoe-1", "footwear"),
+      buildGarment("top-2", "top"),
+      buildGarment("bottom-2", "bottom"),
+    ];
+    const content = JSON.stringify({
+      options: [
+        { garmentIds: ["top-1", "bottom-1"], suitabilityRatio: 85, reason: "First" },
+        { garmentIds: ["top-2", "bottom-2"], suitabilityRatio: 80, reason: "Second" },
+      ],
+    });
+    const body = { garments, temperatureC: 20 };
+    mockGenerate.mockResolvedValue(content);
+    mockGenerateStream.mockImplementation(
+      async (_system, _payload, onContent) => {
+        onContent(content);
+        return content;
+      },
+    );
+
+    try {
+      const jsonResponse = await POST(buildRequest(body));
+      const jsonPayload = await jsonResponse.json();
+      const streamResponse = await POST(buildRequest(body, true));
+      const events = (await streamResponse.text())
+        .trim()
+        .split("\n\n")
+        .map((frame) =>
+          JSON.parse(frame.slice("data: ".length)) as Record<string, unknown>,
+        );
+      const complete = events.find((event) => event.type === "complete");
+      expect((complete?.payload as { options?: unknown[] }).options).toEqual(
+        jsonPayload.options,
+      );
+    } finally {
+      random.mockRestore();
+    }
+  });
+
   it("completes three distinct looks in the streamed response when the model returns one", async () => {
     const random = vi.spyOn(Math, "random").mockReturnValue(0);
     try {

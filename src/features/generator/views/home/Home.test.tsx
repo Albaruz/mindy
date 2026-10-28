@@ -71,8 +71,8 @@ vi.mock("@/features/profile/hooks/profile/useProfileQuery", () => ({
   useProfileQuery: () => ({ data: mockProfileData() }),
 }));
 
-vi.mock("@/features/profile/hooks/laundry/useDoLaundry", () => ({
-  useDoLaundry: () => ({ isPending: false, mutate: mockDoLaundry }),
+vi.mock("@/lib/garment/useLaundryMutation", () => ({
+  useWashAllGarments: () => ({ isPending: false, mutate: mockDoLaundry }),
 }));
 
 vi.mock("../../hooks/weather/useWeatherQuery", async (importOriginal) => {

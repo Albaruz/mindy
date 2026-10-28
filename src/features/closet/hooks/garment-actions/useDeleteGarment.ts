@@ -2,10 +2,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/constants/query";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
-import { GARMENT_STORAGE_BUCKET } from "../upload/useUploadGarment";
 import { useNotificationStore } from "@/stores/useNotificationStore";
 import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { requireUser } from "@/lib/supabase/session";
+import {
+  getGarmentStoragePath,
+  removeGarmentStoragePaths,
+} from "../../services/persistence/garmentStorage";
+import { logger } from "@/lib/logger";
 
 // Deletes a garment row owned by the signed-in user (RLS enforced).
 // Storage cleanup is best-effort: the row is removed even if the file
@@ -36,17 +40,21 @@ export function useDeleteGarment() {
         throw error;
       }
 
-      const paths = [toStoragePath(imageUrl), toStoragePath(originalImageUrl ?? null)]
-        .filter((path): path is string => path !== null);
-      if (paths.length > 0) {
-        await supabase.storage
-          .from(GARMENT_STORAGE_BUCKET)
-          .remove([...new Set(paths)]);
+      const paths = [
+        getGarmentStoragePath(imageUrl),
+        getGarmentStoragePath(originalImageUrl),
+      ].filter((path): path is string => path !== null);
+      const cleanupError = await removeGarmentStoragePaths(supabase, paths);
+      if (cleanupError) {
+        logger.warn("Deleted garment storage cleanup failed", {
+          userId: user.id,
+          garmentId,
+          error: cleanupError,
+        });
       }
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments });
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.laundryBasket });
       void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.favorites });
       useNotificationStore
         .getState()
@@ -58,19 +66,4 @@ export function useDeleteGarment() {
         .addNotification("error", t("deleteFailed"));
     },
   });
-}
-
-// Public URLs look like .../storage/v1/object/public/garments/<path>.
-// Only paths inside the garments bucket are removed.
-function toStoragePath(imageUrl: string | null): string | null {
-  if (!imageUrl) {
-    return null;
-  }
-  const marker = `/object/public/${GARMENT_STORAGE_BUCKET}/`;
-  const index = imageUrl.indexOf(marker);
-  if (index === -1) {
-    return null;
-  }
-  const path = imageUrl.slice(index + marker.length).split("?")[0];
-  return path === "" ? null : path;
 }

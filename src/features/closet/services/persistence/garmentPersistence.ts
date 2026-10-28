@@ -1,14 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { GARMENT_UPLOAD_WIDTH_PX } from "@/constants/validation";
-import { STORAGE_BUCKETS, TABLES, USER_ID_COLUMN } from "@/constants/storage";
+import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { resizeToWidth } from "../images/garmentImage";
 import { buildVisionExtraTags } from "@/lib/garment/garmentMappers";
 import type { InferredTags } from "../../domain/garments/garmentAnalysis";
 import { logger } from "@/lib/logger";
-
-// Storage bucket for garment photos. Re-exported from centralized
-// constants for backward compatibility.
-export const GARMENT_STORAGE_BUCKET = STORAGE_BUCKETS.garments;
+import {
+  removeGarmentStoragePaths,
+  storeGarmentImageBlob,
+} from "./garmentStorage";
 
 export interface PersistGarmentDeps {
   client: SupabaseClient;
@@ -25,14 +25,8 @@ async function removeUploadedImage(
   path: string,
   userId: string,
 ): Promise<void> {
-  try {
-    const { error } = await client.storage
-      .from(GARMENT_STORAGE_BUCKET)
-      .remove([path]);
-    if (error) {
-      logger.warn("Uploaded garment image cleanup failed", { userId, error });
-    }
-  } catch (error) {
+  const error = await removeGarmentStoragePaths(client, [path]);
+  if (error) {
     logger.warn("Uploaded garment image cleanup failed", { userId, error });
   }
 }
@@ -52,24 +46,15 @@ export async function persistGarment(
 
   deps.onProgress(deps.progressUploading);
 
-  const path = `${deps.userId}/${crypto.randomUUID()}.png`;
-  const { error: uploadError } = await deps.client.storage
-    .from(GARMENT_STORAGE_BUCKET)
-    .upload(path, uploadBlob, {
-      contentType: "image/png",
-      upsert: false,
-    });
-  if (uploadError) {
-    throw uploadError;
-  }
+  const { path, imageUrl } = await storeGarmentImageBlob(
+    deps.client,
+    deps.userId,
+    uploadBlob,
+  );
   if (deps.isCancelled?.()) {
     await removeUploadedImage(deps.client, path, deps.userId);
     throw new Error("Upload was cancelled.");
   }
-  const imageUrl = deps.client.storage
-    .from(GARMENT_STORAGE_BUCKET)
-    .getPublicUrl(path).data.publicUrl;
-
   const { error: insertError } = await deps.client
     .from(TABLES.garments)
     .insert({

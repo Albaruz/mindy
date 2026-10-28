@@ -5,7 +5,6 @@
 export const QUERY_KEYS = {
   garments: ["garments"],
   profile: ["profile"],
-  laundryBasket: ["laundry-basket"],
   history: ["outfit-history"],
   weather: ["weather"],
   favorites: ["favorites"],

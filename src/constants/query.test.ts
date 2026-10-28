@@ -13,12 +13,11 @@ import {
 describe("query constants", () => {
   it("exposes all cache keys", () => {
     expect(Object.keys(QUERY_KEYS).sort()).toEqual(
-      ["favorites", "garments", "history", "laundryBasket", "profile", "weather"].sort(),
+      ["favorites", "garments", "history", "profile", "weather"].sort(),
     );
     expect(QUERY_KEYS.garments).toEqual(["garments"]);
     expect(QUERY_KEYS.favorites).toEqual(["favorites"]);
     expect(QUERY_KEYS.profile).toEqual(["profile"]);
-    expect(QUERY_KEYS.laundryBasket).toEqual(["laundry-basket"]);
     expect(QUERY_KEYS.history).toEqual(["outfit-history"]);
     expect(QUERY_KEYS.weather).toEqual(["weather"]);
   });

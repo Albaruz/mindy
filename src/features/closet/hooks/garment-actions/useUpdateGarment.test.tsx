@@ -16,7 +16,7 @@ vi.mock("@/lib/supabase/client", () => ({
 }));
 
 import { useUpdateGarment } from "./useUpdateGarment";
-import type { GarmentFormInput } from "../upload/useUploadGarment";
+import type { GarmentFormInput } from "../../domain/garments/garmentForm";
 
 function createWrapper() {
   const client = new QueryClient({

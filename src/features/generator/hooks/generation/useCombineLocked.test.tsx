@@ -8,6 +8,10 @@ vi.mock("next-intl", () => ({
   useLocale: () => "en",
 }));
 
+vi.mock("../weather/useWeatherQuery", () => ({
+  useWeatherQuery: () => ({ data: undefined }),
+}));
+
 import { useCombineLocked } from "./useCombineLocked";
 import { useGeneratorStore } from "../../state/generator-store/useGeneratorStore";
 import type { Garment } from "@/types/garment";

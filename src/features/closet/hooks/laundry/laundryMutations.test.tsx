@@ -19,8 +19,10 @@ vi.mock("@/lib/supabase/client", () => ({
   }),
 }));
 
-import { useWashGarment } from "@/features/closet/hooks/laundry/useWashGarment";
-import { useDoLaundry } from "@/features/profile/hooks/laundry/useDoLaundry";
+import {
+  useWashAllGarments,
+  useWashGarment,
+} from "@/lib/garment/useLaundryMutation";
 
 function createWrapper() {
   const client = new QueryClient({
@@ -31,6 +33,17 @@ function createWrapper() {
   };
 }
 
+function makeUpdateBuilder() {
+  const finalQuery = {
+    in: vi.fn(async () => ({ error: null })),
+    then: (resolve: (value: { error: null }) => unknown) =>
+      Promise.resolve({ error: null }).then(resolve),
+  };
+  return {
+    eq: vi.fn(() => ({ eq: vi.fn(() => finalQuery) })),
+  };
+}
+
 describe("useWashGarment", () => {
   beforeEach(() => {
     vi.resetAllMocks();
@@ -38,8 +51,7 @@ describe("useWashGarment", () => {
 
   it("washes owned garment", async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: "u1" } } });
-    const chain = { eq: vi.fn(() => ({ eq: vi.fn(async () => ({ error: null })) })) };
-    mockUpdate.mockReturnValue(chain);
+    mockUpdate.mockReturnValue(makeUpdateBuilder());
     const { result } = renderHook(() => useWashGarment(), {
       wrapper: createWrapper(),
     });
@@ -57,16 +69,15 @@ describe("useWashGarment", () => {
   });
 });
 
-describe("useDoLaundry", () => {
+describe("useWashAllGarments", () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
 
   it("marks all dirty garments clean", async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: "u1" } } });
-    const chain = { eq: vi.fn(() => ({ eq: vi.fn(async () => ({ error: null })) })) };
-    mockUpdate.mockReturnValue(chain);
-    const { result } = renderHook(() => useDoLaundry(), {
+    mockUpdate.mockReturnValue(makeUpdateBuilder());
+    const { result } = renderHook(() => useWashAllGarments(), {
       wrapper: createWrapper(),
     });
     result.current.mutate();
