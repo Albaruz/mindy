@@ -27,18 +27,15 @@ test.describe("onboarding wizard", () => {
       .first()
       .getByRole("radio")
       .first()
-      .check();
-    await page.locator('input[name="style"]').first().check();
+      .check({ force: true });
+    const styleLabels = page.locator('label:has(input[name="style"])');
+    await styleLabels.first().click();
     await page.getByRole("button").last().click();
 
     // Step 3: lifestyle.
     await expect(page.getByRole("radiogroup").first()).toBeVisible();
-    await page
-      .getByRole("radiogroup")
-      .first()
-      .getByRole("radio")
-      .first()
-      .check();
+    const lifestyleLabels = page.locator('label:has(input[name="lifestyle"])');
+    await lifestyleLabels.first().click();
     await page.getByRole("button").last().click();
 
     // Step 4: measurements + fit picker.
@@ -48,7 +45,7 @@ test.describe("onboarding wizard", () => {
       .first()
       .getByRole("radio")
       .first()
-      .check();
+      .check({ force: true });
     await page.getByRole("button").last().click();
 
     // Step 5: colorimetry swatches (skin, eyes, jewelry).
