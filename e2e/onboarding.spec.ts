@@ -8,35 +8,57 @@ test.describe("onboarding wizard", () => {
     test.skip(!hasSeededAuth(), SEEDED_AUTH_HELP);
   });
 
-  test("walks the 5 steps and reaches the success screen", async ({
+  test("walks the 6 steps and reaches the success screen", async ({
     page,
   }) => {
-    await page.goto("/es/profile/onboarding");
+    // The seeded account may already have completed onboarding. Explicitly
+    // reopen the wizard so this flow is stable for both new and existing users.
+    await page.goto("/es/profile/onboarding?edit=true");
 
     // Step 1: display name (only free-text input in the wizard).
     await expect(page.getByRole("progressbar")).toBeVisible();
     await page.locator("#displayName").fill("E2E Tester");
     await page.getByRole("button").last().click();
 
-    // Step 2: identity (section + style tribe radios).
+    // Step 2: identity (section + style tribe).
     await expect(page.getByRole("radiogroup").first()).toBeVisible();
-    await page.getByRole("radio", { name: /./ }).first().check();
-    await page.getByRole("radio", { name: /./ }).nth(3).check();
+    await page
+      .getByRole("radiogroup")
+      .first()
+      .getByRole("radio")
+      .first()
+      .check();
+    await page.locator('input[name="style"]').first().check();
     await page.getByRole("button").last().click();
 
-    // Step 3: measurements + fit picker.
+    // Step 3: lifestyle.
+    await expect(page.getByRole("radiogroup").first()).toBeVisible();
+    await page
+      .getByRole("radiogroup")
+      .first()
+      .getByRole("radio")
+      .first()
+      .check();
+    await page.getByRole("button").last().click();
+
+    // Step 4: measurements + fit picker.
     await expect(page.locator("#chestCm")).toBeVisible();
-    await page.getByRole("radio", { name: /./ }).first().check();
+    await page
+      .getByRole("radiogroup")
+      .first()
+      .getByRole("radio")
+      .first()
+      .check();
     await page.getByRole("button").last().click();
 
-    // Step 4: colorimetry swatches (skin, eyes, jewelry).
+    // Step 5: colorimetry swatches (skin, eyes, jewelry).
     await expect(page.getByRole("radiogroup").first()).toBeVisible();
     for (const group of await page.getByRole("radiogroup").all()) {
       await group.getByRole("radio").first().check();
     }
     await page.getByRole("button").last().click();
 
-    // Step 5: fine tuning, then save (armed after a short delay).
+    // Step 6: fine tuning, then save (armed after a short delay).
     await expect(page.locator("#thermal")).toBeVisible();
     const saveButton = page.getByRole("button", { name: /./ }).last();
     await expect
