@@ -153,4 +153,10 @@ jobs:
             exit 1
           fi
       - name: Run RLS isolation checks
-        run: psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_isolation.sql
+        run: |
+          output="$(psql "$SUPABASE_DB_URL" -X -A -t -v ON_ERROR_STOP=1 -f supabase/tests/rls_isolation.sql)"
+          printf '%s\n' "$output"
+          if grep -Eq '^(not ok [0-9]+|# Looks like you (failed|planned))' <<< "$output"; then
+            echo "::error::One or more pgTAP RLS checks failed."
+            exit 1
+          fi

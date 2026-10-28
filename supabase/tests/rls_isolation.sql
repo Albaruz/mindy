@@ -1,4 +1,5 @@
--- RLS isolation tests (pgTAP, scaffold only - cannot execute without a local stack).
+-- RLS isolation tests using pgTAP. The test transaction rolls back its fixture
+-- rows and the extension installation when pgTAP was not already enabled.
 --
 -- Run with (local Supabase stack required):
 --   supabase db start && supabase test db
@@ -17,6 +18,9 @@
 -- which is what auth.uid() reads.
 
 begin;
+create extension if not exists pgtap with schema extensions;
+set local search_path = extensions, public;
+
 select plan(11);
 
 -- Setup: two users with one profile row, one garment row and one
@@ -99,5 +103,7 @@ select is(
   'user A reads only their own outfit_history'
 );
 reset role;
+
+select * from finish();
 
 rollback;
