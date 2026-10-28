@@ -32,8 +32,19 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
 
+// This identifier is public client metadata, not a credential. Prefer the
+// hosting platform's immutable commit SHA; local builds receive a fresh ID.
+const buildVersion =
+  process.env.NEXT_PUBLIC_BUILD_VERSION ??
+  process.env.VERCEL_GIT_COMMIT_SHA ??
+  process.env.GITHUB_SHA ??
+  `local-${Date.now()}`;
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  env: {
+    NEXT_PUBLIC_BUILD_VERSION: buildVersion,
+  },
   // next-pwa only contributes `webpack` config (production builds run
   // `next build --webpack`). Declaring `turbopack` avoids errors in
   // `next dev`, which runs on Turbopack and needs no service worker.

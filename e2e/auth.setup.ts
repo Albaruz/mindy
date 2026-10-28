@@ -34,6 +34,11 @@ setup("authenticate with seeded user", async ({ page }) => {
     supabaseAnonKey?.trim() === "" ||
     supabaseAnonKey === undefined;
   if (missingRequirements) {
+    if (process.env.CI) {
+      throw new Error(
+        "Seeded E2E credentials and Supabase client configuration are required in CI.",
+      );
+    }
     // Always leave a (empty) state file so dependent projects do not fail
     // on a missing file; specs self-skip at runtime via hasSeededAuth().
     writeEmptyState();

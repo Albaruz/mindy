@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { QUERY_KEYS } from "@/constants/query";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { useNotificationStore } from "@/stores/useNotificationStore";
@@ -10,6 +9,9 @@ import {
 } from "@/lib/garment/categorizeGarments";
 import type { Garment } from "@/types/garment";
 import { requireUser } from "@/lib/supabase/session";
+import { invalidateGarmentCaches } from "@/lib/garment/invalidateGarmentCaches";
+import { ERROR_CODES } from "@/constants/errors";
+import { AppError, isAppError } from "@/lib/errors";
 
 // Persists the current canvas as today's look: inserts an outfit_history row
 // with the full look (footwear and both layers included) but only marks
@@ -24,7 +26,7 @@ export function useWearToday() {
       // hidden manual slot): sanitize before persisting or celebrating.
       const wornGarments = withoutHiddenBottom(garments);
       const supabase = createClient();
-      await requireUser(supabase, "You must be signed in to save a look.");
+      await requireUser(supabase);
 
       const garmentIds = wornGarments.map((garment) => garment.garmentId);
       const now = new Date().toISOString();
@@ -39,23 +41,21 @@ export function useWearToday() {
         p_worn_date: now,
       });
       if (error) {
-        throw error;
+        throw new AppError(ERROR_CODES.WEAR_SAVE_FAILED);
       }
       return wornGarments;
     },
     onSuccess: (garments) => {
-      // The calendar reads outfit_history through QUERY_KEYS.history: without
-      // invalidating it the new look only appears after a manual reload.
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments });
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.history });
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.favorites });
+      // Refresh garment, favorite, and calendar views after writing the look.
+      const invalidation = invalidateGarmentCaches(queryClient);
       // The full-screen celebration replaces the success toast.
       useGeneratorStore.getState().showCelebration(garments);
+      return invalidation;
     },
     onError: (error) => {
       useNotificationStore.getState().addNotification(
         "error",
-        error instanceof Error ? error.message : t("wearFailed"),
+        isAppError(error) ? t(`errors.${error.code}`) : t("wearFailed"),
       );
     },
   });

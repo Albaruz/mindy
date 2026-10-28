@@ -116,6 +116,20 @@ describe("POST /api/analyze vision success and failures", () => {
     expect(body.typeDetail).toBe("Crew neck");
   });
 
+  it("accepts a valid base64 data URL with no padding", async () => {
+    groqResolves(JSON.stringify({ category: "top", garmentType: "top" }));
+    const pngSignature = Buffer.from([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00,
+    ]).toString("base64");
+    expect(pngSignature).not.toContain("=");
+
+    const response = await POST(
+      buildRequest({ imageBase64: `data:image/png;base64,${pngSignature}` }),
+    );
+
+    expect(response.status).toBe(200);
+  });
+
   it("returns validated cutout assessment and garment description", async () => {
     groqResolves(
       JSON.stringify({

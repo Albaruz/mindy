@@ -12,6 +12,7 @@ import {
   OUTFIT_STYLIST_PROMPT_V3_VERSION,
   type PromptVersion,
 } from "./versions";
+import type { AppLocale } from "@/i18n/routing";
 
 export interface BuiltOutfitPrompt {
   version: PromptVersion;
@@ -39,7 +40,7 @@ export function buildOutfitPrompt(input: BuildOutfitPromptInput): BuiltOutfitPro
 
 // Single garment-analysis prompt (vision): tags, a garment-only description,
 // and cutout assessment from the original image.
-export function buildAnalysisPrompt(locale: "en" | "es" = "en"): {
+export function buildAnalysisPrompt(locale: AppLocale = "en"): {
   version: PromptVersion;
   systemPrompt: string;
 } {

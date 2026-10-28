@@ -118,12 +118,18 @@ export function ManualCarousels({
     return ordered;
   }, [byCategory, combineSuggestions]);
   const selectedWeather = getWeatherForDay(weather, outfitDay);
-  const showOuterwear = shouldShowOuterwear(
-    selectedWeather === null || weather === null || weather === undefined
-      ? weather
-      : { ...weather, ...selectedWeather },
-    orderedByCategory.outerwear.length,
+  const selectedOuterwearId = slots.outerwear.garment?.garmentId;
+  const selectedOuterwearIsAvailable = orderedByCategory.outerwear.some(
+    (garment) => garment.garmentId === selectedOuterwearId,
   );
+  const showOuterwear =
+    selectedOuterwearIsAvailable ||
+    shouldShowOuterwear(
+      selectedWeather === null || weather === null || weather === undefined
+        ? weather
+        : { ...weather, ...selectedWeather },
+      orderedByCategory.outerwear.length,
+    );
   const showMidLayer = orderedByCategory.mid_layer.length > 0;
   const topIsOnePiece = isOnePieceGarment(slots.top.garment);
 
@@ -156,12 +162,13 @@ export function ManualCarousels({
       assign("mid_layer", orderedByCategory.mid_layer[0]);
     }
     if (
+      showOuterwear &&
       current.outerwear.garment === null &&
       orderedByCategory.outerwear.length > 0
     ) {
       assign("outerwear", orderedByCategory.outerwear[0]);
     }
-  }, [orderedByCategory, midLayerIncluded]);
+  }, [orderedByCategory, midLayerIncluded, showOuterwear]);
 
   const handleSlideChange = (category: Category, index: number) => {
     const garment = orderedByCategory[category][index];
@@ -190,11 +197,12 @@ export function ManualCarousels({
     () =>
       (Object.keys(slots) as (keyof typeof slots)[]).flatMap((category) =>
         slots[category].garment !== null &&
-        (category !== "mid_layer" || midLayerIncluded)
+        (category !== "mid_layer" || midLayerIncluded) &&
+        (category !== "outerwear" || showOuterwear)
           ? [slots[category].garment]
           : [],
       ),
-    [slots, midLayerIncluded],
+    [slots, midLayerIncluded, showOuterwear],
   );
 
   const handleWearManual = () => {

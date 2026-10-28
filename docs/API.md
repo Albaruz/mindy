@@ -1,139 +1,84 @@
 # API Reference
 
-## Overview
+The App Router exposes five Route Handlers. All handlers require a signed-in
+Supabase session, enforce a per-user quota, and keep server API keys off the
+client. Requests use the session cookie; send same-origin requests with browser
+credentials enabled.
 
-All APIs use **Route Handlers** (Next.js serverless functions) to keep credentials secure.
+| Method | Route | Purpose | Per-user limit |
+|---|---|---|---:|
+| `GET` | `/api/weather?lat={lat}&lon={lon}` | Current weather and today/tomorrow summaries | 30/hour |
+| `POST` | `/api/recommender` | JSON outfit recommendation or SSE stream | 5/minute |
+| `POST` | `/api/analyze` | Vision tags for an uploaded image | 30/10 minutes |
+| `GET` | `/api/favorites` | Current user's favorite garments | 60/minute |
+| `PATCH` | `/api/garments/{id}/favorite` | Set a garment's favorite state | 60/minute |
 
-- 🔐 API keys never exposed to client
-- 📡 Rate limiting enforced per endpoint
-- ✅ JSON response with metadata
-- ⏱️ Configurable timeouts
+Rate limits are consumed by the authenticated `consume_api_rate_limit` RPC.
+Quota-service failures fail closed. A `429` response includes `Retry-After` in
+seconds. JSON bodies are capped by the shared Route Handler guard.
 
----
+## Weather
 
-## 1. Weather API
-
-### Endpoint
-
+```http
+GET /api/weather?lat=40.41&lon=-3.70
 ```
-GET /api/weather?lat={latitude}&lon={longitude}
-```
 
-### Authentication
-
-- **Required:** Yes (401 if not authenticated)
-- **Method:** Supabase session (automatic via middleware)
-
-### Query Parameters
-
-| Param | Type | Required | Example |
-|---|---|---|---|
-| `lat` | number | ✅ | `-33.8688` |
-| `lon` | number | ✅ | `-51.2093` |
-
-### Response
+Both coordinates are required finite decimal values (`lat`: -90..90, `lon`:
+-180..180). The handler fetches OpenWeather's current and forecast endpoints in
+parallel. It responds `Cache-Control: private, no-store`; the upstream fetch
+cache is ten minutes.
 
 ```json
 {
-  "current": {
-    "temp": 22,
-    "condition": "partly_cloudy",
-    "description": "Parcialmente nublado",
-    "icon": "02d",
-    "humidity": 65,
-    "windSpeed": 12
+  "temperatureC": 21.4,
+  "condition": "Clear",
+  "city": "Madrid",
+  "dayLow": 10,
+  "dayHigh": 16,
+  "dayCondition": "Rain",
+  "rainProbability": 80,
+  "today": {
+    "temperatureC": 21.4,
+    "condition": "Clear",
+    "dayLow": 10,
+    "dayHigh": 16,
+    "dayCondition": "Rain",
+    "rainProbability": 80
   },
-  "forecast": [
-    {
-      "date": "2026-10-11",
-      "temp": 24,
-      "low": 18,
-      "high": 28,
-      "condition": "sunny",
-      "rainProb": 0,
-      "description": "Soleado"
-    },
-    // ... 7 more days
-  ],
-  "fallback": false,
-  "message": "success"
+  "tomorrow": {
+    "temperatureC": 19,
+    "condition": "Clouds",
+    "dayLow": 16,
+    "dayHigh": 21,
+    "dayCondition": "Clouds",
+    "rainProbability": 40
+  },
+  "fallback": false
 }
 ```
 
-### Rate Limit
+The flat weather fields are today's values for compatibility. `today` and
+`tomorrow` are city-local summaries; `tomorrow` may be `null` when the forecast
+is unavailable. If coordinates, the API key, or the upstream service are
+unavailable, the handler returns the seasonal fallback with `fallback: true`.
 
-```
-30 requests/hour per user
-```
+| Status | Meaning |
+|---|---|
+| `200` | Current weather or seasonal fallback |
+| `401` | No authenticated session |
+| `429` | Per-user weather quota exceeded |
+| `503` | Rate-limit service unavailable |
 
-### Timeout
+## Recommender
 
-```
-8000ms
-```
-
-### Caching
-
-```
-OpenWeather upstream fetches: revalidate after 10 minutes
-HTTP response: private, no-store (weather data is user/location scoped)
-TanStack Query: staleTime 10min
-```
-
-### Error Responses
-
-| Status | Body | Reason |
-|---|---|---|
-| `200` | success object | Valid weather data |
-| `400` | `{error: "Missing lat/lon"}` | Invalid parameters |
-| `401` | `{error: "Unauthorized"}` | Not authenticated |
-| `429` | `{error: "Too many requests. Try again later."}` | Rate limited |
-| `500` | `{fallback: true, temp: 20}` | API error (fallback) |
-
-### Example Usage (Frontend)
-
-```typescript
-import { useQuery } from '@tanstack/react-query';
-
-function WeatherDisplay() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['weather', lat, lon],
-    queryFn: async () => {
-      const res = await fetch(`/api/weather?lat=${lat}&lon=${lon}`);
-      if (!res.ok) throw new Error('Weather API failed');
-      return res.json();
-    },
-    staleTime: 10 * 60 * 1000, // 10min
-    refetchInterval: 10 * 60 * 1000,
-  });
-
-  if (isLoading) return <Skeleton />;
-  
-  return (
-    <div>
-      <Temperature temp={data.current.temp} />
-      <Condition condition={data.current.condition} />
-    </div>
-  );
-}
-```
-
----
-
-## 2. Recommender API
-
-### Endpoint
-
-```
+```http
 POST /api/recommender
+Content-Type: application/json
 ```
 
-### Authentication
-
-- **Required:** Yes (401 if not authenticated)
-- **Method:** Supabase session
-
-### Request Body
+`garments` is required and must contain 1–200 garment objects with a valid ID.
+The handler accepts camelCase and the documented legacy aliases below. Unknown
+or invalid vocabulary values are discarded before they reach the model.
 
 ```json
 {
@@ -141,17 +86,12 @@ POST /api/recommender
     { "garmentId": "top-1", "garmentType": "top", "styles": ["casual"], "isDirty": false },
     { "garmentId": "bottom-1", "garmentType": "bottom", "styles": ["casual"], "isDirty": false }
   ],
-  "temperatureC": 22,
-  "condition": "Clear",
-  "dayLow": 17,
+  "temperatureC": 21,
+  "dayLow": 10,
   "dayHigh": 25,
+  "condition": "Clear",
   "rainProbability": 0,
-  "profile": {
-    "preferredFit": "regular",
-    "lifestyle": "casual_daily",
-    "colorimetry": "autumn",
-    "morphology": "rectangle"
-  },
+  "profile": { "preferredFit": "regular", "lifestyle": "casual_daily" },
   "mood": "relaxed",
   "style": "casual",
   "locale": "en",
@@ -162,460 +102,149 @@ POST /api/recommender
 }
 ```
 
-`garments` is required and must contain 1–200 items. `forcedFavoritesIds` are
-hard constraints: surviving IDs are included in every generated option, like
-locked garments. `suggestedFavoriteIds` are optional preferences for automatic
-generation, not constraints. The server selects only compatible, eligible
-favorites, preserves them through the candidate cap, and independently gives
-each look a 25% chance to use a favorite in place of a garment from the same
-category. Dirty, dismissed, weather-incompatible, and style-incompatible
-garments are not used as suggestions.
+`lockedGarmentIds` also accepts `fixed_garments` and `fixedGarments`. Locked
+garments and `forcedFavoritesIds` are hard constraints. `suggestedFavoriteIds`
+are preferences only; eligible favorites are selected by the server and may
+appear in a look. `locale` also accepts the legacy `language` alias. Optional
+weather values are `temperatureC`, `dayLow`, `dayHigh`, `condition`, and
+`rainProbability`. Optional profile and mood values are validated against the
+closed vocabularies.
 
-### Response
+The JSON response is:
 
 ```json
 {
   "options": [
     {
       "garmentIds": ["top-1", "bottom-1"],
-      "reason": "A versatile casual look",
-      "suitabilityRatio": 92
+      "suitabilityRatio": 88,
+      "reason": "A balanced casual look."
     }
   ],
-  "temperatureC": 22,
+  "temperatureC": 21,
   "requiredOuterwear": false,
   "_isFallback": false,
   "excludedWinterGarments": 0,
   "excludedRainMaterials": 0,
   "excludedDismissedGarments": 0,
-  "model": "openai/gpt-oss-20b",
+  "model": "…",
+  "repairAttempted": false,
   "fallbackReason": null
 }
 ```
 
-### Rate Limit
+Response headers include `x-groq-model`, `x-fallback`, `x-fallback-reason`,
+`x-options-count`, exclusion counts, and `x-request-id`. The local fallback keeps
+the same response shape and sets `_isFallback: true`.
 
-```
-5 requests/minute per user
-```
+To receive Server-Sent Events, add `Accept: text/event-stream`. Events are
+newline-delimited `data:` frames with `progress`, `preview`, `reset`, `error`,
+or `complete` types. The `complete` event contains the same payload as the JSON
+response.
 
-### Timeout
+| Status | Meaning |
+|---|---|
+| `200` | Model or local fallback returned options |
+| `400` | Missing/invalid garments or no buildable candidates |
+| `401` | No authenticated session |
+| `413` | More than 200 garments or oversized request body |
+| `422` | Requested style cannot form a look |
+| `429` | Per-user recommender quota exceeded |
+| `499` | Client disconnected during a non-streaming request |
+| `502` | Model failed and no local fallback can be built |
+| `503` | Groq key missing or rate-limit service unavailable |
 
-```
-15000ms per AI model call (configured by AI_TIMEOUT_MS)
-```
+## Analyze
 
-### Error Responses
-
-| Status | Body | Reason |
-|---|---|---|
-| `200` | `{ options, _isFallback, ... }` | Success; `_isFallback` reports rule-based recovery |
-| `400` | `{error: "..."}` | Malformed request or no eligible/buildable candidates |
-| `401` | `{error: "Unauthorized"}` | Not authenticated |
-| `413` | `{error: "Too many garments in a single request."}` | More than 200 garments |
-| `422` | `{error: "INSUFFICIENT_STYLE_GARMENTS"}` | Not enough clean garments for style |
-| `429` | `{error: "Too many requests. Try again later."}` | Rate limited; retry delay is in the `Retry-After` header |
-| `500` | `{error: "Unexpected recommender error."}` | Unexpected internal error |
-| `502` | `{error: "AI service request failed. Try again."}` | Upstream and local fallback both failed |
-| `503` | `{error: "AI service is not configured ..."}` | Missing `GROQ_API_KEY` |
-
-### Fallback Behavior
-
-If Groq API fails or is rate-limited, the endpoint returns rule-based combinations
-with static suitability ratios and `_isFallback: true`. The response still uses
-the same `options` contract:
-
-```json
-{
-  "options": [
-    { "garmentIds": ["..."], "suitabilityRatio": 60 },
-    { "garmentIds": ["..."], "suitabilityRatio": 55 },
-    { "garmentIds": ["..."], "suitabilityRatio": 50 }
-  ],
-  "_isFallback": true,
-  "model": "local-fallback"
-}
-```
-
-### Example Usage (Frontend)
-
-```typescript
-async function generateOutfits(
-  garments: Garment[],
-  profile: RecommenderProfile | null,
-  style: string,
-  suggestedFavoriteIds: string[] = [],
-) {
-  const res = await fetch('/api/recommender', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      garments,
-      profile,
-      style,
-      temperatureC: currentWeather.temperatureC,
-      condition: currentWeather.condition,
-      dayLow: currentWeather.dayLow,
-      dayHigh: currentWeather.dayHigh,
-      rainProbability: currentWeather.rainProbability,
-      lockedGarmentIds: [],
-      dismissedGarmentIds: [],
-      forcedFavoritesIds: [],
-      suggestedFavoriteIds,
-    }),
-  });
-
-  if (!res.ok) {
-    if (res.status === 422) {
-      throw new Error('INSUFFICIENT_STYLE_GARMENTS');
-    }
-    throw new Error(`Recommender failed: ${res.statusText}`);
-  }
-
-  const { options, _isFallback } = await res.json();
-  return { options, isFallback: _isFallback };
-}
-```
-
-Clients may request server-sent streaming by adding
-`Accept: text/event-stream`. The stream emits `progress`, `preview`, `reset`,
-and `complete` events; the completed event contains the same response payload.
-
----
-
-## 3. Analyze API
-
-### Endpoint
-
-```
+```http
 POST /api/analyze
+Content-Type: application/json
 ```
 
-### Authentication
-
-- **Required:** Yes (401 if not authenticated)
-- **Method:** Supabase session
-
-### Request Body
+The request uses **camelCase** JSON fields. `imageBase64` must be a JPEG, PNG,
+or WebP data URL whose decoded bytes match the declared format. The request body
+is capped at 10 MiB; image data URLs are capped at 9,500,000 characters and 7
+MiB decoded.
 
 ```json
 {
-  "imageBase64": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEA...",
+  "imageBase64": "data:image/png;base64,...",
   "locale": "en"
 }
 ```
 
-### Constraints
-
-- **JSON body:** 10 MiB maximum
-- **Image data URL:** 9,500,000 characters maximum; 7 MiB maximum after base64 decoding
-- **Format:** JPEG, PNG, WebP; MIME and file signature must agree
-- **Authentication:** Required before parsing or calling Groq
-
-### Response
+The response also uses camelCase. Closed tags can be `null`; lists such as
+`styles` and `cuts` contain only allowlisted values.
 
 ```json
 {
   "skipped": false,
   "category": "top",
   "garmentType": "top",
-  "style": "casual",
-  "cutLength": "regular",
   "color": "blue",
   "colorDetail": "sky blue",
-  "material": "cotton",
+  "secondaryColor": null,
+  "print": null,
   "season": "all",
+  "style": "casual",
+  "styles": ["casual"],
+  "material": "cotton",
+  "cutLength": "regular",
+  "cuts": ["regular"],
+  "typeDetail": "t-shirt",
   "cutoutDifficulty": "easy",
   "qualityNote": null,
   "visualDescription": "A blue cotton top."
 }
 ```
 
-### Field Details
+| Status | Meaning |
+|---|---|
+| `200` | Vision tags returned |
+| `400` | Invalid JSON or image data URL |
+| `401` | No authenticated session |
+| `413` | JSON body exceeds the shared limit |
+| `429` | Per-user vision quota exceeded |
+| `502` / `504` | Vision provider failure / timeout |
+| `503` | Groq is not configured; clients may continue with manual tags |
 
-| Field | Type | Possible Values |
-|---|---|---|
-| `category` / `garmentType` | string or null | top, bottom, footwear, outerwear, dress, mid_layer |
-| `style` | string | casual, formal, sport, elegant, streetwear, party |
-| `cutLength` | string or null | slim, regular, relaxed, oversized, cropped, long |
-| `color` | string or null | closed base color vocabulary |
-| `colorDetail` | string or null | Free-text shade detail; normalized by the client |
-| `material` | string | cotton, silk, wool, polyester, denim, linen, etc |
-| `season` | string or null | summer, winter, mid_season, all |
+## Favorites
 
-### Rate Limit
-
-```
-30 requests/10 minutes per user
+```http
+GET /api/favorites
 ```
 
-### Timeout
+Returns the authenticated user's favorited garments as a JSON array of the
+shared `Garment` shape. The result is `private` and has a short HTTP cache
+policy; client requests also use `cache: "no-store"`.
 
-```
-30000ms
-```
-
-### Error Responses
-
-| Status | Body | Reason |
-|---|---|---|
-| `200` | garment object | Success |
-| `400` | `{error: "Provide a valid imageBase64 data URL."}` | Invalid MIME, base64, or image signature |
-| `401` | `{error: "Unauthorized"}` | Not authenticated |
-| `413` | `{error: "Request body is too large."}` | JSON body exceeds 10 MiB |
-| `429` | `{error: "Too many requests. Try again later."}` | Per-user rate limit; `Retry-After` header supplied |
-| `502` / `504` | `{error: "Vision processing failed."}` | Groq failure / timeout |
-| `503` | `{skipped: true, category: null, garmentType: null, color: null}` | Groq is not configured |
-
-### Example Usage (Frontend)
-
-```typescript
-async function analyzeGarment(imageBase64: string) {
-  const res = await fetch('/api/analyze', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ imageBase64, locale: 'en' }),
-  });
-
-  if (!res.ok) {
-    const error = await res.json();
-    if (res.status === 503) {
-      console.warn('Vision API not available, using manual entry');
-      return null;
-    }
-    throw new Error(error.error);
-  }
-
-  const garment = await res.json();
-  return garment;
-}
-
-// Full upload pipeline. Background removal is optional and is not part of the
-// critical upload path.
-async function uploadGarment(file: File) {
-  // 1. Compress & convert to base64
-  const base64 = await toDownscaledDataUrl(file, { maxWidth: 1024 });
-
-  // 2. Analyze with AI
-  const garmentData = await analyzeGarment(base64);
-
-  // 3. Store the original source image. The user may request background
-  // removal later from the garment edit view.
-  const imagePng = file;
-
-  // 4. Upload to storage
-  const path = `garments/${userId}/${uuid()}.png`;
-  const { data } = await supabase.storage
-    .from('garments')
-    .upload(path, imagePng);
-
-  // 5. Save to database
-  await supabase.from('garments').insert({
-    user_id: userId,
-    image_url: `${STORAGE_URL}/${path}`,
-    original_image_url: `${STORAGE_URL}/${path}`,
-    garment_type: garmentData.garment_type,
-    style: garmentData.style,
-    color: garmentData.color,
-    material: garmentData.material,
-    season: garmentData.season,
-    extra_tags: {
-      aiCategory: garmentData.garment_type,
-      specificType: garmentData.style,
-      colorShade: garmentData.color_detail,
-    },
-  });
-}
+```http
+PATCH /api/garments/{id}/favorite
+Content-Type: application/json
 ```
 
-### Garment image actions
+`id` must be a UUID. The field name follows the database's snake_case API
+contract:
 
-Image transformations are client-side, authenticated mutations handled by the
-closet feature rather than public API route handlers:
-
-- **Change image:** uploads a new PNG and updates both `image_url` and
-  `original_image_url`.
-- **Remove background:** reads `original_image_url`, processes it in the
-  background-removal worker, uploads the result, and updates only `image_url`.
-- **Delete garment:** removes the database row and both referenced Storage
-  objects when they are different.
-
-All database updates are scoped by `garment_id` and the authenticated
-`user_id`. A failed transformation leaves the currently displayed image intact.
-
----
-
-## Common Patterns
-
-### Retry Logic
-
-```typescript
-async function fetchWithRetry(
-  url: string,
-  options = {},
-  maxRetries = 3
-) {
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    try {
-      const response = await fetch(url, options);
-      
-      if (response.status === 429) {
-        const retryAfter = parseInt(response.headers.get('Retry-After') || '1');
-        await sleep(retryAfter * 1000);
-        continue;
-      }
-
-      if (!response.ok && attempt < maxRetries - 1) {
-        await sleep(Math.pow(2, attempt) * 1000);
-        continue;
-      }
-
-      return response;
-    } catch (error) {
-      if (attempt === maxRetries - 1) throw error;
-      await sleep(Math.pow(2, attempt) * 1000);
-    }
-  }
-}
+```json
+{ "is_favorite": true }
 ```
 
-### Error Handling
-
-```typescript
-async function apiCall(endpoint: string, payload: object) {
-  try {
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const error = await res.json();
-      
-      if (res.status === 401) {
-        // Redirect to login
-        router.push('/login');
-        return;
-      }
-
-      if (res.status === 422) {
-        // Show specific error to user
-        showNotification(error.error, 'warning');
-        return;
-      }
-
-      if (res.status === 429) {
-        // Show rate limit message
-        showNotification('Too many requests, please wait', 'error');
-        return;
-      }
-
-      throw new Error(`API Error: ${error.error || res.statusText}`);
-    }
-
-    return await res.json();
-  } catch (error) {
-    console.error('API call failed:', error);
-    showNotification('Something went wrong', 'error');
-    throw error;
-  }
-}
+```json
+{ "success": true, "is_favorite": true }
 ```
 
-### Caching with TanStack Query
+Both routes require authentication and consume the `favorite` quota (60/minute
+per user). `PATCH` returns `400` for an invalid ID or non-boolean value, `404`
+when the owned garment does not exist, and `500` for a database failure.
 
-```typescript
-const weatherQuery = useQuery({
-  queryKey: ['weather', lat, lon],
-  queryFn: () => fetch(`/api/weather?lat=${lat}&lon=${lon}`).then(r => r.json()),
-  staleTime: 10 * 60 * 1000,      // Data fresh for 10 minutes
-  gcTime: 24 * 60 * 60 * 1000,    // Cache for 24 hours
-  refetchOnFocus: false,           // Don't auto-refetch on focus
-  networkMode: 'offlineFirst',     // Use offline data if available
-});
-```
+## Shared protections
 
----
-
-## Rate Limiting
-
-Quotas are enforced per user by a shared Supabase Postgres RPC, so limits are
-consistent across serverless instances. Windows are fixed and aligned to the
-configured interval. If the quota store is unavailable, protected requests
-fail closed with `503` rather than bypassing the limit.
-
-### When Rate Limited (429)
-
-```
-Retry-After: 12  (seconds to wait before retrying)
-```
-
-### Handling
-
-```typescript
-if (response.status === 429) {
-  const retryAfter = parseInt(response.headers.get('Retry-After') || '60');
-  showNotification(`Too many requests. Please try again in ${retryAfter}s`);
-  await sleep(retryAfter * 1000);
-  return retry();
-}
-```
-
----
-
-## Monitoring & Observability
-
-### Logging
-
-All API calls are logged via `src/lib/logger.ts`:
-
-```typescript
-logger.info('Weather API called', { lat, lon });
-logger.error('Recommender API failed', { error, retries });
-```
-
-### Metrics (Vercel OTEL)
-
-- Request duration (p50, p95, p99)
-- Error rates
-- Cache hit rates
-- Fallback activation %
-
----
-
-## Debugging
-
-### Local Requests
-
-```bash
-# Test weather endpoint
-curl "http://localhost:3000/api/weather?lat=-33.8688&lon=-51.2093" \
-  -H "Cookie: your-session-cookie"
-
-# Test recommender
-curl -X POST "http://localhost:3000/api/recommender" \
-  -H "Content-Type: application/json" \
-  -d '{"outfit_slots": {...}, ...}' \
-  -H "Cookie: your-session-cookie"
-```
-
-### Environment Variables
-
-```bash
-# See what API keys are configured
-env | grep GROQ
-env | grep OPENWEATHER
-
-# Test API key validity
-curl "https://api.groq.com/verify" -H "Authorization: Bearer $GROQ_API_KEY"
-```
-
----
-
-## Resources
-
-- [Next.js Route Handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
-- [TanStack Query Docs](https://tanstack.com/query/latest)
-- [OpenWeather API](https://openweathermap.org/api)
-- [Groq API](https://console.groq.com/docs/speech-text)
+- All five routes authenticate before doing paid upstream work or returning
+  user-scoped database data.
+- JSON parsing, request-size limits, rate-limit responses, and `Retry-After`
+  handling are centralized in `src/lib/api/routeGuards.ts`.
+- Supabase queries are parameterized through the client and scoped by the
+  authenticated user; Storage writes are restricted by the bucket's user-folder
+  policies.
+- Groq and OpenWeather credentials remain server-only.

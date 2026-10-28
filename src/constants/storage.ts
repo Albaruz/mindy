@@ -21,6 +21,13 @@ export const TABLES = {
 /** Owner column used by RLS policies and every user-scoped query. */
 export const USER_ID_COLUMN = "user_id";
 
+/** Frequently used database columns shared by queries and Route Handlers. */
+export const COLUMNS = {
+  createdAt: "created_at",
+  garmentId: "garment_id",
+  isFavorite: "is_favorite",
+} as const;
+
 // Supabase Storage buckets.
 export const STORAGE_BUCKETS = {
   garments: "garments",
@@ -33,3 +40,5 @@ export const SUPABASE_ANON_FALLBACK = "anon-placeholder";
 // Browser persistence keys.
 export const THEME_STORAGE_KEY = "mindy-theme-mode";
 export const PERSISTED_CACHE_KEY = "mindy-query-cache";
+export const UPLOAD_NOTIFICATION_PROMPT_STORAGE_KEY =
+  "mindy-upload-notification-prompted";

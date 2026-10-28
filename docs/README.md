@@ -31,7 +31,7 @@ El proyecto está diseñado para funcionar tanto en **navegadores de escritorio*
 
 ### 📋 Requisitos previos
 
-- **Node.js 18 o superior.**
+- **Node.js 22.**
 - **pnpm 12.8 o superior.**
 - **Una cuenta de Supabase.**
 - **Credenciales de Groq y OpenWeather** para habilitar las integraciones externas.
@@ -92,7 +92,7 @@ pnpm test:e2e       # Ejecuta las pruebas end-to-end
 ├── e2e/                    # Pruebas end-to-end y de accesibilidad
 ├── scripts/                # Scripts auxiliares de desarrollo y build
 ├── .env.example            # Plantilla de variables de entorno
-├── next.config.ts          # Configuración de Next.js
+├── next.config.js          # Configuración de Next.js
 ├── package.json            # Dependencias y scripts del proyecto
 └── tsconfig.json           # Configuración de TypeScript
 ```

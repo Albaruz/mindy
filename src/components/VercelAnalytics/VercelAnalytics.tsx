@@ -8,5 +8,10 @@ const Analytics = dynamic(
 );
 
 export function VercelAnalytics() {
+  // The SDK injects a remote debug script in development. Analytics is only
+  // useful on production deployments, and the production script is same-origin.
+  if (process.env.NODE_ENV !== "production") {
+    return null;
+  }
   return <Analytics />;
 }

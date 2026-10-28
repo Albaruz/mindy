@@ -14,9 +14,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/Dialog/Dialog";
-import { QUERY_KEYS } from "@/constants/query";
-import { MAX_UPLOAD_RETRIES, VISION_CONCURRENCY } from "@/constants/upload";
+import {
+  MAX_UPLOAD_RETRIES,
+  UPLOAD_PROGRESS,
+  VISION_CONCURRENCY,
+} from "@/constants/upload";
+import { UPLOAD_COMPLETED_EXIT_MS } from "@/constants/animations";
+import { UPLOAD_NOTIFICATION_PROMPT_STORAGE_KEY } from "@/constants/storage";
+import { ERROR_CODES } from "@/constants/errors";
+import { isAppError } from "@/lib/errors";
+import type { AppLocale } from "@/i18n/routing";
 import { useNotificationStore } from "@/stores/useNotificationStore";
+import { invalidateGarmentCaches } from "@/lib/garment/invalidateGarmentCaches";
 import { useUploadQueueStore, isUploadActive } from "@/stores/useUploadQueueStore";
 import { requireUser } from "@/lib/supabase/session";
 import { createClient } from "@/lib/supabase/client";
@@ -58,10 +67,12 @@ function requestNotificationPermission(): void {
   if (Notification.permission !== "default") {
     return;
   }
-  if (window.localStorage.getItem("mindy-upload-notification-prompted") === "1") {
+  if (
+    window.localStorage.getItem(UPLOAD_NOTIFICATION_PROMPT_STORAGE_KEY) === "1"
+  ) {
     return;
   }
-  window.localStorage.setItem("mindy-upload-notification-prompted", "1");
+  window.localStorage.setItem(UPLOAD_NOTIFICATION_PROMPT_STORAGE_KEY, "1");
   void Notification.requestPermission();
 }
 
@@ -116,7 +127,7 @@ function UploadQueuePanel({
           completionTimers.current.delete(item.id);
           setExitingIds((ids) => ids.filter((id) => id !== item.id));
           onCompletedItemExit(item.id);
-        }, 650);
+        }, UPLOAD_COMPLETED_EXIT_MS);
         completionTimers.current.set(item.id, timer);
       });
     }
@@ -260,7 +271,7 @@ function UploadQueuePanel({
 }
 
 export function UploadQueueManager() {
-  const locale = useLocale();
+  const locale = useLocale() as AppLocale;
   const t = useTranslations("Notifications");
   const tq = useTranslations("UploadQueue");
   const queryClient = useQueryClient();
@@ -282,6 +293,15 @@ export function UploadQueueManager() {
   const previousActiveCount = useRef(0);
   const promptedReviewId = useRef<string | null>(null);
   const previousStatuses = useRef(new Map<string, UploadQueueItem["status"]>());
+  const isMountedRef = useRef(false);
+  const isRunningRef = useRef(false);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     void hydrate();
@@ -290,12 +310,11 @@ export function UploadQueueManager() {
   const save = useCallback(
     async (source: Blob, tags: InferredTags, id: string) => {
       const supabase = createClient();
-      const user = await requireUser(supabase, "You must be signed in to add garments.");
+      const user = await requireUser(supabase);
       await persistGarment(source, tags, {
         client: supabase,
         userId: user.id,
-        invalidateGarments: () =>
-          queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments }),
+        invalidateGarments: () => invalidateGarmentCaches(queryClient),
         onProgress: () => undefined,
         progressResizing: t("uploadResizing"),
         progressUploading: t("uploadUploading"),
@@ -319,7 +338,7 @@ export function UploadQueueManager() {
 
   const finishWithTags = useCallback(
     async (item: UploadQueueItem, file: File, tags: InferredTags) => {
-      advanceItemProgress(updateItem, item.id, 80, {
+      advanceItemProgress(updateItem, item.id, UPLOAD_PROGRESS.savingStarted, {
         status: "saving",
         stage: "saving",
         error: null,
@@ -338,34 +357,34 @@ export function UploadQueueManager() {
 
   const processItem = useCallback(
     async (item: UploadQueueItem) => {
-      const file = await getFile(item.id);
-      if (file === undefined) {
-        advanceItemProgress(updateItem, item.id, 0, {
-          status: "failed",
-          stage: "done",
-          error: tq("missingFile"),
-        });
-        return;
-      }
       try {
-        advanceItemProgress(updateItem, item.id, 5, {
+        const file = await getFile(item.id);
+        if (file === undefined) {
+          advanceItemProgress(updateItem, item.id, 0, {
+            status: "failed",
+            stage: "done",
+            error: ERROR_CODES.UPLOAD_FILE_MISSING,
+          });
+          return;
+        }
+        advanceItemProgress(updateItem, item.id, UPLOAD_PROGRESS.validationStarted, {
           status: "validating",
           stage: "validation",
           error: null,
         });
         const imageData = await toDownscaledDataUrl(file);
-        advanceItemProgress(updateItem, item.id, 25, {
+        advanceItemProgress(updateItem, item.id, UPLOAD_PROGRESS.analysisStarted, {
           status: "analyzing",
           stage: "analysis",
         });
         const tags = await suggestTags(
           imageData,
-          locale === "es" ? "es" : "en",
+          locale,
           { throwOnError: true },
         );
-        advanceItemProgress(updateItem, item.id, 50, { tags });
+        advanceItemProgress(updateItem, item.id, UPLOAD_PROGRESS.analysisComplete, { tags });
         if (tags.cutoutDifficulty === "hard") {
-          advanceItemProgress(updateItem, item.id, 50, {
+          advanceItemProgress(updateItem, item.id, UPLOAD_PROGRESS.analysisComplete, {
             status: "awaiting_review",
             stage: "review",
             qualityNote: tags.qualityNote || null,
@@ -376,8 +395,20 @@ export function UploadQueueManager() {
         // after an explicit choice in the quality review.
         await finishWithTags(item, file, tags);
       } catch (error) {
+        const currentItem = useUploadQueueStore
+          .getState()
+          .items.find((candidate) => candidate.id === item.id);
+        if (currentItem === undefined || currentItem.status === "cancelled") {
+          return;
+        }
+        logger.warn("Upload queue item processing failed", {
+          uploadId: item.id,
+          error,
+        });
         const attempts = item.attempts + 1;
-        if (attempts <= MAX_UPLOAD_RETRIES) {
+        const invalidUpload =
+          isAppError(error) && error.code === ERROR_CODES.UPLOAD_INVALID_FILE;
+        if (!invalidUpload && attempts <= MAX_UPLOAD_RETRIES) {
           advanceItemProgress(updateItem, item.id, 0, {
             status: "queued",
             stage: "validation",
@@ -389,16 +420,16 @@ export function UploadQueueManager() {
             status: "failed",
             stage: "done",
             attempts,
-            error: error instanceof Error ? error.message : tq("failed"),
+            error: isAppError(error) ? error.code : ERROR_CODES.UPLOAD_FAILED,
           });
         }
       }
     },
-    [finishWithTags, getFile, locale, tq, updateItem],
+    [finishWithTags, getFile, locale, updateItem],
   );
 
   useEffect(() => {
-    if (!hydrated) {
+    if (!hydrated || isRunningRef.current) {
       return;
     }
     const next = items
@@ -419,10 +450,14 @@ export function UploadQueueManager() {
       }
       return;
     }
+    isRunningRef.current = true;
     next.forEach((item) => activeQueueItems.add(item.id));
-    void Promise.all(next.map((item) => processItem(item))).finally(() => {
+    void Promise.allSettled(next.map((item) => processItem(item))).finally(() => {
       next.forEach((item) => activeQueueItems.delete(item.id));
-      bumpProcessingVersion();
+      isRunningRef.current = false;
+      if (isMountedRef.current) {
+        bumpProcessingVersion();
+      }
     });
   }, [
     bumpProcessingVersion,
@@ -485,26 +520,39 @@ export function UploadQueueManager() {
       if (reviewItem === null || reviewItem.tags === null) {
         return;
       }
-      const file = await getFile(reviewItem.id);
+      let file: File | undefined;
+      try {
+        file = await getFile(reviewItem.id);
+      } catch (error) {
+        logger.warn("Unable to restore the reviewed upload", {
+          uploadId: reviewItem.id,
+          error,
+        });
+      }
       if (file === undefined) {
-        updateItem(reviewItem.id, { status: "failed", stage: "done", progress: 100, error: tq("missingFile") });
+        updateItem(reviewItem.id, {
+          status: "failed",
+          stage: "done",
+          progress: 100,
+          error: ERROR_CODES.UPLOAD_FILE_MISSING,
+        });
         setReviewItem(null);
         return;
       }
       setReviewItem(null);
       try {
         await finishWithTags(reviewItem, file, reviewItem.tags);
-      } catch (error) {
+      } catch {
         updateItem(reviewItem.id, {
           status: "awaiting_review",
           stage: "review",
-          error: error instanceof Error ? error.message : tq("failed"),
+          error: ERROR_CODES.UPLOAD_FAILED,
           cutoutFailed: false,
         });
         setReviewItem(reviewItem.id);
       }
     },
-    [finishWithTags, getFile, reviewItem, setReviewItem, tq, updateItem],
+    [finishWithTags, getFile, reviewItem, setReviewItem, updateItem],
   );
 
   const cancel = useCallback((id: string) => void removeItem(id), [removeItem]);

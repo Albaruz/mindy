@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import {
   QUERY_KEYS,
+  ENTITY_GC_TIME_MS,
   QUERY_NETWORK_MODE,
   QUERY_PERSIST_MAX_AGE_MS,
   QUERY_REFETCH_ON_FOCUS,
@@ -28,6 +29,7 @@ describe("query constants", () => {
     expect(QUERY_REFETCH_ON_FOCUS).toBe(false);
     expect(QUERY_NETWORK_MODE).toBe("offlineFirst");
     expect(QUERY_PERSIST_MAX_AGE_MS).toBe(24 * 60 * 60 * 1000);
+    expect(ENTITY_GC_TIME_MS).toBeGreaterThanOrEqual(QUERY_PERSIST_MAX_AGE_MS);
     expect(WEATHER_STALE_TIME_MS).toBe(10 * 60 * 1000);
   });
 });

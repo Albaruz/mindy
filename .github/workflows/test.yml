@@ -44,8 +44,9 @@ jobs:
       - run: pnpm budget
 
   # Mobile ES flows, accessibility, and visual snapshots. Specs self-skip at
-  # runtime without seeded auth; setup authenticates when secrets exist.
+  # runtime locally; CI requires seeded auth except for untrusted fork PRs.
   e2e:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     runs-on: ubuntu-latest
     needs: unit
     steps:
@@ -60,6 +61,18 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
+      - name: Require seeded E2E credentials
+        env:
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$TEST_USER_EMAIL" ] || [ -z "$TEST_USER_PASSWORD" ] || \
+             [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] || [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
+            echo "::error::Seeded E2E secrets are required for trusted CI runs."
+            exit 1
+          fi
       - run: pnpm test:e2e
         env:
           TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
@@ -71,8 +84,12 @@ jobs:
   # Reports persist as run artifacts (.lighthouseci) so scores can be
   # tracked commit over commit (#BKL-012 history).
   lighthouse:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     runs-on: ubuntu-latest
     needs: build
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -84,6 +101,12 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
+      - name: Require public Supabase configuration
+        run: |
+          if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] || [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
+            echo "::error::Supabase public configuration is required for Lighthouse builds."
+            exit 1
+          fi
       - run: pnpm build --webpack
       - run: pnpm exec lhci autorun
       - name: Summarize Lighthouse scores
@@ -113,16 +136,21 @@ jobs:
           path: .lighthouseci/
           retention-days: 90
 
-  # RLS isolation via pgTAP against a Supabase branch (supabase/tests/).
-  # Requires SUPABASE_DB_URL secret; skipped otherwise.
+  # RLS isolation via pgTAP against the configured test database.
+  # Trusted CI requires SUPABASE_DB_URL; fork PRs skip this secret-dependent job.
   rls:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     runs-on: ubuntu-latest
     needs: unit
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
     steps:
       - uses: actions/checkout@v4
-      - run: |
-          if [ -z "${{ secrets.SUPABASE_DB_URL }}" ]; then
-            echo "SUPABASE_DB_URL not set, skipping RLS tests."
-            exit 0
+      - name: Require database URL
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error::SUPABASE_DB_URL is required for trusted CI runs."
+            exit 1
           fi
-          psql "${{ secrets.SUPABASE_DB_URL }}" -f supabase/tests/rls_isolation.sql
+      - name: Run RLS isolation checks
+        run: psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_isolation.sql

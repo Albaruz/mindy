@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import { Button } from "@/components/Button/Button";
@@ -30,24 +30,56 @@ interface PreviewEntry {
 }
 
 const previewCache = new WeakMap<File, PreviewEntry>();
+const previewSubscribers = new Set<() => void>();
+let previewRevision = 0;
 
-function getPreviewEntry(file: File): PreviewEntry {
-  const cached = previewCache.get(file);
-  if (cached !== undefined) {
-    if (cached.revokeTimer !== null) {
-      window.clearTimeout(cached.revokeTimer);
-      cached.revokeTimer = null;
-    }
-    return cached;
+function subscribeToPreviews(subscriber: () => void): () => void {
+  previewSubscribers.add(subscriber);
+  return () => previewSubscribers.delete(subscriber);
+}
+
+function getPreviewRevision(): number {
+  return previewRevision;
+}
+
+function notifyPreviewSubscribers(): void {
+  previewRevision += 1;
+  previewSubscribers.forEach((subscriber) => subscriber());
+}
+
+function acquirePreview(file: File): PreviewEntry {
+  let entry = previewCache.get(file);
+  if (entry === undefined) {
+    entry = {
+      file,
+      url: URL.createObjectURL(file),
+      references: 0,
+      revokeTimer: null,
+    };
+    previewCache.set(file, entry);
   }
-  const entry: PreviewEntry = {
-    file,
-    url: URL.createObjectURL(file),
-    references: 0,
-    revokeTimer: null,
-  };
-  previewCache.set(file, entry);
+  if (entry.revokeTimer !== null) {
+    window.clearTimeout(entry.revokeTimer);
+    entry.revokeTimer = null;
+  }
+  entry.references += 1;
   return entry;
+}
+
+function releasePreview(entry: PreviewEntry): void {
+  entry.references -= 1;
+  if (entry.references !== 0) {
+    return;
+  }
+  entry.revokeTimer = window.setTimeout(() => {
+    if (entry.references !== 0) {
+      return;
+    }
+    URL.revokeObjectURL(entry.url);
+    previewCache.delete(entry.file);
+    entry.revokeTimer = null;
+    notifyPreviewSubscribers();
+  }, 0);
 }
 
 export function UploadBatchPreview({
@@ -57,29 +89,16 @@ export function UploadBatchPreview({
   onClose,
 }: UploadBatchPreviewProps) {
   const t = useTranslations("UploadQueue");
-  const previewEntries = useMemo(
-    () => files.map((file) => getPreviewEntry(file)),
-    [files],
-  );
+  useSyncExternalStore(subscribeToPreviews, getPreviewRevision, () => 0);
+  const previewEntries = files.map((file) => previewCache.get(file));
 
   useEffect(() => {
-    previewEntries.forEach((entry) => {
-      entry.references += 1;
-    });
+    const entries = files.map(acquirePreview);
+    notifyPreviewSubscribers();
     return () => {
-      previewEntries.forEach((entry) => {
-        entry.references -= 1;
-        if (entry.references === 0) {
-          entry.revokeTimer = window.setTimeout(() => {
-            if (entry.references === 0) {
-              URL.revokeObjectURL(entry.url);
-              previewCache.delete(entry.file);
-            }
-          }, 0);
-        }
-      });
+      entries.forEach(releasePreview);
     };
-  }, [previewEntries]);
+  }, [files]);
 
   return (
     <Dialog
@@ -109,7 +128,7 @@ export function UploadBatchPreview({
               key={`${file.name}-${file.lastModified}-${index}`}
             >
               {/* Local object URLs are intentionally not optimized by Next Image. */}
-              {previewEntries[index] !== undefined ? (
+              {previewEntries[index]?.file === file ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={previewEntries[index].url}

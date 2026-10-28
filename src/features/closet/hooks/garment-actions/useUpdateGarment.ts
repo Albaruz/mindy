@@ -1,10 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { QUERY_KEYS } from "@/constants/query";
 import { createClient } from "@/lib/supabase/client";
+import { ERROR_CODES } from "@/constants/errors";
 import type { GarmentSeason } from "@/types/garment";
 import type { GarmentFormInput } from "../../domain/garments/garmentForm";
-import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
+import { COLUMNS, TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { requireUser } from "@/lib/supabase/session";
+import { AppError } from "@/lib/errors";
+import { invalidateGarmentCaches } from "@/lib/garment/invalidateGarmentCaches";
 
 // Updates the editable tags of an existing garment. RLS guarantees the
 // row belongs to the signed-in user; the explicit user_id filter is a
@@ -22,7 +24,7 @@ export function useUpdateGarment() {
       input: GarmentFormInput;
     }): Promise<void> => {
       const supabase = createClient();
-      const user = await requireUser(supabase, "You must be signed in to edit garments.");
+      const user = await requireUser(supabase);
 
       const season: GarmentSeason | null =
         input.season === "" ? null : input.season;
@@ -39,14 +41,14 @@ export function useUpdateGarment() {
           season,
           extra_tags: input.extraTags,
         })
-        .eq("garment_id", garmentId)
+        .eq(COLUMNS.garmentId, garmentId)
         .eq(USER_ID_COLUMN, user.id);
       if (error) {
-        throw error;
+        throw new AppError(ERROR_CODES.GARMENT_UPDATE_FAILED);
       }
     },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments });
+      return invalidateGarmentCaches(queryClient);
     },
   });
 }

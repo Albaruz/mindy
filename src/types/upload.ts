@@ -1,4 +1,5 @@
 import type { InferredTags } from "@/types/garment";
+import type { ErrorCode } from "@/constants/errors";
 
 export type UploadItemStatus =
   | "queued"
@@ -30,7 +31,7 @@ export interface UploadQueueItem {
   stage: UploadItemStage;
   progress: number;
   attempts: number;
-  error: string | null;
+  error: ErrorCode | null;
   tags: InferredTags | null;
   qualityNote: string | null;
   cutoutFailed: boolean;

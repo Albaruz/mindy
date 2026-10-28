@@ -2,6 +2,7 @@ import type {
   CutoutDifficulty,
   InferredTags,
 } from "@/types/garment";
+import type { AppLocale } from "@/i18n/routing";
 import { CUTOUT_DIFFICULTY_VALUES } from "@/constants/garment";
 import { ANALYZE_TIMEOUT_MS } from "@/constants/validation";
 import {
@@ -13,6 +14,8 @@ import {
   normalizeGarmentType,
 } from "@/lib/garment/normalizers";
 import { API_ROUTES } from "@/constants/api";
+import { ERROR_CODES } from "@/constants/errors";
+import { AppError } from "@/lib/errors";
 
 export type { InferredTags } from "@/types/garment";
 
@@ -54,7 +57,7 @@ function readDetail(
 // resolves to EMPTY_TAGS so the flow can continue with manual input.
 export async function suggestTags(
   imageBase64: string,
-  locale: "en" | "es",
+  locale: AppLocale,
   options?: { throwOnError?: boolean },
 ): Promise<InferredTags> {
   const throwOnError = options?.throwOnError === true;
@@ -67,7 +70,11 @@ export async function suggestTags(
     });
     if (!response.ok) {
       if (throwOnError) {
-        throw new Error(`Vision analysis failed with status ${response.status}.`);
+        throw new AppError(
+          response.status === 400 || response.status === 413
+            ? ERROR_CODES.UPLOAD_INVALID_FILE
+            : ERROR_CODES.UPLOAD_FAILED,
+        );
       }
       return EMPTY_TAGS;
     }

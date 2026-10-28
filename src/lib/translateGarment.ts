@@ -1,4 +1,5 @@
 import { useLocale, useTranslations } from "next-intl";
+import type { AppLocale } from "@/i18n/routing";
 
 export type GarmentAttributeKind =
   | "type"
@@ -28,7 +29,7 @@ function normalize(value: string): string {
 // Stored values resolve through the Garments dictionaries; unknown values
 // (including specific AI details) return the original untouched.
 export function useGarmentTranslator() {
-  const locale = useLocale();
+  const locale = useLocale() as AppLocale;
   const t = useTranslations("Garments");
 
   const lookup = (key: string): string | null =>

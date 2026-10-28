@@ -59,8 +59,10 @@ export default function ClosetPage() {
   const deletion = useGarmentDeletion();
   const updateGarment = useUpdateGarment();
   const imageActions = useGarmentImageActions();
-  const favoriteMutation = useToggleFavorite();
   const [editingGarment, setEditingGarment] = useState<Garment | null>(null);
+  const favoriteMutation = useToggleFavorite(
+    editingGarment?.garmentId ?? "no-editing-garment",
+  );
   const [isSourceMenuOpen, setIsSourceMenuOpen] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 

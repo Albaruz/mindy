@@ -1,15 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { QUERY_KEYS } from "@/constants/query";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { useNotificationStore } from "@/stores/useNotificationStore";
-import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
+import { COLUMNS, TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { requireUser } from "@/lib/supabase/session";
+import { ERROR_CODES } from "@/constants/errors";
+import { AppError } from "@/lib/errors";
 import {
   getGarmentStoragePath,
   removeGarmentStoragePaths,
 } from "../../services/persistence/garmentStorage";
 import { logger } from "@/lib/logger";
+import { invalidateGarmentCaches } from "@/lib/garment/invalidateGarmentCaches";
 
 // Deletes a garment row owned by the signed-in user (RLS enforced).
 // Storage cleanup is best-effort: the row is removed even if the file
@@ -29,15 +31,15 @@ export function useDeleteGarment() {
       originalImageUrl?: string | null;
     }): Promise<void> => {
       const supabase = createClient();
-      const user = await requireUser(supabase, "You must be signed in to delete garments.");
+      const user = await requireUser(supabase);
 
       const { error } = await supabase
         .from(TABLES.garments)
         .delete()
-        .eq("garment_id", garmentId)
+        .eq(COLUMNS.garmentId, garmentId)
         .eq(USER_ID_COLUMN, user.id);
       if (error) {
-        throw error;
+        throw new AppError(ERROR_CODES.GARMENT_DELETE_FAILED);
       }
 
       const paths = [
@@ -53,9 +55,8 @@ export function useDeleteGarment() {
         });
       }
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments });
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.favorites });
+    onSuccess: async () => {
+      await invalidateGarmentCaches(queryClient);
       useNotificationStore
         .getState()
         .addNotification("success", t("deleted"));

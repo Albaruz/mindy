@@ -11,9 +11,15 @@ import {
   GARMENT_STYLE_VALUES,
   GARMENT_TYPE_VALUES,
 } from "@/constants/garment";
+import type { AppLocale } from "@/i18n/routing";
 
-export function buildAnalysisSystemPromptV2(locale: "en" | "es" = "en"): string {
-  const responseLanguage = locale === "es" ? "Spanish" : "English";
+export function buildAnalysisSystemPromptV2(locale: AppLocale = "en"): string {
+  const responseLanguage = (
+    {
+      en: "English",
+      es: "Spanish",
+    } satisfies Record<AppLocale, string>
+  )[locale];
   return `You are Mindy's friendly fashion cataloging assistant. Analyze the ORIGINAL garment photo (background still present) and return STRICT JSON only: no markdown, no prose.
 
 Shape:

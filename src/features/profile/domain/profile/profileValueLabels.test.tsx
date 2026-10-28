@@ -18,11 +18,12 @@ import {
 } from "./profileValueLabels";
 import enMessages from "../../../../../messages/en.json";
 import esMessages from "../../../../../messages/es.json";
+import type { AppLocale } from "@/i18n/routing";
 
 type Messages = typeof enMessages;
 
 function renderLabel(
-  locale: "en" | "es",
+  locale: AppLocale,
   messages: Messages,
   kind: ProfileValueKind,
   value: string | null,
@@ -86,7 +87,7 @@ describe("profile value dictionaries", () => {
   };
 
   it.each(["en", "es"] as const)("cover every stored %s value", (locale) => {
-    const messages = (locale === "es" ? esMessages : enMessages) as {
+    const messages = ({ en: enMessages, es: esMessages }[locale]) as {
       Profile: Record<string, Record<string, string>>;
     };
 

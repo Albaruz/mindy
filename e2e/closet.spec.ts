@@ -1,5 +1,5 @@
 // Closet upload flow E2E with a stubbed analyze endpoint.
-// Runs when seeded auth exists (see e2e/auth.setup.ts); self-skips otherwise.
+// Runs when seeded auth exists (see e2e/auth.setup.ts); skips locally and fails CI if absent.
 import { expect, test } from "@playwright/test";
 import { hasSeededAuth, SEEDED_AUTH_HELP } from "./seeded-auth";
 

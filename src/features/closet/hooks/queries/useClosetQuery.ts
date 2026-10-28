@@ -7,7 +7,7 @@ import {
   type GarmentRow,
 } from "@/lib/garment/garmentMappers";
 import { ENTITY_GC_TIME_MS, ENTITY_STALE_TIME_MS, QUERY_KEYS } from "@/constants/query";
-import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
+import { COLUMNS, TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { getSessionUser } from "@/lib/supabase/session";
 
 async function fetchClosetGarments(): Promise<Garment[]> {
@@ -21,7 +21,7 @@ async function fetchClosetGarments(): Promise<Garment[]> {
     .from(TABLES.garments)
     .select(GARMENT_ROW_COLUMNS)
     .eq(USER_ID_COLUMN, user.id)
-    .order("created_at", { ascending: false });
+    .order(COLUMNS.createdAt, { ascending: false });
 
   if (error) {
     throw error;

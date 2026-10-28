@@ -8,7 +8,7 @@ import {
   type GarmentRow,
 } from "@/lib/garment/garmentMappers";
 import { ENTITY_GC_TIME_MS, ENTITY_STALE_TIME_MS, QUERY_KEYS } from "@/constants/query";
-import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
+import { COLUMNS, TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { getSessionUser } from "@/lib/supabase/session";
 
 // Row shape of public.outfit_history (snake_case, as returned by Supabase).
@@ -33,7 +33,7 @@ const HISTORY_COLUMNS = `
   user_id,
   garment_ids,
   worn_date,
-  created_at,
+  ${COLUMNS.createdAt},
   is_planned,
   planned_date
 `.trim();
@@ -76,7 +76,7 @@ async function fetchHistory(): Promise<HistoryEntry[]> {
   const { data: garmentRows, error: garmentsError } = await supabase
     .from(TABLES.garments)
     .select(GARMENT_ROW_COLUMNS)
-    .in("garment_id", garmentIds);
+    .in(COLUMNS.garmentId, garmentIds);
   if (garmentsError) {
     throw garmentsError;
   }

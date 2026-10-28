@@ -7,6 +7,7 @@ import type {
   GarmentStyle,
   GarmentType,
 } from "@/types/garment";
+import { COLUMNS, USER_ID_COLUMN } from "@/constants/storage";
 
 // Row shape of public.garments (snake_case, as returned by Supabase).
 // Columns use the same closed vocabularies as the Garment interface.
@@ -33,8 +34,8 @@ export interface GarmentRow {
 
 // Keep every database-to-Garment query aligned with the row mapper contract.
 export const GARMENT_ROW_COLUMNS = `
-  garment_id,
-  user_id,
+  ${COLUMNS.garmentId},
+  ${USER_ID_COLUMN},
   image_url,
   original_image_url,
   garment_type,
@@ -49,8 +50,8 @@ export const GARMENT_ROW_COLUMNS = `
   last_worn_date,
   is_external_garment,
   extra_tags,
-  created_at,
-  is_favorite
+  ${COLUMNS.createdAt},
+  ${COLUMNS.isFavorite}
 `.trim();
 
 export function toGarment(row: GarmentRow): Garment {

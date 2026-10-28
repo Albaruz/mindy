@@ -5,7 +5,7 @@ import {
   rateLimitResponse,
   requireRouteUser,
 } from "@/lib/api/routeGuards";
-import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
+import { COLUMNS, TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import {
   GARMENT_ROW_COLUMNS,
   toGarment,
@@ -34,8 +34,8 @@ export async function GET() {
       .from(TABLES.garments)
       .select(GARMENT_ROW_COLUMNS)
       .eq(USER_ID_COLUMN, user.id)
-      .eq("is_favorite", true)
-      .order("created_at", { ascending: false });
+      .eq(COLUMNS.isFavorite, true)
+      .order(COLUMNS.createdAt, { ascending: false });
 
     if (error) {
       logger.error("Favorites fetch failed", { route: "favorites", requestId, userId: user.id, error });

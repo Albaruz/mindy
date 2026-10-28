@@ -1,4 +1,6 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
+import { ERROR_CODES } from "@/constants/errors";
+import { AppError } from "@/lib/errors";
 
 type AuthClient = Pick<SupabaseClient, "auth">;
 
@@ -12,14 +14,13 @@ export async function getSessionUser(
   return user;
 }
 
-/** Current user; throws message when there is no session (mutations). */
+/** Current user; throws a stable code when there is no session (mutations). */
 export async function requireUser(
   supabase: AuthClient,
-  message: string,
 ): Promise<User> {
   const user = await getSessionUser(supabase);
   if (!user) {
-    throw new Error(message);
+    throw new AppError(ERROR_CODES.SESSION_REQUIRED);
   }
   return user;
 }

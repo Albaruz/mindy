@@ -8,18 +8,13 @@ import type { Garment } from "@/types/garment";
 import { Button } from "@/components/Button/Button";
 import { useGarmentTranslator } from "@/lib/translateGarment";
 import { useDialogFocus } from "@/lib/useDialogFocus";
+import { OUTFIT_CELEBRATION } from "@/constants/animations";
 import styles from "./OutfitCelebrationScreen.module.scss";
 
 interface OutfitCelebrationScreenProps {
   garments: Garment[];
   onClose: () => void;
 }
-
-// Editorial tilt per poster piece, cycling for larger looks.
-const PIECE_TILTS = [-7, 5, -4, 6, -5];
-
-// Terracotta-led particle palette (Warm Refuge).
-const CONFETTI_COLORS = ["#c87966", "#c87966", "#4a3f39", "#e0a58f", "#c87966"];
 
 interface ConfettiParticle {
   angleDeg: number;
@@ -29,13 +24,30 @@ interface ConfettiParticle {
   delayS: number;
 }
 
-function buildConfetti(count: number): ConfettiParticle[] {
+function buildConfetti(
+  count: number = OUTFIT_CELEBRATION.confettiCount,
+): ConfettiParticle[] {
   return Array.from({ length: count }, (_, index) => ({
-    angleDeg: (360 / count) * index + (index % 3) * 9,
-    distancePx: 90 + (index % 4) * 38,
-    sizePx: 6 + (index % 3) * 3,
-    color: CONFETTI_COLORS[index % CONFETTI_COLORS.length],
-    delayS: 0.55 + (index % 5) * 0.06,
+    angleDeg:
+      (OUTFIT_CELEBRATION.confettiAngleStepDegrees / count) * index +
+      (index % OUTFIT_CELEBRATION.confettiAngleJitterCycle) *
+        OUTFIT_CELEBRATION.confettiAngleJitterStepDegrees,
+    distancePx:
+      OUTFIT_CELEBRATION.confettiDistanceBasePx +
+      (index % OUTFIT_CELEBRATION.confettiDistanceCycle) *
+        OUTFIT_CELEBRATION.confettiDistanceStepPx,
+    sizePx:
+      OUTFIT_CELEBRATION.confettiSizeBasePx +
+      (index % OUTFIT_CELEBRATION.confettiSizeCycle) *
+        OUTFIT_CELEBRATION.confettiSizeStepPx,
+    color:
+      OUTFIT_CELEBRATION.confettiColors[
+        index % OUTFIT_CELEBRATION.confettiColors.length
+      ],
+    delayS:
+      OUTFIT_CELEBRATION.confettiDelayBaseSeconds +
+      (index % OUTFIT_CELEBRATION.confettiDelayCycle) *
+        OUTFIT_CELEBRATION.confettiDelayStepSeconds,
   }));
 }
 
@@ -60,7 +72,7 @@ export function OutfitCelebrationScreen({
         ? lines[Math.floor(Math.random() * lines.length)]
         : "") ?? "",
   );
-  const confetti = useMemo(() => buildConfetti(16), []);
+  const confetti = useMemo(() => buildConfetti(), []);
   const dialogRef = useDialogFocus<HTMLDivElement>(onClose);
 
   const describeGarment = (garment: Garment) =>
@@ -80,17 +92,35 @@ export function OutfitCelebrationScreen({
       aria-labelledby="celebration-title"
       tabIndex={-1}
       className={styles["outfit-celebration"]}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1, transition: { duration: reduceMotion ? 0 : 0.25 } }}
-      exit={{ opacity: 0, transition: { duration: 0.2 } }}
+      initial={{ opacity: OUTFIT_CELEBRATION.hiddenOpacity }}
+      animate={{
+        opacity: OUTFIT_CELEBRATION.visibleOpacity,
+        transition: {
+          duration: reduceMotion
+            ? OUTFIT_CELEBRATION.noMotionSeconds
+            : OUTFIT_CELEBRATION.fadeInSeconds,
+        },
+      }}
+      exit={{
+        opacity: OUTFIT_CELEBRATION.hiddenOpacity,
+        transition: { duration: OUTFIT_CELEBRATION.fadeOutSeconds },
+      }}
     >
       <div className={styles["outfit-celebration__mask"]}>
         <motion.h2
           id="celebration-title"
           className={styles["outfit-celebration__title"]}
-          initial={reduceMotion ? false : { y: "110%" }}
-          animate={{ y: "0%" }}
-          transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
+          initial={
+            reduceMotion
+              ? false
+              : { y: OUTFIT_CELEBRATION.titleEnterOffset }
+          }
+          animate={{ y: OUTFIT_CELEBRATION.titleRestOffset }}
+          transition={{
+            duration: OUTFIT_CELEBRATION.titleRiseSeconds,
+            delay: OUTFIT_CELEBRATION.titleDelaySeconds,
+            ease: "easeOut",
+          }}
         >
           {line}
         </motion.h2>
@@ -101,7 +131,12 @@ export function OutfitCelebrationScreen({
         initial={reduceMotion ? false : "hidden"}
         animate="show"
         variants={{
-          show: { transition: { staggerChildren: 0.12, delayChildren: 0.4 } },
+          show: {
+            transition: {
+              staggerChildren: OUTFIT_CELEBRATION.pieceStaggerSeconds,
+              delayChildren: OUTFIT_CELEBRATION.pieceDelayChildrenSeconds,
+            },
+          },
         }}
       >
         {garments.map((garment, index) => (
@@ -109,12 +144,23 @@ export function OutfitCelebrationScreen({
             key={garment.garmentId}
             className={styles["outfit-celebration__piece"]}
             variants={{
-              hidden: { y: -140, opacity: 0, rotate: 0 },
+              hidden: {
+                y: OUTFIT_CELEBRATION.pieceEnterOffsetY,
+                opacity: OUTFIT_CELEBRATION.hiddenOpacity,
+                rotate: 0,
+              },
               show: {
                 y: 0,
                 opacity: 1,
-                rotate: PIECE_TILTS[index % PIECE_TILTS.length],
-                transition: { type: "spring", stiffness: 260, damping: 19 },
+                rotate:
+                  OUTFIT_CELEBRATION.pieceTiltsDegrees[
+                    index % OUTFIT_CELEBRATION.pieceTiltsDegrees.length
+                  ],
+                transition: {
+                  type: "spring",
+                  stiffness: OUTFIT_CELEBRATION.pieceSpringStiffness,
+                  damping: OUTFIT_CELEBRATION.pieceSpringDamping,
+                },
               },
             }}
           >
@@ -143,20 +189,29 @@ export function OutfitCelebrationScreen({
                 width: particle.sizePx,
                 height: particle.sizePx,
               }}
-              initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+              initial={{
+                x: OUTFIT_CELEBRATION.originPx,
+                y: OUTFIT_CELEBRATION.originPx,
+                opacity: OUTFIT_CELEBRATION.visibleOpacity,
+                scale: OUTFIT_CELEBRATION.confettiStartScale,
+              }}
               animate={{
                 x:
-                  Math.cos((particle.angleDeg * Math.PI) / 180) *
+                  Math.cos(
+                    particle.angleDeg * OUTFIT_CELEBRATION.radiansPerDegree,
+                  ) *
                   particle.distancePx,
                 y:
-                  Math.sin((particle.angleDeg * Math.PI) / 180) *
+                  Math.sin(
+                    particle.angleDeg * OUTFIT_CELEBRATION.radiansPerDegree,
+                  ) *
                     particle.distancePx -
-                  30,
-                opacity: 0,
-                scale: 0.4,
+                  OUTFIT_CELEBRATION.confettiVerticalOffsetPx,
+                opacity: OUTFIT_CELEBRATION.hiddenOpacity,
+                scale: OUTFIT_CELEBRATION.confettiEndScale,
               }}
               transition={{
-                duration: 1.1,
+                duration: OUTFIT_CELEBRATION.confettiDurationSeconds,
                 delay: particle.delayS,
                 ease: "easeOut",
               }}
@@ -166,9 +221,23 @@ export function OutfitCelebrationScreen({
       ) : null}
 
       <motion.span
-        initial={reduceMotion ? false : { y: 24, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.9, ease: "easeOut" }}
+        initial={
+          reduceMotion
+            ? false
+            : {
+                y: OUTFIT_CELEBRATION.closeButtonEnterOffsetY,
+                opacity: OUTFIT_CELEBRATION.hiddenOpacity,
+              }
+        }
+        animate={{
+          y: OUTFIT_CELEBRATION.originPx,
+          opacity: OUTFIT_CELEBRATION.visibleOpacity,
+        }}
+        transition={{
+          duration: OUTFIT_CELEBRATION.closeButtonDurationSeconds,
+          delay: OUTFIT_CELEBRATION.closeButtonDelaySeconds,
+          ease: "easeOut",
+        }}
       >
         <Button
           type="button"

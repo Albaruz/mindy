@@ -54,7 +54,7 @@ La identidad visual sigue el concepto **“Refugio Cálido”**: una interfaz mi
 
 ### Requisitos previos
 
-- **Node.js 18** o superior.
+- **Node.js 22**.
 - **pnpm 12.8** o superior.
 - Un proyecto de **Supabase** configurado para autenticación, PostgreSQL y Storage.
 - Credenciales de **Groq** y **OpenWeather** para habilitar IA y meteorología.
@@ -69,7 +69,7 @@ pnpm install
 
 ### Configuración del entorno
 
-Crea un archivo `.env.local` en la raíz del proyecto e introduce las variables necesarias. Los secretos nunca deben subirse al repositorio ni exponerse en variables `NEXT_PUBLIC_*`.
+Crea un archivo `.env.local` en la raíz del proyecto e introduce las variables necesarias. No subas secretos al repositorio. Las variables `NEXT_PUBLIC_*` se incluyen en el bundle del navegador; la clave publicable de Supabase está diseñada para ser pública y se protege con RLS.
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
@@ -115,45 +115,36 @@ La organización sigue una arquitectura **Feature-Driven**: cada dominio de nego
 
 ```text
 .
+├── .github/workflows/test.yml     # Unit, build, E2E, Lighthouse y RLS checks
+├── .specs/                        # SDD y especificaciones del producto
 ├── docs/                         # Arquitectura, API, pruebas, backlog y guías
 ├── e2e/                          # Pruebas end-to-end, accesibilidad y regresión visual
+├── messages/                     # Diccionarios next-intl (en/es)
 ├── public/                       # Recursos estáticos, manifest e iconos de la PWA
 ├── scripts/                      # Automatización de tokens y presupuesto de bundle
+├── supabase/                     # Migraciones y pruebas SQL
 ├── src/
-│   ├── app/                      # Rutas, layouts y Route Handlers de Next.js
-│   │   ├── [locale]/             # Rutas localizadas: español e inglés
-│   │   │   ├── (auth)/           # Inicio de sesión, registro y recuperación
-│   │   │   ├── onboarding/       # Entrada al asistente inicial de cinco pasos
-│   │   │   ├── generator/        # Generador de conjuntos
-│   │   │   ├── closet/           # Armario digital
-│   │   │   ├── calendar/         # Historial de looks
-│   │   │   └── profile/          # Perfil, preferencias y colada
-│   │   └── api/                  # Endpoints seguros: weather, recommender y analyze
+│   ├── app/
+│   │   ├── [locale]/             # Rutas localizadas y grupos (auth)/(app)
+│   │   ├── api/                  # Route Handlers sin prefijo de locale
+│   │   └── auth/callback/        # Callback de Supabase Auth
+│   ├── proxy.ts                  # Proxy de locale y autenticación
+│   ├── i18n/                     # Configuración de rutas y mensajes
 │   ├── components/               # Kit de interfaz reutilizable y agnóstico de dominio
 │   ├── constants/                # Valores centralizados y vocabularios controlados
 │   ├── features/                 # Dominios de negocio organizados por responsabilidad
-│   │   ├── generator/
-│   │   │   ├── api/recommender/
-│   │   │   ├── components/{flow,manual,showcase,states,weather}/<component>/
-│   │   │   ├── domain/recommendations/
-│   │   │   ├── hooks/{generation,outfit-actions,weather}/
-│   │   │   ├── state/generator-store/
-│   │   │   └── views/home/
-│   │   ├── closet/
-│   │   │   ├── components/{garments,upload}/<component>/
-│   │   │   ├── domain/{garments,inventory}/
-│   │   │   ├── hooks/{garment-actions,inventory,laundry,queries,upload}/
-│   │   │   └── services/{images,persistence}/
-│   │   ├── history/               # components/history-card y hooks/queries
-│   │   ├── profile/               # components/morpho-icon, domain/profile, hooks/{laundry,profile}
-│   │   ├── onboarding/            # components/{onboarding-art,steps/<step>}, domain/inference, state/onboarding-store, views/onboarding-wizard
-│   │   └── settings/              # components/settings-controls y state/theme-store
-│   ├── lib/                      # Lógica compartida: IA, Supabase, reglas y utilidades
+│   │   ├── generator/            # Recomendaciones, estado, flujos y presentación
+│   │   ├── closet/               # Prendas, inventario, cargas e imágenes
+│   │   ├── history/              # Historial y calendario
+│   │   ├── profile/              # Perfil y preferencias
+│   │   ├── onboarding/           # Asistente, inferencia y estado
+│   │   └── settings/             # Tema y controles de configuración
+│   ├── lib/                      # Lógica compartida: IA, Supabase y reglas
 │   ├── stores/                   # Estado global con Zustand
-│   ├── styles/                   # Tokens, estilos base, shells globales y SCSS Modules
-│   └── types/                    # Interfaces y tipos compartidos de TypeScript
+│   ├── styles/                   # Tokens, estilos base y módulos SCSS
+│   └── types/                    # Interfaces y tipos compartidos
 ├── package.json                  # Dependencias y comandos de desarrollo
-└── next.config.ts                # Configuración de Next.js, PWA y cabeceras
+└── next.config.js                # Configuración de Next.js, PWA y cabeceras
 ```
 
 Los directorios de las features usan `kebab-case`. Cada componente y vista tiene

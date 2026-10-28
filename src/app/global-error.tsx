@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { AppLocale } from "@/i18n/routing";
 
 // Last-resort crash page: replaces the root layout, so no providers,
 // styles, or translations are available. Copy is inline and bilingual,
@@ -25,7 +26,7 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const [locale] = useState<"es" | "en">(() =>
+  const [locale] = useState<AppLocale>(() =>
     typeof document === "undefined" ||
     document.documentElement.lang !== "es"
       ? "en"

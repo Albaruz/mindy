@@ -163,6 +163,94 @@ describe("ManualCarousels", () => {
     );
   });
 
+  it("shows and initializes the outerwear carousel on a cold day", () => {
+    mockCloset.mockReturnValue({
+      data: [
+        buildGarment("t1", "top"),
+        buildGarment("b1", "bottom"),
+        buildGarment("o1", "outerwear"),
+      ],
+      isPending: false,
+    });
+    mockWeather.mockReturnValue({
+      data: {
+        temperatureC: 12,
+        condition: "Clouds",
+        city: "Madrid",
+        dayLow: 8,
+        dayHigh: 15,
+        dayCondition: "Clouds",
+        rainProbability: 10,
+        fallback: false,
+      },
+    });
+
+    render(<ManualCarousels />);
+
+    expect(screen.getByTestId("carousel-outerwear")).toBeInTheDocument();
+    expect(useGeneratorStore.getState().slots.outerwear.garment?.garmentId).toBe(
+      "o1",
+    );
+  });
+
+  it("keeps a suggested outerwear garment visible and editable on a mild day", () => {
+    const suggestedCoat = buildGarment("o1", "outerwear");
+    mockCloset.mockReturnValue({
+      data: [
+        buildGarment("t1", "top"),
+        buildGarment("b1", "bottom"),
+        suggestedCoat,
+      ],
+      isPending: false,
+    });
+    mockWeather.mockReturnValue({
+      data: {
+        temperatureC: 22,
+        condition: "Clear",
+        city: "Madrid",
+        dayLow: 18,
+        dayHigh: 25,
+        dayCondition: "Clear",
+        rainProbability: 0,
+        fallback: false,
+      },
+    });
+    useGeneratorStore.getState().setGarment("outerwear", suggestedCoat);
+
+    render(<ManualCarousels />);
+
+    expect(screen.getByTestId("carousel-outerwear")).toBeInTheDocument();
+  });
+
+  it("does not wear an outerwear slot while its weather-hidden carousel is unavailable", async () => {
+    mockCloset.mockReturnValue({
+      data: [buildGarment("t1", "top"), buildGarment("b1", "bottom")],
+      isPending: false,
+    });
+    mockWeather.mockReturnValue({
+      data: {
+        temperatureC: 22,
+        condition: "Clear",
+        city: "Madrid",
+        dayLow: 18,
+        dayHigh: 25,
+        dayCondition: "Clear",
+        rainProbability: 0,
+        fallback: false,
+      },
+    });
+    const hiddenCoat = buildGarment("o1", "outerwear");
+    useGeneratorStore.getState().setGarment("outerwear", hiddenCoat);
+
+    render(<ManualCarousels />);
+
+    expect(screen.queryByTestId("carousel-outerwear")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "wear" }));
+
+    const wornGarments = mockWearTodayMutate.mock.calls[0]?.[0] as Garment[];
+    expect(wornGarments.map((garment) => garment.garmentId)).not.toContain("o1");
+  });
+
   it("keeps the mid-layer excluded until the user enables it", async () => {
     mockCloset.mockReturnValue({
       data: [buildGarment("t1", "top"), buildGarment("m1", "mid_layer")],

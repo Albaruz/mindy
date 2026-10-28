@@ -7,11 +7,12 @@ import {
 } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { QUERY_KEYS } from "@/constants/query";
-import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
+import { COLUMNS, TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { createClient } from "@/lib/supabase/client";
 import { requireUser } from "@/lib/supabase/session";
 import { useNotificationStore } from "@/stores/useNotificationStore";
 import type { Garment } from "@/types/garment";
+import { invalidateGarmentCaches } from "@/lib/garment/invalidateGarmentCaches";
 
 interface LaundryContext {
   garments: Garment[] | undefined;
@@ -19,7 +20,7 @@ interface LaundryContext {
 
 async function washOwnedGarments(garmentIds?: string[]): Promise<void> {
   const supabase = createClient();
-  const user = await requireUser(supabase, "You must be signed in to do the laundry.");
+  const user = await requireUser(supabase);
   const update = supabase
     .from(TABLES.garments)
     .update({ is_dirty: false })
@@ -28,7 +29,7 @@ async function washOwnedGarments(garmentIds?: string[]): Promise<void> {
   const { error } =
     garmentIds === undefined
       ? await update
-      : await update.in("garment_id", garmentIds);
+      : await update.in(COLUMNS.garmentId, garmentIds);
   if (error) {
     throw error;
   }
@@ -68,9 +69,7 @@ function useLaundryMutation<TVariables>(
         .getState()
         .addNotification("error", t("laundryFailed"));
     },
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: QUERY_KEYS.garments });
-    },
+    onSettled: () => invalidateGarmentCaches(queryClient),
   });
 }
 

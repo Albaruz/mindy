@@ -57,7 +57,7 @@ function isValidImageDataUrl(value: unknown): value is string {
     return false;
   }
   const match =
-    /^data:(image\/(?:jpeg|png|webp));base64,((?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=))$/.exec(
+    /^data:(image\/(?:jpeg|png|webp));base64,((?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?)$/.exec(
       value,
     );
   if (!match) {

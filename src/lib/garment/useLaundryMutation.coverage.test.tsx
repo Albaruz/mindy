@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import React from "react";
+import { ERROR_CODES } from "@/constants/errors";
+import { isAppError } from "@/lib/errors";
 
 const { mockGetUser, mockUpdate, mockEqUser, mockEqDirty } = vi.hoisted(() => ({
   mockGetUser: vi.fn(),
@@ -60,7 +62,10 @@ describe("useWashAllGarments branch coverage", () => {
     const { result } = renderHook(() => useWashAllGarments(), { wrapper: createWrapper() });
     result.current.mutate();
     await waitFor(() => expect(result.current.isError).toBe(true));
-    expect(String(result.current.error)).toContain("signed in");
+    expect(isAppError(result.current.error)).toBe(true);
+    expect(isAppError(result.current.error) && result.current.error.code).toBe(
+      ERROR_CODES.SESSION_REQUIRED,
+    );
   });
 
   it("rejects when the update returns an error", async () => {

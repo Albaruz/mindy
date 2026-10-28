@@ -155,10 +155,14 @@ before review, docs updated every phase, `typecheck` + `eslint` + `vitest`
   `types/garment.ts`. The notification store moved from `features/ui` to
   `stores/`; `components/Notification` no longer imports a feature.
 - Cross-feature imports went from 17 to 3, all data hooks.
-- ESLint now enforces the layering (`no-restricted-imports`): no feature-to-
-  feature imports except `useClosetQuery`, `useProfileQuery`, `useDoLaundry`;
+- ESLint now enforces the layering (`no-restricted-imports`): the three
+  cross-feature data-hook exceptions are `useClosetQuery`,
+  `useFavoritesQuery`, and `useProfileQuery`;
   `components/`, `lib/` and `stores/` cannot import features. Verified with
   throwaway violating files.
+- Laundry mutations and basket data access no longer cross the
+  `profile`/`closet` boundary; shared laundry mutations live in
+  `lib/garment/useLaundryMutation.ts`.
 - The onboarding wizard moved from `app/.../profile/onboarding/` to
   `features/onboarding/` (the route keeps a thin `page.tsx`).
 - `api/recommender/route.ts` went from 938 to 320 lines: request readers,
@@ -255,3 +259,51 @@ Six hand-written choice pickers were compared. Result:
 - Validation passed: 172 test files / 1,024 tests; 90.15% branch coverage
   (90% threshold), `pnpm typecheck`, and `pnpm build`. `pnpm lint` exits
   successfully with two existing warnings in the root k6 scripts.
+
+## Follow-up audit (phases 4–5)
+
+These phase numbers refer to the consistency and delivery audit, not the
+structural phases above.
+
+| Audit phase | Scope | Status |
+|---|---|---|
+| 4 | Cache/persistence, garment invalidation, constants/i18n/errors, concurrency, indexes and bucket verification | Implemented; app checks pass. SQL execution and remote migration remain pending |
+| 5 | Architecture/API/SDD docs, coverage exclusions, CI secrets/E2E behavior and Node tooling | Implemented; typecheck, lint, coverage and build pass |
+| 6 | Strategic backlog (Serwist, generator/Home split, generated Supabase types, visual snapshots and BKL checks) | Deliberately out of scope |
+
+- Entity query `gcTime` now matches the 24-hour persisted-cache lifetime; the
+  persister buster is derived from the build/commit identifier. The shared
+  `invalidateGarmentCaches` refreshes garments, favorites, and history after
+  garment mutations. The old laundry hooks/cache crossing remains removed.
+- Upload notification, exit timing, progress milestones, celebration values,
+  storage column names, and analysis limits use centralized constants. Locale
+  signatures use `AppLocale`; surfaced mutation and upload failures use stable
+  error codes with `Notifications.errors` translations.
+- Favorite rollback is item-scoped and same-garment requests use mutation scope.
+  Queue processing has mounted/running guards; preview object URLs are created
+  and released in an effect lifecycle.
+- The local migration adds the garment-feedback index, planned-date consistency
+  constraint, partial unique planned-outfit index, and ownership-checked
+  `record_planned_outfit` RPC. The consumer and SQL assertions are updated. The
+  migration has **not** been applied remotely. No local Supabase CLI/Docker is
+  available, so database tests remain unexecuted.
+- Read-only bucket verification found `garments` public-read, PNG-only, limited
+  to 10 MiB, with authenticated writes restricted to each user's folder; the
+  current PNG upload path matches this policy, so no bucket change was needed.
+- `ARCHITECTURE.md`, `API.md`, the SDD links, README configuration filename,
+  and coverage exclusions were synchronized. Trusted CI now requires the
+  relevant E2E/Lighthouse/RLS configuration; fork PRs explicitly skip jobs
+  that cannot access secrets, and E2E auth no longer silently passes in CI.
+- Added `cross-env`, aligned `@types/node` with CI Node 22, and made `analyze`
+  portable across shells. Verification passed: `pnpm typecheck`, `pnpm lint`
+  (two existing warnings in the root k6 scripts), `pnpm test:coverage`
+  (175 files / 1,036 tests; 91.08% statements, 90.11% branches, and 91.56%
+  functions), `pnpm build`, and `pnpm budget` (140 KB gzip / 180 KB limit).
+  Authenticated E2E/Lighthouse/RLS jobs were not run locally.
+- Manual generator keeps suggested outerwear visible/editable and excludes
+  hidden outerwear slots from the wear action. Development no longer loads the
+  Vercel Analytics debug script; the analyze validator accepts valid unpadded
+  Base64, and deterministic 400/413 image errors do not trigger queue retries.
+- The updated pgTAP assertions have not run: no local Supabase CLI, Docker, or
+  `psql` is available. The phase-4 migration remains local and was not applied
+  to the remote project, as requested.

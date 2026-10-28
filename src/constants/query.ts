@@ -22,18 +22,20 @@ export const QUERY_STALE_TIME_MS = 30_000;
 /** Global retry count for failed queries. */
 export const QUERY_RETRY_COUNT = 1;
 
+/** IndexedDB persist TTL for the query cache. */
+export const QUERY_PERSIST_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
 /** Freshness / cache lifetime of entity queries (closet, profile, history, laundry): they change only on explicit user actions. */
 export const ENTITY_STALE_TIME_MS = 5 * 60 * 1000;
-export const ENTITY_GC_TIME_MS = 10 * 60 * 1000;
+// Persisted successful queries remain restorable for this duration, so TanStack
+// must not garbage-collect them from memory earlier than the persister expires.
+export const ENTITY_GC_TIME_MS = QUERY_PERSIST_MAX_AGE_MS;
 
 /** Never refetch on window focus: mobile PWA with manual refresh. */
 export const QUERY_REFETCH_ON_FOCUS = false;
 
 /** Serve persisted cache while offline instead of wiping on failure. */
 export const QUERY_NETWORK_MODE = "offlineFirst" as const;
-
-/** IndexedDB persist TTL for the query cache. */
-export const QUERY_PERSIST_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 /** Weather cache freshness (resolves once per visit, cached 10 min). */
 export const WEATHER_STALE_TIME_MS = 10 * 60 * 1000;

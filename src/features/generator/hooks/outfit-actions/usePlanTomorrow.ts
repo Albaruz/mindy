@@ -5,7 +5,8 @@ import { requireUser } from "@/lib/supabase/session";
 import { useNotificationStore } from "@/stores/useNotificationStore";
 import { useGeneratorStore } from "../../state/generator-store/useGeneratorStore";
 import { QUERY_KEYS } from "@/constants/query";
-import { TABLES } from "@/constants/storage";
+import { ERROR_CODES } from "@/constants/errors";
+import { AppError, isAppError } from "@/lib/errors";
 import { withoutHiddenBottom } from "@/lib/garment/categorizeGarments";
 import type { Garment } from "@/types/garment";
 
@@ -32,25 +33,17 @@ export function usePlanTomorrow() {
     mutationFn: async (garments: Garment[]): Promise<Garment[]> => {
       const plannedGarments = withoutHiddenBottom(garments);
       const supabase = createClient();
-      const user = await requireUser(
-        supabase,
-        "You must be signed in to plan a look.",
-      );
+      await requireUser(supabase);
       const tomorrow = tomorrowDate();
       tomorrow.setHours(12, 0, 0, 0);
 
-      const { error } = await supabase.from(TABLES.outfitHistory).upsert(
-        {
-          user_id: user.id,
-          garment_ids: plannedGarments.map((garment) => garment.garmentId),
-          worn_date: tomorrow.toISOString(),
-          is_planned: true,
-          planned_date: localDateKey(tomorrow),
-        },
-        { onConflict: "user_id,planned_date" },
-      );
+      const { error } = await supabase.rpc("record_planned_outfit", {
+        p_garment_ids: plannedGarments.map((garment) => garment.garmentId),
+        p_worn_date: tomorrow.toISOString(),
+        p_planned_date: localDateKey(tomorrow),
+      });
       if (error) {
-        throw error;
+        throw new AppError(ERROR_CODES.WEAR_SAVE_FAILED);
       }
       return plannedGarments;
     },
@@ -61,7 +54,7 @@ export function usePlanTomorrow() {
     onError: (error) => {
       useNotificationStore.getState().addNotification(
         "error",
-        error instanceof Error ? error.message : t("wearFailed"),
+        isAppError(error) ? t(`errors.${error.code}`) : t("wearFailed"),
       );
     },
   });

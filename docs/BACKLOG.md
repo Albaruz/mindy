@@ -1,6 +1,6 @@
 # Backlog - Mindy Smart Closet
 
-Fuente única de trabajo pendiente. El estado implementado y las decisiones técnicas se documentan en el [SDD](../Software%20Design%20Document%20(SDD)%20-%20App%20de%20Moda%20Inteligente.md).
+Fuente única de trabajo pendiente. El estado implementado y las decisiones técnicas se documentan en el [SDD](../.specs/Software%20Design%20Document%20%28SDD%29%20-%20App%20de%20Moda%20Inteligente.md).
 
 ## Prioridad alta
 

@@ -23,6 +23,9 @@ export default defineConfig({
         "src/**/*.module.scss",
         "**/*.config.{ts,js,mjs}",
         "src/app/layout.tsx",
+        // The root crash document replaces every provider, so its rendering
+        // cannot be meaningfully exercised by the jsdom component harness.
+        "src/app/global-error.tsx",
         // Next.js route segments are thin composition layers covered by
         // Playwright E2E (mobile, es). Unit-testing them adds brittleness
         // without signal; API Route Handlers stay included (see route.test).

@@ -20,6 +20,17 @@ Functions:   90%
 Statements:  90%
 ```
 
+Coverage excludes Next.js composition boundaries (`src/app/**/page.tsx`,
+`layout.tsx`, `loading.tsx`, `error.tsx`, and `not-found.tsx`) because those
+route shells are exercised through Playwright, plus the provider-free root
+`src/app/global-error.tsx` crash document. It also excludes browser-only
+upload infrastructure (`UploadQueueManager`, `UploadBatchPreview`, the upload
+queue store and IndexedDB adapter, and the background-removal worker); these
+depend on browser APIs that are not representative in jsdom. The upload
+components still have focused jsdom tests for StrictMode queue orchestration and
+object-URL cleanup; those tests do not contribute these files to the percentage.
+The exact include and exclude list lives in `vitest.config.ts`.
+
 ### Running Tests
 
 ```bash
@@ -334,20 +345,32 @@ Functions:  90%+ ✅
 
 ---
 
-## CI/CD Gates (Local)
+## CI/CD Gates
 
-Before pushing, ensure all pass:
+The GitHub Actions workflow is `.github/workflows/test.yml`. Its `unit` job runs
+typecheck, ESLint, and coverage; `build` runs the production build and bundle
+budget; `e2e` runs authenticated mobile flows; `lighthouse` enforces its score
+thresholds; and `rls` runs the SQL isolation checks.
+
+The E2E job requires `TEST_USER_EMAIL`, `TEST_USER_PASSWORD`,
+`NEXT_PUBLIC_SUPABASE_URL`, and `NEXT_PUBLIC_SUPABASE_ANON_KEY`. The RLS job
+requires `SUPABASE_DB_URL`. Trusted runs fail when these secrets are missing;
+fork pull requests skip the secret-dependent jobs explicitly.
+
+Before pushing, run locally:
 
 ```bash
 pnpm lint        # ESLint
 pnpm typecheck   # TypeScript strict
-pnpm test --run  # 90% coverage
+pnpm test:coverage # 90% thresholds
 pnpm test:e2e    # E2E specs
 pnpm build       # Next.js build
 pnpm analyze     # <180KB gzip
 ```
 
-**GitHub Actions:** Not yet automated (planned for post-MVP)
+SQL integration checks under `supabase/tests/` require a configured Supabase
+database with pgTAP. The local Supabase CLI is needed to run them against a
+local stack.
 
 ---
 

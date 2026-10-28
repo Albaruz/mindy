@@ -6,7 +6,7 @@ import {
   readJsonObject,
   requireRouteUser,
 } from "@/lib/api/routeGuards";
-import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
+import { COLUMNS, TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { UUID_PATTERN } from "@/constants/validation";
 
 // PATCH /api/garments/[id]/favorite
@@ -36,18 +36,18 @@ export async function PATCH(
   if (isGuardResponse(bodyResult)) {
     return bodyResult.response;
   }
-  const { is_favorite } = bodyResult.body;
-  if (typeof is_favorite !== "boolean") {
+  const isFavorite = bodyResult.body[COLUMNS.isFavorite];
+  if (typeof isFavorite !== "boolean") {
     return NextResponse.json({ error: "is_favorite must be boolean" }, { status: 400 });
   }
 
   try {
     const { data, error } = await supabase
       .from(TABLES.garments)
-      .update({ is_favorite })
-      .eq("garment_id", id)
+      .update({ [COLUMNS.isFavorite]: isFavorite })
+      .eq(COLUMNS.garmentId, id)
       .eq(USER_ID_COLUMN, user.id)
-      .select("garment_id")
+      .select(COLUMNS.garmentId)
       .maybeSingle();
 
     if (error) {
@@ -60,8 +60,12 @@ export async function PATCH(
     }
 
     const durationMs = Date.now() - startTime;
-    logger.requestComplete("favorite", requestId, 200, durationMs, { userId: user.id, garmentId: id, is_favorite });
-    return NextResponse.json({ success: true, is_favorite });
+    logger.requestComplete("favorite", requestId, 200, durationMs, {
+      userId: user.id,
+      garmentId: id,
+      [COLUMNS.isFavorite]: isFavorite,
+    });
+    return NextResponse.json({ success: true, [COLUMNS.isFavorite]: isFavorite });
   } catch (error) {
     const durationMs = Date.now() - startTime;
     logger.error("Favorite request failed", { route: "favorite", requestId, userId: user.id, error, durationMs });

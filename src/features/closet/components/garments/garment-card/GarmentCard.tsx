@@ -29,7 +29,7 @@ export function GarmentCard({
 }: GarmentCardProps) {
   const { title, subtitle, imageAlt } = useGarmentCardContent(garment);
   const ta = useTranslations("Accessibility");
-  const favoriteMutation = useToggleFavorite();
+  const favoriteMutation = useToggleFavorite(garment.garmentId);
   const favorite = garment.isFavorite;
   const hasTrailingActions = onWash !== undefined || onEdit !== undefined;
 

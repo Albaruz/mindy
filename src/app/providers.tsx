@@ -7,12 +7,14 @@ import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persi
 import { del, get, set } from "idb-keyval";
 import { applyThemeMode, useThemeStore } from "@/features/settings/state/theme-store/themeStore";
 import { PERSISTED_CACHE_KEY } from "@/constants/storage";
+import { APP_BUILD_VERSION } from "@/constants/build";
 import {
   QUERY_NETWORK_MODE,
   QUERY_PERSIST_MAX_AGE_MS,
   QUERY_REFETCH_ON_FOCUS,
   QUERY_RETRY_COUNT,
   QUERY_STALE_TIME_MS,
+  ENTITY_GC_TIME_MS,
 } from "@/constants/query";
 
 // IndexedDB key for the persisted TanStack Query cache. Re-exported from
@@ -27,6 +29,7 @@ export function Providers({ children }: { children: ReactNode }) {
         defaultOptions: {
           queries: {
             staleTime: QUERY_STALE_TIME_MS,
+            gcTime: ENTITY_GC_TIME_MS,
             retry: QUERY_RETRY_COUNT,
             refetchOnWindowFocus: QUERY_REFETCH_ON_FOCUS,
             // Serve persisted cache while offline: a failed background
@@ -69,9 +72,10 @@ export function Providers({ children }: { children: ReactNode }) {
       persistOptions={{
         persister,
         maxAge: QUERY_PERSIST_MAX_AGE_MS,
+        buster: APP_BUILD_VERSION,
         dehydrateOptions: {
           // Persist successful server state only (closet, history,
-          // basket, profile); never errors or mutations.
+          // profile); never errors or mutations.
           shouldDehydrateQuery: (query) =>
             query.state.status === "success",
         },

@@ -1,6 +1,5 @@
-// Shared seeded-auth helper for E2E specs.
-// Specs skip at runtime (not collection time) when no authenticated
-// storageState exists, so the "setup" project can create it first in CI.
+// Shared seeded-auth helper for E2E specs. Specs skip locally without an
+// authenticated storageState; CI fails instead of reporting skipped coverage.
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
@@ -18,11 +17,18 @@ export function hasSeededAuth(): boolean {
       cookies?: unknown[];
       origins?: unknown[];
     };
-    return (
+    const hasAuth = (
       (Array.isArray(state.cookies) && state.cookies.length > 0) ||
       (Array.isArray(state.origins) && state.origins.length > 0)
     );
-  } catch {
+    if (process.env.CI && !hasAuth) {
+      throw new Error("Seeded E2E authentication is required in CI.");
+    }
+    return hasAuth;
+  } catch (error) {
+    if (process.env.CI) {
+      throw error;
+    }
     return false;
   }
 }

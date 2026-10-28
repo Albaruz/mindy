@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { MAX_UPLOAD_BATCH_SIZE } from "@/constants/upload";
 import { MAX_UPLOAD_FILE_SIZE_BYTES } from "@/constants/validation";
+import { ERROR_CODES } from "@/constants/errors";
 import type { UploadItemStatus, UploadQueueItem } from "@/types/upload";
 import {
   deleteUploadFile,
@@ -77,10 +78,8 @@ export const useUploadQueueStore = create<UploadQueueState>()((set, get) => ({
                 status: file === undefined ? "failed" : "queued",
                 stage: file === undefined ? "done" : "validation",
                 progress: file === undefined ? 100 : 0,
-                error:
-                  file === undefined
-                    ? "The original image is no longer available."
-                    : null,
+                 error:
+                   file === undefined ? ERROR_CODES.UPLOAD_FILE_MISSING : null,
                 attempts: 0,
               }
             : item;
@@ -129,7 +128,7 @@ export const useUploadQueueStore = create<UploadQueueState>()((set, get) => ({
         stage: valid ? "validation" : "done",
         progress: 0,
         attempts: 0,
-        error: valid ? null : "This image does not meet the upload requirements.",
+        error: valid ? null : ERROR_CODES.UPLOAD_INVALID_FILE,
         tags: null,
         qualityNote: null,
         cutoutFailed: false,

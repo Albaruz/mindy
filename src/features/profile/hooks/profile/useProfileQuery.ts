@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { UserProfile } from "@/types/user";
 import { toProfile, type ProfileRow } from "../../domain/profile/profileMappers";
 import { ENTITY_GC_TIME_MS, ENTITY_STALE_TIME_MS, QUERY_KEYS } from "@/constants/query";
-import { TABLES, USER_ID_COLUMN } from "@/constants/storage";
+import { COLUMNS, TABLES, USER_ID_COLUMN } from "@/constants/storage";
 import { getSessionUser } from "@/lib/supabase/session";
 
 // Columns used by the app (mirrors ProfileRow). Avoid select("*") to reduce payload.
@@ -20,7 +20,7 @@ const PROFILE_COLUMNS = `
   preferred_fit,
   lifestyle,
   extra_preferences,
-  created_at
+  ${COLUMNS.createdAt}
 `.trim();
 
 async function fetchProfile(): Promise<UserProfile | null> {

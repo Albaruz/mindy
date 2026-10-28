@@ -7,7 +7,7 @@
 - **No Magic Strings:** All constants centralized in `src/constants/`
 - **Functional:** Functional components, hooks-based, pure functions
 - **Offline-First:** TanStack Query + IndexedDB persistence
-- **Decoupled AI:** Prompts separated from logic, versioned (`*.v1.ts`)
+- **Decoupled AI:** Prompts separated from logic and versioned (`*.vN.ts`)
 
 ---
 
@@ -15,123 +15,53 @@
 
 ```
 src/
-├── app/[locale]/
-│   ├── (auth)/                  # Login, register, auth callbacks
-│   │   ├── login/page.tsx
-│   │   ├── register/page.tsx
-│   │   └── auth/callback/route.ts
-│   ├── onboarding/              # Route entry point (wizard lives in features/)
-│   ├── generator/               # AI outfit generation (home)
-│   │   └── page.tsx             # Machine: zero → auto → loading → showcase → manual
-│   ├── closet/                  # Digital wardrobe
-│   │   └── page.tsx             # Grid + search + filters
-│   ├── calendar/                # Outfit history
-│   │   └── page.tsx             # Monthly grouped history
-│   ├── profile/                 # Profile + settings
-│   │   └── page.tsx             # User data + laundry basket
-│   ├── api/
-│   │   ├── weather/route.ts      # GET ?lat&lon → OpenWeather
-│   │   ├── recommender/route.ts  # POST outfit recommendations
-│   │   └── analyze/route.ts      # POST image analysis (vision)
-│   ├── layout.tsx               # Root layout
-│   └── globals.scss             # Global styles
-│
-├── features/                    # Business domains (isolated: see "Layering rules" below)
-│   ├── generator/               # Outfit generation, organized by responsibility
-│   │   ├── api/recommender/
-│   │   ├── components/{flow,manual,showcase,states,weather}/<component-name>/
-│   │   ├── domain/recommendations/
-│   │   ├── hooks/{generation,outfit-actions,weather}/
-│   │   ├── state/generator-store/
-│   │   └── views/home/
-│   ├── closet/                  # Wardrobe, uploads, inventory, and laundry
-│   │   ├── components/{garments,upload}/<component-name>/
-│   │   ├── domain/{garments,inventory}/
-│   │   ├── hooks/{garment-actions,inventory,laundry,queries,upload}/
-│   │   └── services/{images,persistence}/
-│   ├── profile/                 # Profile, laundry basket, colorimetry UI
-│   │   ├── components/morpho-icon/
-│   │   ├── domain/profile/
-│   │   └── hooks/{laundry,profile}/
-│   ├── history/                 # Outfit history (calendar)
-│   │   ├── components/history-card/
-│   │   └── hooks/queries/
-│   ├── onboarding/              # 5-step wizard
-│   │   ├── components/{onboarding-art,steps/<step-name>}/
-│   │   ├── domain/inference/
-│   │   ├── state/onboarding-store/
-│   │   └── views/onboarding-wizard/
-│   └── settings/                # Theme and settings controls
-│       ├── components/settings-controls/
-│       └── state/theme-store/
-│
-├── stores/                      # Cross-cutting Zustand stores (notifications)
-│
-├── components/                  # Feature-agnostic UI kit (never imports features/)
-│   ├── Dialog/                  # Compound modal (focus trap, ARIA); ConfirmDialog builds on it
-│   ├── GarmentImage/  QueryState/  AuthCard/  FormField/  SubmitButton/
-│   └── Button/  EmptyState/  OptionPills/  ColorSwatches/  SegmentedControl/  ...
-│
-├── lib/                         # Shared logic (never imports features/)
-│   ├── ai/                      # Groq engine + versioned prompts (prompts/system/*.v1.ts)
-│   ├── api/routeGuards.ts       # Auth + rate limit + JSON body guards for Route Handlers
-│   ├── garment/                 # Shared garment kernel
-│   │   ├── normalizers.ts       #   free/AI text -> closed vocabularies
-│   │   ├── categorizeGarments.ts#   category rules + laundry predicates
-│   │   └── garmentMappers.ts    #   DB row <-> Garment
-│   ├── recommender/             # Server-side recommender rules used by api/recommender/route.ts
-│   │   └── request | styleFilter | weatherRules | pool | fallback | llmOptions | types
-│   ├── supabase/                # Clients, cookies, middleware, session helpers
-│   ├── readers.ts  geolocation.ts  taxonomy.ts  logger.ts  rateLimit.ts  useDialogFocus.ts  ...
-├── constants/                   # SSOT: values only (closed vocabularies as `as const` arrays)
-│   ├── ai.ts                   # AI-related (prompts config, timeouts)
-│   ├── api.ts                  # API rate limits, timeouts
-│   ├── weather.ts              # Weather thresholds (HEAT, COLD, RAIN)
-│   ├── generator.ts            # Generator constants (MAX_DISCARD_COUNT, FAVORITE_LOOK_INCLUSION_PROBABILITY, etc)
-│   ├── garment.ts              # Garment tag vocabularies (GARMENT_*_VALUES, *_ALIASES, TYPE_CATEGORIES, ONE_PIECE_KEYWORDS)
-│   ├── profile.ts              # Profile enums (COLORIMETRIES, MORPHOLOGIES, ...) + inference
-│   ├── ui-config.ts            # UI constants (SHOP_SECTIONS, STYLE_TRIBES, TOTAL_STEPS, ...)
-│   ├── validation.ts           # Input validation rules
-│   ├── animations.ts           # Animation durations, easings
-│   ├── query.ts                # TanStack Query config
-│   ├── geo.ts                  # Geolocation settings
-│   └── storage.ts              # LocalStorage & IndexedDB keys
-│
-├── types/                       # Shared TypeScript types (derived from constants where possible)
-│   ├── garment.ts              # Garment, GarmentType, ... (unions derived from constants/garment)
-│   ├── user.ts                 # UserProfile, Colorimetry, ... (unions derived from constants/profile)
-│   ├── history.ts
-│   ├── weather.ts              # WeatherInfo
-│   └── ui.ts                   # ThemeMode, NotificationType, CategoryFilter
-│
-└── styles/
-    ├── tokens/                  # JSON definitions (generated from here)
-    │   ├── colors.json
-    │   ├── spacing.json
-    │   ├── typography.json
-    │   ├── radius.json
-    │   ├── shadows.json
-    │   ├── breakpoints.json
-    │   ├── zIndex.json
-    │   ├── durations.json
-    │   ├── easings.json
-    │   ├── touchTargets.json
-    │   └── layout.json
-    ├── core/
-    │   ├── _tokens.scss         # Auto-generated from JSON (pnpm tokens:build)
-    │   ├── _variables.scss      # Semantic aliases + light/dark palettes
-    │   ├── _mixins.scss         # Few mixins, used only by base/ and layout/
-    │   └── _animations.scss     # Global keyframes (fade-in, scale-in, spin) + .spin
-    ├── base/
-    │   ├── _reset.scss
-    │   ├── _typography.scss
-    │   └── _global.scss
-    ├── layout/
-    │   └── _skip-link.scss
-    └── components/              # GLOBAL shells used directly in markup (BEM)
-        ├── _dialog-shell.scss   # .dialog-shell__* (ConfirmDialog, GarmentFormModal, PhotoQualityDialog)
-        ├── _auth-form.scss      # .auth-form__*   (login, forgot/reset password)
-        └── _visually-hidden.scss # .visually-hidden (custom inputs, hidden legends)
+├── app/
+│   ├── [locale]/
+│   │   ├── (auth)/page.tsx       # Localized sign-in and registration
+│   │   ├── (app)/                # Authenticated application shell
+│   │   │   ├── calendar/page.tsx
+│   │   │   ├── closet/page.tsx
+│   │   │   ├── generator/page.tsx
+│   │   │   ├── profile/          # Profile and profile/onboarding routes
+│   │   │   └── settings/page.tsx
+│   │   ├── forgot-password/page.tsx
+│   │   ├── reset-password/page.tsx
+│   │   ├── layout.tsx
+│   │   └── error.tsx
+│   ├── api/                      # Route Handlers are not locale-prefixed
+│   │   ├── analyze/route.ts
+│   │   ├── favorites/route.ts
+│   │   ├── garments/[id]/favorite/route.ts
+│   │   ├── recommender/route.ts
+│   │   └── weather/route.ts
+│   ├── auth/callback/route.ts
+│   ├── global-error.tsx
+│   ├── layout.tsx
+│   └── providers.tsx
+├── proxy.ts                      # Next.js request proxy and locale/auth routing
+├── i18n/                         # Locale routing, request config, navigation
+├── features/                     # Isolated business domains
+│   ├── generator/                # API, recommendation domain, hooks, state, views
+│   ├── closet/                   # Garments, upload queue, inventory, image services
+│   ├── profile/                  # Profile domain and profile query
+│   ├── history/                  # Calendar history query and card
+│   ├── onboarding/                # Wizard, inference and state
+│   └── settings/                  # Theme and settings controls
+├── stores/                       # Cross-cutting Zustand stores
+├── components/                   # Feature-agnostic UI kit
+├── lib/                           # Shared logic; never imports from features/
+│   ├── ai/                        # Groq engine and versioned prompts
+│   ├── api/routeGuards.ts         # Auth, quota and JSON-body guards
+│   ├── garment/                   # Garment mapping, predicates and shared mutations
+│   ├── recommender/               # Request parsing, rules, recovery and finalization
+│   └── supabase/                  # Client/server clients, cookies and sessions
+├── constants/                     # Centralized values and closed vocabularies
+├── types/                         # Shared TypeScript types
+└── styles/                        # JSON tokens, global SCSS and component modules
+
+messages/                          # English and Spanish next-intl dictionaries
+supabase/                          # Migrations, seed data and SQL tests
+.github/workflows/test.yml         # Unit, build, E2E, Lighthouse and RLS CI
 ```
 
 Feature directories use kebab-case. Each component and view owns a folder for
@@ -148,7 +78,9 @@ global BEM class applied in the markup next to the component's own module class
 - A feature may not import another feature. Shared domain logic belongs in
   `lib/`, shared state in `stores/`, and shared values in `constants/`.
 - The only intentional feature-to-feature exceptions are the data hooks
-  `useClosetQuery`, `useProfileQuery`, and `useDoLaundry`.
+  `useClosetQuery`, `useFavoritesQuery`, and `useProfileQuery`. Laundry mutations
+  live in the shared `lib/garment` layer; there is no profile laundry hook or
+  duplicate laundry-basket query.
 - `components/`, `lib/`, and `stores/` never import from `features/`.
 - ESLint enforces these boundaries with `no-restricted-imports`.
 
@@ -198,10 +130,13 @@ user_id (FK) → profiles
 image_url (Supabase Storage)
 original_image_url (Supabase Storage, preserved source photo)
 garment_type, style, cut_length, color, material, season
+styles (text[]), cut_lengths (text[])
 is_dirty (default false)
 is_external_garment (for starter wardrobe)
 last_worn_date
 extra_tags (jsonb: {aiCategory, specificType, colorShade, ...})
+is_favorite (default false)
+created_at
 ```
 
 `image_url` is the image currently displayed in the closet. `original_image_url`
@@ -215,18 +150,28 @@ look_id (PK, uuid)
 user_id (FK) → profiles
 garment_ids (uuid[])
 worn_date, created_at
+is_planned (boolean, default false)
+planned_date (date, null for worn looks)
 ```
+
+Planned entries must keep `is_planned = (planned_date IS NOT NULL)`. A partial
+unique index on `(user_id, planned_date) WHERE is_planned` enforces one
+replaceable plan per user and day. The `record_planned_outfit` RPC validates
+garment ownership and performs the upsert against that partial index.
 
 ### Garment Feedback
 ```sql
 feedback_id (PK, uuid)
 user_id (FK) → profiles
 garment_id (FK) → garments
-signal (enum: 'dismissed')
+signal (text check: 'dismissed')
 created_at
 ```
 
-[Full SDD →](../Software%20Design%20Document%20(SDD)%20-%20App%20de%20Moda%20Inteligente.md#4-estructura-de-datos-postgresql-snake_case-inglés)
+`garment_feedback` has indexes on `user_id` and `garment_id`; foreign-key
+columns are indexed to keep joins and cascade deletes bounded.
+
+[Full SDD →](../.specs/Software%20Design%20Document%20%28SDD%29%20-%20App%20de%20Moda%20Inteligente.md)
 
 ---
 
@@ -269,16 +214,18 @@ setStep, updateProfile, completeOnboarding
 Persistence: `mindy-query-cache` in IndexedDB
 
 ```typescript
-// Example: useGarmentsQuery
+// Example: useClosetQuery
 {
-  queryKey: ['garments', userId],
-  queryFn: () => fetchGarments(userId),
-  staleTime: 30 * 1000,           // 30s
-  gcTime: 24 * 60 * 60 * 1000,    // 24h (formerly cacheTime)
-  refetchOnFocus: false,
-  networkMode: 'offlineFirst'     // Retry offline data first
+  queryKey: QUERY_KEYS.garments,
+  staleTime: ENTITY_STALE_TIME_MS,
+  gcTime: ENTITY_GC_TIME_MS, // at least the 24h persistence max age
+  refetchOnWindowFocus: QUERY_REFETCH_ON_FOCUS,
+  networkMode: QUERY_NETWORK_MODE
 }
 ```
+
+The persisted cache uses `QUERY_PERSIST_MAX_AGE_MS` and a buster set to the
+public build identifier, so deployments discard data serialized by older code.
 
 ---
 
@@ -289,7 +236,7 @@ Persistence: `mindy-query-cache` in IndexedDB
 **Prompts** (`src/lib/ai/prompts/system/*.v1.ts`)
 - Pure functions returning strings
 - No dependencies on state/context
-- Versioned (e.g., `garmentAnalysis.v1.ts`)
+- Versioned (currently `outfitStylist.v3.ts` and `garmentAnalysis.v2.ts`)
 - Easy to test and iterate
 
 **Engine** (`src/lib/ai/engine.ts`)
@@ -309,24 +256,23 @@ Persistence: `mindy-query-cache` in IndexedDB
 ```
 POST /api/recommender
     ↓
-engine.ts: Prepare context
-    ├→ Fetch user profile
-    ├→ Fetch clean garments
-    ├→ Apply weather rules (e.g., no winter in hot weather)
-    └→ Apply style filter
+Route guard: authenticate, consume per-user quota, validate JSON
     ↓
-Groq API: lookRecommender.v1 prompt
-    ├→ Input: profile, outfit slots, options
-    └→ Output: 3 outfit combinations with suitability ratio
+Normalize candidates from the request
+    ├→ Apply heat, rain, feedback, and style rules
+    └→ Balance the candidate pool and preserve pinned garments
     ↓
-Parse & validate JSON
+Groq structured output (JSON fallback if needed)
     ↓
-Fallback (if Groq fails):
-    └→ Rule-based selection with static ratios [60, 55, 50]
+Parse, validate, and repair model options
     ↓
-Return outfit + metadata (model, fallback, optionsCount)
+Shared finalization: weather, variety, completion, favorites, layering
     ↓
-Client: TanStack Query caches result
+Local deterministic fallback (if the upstream model fails)
+    ↓
+Return JSON or the same completed payload as an SSE event
+    ↓
+Client generation hooks consume the recommendation
 ```
 
 ---
@@ -335,9 +281,11 @@ Client: TanStack Query caches result
 
 | Endpoint | Method | Purpose |
 |---|---|---|
-| `/api/weather` | GET | Current weather + 8-day forecast |
+| `/api/weather` | GET | Current weather plus today/tomorrow summaries |
 | `/api/recommender` | POST | Generate outfit combinations |
 | `/api/analyze` | POST | Analyze garment from image |
+| `/api/favorites` | GET | List the signed-in user's favorites |
+| `/api/garments/[id]/favorite` | PATCH | Set one garment's favorite state |
 
 [Full API reference →](./API.md)
 
@@ -353,9 +301,10 @@ Client: TanStack Query caches result
 
 ### IndexedDB (TanStack Query)
 
-- Persisted cache: `mindy-query-cache`
-- Auto-synced when back online
-- 24h expiration
+- Persisted cache: `mindy-query-cache` in IndexedDB
+- Cache buster: public build version; a new build discards stale client state
+- Entity `gcTime` is at least the 24h persister max age
+- Successful queries only; errors and mutations are not persisted
 
 ### Local Storage
 

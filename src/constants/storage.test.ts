@@ -2,11 +2,13 @@
 import { describe, expect, it } from "vitest";
 import {
   PERSISTED_CACHE_KEY,
+  COLUMNS,
   STORAGE_BUCKETS,
   SUPABASE_ANON_FALLBACK,
   SUPABASE_URL_FALLBACK,
   TABLES,
   THEME_STORAGE_KEY,
+  UPLOAD_NOTIFICATION_PROMPT_STORAGE_KEY,
   USER_ID_COLUMN,
 } from "./storage";
 
@@ -22,6 +24,11 @@ describe("storage constants", () => {
 
   it("exposes the owner column", () => {
     expect(USER_ID_COLUMN).toBe("user_id");
+    expect(COLUMNS).toEqual({
+      createdAt: "created_at",
+      garmentId: "garment_id",
+      isFavorite: "is_favorite",
+    });
   });
 
   it("exposes storage buckets", () => {
@@ -33,5 +40,8 @@ describe("storage constants", () => {
     expect(SUPABASE_ANON_FALLBACK).toBe("anon-placeholder");
     expect(THEME_STORAGE_KEY).toBe("mindy-theme-mode");
     expect(PERSISTED_CACHE_KEY).toBe("mindy-query-cache");
+    expect(UPLOAD_NOTIFICATION_PROMPT_STORAGE_KEY).toBe(
+      "mindy-upload-notification-prompted",
+    );
   });
 });

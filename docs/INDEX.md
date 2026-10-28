@@ -7,12 +7,13 @@ La documentación está organizadamente estructurada para que cada usuario pueda
 ```
 mindy-smart-closet/
 ├── README.md                           ← START HERE (project overview)
-├── Software Design Document (SDD).md   ← Technical specification (complete)
+├── .specs/
+│   └── Software Design Document (SDD) - App de Moda Inteligente.md
 │
 └── docs/
     ├── ARCHITECTURE.md                 ← System design & folder structure
     ├── REFACTOR.md                     ← Ongoing refactor: decisions + phase log
-    ├── API.md                          ← API reference (3 endpoints)
+    ├── API.md                          ← API reference (5 endpoints)
     ├── TESTING.md                      ← Testing strategy & execution
     ├── CONTRIBUTING.md                 ← How to contribute
     └── BACKLOG.md                      ← Única lista de trabajo pendiente
@@ -64,12 +65,14 @@ mindy-smart-closet/
 
 ### 🗓️ **Planning features?**
 1. **SDD** (30+ min)
-    - Estado implementado y decisiones técnicas
+   - [Open the SDD](../.specs/Software%20Design%20Document%20%28SDD%29%20-%20App%20de%20Moda%20Inteligente.md)
+   - Estado implementado y decisiones técnicas
 2. **BACKLOG.md** (10 min)
     - Trabajo pendiente y prioridades
 
 ### 🏗️ **Understanding the architecture?**
-1. **SDD.md** (30+ min)
+1. **SDD** (30+ min)
+   - [Open the SDD](../.specs/Software%20Design%20Document%20%28SDD%29%20-%20App%20de%20Moda%20Inteligente.md)
    - Complete technical specification
    - Database schema
    - Business rules

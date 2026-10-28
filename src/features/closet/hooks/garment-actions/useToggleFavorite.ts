@@ -2,8 +2,15 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { buildGarmentFavoriteUrl } from "@/constants/api";
 import { QUERY_KEYS } from "@/constants/query";
+import { COLUMNS } from "@/constants/storage";
 import { useNotificationStore } from "@/stores/useNotificationStore";
 import type { Garment } from "@/types/garment";
+import { ERROR_CODES } from "@/constants/errors";
+import { AppError } from "@/lib/errors";
+import {
+  GARMENT_CACHE_QUERY_KEYS,
+  invalidateGarmentCaches,
+} from "@/lib/garment/invalidateGarmentCaches";
 
 interface ToggleFavoriteVariables {
   garment: Garment;
@@ -11,14 +18,10 @@ interface ToggleFavoriteVariables {
 }
 
 interface FavoriteSnapshots {
-  garments: Garment[] | undefined;
-  favorites: Garment[] | undefined;
+  previousFavoriteState: boolean;
+  favorite: Garment | undefined;
+  favoriteIndex: number;
 }
-
-const FAVORITE_QUERY_KEYS = [
-  QUERY_KEYS.garments,
-  QUERY_KEYS.favorites,
-] as const;
 
 function updateFavoriteInList(
   garments: Garment[] | undefined,
@@ -30,7 +33,50 @@ function updateFavoriteInList(
   );
 }
 
-export function useToggleFavorite() {
+function restoreGarment(
+  current: Garment[] | undefined,
+  garmentId: string,
+  previousFavoriteState: boolean,
+): Garment[] | undefined {
+  if (current === undefined) {
+    return current;
+  }
+  return current.map((item) =>
+    item.garmentId === garmentId
+      ? { ...item, isFavorite: previousFavoriteState }
+      : item,
+  );
+}
+
+function restoreFavorite(
+  current: Garment[] | undefined,
+  garmentId: string,
+  previous: Garment | undefined,
+  previousIndex: number,
+  currentGarment: Garment | undefined,
+): Garment[] | undefined {
+  if (current === undefined) {
+    return current;
+  }
+  const withoutTarget = current.filter((item) => item.garmentId !== garmentId);
+  if (previous === undefined) {
+    return withoutTarget;
+  }
+  const cachedGarment = current.find((item) => item.garmentId === garmentId);
+  const restored = cachedGarment
+    ? { ...cachedGarment, isFavorite: previous.isFavorite }
+    : currentGarment
+      ? { ...currentGarment, isFavorite: previous.isFavorite }
+      : previous;
+  const index = Math.min(Math.max(previousIndex, 0), withoutTarget.length);
+  return [
+    ...withoutTarget.slice(0, index),
+    restored,
+    ...withoutTarget.slice(index),
+  ];
+}
+
+export function useToggleFavorite(garmentId: string) {
   const queryClient = useQueryClient();
   const t = useTranslations("Notifications");
 
@@ -40,28 +86,38 @@ export function useToggleFavorite() {
     ToggleFavoriteVariables,
     FavoriteSnapshots
   >({
+    // Per-garment scope keeps concurrent writes independent across the closet.
+    scope: { id: `toggle-favorite-${garmentId}` },
     mutationFn: async ({ garment, isFavorite }) => {
       const response = await fetch(buildGarmentFavoriteUrl(garment.garmentId), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ is_favorite: isFavorite }),
+        body: JSON.stringify({ [COLUMNS.isFavorite]: isFavorite }),
       });
 
       if (!response.ok) {
-        throw new Error("Could not update favorite");
+        throw new AppError(ERROR_CODES.FAVORITE_UPDATE_FAILED);
       }
     },
     onMutate: async ({ garment, isFavorite }) => {
       await Promise.all(
-        FAVORITE_QUERY_KEYS.map((queryKey) =>
+        GARMENT_CACHE_QUERY_KEYS.map((queryKey) =>
           queryClient.cancelQueries({ queryKey }),
         ),
       );
 
+      const garments = queryClient.getQueryData<Garment[]>(QUERY_KEYS.garments);
+      const favorites = queryClient.getQueryData<Garment[]>(QUERY_KEYS.favorites);
+      const currentGarment = garments?.find(
+        (item) => item.garmentId === garment.garmentId,
+      );
       const snapshots: FavoriteSnapshots = {
-        garments: queryClient.getQueryData<Garment[]>(QUERY_KEYS.garments),
-        favorites: queryClient.getQueryData<Garment[]>(QUERY_KEYS.favorites),
+        previousFavoriteState:
+          currentGarment?.isFavorite ?? garment.isFavorite ?? false,
+        favorite: favorites?.find((item) => item.garmentId === garment.garmentId),
+        favoriteIndex:
+          favorites?.findIndex((item) => item.garmentId === garment.garmentId) ?? -1,
       };
 
       queryClient.setQueryData<Garment[]>(QUERY_KEYS.garments, (current) =>
@@ -86,10 +142,29 @@ export function useToggleFavorite() {
 
       return snapshots;
     },
-    onError: (_error, _variables, snapshots) => {
+    onError: (_error, { garment }, snapshots) => {
       if (snapshots === undefined) return;
-      queryClient.setQueryData(QUERY_KEYS.garments, snapshots.garments);
-      queryClient.setQueryData(QUERY_KEYS.favorites, snapshots.favorites);
+      const currentGarment = queryClient
+        .getQueryData<Garment[]>(QUERY_KEYS.garments)
+        ?.find((item) => item.garmentId === garment.garmentId);
+      const restoredGarment = currentGarment === undefined
+        ? undefined
+        : {
+            ...currentGarment,
+            isFavorite: snapshots.previousFavoriteState,
+          };
+      queryClient.setQueryData<Garment[] | undefined>(QUERY_KEYS.garments, (current) =>
+        restoreGarment(current, garment.garmentId, snapshots.previousFavoriteState),
+      );
+      queryClient.setQueryData<Garment[] | undefined>(QUERY_KEYS.favorites, (current) =>
+        restoreFavorite(
+          current,
+          garment.garmentId,
+          snapshots.favorite,
+          snapshots.favoriteIndex,
+          restoredGarment,
+        ),
+      );
       useNotificationStore
         .getState()
         .addNotification("error", t("favoriteFailed"));
@@ -102,12 +177,6 @@ export function useToggleFavorite() {
           isFavorite ? t("addedToFavorites") : t("removedFromFavorites"),
         );
     },
-    onSettled: async () => {
-      await Promise.all(
-        FAVORITE_QUERY_KEYS.map((queryKey) =>
-          queryClient.invalidateQueries({ queryKey }),
-        ),
-      );
-    },
+    onSettled: () => invalidateGarmentCaches(queryClient),
   });
 }

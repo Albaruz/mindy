@@ -13,6 +13,14 @@ export const VISION_CONCURRENCY = 1;
 /** Automatic attempts after a transient item failure. */
 export const MAX_UPLOAD_RETRIES = 2;
 
+/** Milestones reported by the resumable upload pipeline. */
+export const UPLOAD_PROGRESS = {
+  validationStarted: 5,
+  analysisStarted: 25,
+  analysisComplete: 50,
+  savingStarted: 80,
+} as const;
+
 /** IndexedDB key used for resumable upload queue metadata. */
 export const UPLOAD_QUEUE_STORAGE_KEY = "mindy-upload-queue-v1";
 
