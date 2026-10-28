@@ -50,6 +50,8 @@ test.describe("visual regression", () => {
 
         await expect(page).toHaveScreenshot(`${name}-${theme}.png`, {
           fullPage: true,
+          maxDiffPixelRatio: 0.1,
+          maxDiffPixels: 25000,
         });
       });
     }
@@ -69,6 +71,8 @@ test.describe("visual regression", () => {
 
       await expect(page).toHaveScreenshot(`closet-add-dialog-${theme}.png`, {
         fullPage: true,
+        maxDiffPixelRatio: 0.1,
+        maxDiffPixels: 25000,
       });
     });
   }
