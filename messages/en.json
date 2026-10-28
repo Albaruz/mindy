@@ -261,7 +261,8 @@
     "empty": "No looks worn yet. Your history will appear here.",
     "unavailable": "Garments no longer available.",
     "planned": "Planned",
-    "garmentFallback": "Garment"
+    "garmentFallback": "Garment",
+    "garmentsStrip": "Garments in this look"
   },
   "Auth": {
     "title": "Match your clothes",

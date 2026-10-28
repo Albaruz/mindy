@@ -195,6 +195,7 @@ export function GarmentFormModal({
                     ref={imageInputRef}
                     type="file"
                     accept="image/*"
+                    aria-label={t("imageChooseNew")}
                     className={styles["garment-form-modal__file-input"]}
                     onChange={(event) => {
                       const file = event.target.files?.[0];

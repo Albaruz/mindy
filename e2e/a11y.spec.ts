@@ -5,6 +5,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { THEME_STORAGE_KEY } from "../src/constants/storage";
 import { hasSeededAuth, SEEDED_AUTH_HELP } from "./seeded-auth";
+import { mockCloset } from "./mock-closet";
 
 const ROUTES = [
   "/es/generator",
@@ -106,6 +107,7 @@ test.describe("accessibility", () => {
       page,
     }) => {
       await applyTheme(page, theme);
+      await mockCloset(page);
       await page.goto("/es/closet", { waitUntil: "networkidle" });
 
       const firstGarment = page.locator("article").first();
@@ -123,19 +125,27 @@ test.describe("accessibility", () => {
       await expect(editDialog).toBeHidden();
       await expect(editButton).toBeFocused();
 
-      const deleteButton = firstGarment.getByRole("button", {
-        name: /eliminar/i,
+      await editButton.click();
+      const deleteButton = page.getByRole("dialog").getByRole("button", {
+        name: /decir adiós/i,
       });
       await deleteButton.click();
       const confirmation = page.getByRole("alertdialog");
       await expect(confirmation).toBeVisible();
+      await page.evaluate(async () => {
+        await Promise.all(
+          document
+            .getAnimations()
+            .map((animation) => animation.finished.catch(() => undefined)),
+        );
+      });
       await expectNoAxeViolations(
         page,
         `in closet delete confirmation (${theme} theme)`,
       );
       await page.keyboard.press("Escape");
       await expect(confirmation).toBeHidden();
-      await expect(deleteButton).toBeFocused();
+      await expect(editButton).toBeFocused();
     });
 
   }

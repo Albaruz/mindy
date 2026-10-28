@@ -35,7 +35,11 @@ export function HistoryCard({ entry }: { entry: HistoryEntry }) {
         ) : null}
       </h3>
       {entry.garments.length > 0 ? (
-        <ul className={styles["history-card__strip"]}>
+        <ul
+          className={styles["history-card__strip"]}
+          tabIndex={0}
+          aria-label={t("garmentsStrip")}
+        >
           {entry.garments.map((garment) => (
             <li key={garment.garmentId} className={styles["history-card__thumb"]}>
               <GarmentImage

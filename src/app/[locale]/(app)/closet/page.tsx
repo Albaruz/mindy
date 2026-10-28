@@ -192,7 +192,7 @@ export default function ClosetPage() {
               </EmptyState>
             ) : (
               <MotionConfig reducedMotion="user">
-                <div className={styles.grid}>
+                <div className={styles.grid} data-testid="closet-grid">
                   <AnimatePresence>
                      {inventory.pagedGarments
                       .filter(

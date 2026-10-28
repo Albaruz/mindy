@@ -261,7 +261,8 @@
     "empty": "Aún no hay looks. Tu historial aparecerá aquí.",
     "unavailable": "Prendas ya no disponibles.",
     "planned": "Planificado",
-    "garmentFallback": "Prenda"
+    "garmentFallback": "Prenda",
+    "garmentsStrip": "Prendas de este look"
   },
   "Auth": {
     "title": "Combina tu ropa",

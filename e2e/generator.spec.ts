@@ -2,6 +2,7 @@
 // Runs when seeded auth exists (see e2e/auth.setup.ts); self-skips otherwise.
 import { expect, test, type Page } from "@playwright/test";
 import { hasSeededAuth, SEEDED_AUTH_HELP } from "./seeded-auth";
+import { mockCloset } from "./mock-closet";
 
 async function mockRecommender(page: Page, optionCount: number) {
   await page.route("**/api/recommender", async (route) => {
@@ -12,23 +13,29 @@ async function mockRecommender(page: Page, optionCount: number) {
       typeof garmentId === "string" ? [garmentId] : [],
     );
 
+    const options = Array.from({ length: optionCount }, (_, index) => ({
+      garmentIds,
+      reason: `Test look ${index + 1}`,
+      suitabilityRatio: 1,
+    }));
+    const stream = [
+      ...options.map((option) => ({ type: "preview", option })),
+      { type: "complete", payload: { options } },
+    ]
+      .map((event) => `data: ${JSON.stringify(event)}\n\n`)
+      .join("");
     await route.fulfill({
       status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        options: Array.from({ length: optionCount }, (_, index) => ({
-          garmentIds,
-          reason: `Test look ${index + 1}`,
-          suitabilityRatio: 1,
-        })),
-      }),
+      contentType: "text/event-stream",
+      body: stream,
     });
   });
 }
 
 test.describe("generator", () => {
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ page }) => {
     test.skip(!hasSeededAuth(), SEEDED_AUTH_HELP);
+    await mockCloset(page);
   });
 
   test("auto flow: select style then showcase appears", async ({ page }) => {

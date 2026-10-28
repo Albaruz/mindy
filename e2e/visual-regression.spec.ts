@@ -3,6 +3,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { THEME_STORAGE_KEY } from "../src/constants/storage";
 import { hasSeededAuth, SEEDED_AUTH_HELP } from "./seeded-auth";
+import { mockCloset } from "./mock-closet";
 
 const THEMES = ["light", "dark"] as const;
 const PAGE_CASES = [
@@ -35,8 +36,9 @@ async function expectPageReady(page: Page, name: (typeof PAGE_CASES)[number]["na
 }
 
 test.describe("visual regression", () => {
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ page }) => {
     test.skip(!hasSeededAuth(), SEEDED_AUTH_HELP);
+    await mockCloset(page);
   });
 
   for (const { name, route } of PAGE_CASES) {
