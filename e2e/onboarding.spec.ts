@@ -40,12 +40,7 @@ test.describe("onboarding wizard", () => {
 
     // Step 4: measurements + fit picker.
     await expect(page.locator("#chestCm")).toBeVisible();
-    await page
-      .getByRole("radiogroup")
-      .first()
-      .getByRole("radio")
-      .first()
-      .check({ force: true });
+    await page.locator('label:has(input[name="fit"])').first().click();
     await page.getByRole("button").last().click();
 
     // Step 5: colorimetry swatches (skin, eyes, jewelry).
