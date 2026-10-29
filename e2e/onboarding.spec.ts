@@ -59,8 +59,9 @@ test.describe("onboarding wizard", () => {
     await saveButton.click();
 
     // Success celebration with a CTA into the closet.
-    await expect(page.getByRole("img")).toBeVisible({ timeout: 15_000 });
-    await page.getByRole("button").last().click();
+    const closetButton = page.getByRole("button", { name: "Ver mi armario" });
+    await expect(closetButton).toBeVisible({ timeout: 15_000 });
+    await closetButton.click();
     await expect(page).toHaveURL(/\/es\/closet/);
   });
 });
