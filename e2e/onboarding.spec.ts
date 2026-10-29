@@ -40,12 +40,7 @@ test.describe("onboarding wizard", () => {
 
     // Step 4: measurements + fit picker.
     await expect(page.locator("#chestCm")).toBeVisible();
-    await page
-      .getByRole("radiogroup")
-      .first()
-      .getByRole("radio")
-      .first()
-      .check({ force: true });
+    await page.locator('label:has(input[name="fit"])').first().click();
     await page.getByRole("button").last().click();
 
     // Step 5: colorimetry swatches (skin, eyes, jewelry).
@@ -64,8 +59,9 @@ test.describe("onboarding wizard", () => {
     await saveButton.click();
 
     // Success celebration with a CTA into the closet.
-    await expect(page.getByRole("img")).toBeVisible({ timeout: 15_000 });
-    await page.getByRole("button").last().click();
+    const closetButton = page.getByRole("button", { name: "Ver mi armario" });
+    await expect(closetButton).toBeVisible({ timeout: 15_000 });
+    await closetButton.click();
     await expect(page).toHaveURL(/\/es\/closet/);
   });
 });
